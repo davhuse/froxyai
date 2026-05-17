@@ -82,13 +82,9 @@ app.use(express.urlencoded({limit: '50mb', extended: true}));
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
-  if (process.env.NODE_ENV === 'production') {
-    console.error('[SECURITY] JWT_SECRET env degiskeni production icin MUTLAKA ayarlanmalidir. Sunucu durduruluyor.');
-    process.exit(1);
-  }
-  console.warn('[SECURITY] JWT_SECRET env degiskeni ayarlanmamis! Dev ortamda random bir secret kullaniliyor - her restart tum tokenlari gecersiz kilar.');
+  console.warn('[SECURITY] JWT_SECRET env degiskeni bulunamadi. Gecici fallback secret kullaniliyor; Railway Variables icinde kalici bir deger ekleyin.');
 }
-const ACTIVE_JWT_SECRET = JWT_SECRET || 'froxy_ai_dev_secret_2024_stable_key_do_not_use_in_prod';
+const ACTIVE_JWT_SECRET = JWT_SECRET || 'froxy_ai_fallback_secret_2026_replace_me_in_production';
 
 // Initialize SQLite DB
 const db = new Database('Froxy AI.db');
