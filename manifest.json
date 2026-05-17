@@ -1,0 +1,29 @@
+{
+  "name": "Froxy AI - AI Platform",
+  "short_name": "Froxy AI",
+  "description": "Froxy AI - Türkiye'nin en gelişmiş AI sohbet platformu. 100+ model, görsel üretim, sesli yanıt.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0F1A",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "lang": "tr",
+  "dir": "ltr"
+}

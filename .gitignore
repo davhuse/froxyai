@@ -1,0 +1,79 @@
+# Dependencies
+node_modules/
+
+# Editor / tool folders
+.kiro/
+.vscode/
+
+# Database
+*.db
+*.db-wal
+*.db-shm
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.production
+
+# Secret key dumps
+.env.keys
+recovered_key.txt
+extract-keys.js
+
+# Backups & deploys
+backup_*/
+deploy_static_*/
+ApiMarket_backup*/
+ApiMarket_clean*/
+backup_before_*/
+backup_after_*/
+backup_current_*/
+backup_final_*/
+backup_polished_*/
+backup_working_*/
+backup_v*/
+backup_BROKEN*/
+deploy_clean_*/
+marketplace_backup_*/
+
+# Generated files
+tts_out/
+generated/
+*.pre_security_fix
+
+# Logs
+*.log
+
+# Other projects / archives inside workspace
+epin/
+_epin/
+_*/
+*.bak*
+*.old
+*.tmp
+auth-robot-*.png
+*.mp3
+*.ps1
+*.py
+*.php
+check_*.js
+debug-*.txt
+lh-report.json
+model_*results*.json
+scan_output.txt
+new_tabs_injection.html
+old_auth.txt
+paste_session.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temp/scratch files
+*.fixed
+*.recovered
+test-results/
+lh-chrome-profile/
+playwright-report/

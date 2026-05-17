@@ -1,0 +1,49 @@
+Options -Indexes
+
+# === KARAKTER KODLAMA: UTF-8 ZORLA ===
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .html .htm .css .js .json .svg .txt
+<IfModule mod_mime.c>
+  AddType "text/html; charset=UTF-8" .html .htm
+  AddType "text/css; charset=UTF-8" .css
+  AddType "application/javascript; charset=UTF-8" .js
+  AddType "application/json; charset=UTF-8" .json
+  AddType "image/svg+xml; charset=UTF-8" .svg
+</IfModule>
+
+RewriteEngine On
+
+# Proxy /api/* requests to the local Node server through PHP on shared hosting.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ api.php?path=$1 [QSA,L]
+
+<FilesMatch "^(server|app|build)\.js$|^aipaketim\.db(-shm|-wal)?$|^package(-lock)?\.json$|^\.env(\..*)?$|^README_DEPLOY\.txt$">
+  Require all denied
+</FilesMatch>
+
+# Force no-cache for HTML
+<FilesMatch "\.(html|htm)$">
+  Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+  Header set Pragma "no-cache"
+  Header set Expires "Thu, 01 Jan 1970 00:00:00 GMT"
+  Header set Content-Type "text/html; charset=UTF-8"
+</FilesMatch>
+
+# LiteSpeed Cache bypass
+<IfModule LiteSpeed>
+  CacheLookup off
+</IfModule>
+
+# Force fresh JS/CSS (change version query in HTML to bust)
+<FilesMatch "\.(js|css)$">
+  Header set Cache-Control "public, max-age=0, must-revalidate"
+</FilesMatch>
+
+# Force UTF-8 for JS and CSS files (Turkish character fix)
+<FilesMatch "\.js$">
+  Header set Content-Type "application/javascript; charset=UTF-8"
+</FilesMatch>
+<FilesMatch "\.css$">
+  Header set Content-Type "text/css; charset=UTF-8"
+</FilesMatch>
