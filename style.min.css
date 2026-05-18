@@ -19300,3 +19300,347 @@ body.theme-light .prompt-fav-btn,body.theme-light .persona-fav-btn,body.theme-li
     scroll-behavior:auto!important;
   }
 }
+
+/* v190 — mobile stable mode. Real phones were suffering from stacked legacy
+   animation layers. On mobile we keep the product calm: no decorative infinite
+   motion, stable visual viewport sizing, and only small interaction feedback. */
+@media(max-width:760px){
+  :root{
+    --vvh:100svh;
+    --real-vvh:var(--vvh);
+    --mobile-nav-h:68px;
+    --mobile-composer-h:126px;
+  }
+  html.mobile-stable-motion,
+  body.mobile-stable-motion{
+    height:auto!important;
+    min-height:var(--real-vvh)!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    scroll-behavior:auto!important;
+  }
+  body.mobile-stable-motion:not(.sidebar-open) *{
+    scroll-behavior:auto!important;
+  }
+  body.mobile-stable-motion *{
+    transition-duration:.16s!important;
+  }
+  body.mobile-stable-motion *,
+  body.mobile-stable-motion *::before,
+  body.mobile-stable-motion *::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+  }
+  body.mobile-stable-motion .typing-indicator .dot,
+  body.mobile-stable-motion .typing-indicator span,
+  body.mobile-stable-motion .chat-typing span{
+    animation:typingDot 1.35s ease-in-out infinite!important;
+  }
+  body.mobile-stable-motion .send-spinner,
+  body.mobile-stable-motion .loader-ring,
+  body.mobile-stable-motion .img-loading-spinner{
+    animation:v188Spin 1.15s linear infinite!important;
+  }
+  body.mobile-stable-motion #v-chat,
+  body.mobile-stable-motion #v-chat .ai-chat-app,
+  body.mobile-stable-motion #v-chat .panel-layout,
+  body.mobile-stable-motion #v-chat .panel-main,
+  body.mobile-stable-motion #v-chat .ai-chat-main{
+    height:var(--real-vvh)!important;
+    min-height:var(--real-vvh)!important;
+    max-height:var(--real-vvh)!important;
+    overflow:hidden!important;
+  }
+  body.mobile-stable-motion #v-chat .panel-main > .ptab.on,
+  body.mobile-stable-motion #v-chat .ai-chat-main > .ptab.on{
+    height:var(--real-vvh)!important;
+    min-height:0!important;
+    max-height:var(--real-vvh)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
+    touch-action:pan-y!important;
+    padding:76px 12px calc(var(--mobile-nav-h) + 24px + env(safe-area-inset-bottom))!important;
+  }
+  body.mobile-stable-motion #ptab-chat.ptab.on{
+    display:flex!important;
+    padding:74px 10px calc(var(--mobile-nav-h) + var(--mobile-composer-h) + 20px + env(safe-area-inset-bottom))!important;
+  }
+  body.mobile-stable-motion .ai-chat-topbar{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    right:0!important;
+    height:62px!important;
+    min-height:62px!important;
+    z-index:24500!important;
+    padding:0 10px!important;
+    background:rgba(8,12,24,.96)!important;
+    border-bottom:1px solid rgba(148,163,184,.16)!important;
+    box-shadow:0 12px 34px rgba(0,0,0,.24)!important;
+  }
+  body.mobile-stable-motion .ai-chat-titleblock{
+    gap:7px!important;
+    flex-wrap:wrap!important;
+    row-gap:2px!important;
+  }
+  body.mobile-stable-motion .ai-chat-eyebrow{
+    font-size:9px!important;
+    line-height:1!important;
+  }
+  body.mobile-stable-motion .ai-chat-titleblock strong{
+    font-size:14px!important;
+    line-height:1.05!important;
+  }
+  body.mobile-stable-motion .mobile-credit-chip{
+    display:inline-flex!important;
+    align-items:center!important;
+    height:20px!important;
+    padding:0 8px!important;
+    border-radius:999px!important;
+    background:rgba(124,58,237,.18)!important;
+    border:1px solid rgba(167,139,250,.22)!important;
+    color:#dbeafe!important;
+    font-size:10px!important;
+    font-weight:900!important;
+    letter-spacing:.01em!important;
+  }
+  body.mobile-stable-motion #ptab-chat .chat-quota.credit-pill-v188,
+  body.mobile-stable-motion #ptab-chat .chat-quota.credit-pill-v189{
+    display:none!important;
+  }
+  body.mobile-stable-motion .ai-top-chip{
+    height:38px!important;
+    max-width:132px!important;
+    padding:0 10px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    align-items:flex-start!important;
+    line-height:1.02!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  body.mobile-stable-motion .ai-top-chip small{
+    margin-left:0!important;
+    font-size:10px!important;
+  }
+  body.mobile-stable-motion #ptab-chat .ai-chat-canvas{
+    display:flex!important;
+    flex-direction:column!important;
+    min-height:100%!important;
+    height:auto!important;
+    overflow:visible!important;
+    background:
+      linear-gradient(rgba(99,102,241,.045) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(99,102,241,.045) 1px,transparent 1px),
+      radial-gradient(circle at 50% 18%,rgba(124,58,237,.20),transparent 36%),
+      #05070b!important;
+    background-size:42px 42px,42px 42px,auto,auto!important;
+  }
+  body.mobile-stable-motion #ptab-chat .chat-msgs,
+  body.mobile-stable-motion #chat-msgs{
+    min-height:0!important;
+    max-height:none!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding:0 0 12px!important;
+  }
+  body.mobile-stable-motion .quark-welcome,
+  body.mobile-stable-motion .chat-welcome,
+  body.mobile-stable-motion .ai-empty-state{
+    margin:10px auto 18px!important;
+    padding:22px 14px!important;
+    max-width:348px!important;
+    border-radius:24px!important;
+    background:linear-gradient(180deg,rgba(15,23,42,.58),rgba(2,6,23,.38))!important;
+    box-shadow:none!important;
+  }
+  body.mobile-stable-motion .quark-welcome::before,
+  body.mobile-stable-motion .quark-welcome::after,
+  body.mobile-stable-motion .ai-empty-state::before,
+  body.mobile-stable-motion .chat-fx-layer,
+  body.mobile-stable-motion .chat-fx-particle,
+  body.mobile-stable-motion .chat-fx-orb{
+    display:none!important;
+  }
+  body.mobile-stable-motion .quark-orbit,
+  body.mobile-stable-motion .chat-welcome img,
+  body.mobile-stable-motion .ai-empty-state img{
+    width:72px!important;
+    height:72px!important;
+    margin:0 auto 18px!important;
+    float:none!important;
+  }
+  body.mobile-stable-motion .quark-kicker,
+  body.mobile-stable-motion .chat-welcome span,
+  body.mobile-stable-motion .ai-empty-state span{
+    font-size:11px!important;
+    letter-spacing:.12em!important;
+  }
+  body.mobile-stable-motion .quark-welcome h3,
+  body.mobile-stable-motion .chat-welcome h3,
+  body.mobile-stable-motion .ai-empty-state h3{
+    font-size:38px!important;
+    line-height:1.06!important;
+    margin:10px auto 12px!important;
+    max-width:300px!important;
+  }
+  body.mobile-stable-motion .quark-sub,
+  body.mobile-stable-motion .chat-welcome p,
+  body.mobile-stable-motion .ai-empty-state p{
+    font-size:15px!important;
+    line-height:1.55!important;
+    max-width:318px!important;
+    margin-inline:auto!important;
+  }
+  body.mobile-stable-motion .quark-prompt-grid{
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    margin-top:14px!important;
+  }
+  body.mobile-stable-motion #ptab-chat .ai-composer-zone,
+  body.mobile-stable-motion #ptab-chat .chat-input-area.ai-composer-zone,
+  body.mobile-stable-motion #ptab-chat .chat-input-area{
+    position:fixed!important;
+    left:10px!important;
+    right:10px!important;
+    bottom:calc(var(--mobile-nav-h) + 18px + env(safe-area-inset-bottom))!important;
+    z-index:24000!important;
+    width:auto!important;
+    max-width:none!important;
+    padding:0!important;
+    background:transparent!important;
+  }
+  body.mobile-stable-motion #ptab-chat .ai-smartbar{
+    max-width:100%!important;
+    margin:0 0 8px!important;
+    padding:0 2px 2px!important;
+    overflow-x:auto!important;
+  }
+  body.mobile-stable-motion #ptab-chat .ai-smartbar .chat-action-pill{
+    height:30px!important;
+    font-size:10.5px!important;
+    padding:0 10px!important;
+  }
+  body.mobile-stable-motion #ptab-chat .ai-composer{
+    min-height:64px!important;
+    max-height:110px!important;
+    border-radius:21px!important;
+    background:rgba(15,23,42,.94)!important;
+  }
+  body.mobile-stable-motion #ptab-chat #chat-in{
+    min-height:42px!important;
+    max-height:82px!important;
+    font-size:15px!important;
+  }
+  body.mobile-stable-motion .mobile-app-nav{
+    position:fixed!important;
+    left:10px!important;
+    right:10px!important;
+    bottom:calc(10px + env(safe-area-inset-bottom))!important;
+    height:58px!important;
+    min-height:58px!important;
+    padding:5px!important;
+    z-index:26000!important;
+    border-radius:20px!important;
+  }
+  body.mobile-stable-motion .mobile-app-nav-btn{
+    height:48px!important;
+    min-width:0!important;
+    border-radius:15px!important;
+  }
+  body.mobile-stable-motion .mobile-app-nav-btn span{
+    font-size:9px!important;
+  }
+  body.mobile-stable-motion #ptab-agents .agent-card-v106,
+  body.mobile-stable-motion #ptab-prompts .prompt-card,
+  body.mobile-stable-motion #ptab-tools .ai-tool-card{
+    transform:none!important;
+    box-shadow:0 14px 34px rgba(0,0,0,.20)!important;
+  }
+  body.mobile-stable-motion #ptab-agents .agent-card-v106:hover,
+  body.mobile-stable-motion #ptab-prompts .prompt-card:hover,
+  body.mobile-stable-motion #ptab-tools .ai-tool-card:hover{
+    transform:none!important;
+  }
+  body.mobile-stable-motion .card-pressed-v189,
+  body.mobile-stable-motion .tool-card-pressed{
+    transform:scale(.985)!important;
+  }
+  body.mobile-stable-motion .auth-robot,
+  body.mobile-stable-motion .auth-robot.r1,
+  body.mobile-stable-motion .auth-robot.r2,
+  body.mobile-stable-motion .auth-robot.r3,
+  body.mobile-stable-motion [class*="orbit"],
+  body.mobile-stable-motion [class*="Orbit"],
+  body.mobile-stable-motion [class*="particle"],
+  body.mobile-stable-motion [class*="Particle"],
+  body.mobile-stable-motion [class*="pulse"],
+  body.mobile-stable-motion [class*="Pulse"],
+  body.mobile-stable-motion [class*="float"],
+  body.mobile-stable-motion [class*="Float"],
+  body.mobile-stable-motion [class*="spin"],
+  body.mobile-stable-motion [class*="Spin"],
+  body.mobile-stable-motion [class*="shine"],
+  body.mobile-stable-motion [class*="Shine"],
+  body.mobile-stable-motion [class*="sheen"],
+  body.mobile-stable-motion [class*="Sheen"]{
+    animation:none!important;
+  }
+  body.mobile-stable-motion .typing-indicator,
+  body.mobile-stable-motion .typing-indicator *,
+  body.mobile-stable-motion .chat-typing,
+  body.mobile-stable-motion .chat-typing *,
+  body.mobile-stable-motion .send-spinner,
+  body.mobile-stable-motion .loader-ring,
+  body.mobile-stable-motion .img-loading-spinner{
+    animation-duration:revert!important;
+    animation-iteration-count:revert!important;
+  }
+  body.mobile-stable-motion .typing-indicator .dot,
+  body.mobile-stable-motion .typing-indicator span,
+  body.mobile-stable-motion .chat-typing span{
+    animation:typingDot 1.35s ease-in-out infinite!important;
+  }
+  body.mobile-stable-motion .send-spinner,
+  body.mobile-stable-motion .loader-ring,
+  body.mobile-stable-motion .img-loading-spinner{
+    animation:v188Spin 1.15s linear infinite!important;
+  }
+  body.mobile-stable-motion .ai-send-btn,
+  body.mobile-stable-motion #ptab-chat .ai-send-btn,
+  body.mobile-stable-motion #ptab-rag .kb-flow-card,
+  body.mobile-stable-motion #ptab-rag .kb-flow-core,
+  body.mobile-stable-motion #ptab-rag .live-bars i,
+  body.mobile-stable-motion #ptab-support .sup-radar *,
+  body.mobile-stable-motion #ptab-support .sup-radar::before,
+  body.mobile-stable-motion #ptab-support .sup-radar::after,
+  body.mobile-stable-motion #ptab-agents .agents-network,
+  body.mobile-stable-motion #ptab-tools .tools-lab-flow i,
+  body.mobile-stable-motion #ptab-tools .tools-lab-bars span,
+  body.mobile-stable-motion #ptab-tools .ai-tools-lab *,
+  body.mobile-stable-motion #ptab-tools .ai-tools-orbit *,
+  body.mobile-stable-motion #ptab-agents .agent-icon,
+  body.mobile-stable-motion #ptab-agents .agent-icon-svg,
+  body.mobile-stable-motion #ptab-store .store-chart,
+  body.mobile-stable-motion #ptab-store .store-chart *,
+  body.mobile-stable-motion #ptab-store .store-ribbon,
+  body.mobile-stable-motion #v-chat i,
+  body.mobile-stable-motion i,
+  body.mobile-stable-motion .kb-flow-card,
+  body.mobile-stable-motion .kb-flow-core,
+  body.mobile-stable-motion .live-bars i,
+  body.mobile-stable-motion .sup-radar *,
+  body.mobile-stable-motion .sup-radar::before,
+  body.mobile-stable-motion .sup-radar::after,
+  body.mobile-stable-motion .agents-network,
+  body.mobile-stable-motion .tools-lab-flow i,
+  body.mobile-stable-motion .tools-lab-bars span,
+  body.mobile-stable-motion .ai-tools-lab *,
+  body.mobile-stable-motion .ai-tools-orbit *{
+    animation:none!important;
+  }
+}
