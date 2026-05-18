@@ -18928,3 +18928,375 @@ body.theme-light .prompt-fav-btn,body.theme-light .persona-fav-btn,body.theme-li
   }
   #ptab-tools .ai-tools-page::before{height:72px;border-radius:20px;margin-bottom:12px}
 }
+
+/* v189 — mobile scroll, calmer motion and richer cards */
+:root{
+  --motion-fast:.18s;
+  --motion-base:.38s;
+  --motion-slow:1.9s;
+  --mobile-nav-h:64px;
+  --mobile-composer-h:154px;
+}
+.typing-indicator .dot,
+.typing-indicator.compact span,
+.chat-typing span{
+  animation-duration:1.45s!important;
+}
+.persona-icon-3d,
+.agent-icon,
+.agent-icon-svg,
+.prompt-card .persona-icon-3d,
+.ai-tool-card .tool-card-top span{
+  animation-duration:4.8s!important;
+}
+#ptab-agents .agent-card-v106,
+#ptab-prompts .prompt-card,
+#ptab-tools .ai-tool-card{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(circle at 16% 12%,color-mix(in srgb,var(--tool-accent,var(--agent-accent,var(--accent))) 20%,transparent),transparent 36%),
+    linear-gradient(135deg,rgba(15,23,42,.88),rgba(2,6,23,.70))!important;
+  border:1px solid color-mix(in srgb,var(--tool-accent,var(--agent-accent,var(--accent))) 38%,rgba(148,163,184,.15))!important;
+  box-shadow:0 18px 48px rgba(0,0,0,.22)!important;
+  transform:translateZ(0)!important;
+  transition:transform var(--motion-base) ease,border-color var(--motion-base) ease,box-shadow var(--motion-base) ease!important;
+}
+#ptab-prompts .prompt-card{
+  min-height:204px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  padding:28px 22px 22px!important;
+}
+#ptab-agents .agent-card-v106::before,
+#ptab-prompts .prompt-card::before,
+#ptab-tools .ai-tool-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(120deg,transparent 0 36%,rgba(255,255,255,.10) 48%,transparent 60% 100%);
+  transform:translateX(-120%);
+  transition:transform .7s ease;
+}
+#ptab-agents .agent-card-v106::after,
+#ptab-prompts .prompt-card::after,
+#ptab-tools .ai-tool-card::after{
+  content:"";
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:14px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--tool-accent,var(--agent-accent,var(--accent))) 70%,transparent),transparent);
+  opacity:.55;
+}
+#ptab-agents .agent-card-v106:hover,
+#ptab-prompts .prompt-card:hover,
+#ptab-tools .ai-tool-card:hover{
+  transform:translateY(-5px) scale(1.01)!important;
+  border-color:color-mix(in srgb,var(--tool-accent,var(--agent-accent,var(--accent))) 70%,rgba(255,255,255,.18))!important;
+  box-shadow:0 28px 70px color-mix(in srgb,var(--tool-accent,var(--agent-accent,var(--accent))) 20%,rgba(0,0,0,.18))!important;
+}
+#ptab-agents .agent-card-v106:hover::before,
+#ptab-prompts .prompt-card:hover::before,
+#ptab-tools .ai-tool-card:hover::before,
+.card-pressed-v189::before,
+.tool-card-pressed::before{
+  transform:translateX(120%)!important;
+}
+.card-pressed-v189,
+.tool-card-pressed{
+  transform:translateY(-1px) scale(.985)!important;
+}
+#ptab-prompts .prompt-card .persona-icon-3d,
+#ptab-tools .ai-tool-card .tool-card-top span,
+#ptab-agents .agent-card-v106 .agent-icon{
+  position:relative!important;
+  box-shadow:0 18px 42px color-mix(in srgb,var(--tool-accent,var(--agent-accent,var(--accent))) 26%,transparent)!important;
+}
+#ptab-prompts .prompt-card .persona-icon-3d::after,
+#ptab-tools .ai-tool-card .tool-card-top span::after,
+#ptab-agents .agent-card-v106 .agent-icon::after{
+  content:"";
+  position:absolute;
+  inset:-9px;
+  border-radius:inherit;
+  border:1px solid color-mix(in srgb,var(--tool-accent,var(--agent-accent,var(--accent))) 42%,transparent);
+  opacity:.45;
+  animation:v189IconPulse var(--motion-slow) ease-in-out infinite;
+}
+.prompt-fav-btn,
+.persona-fav-btn,
+#ptab-agents .agent-fav-btn{
+  top:14px!important;
+  right:14px!important;
+  width:36px!important;
+  height:36px!important;
+  border-radius:15px!important;
+  background:rgba(15,23,42,.78)!important;
+  border-color:rgba(148,163,184,.22)!important;
+  color:#94a3b8!important;
+}
+#ptab-agents .agent-card-v106 .agent-top{
+  padding-right:46px!important;
+}
+.prompt-fav-btn.on,
+.persona-fav-btn.on,
+#ptab-agents .agent-fav-btn.on{
+  color:#facc15!important;
+  background:linear-gradient(135deg,rgba(250,204,21,.18),rgba(15,23,42,.78))!important;
+  box-shadow:0 12px 34px rgba(250,204,21,.18),0 0 0 1px rgba(250,204,21,.22) inset!important;
+}
+#ptab-tools .section-title{
+  max-width:1120px!important;
+  margin:8px auto 18px!important;
+  padding:16px 18px!important;
+  border-radius:20px!important;
+  background:linear-gradient(135deg,rgba(15,23,42,.72),rgba(2,6,23,.44))!important;
+  border:1px solid rgba(148,163,184,.14)!important;
+  box-shadow:0 16px 44px rgba(0,0,0,.18)!important;
+}
+#ptab-tools .section-title h3{margin:0 0 4px!important;font-size:18px!important}
+#ptab-tools .section-title p{margin:0!important;color:var(--text2)!important;font-size:13px!important}
+#ptab-tools .ai-tool-card{
+  min-height:210px!important;
+  padding:22px!important;
+}
+#ptab-tools .tool-card-running{
+  pointer-events:none;
+}
+#ptab-tools .tool-card-running::before{
+  transform:translateX(120%)!important;
+  transition-duration:.9s!important;
+}
+#ptab-tools .tool-card-running .tool-card-top span{
+  animation:v189ToolRun .75s ease-in-out infinite!important;
+}
+#ptab-chat .chat-quota.credit-pill-v188.credit-pill-v189{
+  left:clamp(18px,3vw,58px)!important;
+  bottom:112px!important;
+  min-width:142px!important;
+  padding:10px 13px!important;
+  background:linear-gradient(135deg,rgba(15,23,42,.70),color-mix(in srgb,var(--accent) 16%,rgba(15,23,42,.72)))!important;
+}
+#ptab-chat .chat-quota.credit-pill-v188.credit-pill-v189::after{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius:inherit;
+  border:1px solid color-mix(in srgb,var(--accent2) 36%,transparent);
+  opacity:.45;
+  pointer-events:none;
+}
+@keyframes v189IconPulse{0%,100%{transform:scale(.92);opacity:.22}50%{transform:scale(1.12);opacity:.56}}
+@keyframes v189ToolRun{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(4deg)}}
+@media(max-width:760px){
+  html,body{
+    height:auto!important;
+    min-height:100%!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    overscroll-behavior-y:auto!important;
+  }
+  body.sidebar-open{
+    overflow:hidden!important;
+  }
+  #v-chat{
+    position:relative!important;
+    inset:auto!important;
+    width:100vw!important;
+    min-height:100dvh!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:hidden!important;
+  }
+  #v-chat .panel-layout{
+    min-height:100dvh!important;
+    height:100dvh!important;
+    overflow:hidden!important;
+  }
+  #v-chat .panel-main,
+  #v-chat .ai-chat-main{
+    position:relative!important;
+    width:100%!important;
+    min-width:0!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    overflow:hidden!important;
+    padding-bottom:0!important;
+  }
+  #v-chat .ptab.on{
+    height:100dvh!important;
+    max-height:100dvh!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
+    padding:72px 12px calc(var(--mobile-nav-h) + 22px + env(safe-area-inset-bottom))!important;
+  }
+  #ptab-chat.ptab.on{
+    padding:72px 10px calc(var(--mobile-nav-h) + var(--mobile-composer-h) + 20px + env(safe-area-inset-bottom))!important;
+  }
+  #ptab-chat .ai-chat-canvas{
+    min-height:100%!important;
+    height:auto!important;
+    overflow:visible!important;
+    padding:0!important;
+  }
+  #ptab-chat .chat-msgs,
+  #chat-msgs{
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding:0 0 18px!important;
+  }
+  #ptab-chat .chat-input-area.ai-composer-zone,
+  #ptab-chat .ai-composer-zone,
+  #ptab-chat .chat-input-area{
+    position:fixed!important;
+    left:10px!important;
+    right:10px!important;
+    bottom:calc(var(--mobile-nav-h) + 10px + env(safe-area-inset-bottom))!important;
+    z-index:24000!important;
+    width:auto!important;
+    max-width:none!important;
+    padding:0!important;
+    background:transparent!important;
+  }
+  #ptab-chat .ai-composer{
+    min-height:58px!important;
+    max-height:132px!important;
+  }
+  #ptab-chat .chat-welcome{
+    margin:6px auto 18px!important;
+    padding:18px 12px!important;
+  }
+  #ptab-chat .chat-welcome h3{
+    font-size:38px!important;
+    line-height:1.08!important;
+    max-width:330px!important;
+    margin-inline:auto!important;
+  }
+  #ptab-chat .chat-welcome p{
+    max-width:310px!important;
+    margin-inline:auto!important;
+  }
+  #ptab-chat .chat-quota.credit-pill-v188.credit-pill-v189{
+    position:fixed!important;
+    left:14px!important;
+    bottom:calc(var(--mobile-nav-h) + var(--mobile-composer-h) + 18px + env(safe-area-inset-bottom))!important;
+    z-index:23000!important;
+    min-width:0!important;
+    width:auto!important;
+    max-width:112px!important;
+    padding:7px 10px!important;
+    gap:7px!important;
+    pointer-events:none!important;
+  }
+  #ptab-chat .chat-quota.credit-pill-v188.credit-pill-v189 span{
+    display:inline!important;
+    font-size:0!important;
+  }
+  #ptab-chat .chat-quota.credit-pill-v188.credit-pill-v189 span::before{
+    content:"Kredi";
+    font-size:10px!important;
+    letter-spacing:.04em!important;
+  }
+  #ptab-chat .chat-quota.credit-pill-v188.credit-pill-v189 strong{
+    font-size:13px!important;
+  }
+  .mobile-app-nav{
+    height:var(--mobile-nav-h)!important;
+    min-height:var(--mobile-nav-h)!important;
+    left:8px!important;
+    right:8px!important;
+    bottom:calc(6px + env(safe-area-inset-bottom))!important;
+    z-index:26000!important;
+  }
+  #ptab-agents .agent-card-v106,
+  #ptab-prompts .prompt-card,
+  #ptab-tools .ai-tool-card{
+    border-radius:20px!important;
+    min-height:172px!important;
+    padding:18px!important;
+    animation-duration:.36s!important;
+  }
+  #ptab-prompts #prompt-grid,
+  #ptab-tools .ai-tools-grid,
+  #ptab-agents #agents-grid{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  #ptab-tools .section-title{
+    padding:13px 14px!important;
+    margin:0 0 12px!important;
+  }
+  #ptab-tools .section-title h3{font-size:16px!important}
+  #ptab-tools .section-title p{font-size:12px!important}
+  .prompt-fav-btn,
+  .persona-fav-btn,
+  #ptab-agents .agent-fav-btn{
+    width:34px!important;
+    height:34px!important;
+    top:11px!important;
+    right:11px!important;
+  }
+  #ptab-agents .agent-card-v106 .agent-top{padding-right:40px!important}
+  .ai-tools-lab,
+  .ai-tools-orbit,
+  #ptab-tools .ai-tools-page::before{
+    animation-duration:7s!important;
+  }
+}
+@media(max-width:420px){
+  #ptab-chat .chat-welcome h3{font-size:34px!important}
+  #ptab-chat .ai-smartbar .chat-action-pill{
+    height:29px!important;
+    padding:0 10px!important;
+    font-size:10.5px!important;
+  }
+}
+/* v189.1 — final mobile scroll authority. Older mobile rebuild blocks used a
+   more specific selector with overflow:visible; keep this last and stronger. */
+@media(max-width:760px){
+  #v-chat .panel-main > .ptab.on:not(#ptab-chat),
+  #v-chat .ai-chat-main > .ptab.on:not(#ptab-chat){
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
+    touch-action:pan-y!important;
+  }
+  #ptab-chat.ptab.on{
+    padding-top:104px!important;
+  }
+  #ptab-chat .chat-quota.credit-pill-v188.credit-pill-v189{
+    top:66px!important;
+    bottom:auto!important;
+    left:12px!important;
+    max-width:118px!important;
+    transform:none!important;
+  }
+  .mobile-app-nav{
+    display:grid!important;
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+    scroll-behavior:auto!important;
+  }
+}

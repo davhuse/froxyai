@@ -2485,6 +2485,7 @@ function updateQuota(){
   const chatQuota=document.getElementById('chat-quota');
   if(chatQuota){
     chatQuota.classList.add('credit-pill-v188');
+    chatQuota.classList.add('credit-pill-v189');
     chatQuota.innerHTML='<span>Kalan kredi</span><strong>'+rem.toLocaleString('tr-TR')+'</strong>';
   }
   updateImageCreditSurface();
@@ -6919,6 +6920,10 @@ function getAIToolTopic(){
   return (document.getElementById('ai-tool-topic')?.value||'').trim();
 }
 function runAIToolPrompt(tool,topic){
+  if(window.__activeToolCard){
+    window.__activeToolCard.classList.add('tool-card-running');
+    setTimeout(()=>window.__activeToolCard&&window.__activeToolCard.classList.remove('tool-card-running'),900);
+  }
   const finalPrompt=tool.prompt+(topic||'');
   panelTab('chat');
   if(typeof newChat==='function')newChat();
@@ -6951,6 +6956,19 @@ useAITool=function(id){
   }
   runAIToolPrompt(tool,topic);
 };
+document.addEventListener('click',function(ev){
+  const toolCard=ev.target.closest&&ev.target.closest('.ai-tool-card');
+  if(toolCard){
+    window.__activeToolCard=toolCard;
+    toolCard.classList.add('tool-card-pressed');
+    setTimeout(()=>toolCard.classList.remove('tool-card-pressed'),360);
+  }
+  const richCard=ev.target.closest&&ev.target.closest('.prompt-card,.agent-card-v106');
+  if(richCard){
+    richCard.classList.add('card-pressed-v189');
+    setTimeout(()=>richCard.classList.remove('card-pressed-v189'),300);
+  }
+},true);
 copyAIToolPrompt=function(id){
   const tool=aiToolById(id);if(!tool)return;
   const text=tool.prompt+(getAIToolTopic()||'');
