@@ -17990,3 +17990,173 @@ body.theme-light .sp4-live-card span{color:#64748b}
     display:none!important;
   }
 }
+
+/* v185 — plan kilidi yerine kredi erişimi + ajan favorileri + eski sade auth robotları */
+#ptab-agents .agents-toolbar-actions{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:10px!important;
+  flex-wrap:wrap!important;
+}
+#ptab-agents .agent-fav-filter{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  border-radius:999px!important;
+}
+#ptab-agents .agent-fav-filter span{
+  min-width:22px!important;
+  height:22px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  border-radius:999px!important;
+  background:rgba(250,204,21,.16)!important;
+  color:#facc15!important;
+  font-size:11px!important;
+}
+#ptab-agents .agent-fav-filter.on{
+  background:linear-gradient(135deg,rgba(250,204,21,.18),rgba(124,58,237,.22))!important;
+  border-color:rgba(250,204,21,.36)!important;
+  color:#fff!important;
+}
+#ptab-agents .agent-card-v106{
+  position:relative!important;
+}
+#ptab-agents .agent-fav-btn{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  position:absolute!important;
+  top:12px!important;
+  right:12px!important;
+  z-index:8!important;
+  width:34px!important;
+  height:34px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:12px!important;
+  border:1px solid rgba(148,163,184,.18)!important;
+  background:rgba(15,23,42,.55)!important;
+  color:rgba(226,232,240,.58)!important;
+  font-size:17px!important;
+  line-height:1!important;
+  cursor:pointer!important;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease!important;
+}
+#ptab-agents .agent-fav-btn:hover,
+#ptab-agents .agent-fav-btn.on{
+  transform:translateY(-1px) scale(1.04)!important;
+  color:#fff7ad!important;
+  border-color:rgba(250,204,21,.48)!important;
+  background:linear-gradient(135deg,rgba(250,204,21,.28),rgba(124,58,237,.38))!important;
+  box-shadow:0 12px 26px rgba(250,204,21,.14)!important;
+}
+#ptab-agents .agent-empty-state{
+  grid-column:1/-1!important;
+  padding:28px!important;
+  border:1px dashed rgba(148,163,184,.28)!important;
+  border-radius:20px!important;
+  color:var(--text2)!important;
+  text-align:center!important;
+  background:rgba(15,23,42,.28)!important;
+}
+body.theme-light #ptab-agents .agent-fav-btn{
+  background:rgba(255,255,255,.88)!important;
+  color:#64748b!important;
+}
+body.theme-light #ptab-agents .agent-fav-btn.on{
+  color:#8a5a00!important;
+}
+
+.auth-modal-v2 .auth-hero{
+  background:
+    radial-gradient(circle at 50% 24%,rgba(124,58,237,.22),transparent 42%),
+    radial-gradient(circle at 22% 75%,rgba(34,211,238,.12),transparent 36%),
+    linear-gradient(160deg,#07111f 0%,#101a31 52%,#151b46 100%)!important;
+}
+.auth-modal-v2 .auth-hero::before{
+  background:
+    linear-gradient(rgba(148,163,184,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(148,163,184,.055) 1px,transparent 1px)!important;
+  background-size:48px 48px!important;
+  opacity:.72!important;
+}
+.auth-robots{
+  width:330px!important;
+  height:330px!important;
+  opacity:1!important;
+  filter:none!important;
+  transform:none!important;
+}
+.auth-robot{opacity:1!important;filter:drop-shadow(0 22px 34px rgba(0,0,0,.32))!important;animation:none!important}
+.auth-robot.r1{top:54%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%) scale(1.18)!important}
+.auth-robot.r2{left:20px!important;bottom:30px!important;top:auto!important;right:auto!important;transform:scale(.76) rotate(-2deg)!important}
+.auth-robot.r3{right:28px!important;top:44px!important;left:auto!important;bottom:auto!important;transform:scale(.72) rotate(3deg)!important}
+.auth-robot .robot-body{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.auth-robot .robot-body::before,
+.auth-robot .robot-head::before{display:none!important;content:none!important}
+.auth-robot .robot-head{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+.auth-robot .robot-face{
+  opacity:1!important;
+  border-color:rgba(125,211,252,.34)!important;
+  background:
+    radial-gradient(circle at 50% 24%,rgba(125,211,252,.16),transparent 34%),
+    linear-gradient(180deg,#253554,#101827)!important;
+  box-shadow:0 18px 36px rgba(2,6,23,.38),0 0 0 1px rgba(255,255,255,.05) inset,0 0 32px rgba(56,189,248,.12)!important;
+}
+.auth-robot .robot-eye{
+  opacity:1!important;
+  background:linear-gradient(180deg,#17243a,#09111f)!important;
+  border-color:rgba(125,211,252,.36)!important;
+  box-shadow:inset 0 2px 7px rgba(0,0,0,.52),0 0 12px rgba(56,189,248,.16)!important;
+}
+.auth-robot .robot-pupil{
+  visibility:visible!important;
+  opacity:1!important;
+  background:radial-gradient(circle at 35% 35%,#ecfeff 0 16%,#38bdf8 17% 55%,#7c3aed 56% 100%)!important;
+  box-shadow:0 0 12px rgba(56,189,248,.58)!important;
+}
+.auth-robot .robot-torso,
+.auth-robot .robot-arm,
+.auth-robot .robot-belly,
+.auth-robot .robot-core-bar,
+.auth-robot .robot-visor,
+.auth-robot .robot-status-dot,
+.auth-robot .robot-shoulder,
+.auth-robot .robot-crown,
+.auth-robot .robot-side-panel,
+.auth-robot .robot-core-chip{
+  opacity:1!important;
+  filter:none!important;
+}
+.auth-robots.shy-mode .robot-eye{
+  height:4px!important;
+  transform:none!important;
+  overflow:hidden!important;
+}
+.auth-robots.shy-mode .robot-pupil{
+  visibility:hidden!important;
+  opacity:0!important;
+}
+@media(max-width:760px){
+  #ptab-agents .agents-toolbar-actions{
+    justify-content:stretch!important;
+  }
+  #ptab-agents .agents-toolbar-actions .btn{
+    flex:1 1 130px!important;
+  }
+  #ptab-agents .agent-fav-btn{
+    width:32px!important;
+    height:32px!important;
+  }
+}

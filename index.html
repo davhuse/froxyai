@@ -47,7 +47,7 @@
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
-  <link rel="stylesheet" href="style.min.css?v=v184">
+  <link rel="stylesheet" href="style.min.css?v=v185">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="logo-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
@@ -1790,7 +1790,10 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                 <strong>Hazır uzmanlar</strong>
                 <span>İhtiyacına göre ajan seçimi</span>
               </div>
-              <button class="btn btn-primary btn-sm" onclick="panelTab('chat')">Sohbete dön</button>
+              <div class="agents-toolbar-actions">
+                <button class="btn btn-ghost btn-sm agent-fav-filter" id="agent-fav-filter" onclick="toggleAgentFavoritesOnly()" type="button">★ Favoriler <span>0</span></button>
+                <button class="btn btn-primary btn-sm" onclick="panelTab('chat')" type="button">Sohbete dön</button>
+              </div>
             </section>
 
             <div id="agents-grid" class="agents-grid"></div>
@@ -2129,7 +2132,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       return false;
     };
   </script>
-  <script src="app.min.js?v=v184" defer></script>
+  <script src="app.min.js?v=v185" defer></script>
 
 <!-- NEW TABS: Görevler, AI Hafıza, Video -->
 <script>

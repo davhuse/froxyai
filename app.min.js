@@ -1106,12 +1106,19 @@ function activePlanId(){
   if(admin||authUser?.is_admin)return 'enterprise';
   return normalizePlanId((user&&user.plan)||(authUser&&authUser.plan)||'free');
 }
+function remainingUserCredits(){
+  if(admin||authUser?.is_admin)return Number.POSITIVE_INFINITY;
+  if(authUser && Number.isFinite(Number(authUser.credits)))return Math.max(0,Number(authUser.credits));
+  if(user){
+    return Math.max(0,Number(user.totalTokens||0)-Number(user.usedTokens||0));
+  }
+  return GUEST_STARTER_CREDITS;
+}
 function canUseModel(model){
   if(!model)return false;
   if(admin||authUser?.is_admin)return true;
-  const need=MODEL_TIER_LEVEL[model.tier||'enterprise'] ?? 3;
-  const have=PLAN_MODEL_LEVEL[activePlanId()] ?? 0;
-  return need<=have;
+  const cost=getClientModelCreditCost(model.apiId||model.id,model.provider,model.cat==='image'?'image':'chat');
+  return cost<=remainingUserCredits();
 }
 function baseEnabledModels(){
   return ALL_MODELS;
@@ -1121,7 +1128,7 @@ function getEnabledModelsForUser(){
 }
 function getAllowedModelsForUser(){
   const models=baseEnabledModels().filter(canUseModel);
-  return models.length?models:baseEnabledModels().filter(m=>m.tier==='free');
+  return models.length?models:baseEnabledModels().filter(m=>getClientModelCreditCost(m.apiId||m.id,m.provider,m.cat==='image'?'image':'chat')<=GUEST_STARTER_CREDITS);
 }
 function firstAllowedModel(){
   const allowed=getAllowedModelsForUser();
@@ -2644,10 +2651,9 @@ function renderModelPicker(filter){
   if(!filtered.length){listEl.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">Model bulunamad\u0131</div>';return}
   listEl.innerHTML=filtered.map((m,i)=>{
     const ci=CAT_INFO[m.cat||'other']||CAT_INFO.other;
-    const badge=m.tier==='free'?'<span class="mp-badge mp-badge-free">3 kredi</span>':
-      m.tier==='enterprise'?'<span class="mp-badge mp-badge-ent">50 kredi</span>':
-      m.tier==='pro'?'<span class="mp-badge mp-badge-pro">20 kredi</span>':
-      '<span class="mp-badge mp-badge-starter">8 kredi</span>';
+    const cost=getClientModelCreditCost(m.apiId||m.id,m.provider,m.cat==='image'?'image':'chat');
+    const badgeClass=cost<=3?'mp-badge-free':cost<=8?'mp-badge-starter':cost<=20?'mp-badge-pro':'mp-badge-ent';
+    const badge='<span class="mp-badge '+badgeClass+'">'+cost+' kredi</span>';
     const sel2=m.id===currentModel;
     const fav=isModelFavorite(m.id);
     return '<div class="mp-item '+(sel2?'selected':'')+'" onclick="selectModel(\''+jsStr(m.id)+'\')" style="animation:fadeSlideUp .2s '+(i*0.015)+'s both"><button type="button" class="mp-star '+(fav?'on':'')+'" onclick="toggleModelFavorite(\''+jsStr(m.id)+'\',event)" aria-label="'+(fav?'Favoriden çıkar':'Favoriye ekle')+'" title="Favori"><span class="mp-star-dot" aria-hidden="true"></span></button><div class="mp-item-icon">'+figIcon(ci.icon)+'</div><div class="mp-item-info"><div class="mp-item-name">'+esc(m.name)+'</div><div class="mp-item-meta">'+badge+'<span>'+esc(providerLabel(m.provider||'openai'))+'</span></div></div>'+(sel2?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>';
@@ -2656,7 +2662,12 @@ function renderModelPicker(filter){
 function filterModels(q){renderModelPicker(q)}
 function selectModel(id){
   const m=ALL_MODELS.find(x=>x.id===id);
-  if(m&&!canUseModel(m)){msg('Bu model için paket yükseltmeniz gerekiyor.','err');return}
+  if(m&&!canUseModel(m)){
+    const cost=getClientModelCreditCost(m.apiId||m.id,m.provider,m.cat==='image'?'image':'chat');
+    const left=Math.floor(remainingUserCredits());
+    msg('Bu model '+cost+' kredi ister. Kalan krediniz '+left+'; yeterli kredi varsa plan fark etmeden kullanabilirsiniz.','err');
+    return;
+  }
   const sel=document.getElementById('model-sel');
   if(sel){sel.value=id;LS.set('ap_selected_model',id);if(typeof updateModelBadge==='function')updateModelBadge()}
   if(m){const btn=document.getElementById('mpb-name');if(btn)btn.textContent=m.name;const ci=CAT_INFO[m.cat||'other']||CAT_INFO.other;const icon=document.querySelector('.mpb-icon');if(icon)icon.innerHTML=iconSvg(ci.icon,14)}
@@ -3052,7 +3063,7 @@ async function sendMsg(){
       sel.value=model;
       if(typeof updateModelBadge==='function')updateModelBadge();
     }
-    msg('Paketiniz bu modeli desteklemediği için uygun modele geçildi.','ok');
+    msg('Krediniz seçili modele yetmediği için uygun çalışan modele geçildi.','ok');
   }
   const apiModel=modelDef?.apiId||model;
   const estimatedCost=getClientModelCreditCost(model,modelDef?.provider||getModelProvider(model),'chat');
@@ -7383,16 +7394,50 @@ if(Array.isArray(AI_AGENTS)){
 renderAgents=function(){
   const cont=document.getElementById('agents-grid');
   if(!cont)return;
-  cont.innerHTML=AGENT_CATALOG_V106.map((a,i)=>`<button class="agent-card agent-card-v106" onclick="activateAgent('${jsStr(a.id)}')" style="--agent-accent:${a.accent};--agent-delay:${i*38}ms" type="button">
+  const favs=getAgentFavorites();
+  const showFav=LS.get('ap_agents_show_favorites',false);
+  const list=showFav?AGENT_CATALOG_V106.filter(a=>favs.includes(a.id)):AGENT_CATALOG_V106;
+  updateAgentFavoriteToggle();
+  if(showFav && !list.length){
+    cont.innerHTML='<div class="agent-empty-state">Henüz favori ajan yok. Kartlardaki yıldızdan favori ekleyebilirsin.</div>';
+    return;
+  }
+  cont.innerHTML=list.map((a,i)=>`<div class="agent-card agent-card-v106" onclick="activateAgent('${jsStr(a.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();activateAgent('${jsStr(a.id)}')}" style="--agent-accent:${a.accent};--agent-delay:${i*38}ms" role="button" tabindex="0">
     <span class="agent-card-shine"></span>
+    <button class="agent-fav-btn ${favs.includes(a.id)?'on':''}" onclick="toggleAgentFavorite('${jsStr(a.id)}',event)" title="${favs.includes(a.id)?'Favoriden çıkar':'Favoriye ekle'}" aria-label="${favs.includes(a.id)?'Favoriden çıkar':'Favoriye ekle'}" type="button">★</button>
     <span class="agent-icon agent-icon-svg">${iconSvg(a.icon,24)}</span>
     <span class="agent-body">
       <span class="agent-top"><strong>${esc(a.name)}</strong><em>${esc(a.tag)}</em></span>
       <span class="agent-desc">${esc(a.desc)}</span>
       <span class="agent-foot"><b>${esc(a.tone)}</b><i>Başlat</i></span>
     </span>
-  </button>`).join('');
+  </div>`).join('');
 };
+function getAgentFavorites(){return LS.get('ap_agent_favorites',[])}
+function isAgentFavorite(id){return getAgentFavorites().includes(id)}
+function toggleAgentFavorite(id,event){
+  if(event){event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();}
+  const favs=getAgentFavorites();
+  const next=favs.includes(id)?favs.filter(x=>x!==id):[id,...favs].slice(0,30);
+  LS.set('ap_agent_favorites',next);
+  renderAgents();
+  msg(next.includes(id)?'Ajan favorilere eklendi':'Ajan favorilerden çıkarıldı','ok');
+  return false;
+}
+function toggleAgentFavoritesOnly(){
+  LS.set('ap_agents_show_favorites',!LS.get('ap_agents_show_favorites',false));
+  renderAgents();
+}
+function updateAgentFavoriteToggle(){
+  const btn=document.getElementById('agent-fav-filter');
+  if(!btn)return;
+  const on=!!LS.get('ap_agents_show_favorites',false);
+  const count=getAgentFavorites().length;
+  btn.classList.toggle('on',on);
+  btn.innerHTML='★ Favoriler <span>'+count+'</span>';
+}
+window.toggleAgentFavorite=toggleAgentFavorite;
+window.toggleAgentFavoritesOnly=toggleAgentFavoritesOnly;
 activateAgent=function(agentId){
   const agent=AGENT_CATALOG_V106.find(a=>a.id===agentId)||AI_AGENTS.find(a=>a.id===agentId);
   if(!agent)return;
