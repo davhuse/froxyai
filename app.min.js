@@ -696,7 +696,7 @@ async function doAuth(type) {
       closeM();
       loginUI();
       renderModelSelect();
-      if(typeof msg==='function') msg(type==='login' ? 'Ba\u015far\u0131yla giri\u015f yap\u0131ld\u0131!' : 'Hesap olu\u015fturuldu! +500 Kredi', 'ok');
+      if(typeof msg==='function') msg(type==='login' ? 'Ba\u015far\u0131yla giri\u015f yap\u0131ld\u0131!' : 'Hesap olu\u015fturuldu! 100 kredi haz\u0131r.', 'ok');
       updateCreditsUI();
       go('chat');
     } else {
@@ -872,6 +872,10 @@ const PLANS = {
 };
 const GUEST_STARTER_CREDITS = 30;
 const FREE_STARTER_CREDITS = 100;
+const DAILY_LOGIN_BONUS = 10;
+const DAILY_LOGIN_STREAK_BONUS = 100;
+const REFERRAL_BONUS_CAP = 100;
+const INVITED_USER_BONUS = 20;
 
 // ===== STORAGE =====
 const LS = {
@@ -1813,8 +1817,8 @@ function finishOAuthLogin(provider,name,email,avatar){
       const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
       existing.loginStreak=(existing.lastLoginDate===yesterday)?(existing.loginStreak||0)+1:1;
       existing.lastLoginDate=today;
-      let bonus=500;
-      if(existing.loginStreak>=7){bonus=5000;existing.loginStreak=0;}
+      let bonus=DAILY_LOGIN_BONUS;
+      if(existing.loginStreak>=7){bonus=DAILY_LOGIN_STREAK_BONUS;existing.loginStreak=0;}
       existing.totalTokens+=bonus;
       existing.streakBonusTotal=(existing.streakBonusTotal||0)+bonus;
       LS.set('ap_users',users);
@@ -1831,7 +1835,7 @@ function finishOAuthLogin(provider,name,email,avatar){
     apiKey:genKey(),totalTokens:PLANS.free.tokens,usedTokens:0,requests:0,status:'active',
     createdAt:new Date().toISOString(),refCode:myRefCode,referrals:[],refBonusTotal:0,
     hasFirstTimeCoupon:true,couponUsed:false,loginStreak:1,
-    lastLoginDate:new Date().toISOString().split('T')[0],streakBonusTotal:500,
+    lastLoginDate:new Date().toISOString().split('T')[0],streakBonusTotal:0,
     loginProvider:provider,avatar:avatar
   };
   fetch('/api/register-ip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}).catch(()=>{});
@@ -1892,8 +1896,8 @@ function handleOAuthCallback(){
       const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
       existing.loginStreak=(existing.lastLoginDate===yesterday)?(existing.loginStreak||0)+1:1;
       existing.lastLoginDate=today;
-      let bonus=500;
-      if(existing.loginStreak>=7){bonus=5000;existing.loginStreak=0;}
+      let bonus=DAILY_LOGIN_BONUS;
+      if(existing.loginStreak>=7){bonus=DAILY_LOGIN_STREAK_BONUS;existing.loginStreak=0;}
       existing.totalTokens+=bonus;
       existing.streakBonusTotal=(existing.streakBonusTotal||0)+bonus;
       LS.set('ap_users',users);
@@ -1910,7 +1914,7 @@ function handleOAuthCallback(){
       apiKey:genKey(),totalTokens:PLANS.free.tokens,usedTokens:0,requests:0,status:'active',
       createdAt:new Date().toISOString(),refCode:myRefCode,referrals:[],refBonusTotal:0,
       hasFirstTimeCoupon:true,couponUsed:false,loginStreak:1,
-      lastLoginDate:new Date().toISOString().split('T')[0],streakBonusTotal:500,
+      lastLoginDate:new Date().toISOString().split('T')[0],streakBonusTotal:0,
       loginProvider:provider,avatar:avatar
     };
     // Register IP
@@ -1951,15 +1955,15 @@ async function doReg(){
       // Give bonus to referrer (10% of their plan tokens, max 10 referrals)
       if(!referrer.referrals)referrer.referrals=[];
       if(referrer.referrals.length<10){
-        const refBonus=Math.floor((PLANS[referrer.plan]?.tokens||500000)*0.1);
+        const refBonus=Math.min(REFERRAL_BONUS_CAP,Math.max(10,Math.floor((PLANS[referrer.plan]?.tokens||FREE_STARTER_CREDITS)*0.1)));
         referrer.referrals.push({email,date:new Date().toISOString()});
         referrer.totalTokens+=refBonus;
         if(!referrer.refBonusTotal)referrer.refBonusTotal=0;
         referrer.refBonusTotal+=refBonus;
         LS.set('ap_users',users);
       }
-      bonusTokens=2000; // Welcome bonus for invited user
-      msg('Davet bonusu: +2.000 kredi! 🎉','ok');
+      bonusTokens=INVITED_USER_BONUS; // Welcome bonus for invited user
+      msg('Davet bonusu: +'+INVITED_USER_BONUS.toLocaleString('tr-TR')+' kredi! 🎉','ok');
     }else if(refCode){
       msg('Geçersiz davet kodu, yine de kayıt devam ediyor.','err');
     }
@@ -1979,11 +1983,10 @@ async function doReg(){
     couponUsed:false,
     loginStreak:1,
     lastLoginDate:new Date().toISOString().split('T')[0],
-    streakBonusTotal:500,
+    streakBonusTotal:0,
     loginProvider:(document.getElementById('r-email').value.includes('@aipaketim.com') || document.getElementById('r-email').value.includes('@froxyai.com'))?'social':'email'
   };
-  // Apply daily bonus for first login
-  user.totalTokens+=500;
+  // First day starts with the plan credits only; daily bonus begins on the next login day.
   
   users.push(user);LS.set('ap_users',users);LS.set('ap_user',user);
   admin=false;closeM();loginUI();go('chat');
@@ -2025,8 +2028,8 @@ function doLogin(){
       f.loginStreak=1;
     }
     f.lastLoginDate=today;
-    let bonus=500;
-    if(f.loginStreak>=7){bonus=5000;f.loginStreak=0;} // Reset after 7-day bonus
+    let bonus=DAILY_LOGIN_BONUS;
+    if(f.loginStreak>=7){bonus=DAILY_LOGIN_STREAK_BONUS;f.loginStreak=0;} // Reset after 7-day bonus
     f.totalTokens+=bonus;
     if(!f.streakBonusTotal)f.streakBonusTotal=0;
     f.streakBonusTotal+=bonus;
@@ -2273,6 +2276,8 @@ function getClientModelCreditCost(model,provider,kind){
   if(kind==='image' || id.includes('imagen') || id.includes('gpt-image') || id==='flux' || id==='turbo' || id==='sana' || id.includes('cf-sdxl') || id.includes('style-')){
     if(id.includes('imagen-4-fast'))return 15;
     if(id.includes('imagen-4-ultra'))return CLIENT_MODEL_CREDIT_COST.image_ultra;
+    if(id.includes('stability-ultra'))return CLIENT_MODEL_CREDIT_COST.image_ultra;
+    if(id.includes('stability-core'))return CLIENT_MODEL_CREDIT_COST.image_mid;
     if(id.includes('imagen-4') || id.includes('gpt-image'))return CLIENT_MODEL_CREDIT_COST.image_mid;
     return CLIENT_MODEL_CREDIT_COST.image_free;
   }
@@ -2476,9 +2481,73 @@ function copyRefLink(){
   if(el){navigator.clipboard.writeText(el.value);msg('Davet linki kopyalandı! 🔗','ok')}
 }
 function updateQuota(){
-  const rem=Math.max(0,user.totalTokens-user.usedTokens);
-  document.getElementById('chat-quota').textContent='Kalan Kredi: '+rem.toLocaleString();
+  const rem=Number.isFinite(remainingUserCredits())?Math.max(0,remainingUserCredits()):999999;
+  const chatQuota=document.getElementById('chat-quota');
+  if(chatQuota){
+    chatQuota.classList.add('credit-pill-v188');
+    chatQuota.innerHTML='<span>Kalan kredi</span><strong>'+rem.toLocaleString('tr-TR')+'</strong>';
+  }
+  updateImageCreditSurface();
 }
+
+function getSelectedImageCost(){
+  const model=document.getElementById('img-model')?.value||'flux';
+  return getClientModelCreditCost(model,imageProviderForModel(model),'image');
+}
+function updateImageCreditSurface(){
+  const box=document.querySelector('.img-gen-credits-info');
+  if(!box)return;
+  const model=document.getElementById('img-model')?.value||'flux';
+  const cost=getSelectedImageCost();
+  const rem=Number.isFinite(remainingUserCredits())?Math.max(0,remainingUserCredits()):999999;
+  const after=Math.max(0,rem-cost);
+  box.classList.add('image-credit-surface-v188');
+  box.innerHTML='<span><b>Kalan</b><strong>'+rem.toLocaleString('tr-TR')+'</strong></span><span><b>Seçili model</b><strong>'+cost.toLocaleString('tr-TR')+' kredi</strong></span><span><b>Üretim sonrası</b><strong>'+after.toLocaleString('tr-TR')+'</strong></span>';
+}
+function showCreditBlock(kind,cost,remaining,modelName){
+  const rem=Math.max(0,Number(remaining||0));
+  const need=Math.max(0,Number(cost||0));
+  const target=kind==='image'?document.getElementById('img-result'):document.getElementById('chat-msgs');
+  const title=kind==='image'?'Görsel için kredi yetersiz':'Bu model için kredi yetersiz';
+  const free=firstAllowedModel();
+  const cheapBtn=free?`<button type="button" onclick="selectAffordableModelAndRetry('${jsStr(free.id)}','${jsStr(kind)}')">Ucuz modele geç</button>`:'';
+  const html=`<div class="credit-alert-card-v188">
+    <div class="credit-alert-orb"><span></span></div>
+    <div class="credit-alert-body"><strong>${title}</strong><p>${esc(modelName||'Seçili işlem')} için ${need.toLocaleString('tr-TR')} kredi gerekiyor. Mevcut kredin ${rem.toLocaleString('tr-TR')}.</p>
+    <div class="credit-alert-actions">${cheapBtn}<button type="button" onclick="panelTab('store')">Paketleri gör</button><button type="button" onclick="modal('reg')">100 kredi al</button></div></div></div>`;
+  if(kind==='image'){
+    if(target)target.innerHTML=html;
+  }else if(target){
+    target.insertAdjacentHTML('beforeend',html);
+    target.scrollTop=target.scrollHeight;
+  }
+  if(typeof msg==='function')msg('Kredi yetersiz. Ayrıntı ve seçenekler ekranda gösterildi.','err');
+}
+function selectAffordableModelAndRetry(modelId,kind){
+  if(kind==='image'){
+    const img=document.getElementById('img-model');
+    if(img){img.value='flux'; if(typeof rebuildImageModelPicker==='function')rebuildImageModelPicker();}
+    updateQuota();
+    return;
+  }
+  const sel=document.getElementById('model-sel');
+  if(sel && [...sel.options].some(o=>o.value===modelId)){
+    sel.value=modelId;
+    LS.set('ap_selected_model',modelId);
+    if(typeof updateModelBadge==='function')updateModelBadge();
+  }
+  updateQuota();
+}
+document.addEventListener('change',function(e){
+  if(e.target&&e.target.id==='img-model')updateImageCreditSurface();
+});
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){
+    updateQuota();
+    updateImageCreditSurface();
+    if(typeof renderAIToolsHub==='function'&&document.getElementById('ai-tools-page'))renderAIToolsHub();
+  },500);
+});
 
 // ===== MODELS =====
 function renderModelsAdmin(){
@@ -3055,26 +3124,20 @@ async function sendMsg(){
   const c=chats.find(x=>x.id===activeChat);if(!c)return;
   let model=document.getElementById('model-sel').value;
   let modelDef=ALL_MODELS.find(m=>m.id===model);
-  if(modelDef&&!canUseModel(modelDef)){
-    const fallback=firstAllowedModel();
-    model=fallback.id;
-    modelDef=fallback;
-    const sel=document.getElementById('model-sel');
-    if(sel){
-      sel.value=model;
-      if(typeof updateModelBadge==='function')updateModelBadge();
-    }
-    msg('Krediniz seçili modele yetmediği için uygun çalışan modele geçildi.','ok');
-  }
-  const apiModel=modelDef?.apiId||model;
   const requestedModel=model;
   const requestedProvider=modelDef?.provider||getModelProvider(model);
   const requestedCost=getClientModelCreditCost(requestedModel,requestedProvider,'chat');
   const estimatedCost=requestedCost;
-  if(user?.guest && (Number(user.totalTokens||GUEST_STARTER_CREDITS)-Number(user.usedTokens||0))<estimatedCost){
-    msg('Misafir krediniz yetersiz. Ücretsiz hesap açınca 100 kredi alırsınız.','err');
+  const currentRemaining=remainingUserCredits();
+  if(Number.isFinite(currentRemaining)&&currentRemaining<estimatedCost){
+    showCreditBlock('chat',estimatedCost,currentRemaining,modelDef?.name||requestedModel);
     return;
   }
+  if(modelDef&&!canUseModel(modelDef)){
+    showCreditBlock('chat',estimatedCost,currentRemaining,modelDef?.name||requestedModel);
+    return;
+  }
+  const apiModel=modelDef?.apiId||model;
   
   const tempFileData = currentFileData;
   const tempFileName = currentFile ? currentFile.name : '';
@@ -4566,13 +4629,22 @@ function adminEnableAllModels(){
   
 
 // ===== SUPPORT TICKETS =====
-function submitTicket(){
+async function submitTicket(){
   if(!user)return msg('Önce giriş yapın!','err');
   const title=document.getElementById('ticket-title')?.value.trim();
   const desc=document.getElementById('ticket-desc')?.value.trim();
   const cat=document.getElementById('ticket-category')?.value||'genel';
   const priority=document.querySelector('input[name="ticket-priority"]:checked')?.value||'low';
   if(!title||!desc)return msg('Başlık ve açıklama zorunlu!','err');
+  const btn=document.querySelector('.sp4-submit');
+  if(btn){
+    btn.disabled=true;
+    btn.classList.add('is-sending');
+    btn.innerHTML='<span class="support-send-loader"></span><span>Hazırlanıyor...</span>';
+  }
+  await new Promise(r=>setTimeout(r,360));
+  if(btn)btn.innerHTML='<span class="support-send-loader"></span><span>Kuyruğa alındı...</span>';
+  await new Promise(r=>setTimeout(r,420));
   
   const tickets=LS.get('ap_tickets',[]);
   const ticket={
@@ -4585,6 +4657,10 @@ function submitTicket(){
   document.getElementById('ticket-title').value='';
   document.getElementById('ticket-desc').value='';
   renderMyTickets();
+  if(btn){
+    btn.innerHTML='<span class="support-checkmark">✓</span><span>Bilet oluşturuldu</span>';
+    setTimeout(()=>{btn.disabled=false;btn.classList.remove('is-sending');btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg> Destek Talebini Gönder';},900);
+  }
   msg('Destek bileti oluşturuldu! 🎫 En kısa sürede yanıtlanacak.','ok');
 }
 
@@ -4820,18 +4896,36 @@ const PROMPT_LIB=[
   {cat:'is',icon:'📄',title:'CV Oluştur',desc:'Profesyonel özgeçmiş',prompt:'Şu bilgilerle profesyonel bir CV oluştur:\n'},
   {cat:'is',icon:'🤝',title:'Teklif Mektubu',desc:'İş teklif metni',prompt:'Şu hizmet için profesyonel bir teklif mektubu yaz: '},
 ];
-const PROMPT_CATS=[{id:'all',name:'Tümü',icon:'🌟'},{id:'kod',name:'Kod',icon:'💻'},{id:'yazi',name:'Yazı',icon:'✍️'},{id:'seo',name:'SEO',icon:'🔍'},{id:'pazarlama',name:'Pazarlama',icon:'📊'},{id:'egitim',name:'Eğitim',icon:'📖'},{id:'eglence',name:'Eğlence',icon:'🎮'},{id:'is',name:'İş',icon:'💼'}];
+const PROMPT_CATS=[{id:'all',name:'Tümü',icon:'🌟'},{id:'fav',name:'Favoriler',icon:'⭐'},{id:'kod',name:'Kod',icon:'💻'},{id:'yazi',name:'Yazı',icon:'✍️'},{id:'seo',name:'SEO',icon:'🔍'},{id:'pazarlama',name:'Pazarlama',icon:'📊'},{id:'egitim',name:'Eğitim',icon:'📖'},{id:'eglence',name:'Eğlence',icon:'🎮'},{id:'is',name:'İş',icon:'💼'}];
+function promptKey(p){return (p.cat+'::'+p.title).toLowerCase()}
+function getPromptFavorites(){return LS.get('ap_prompt_favorites',[])}
+function togglePromptFavorite(key,event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  const favs=getPromptFavorites();
+  const next=favs.includes(key)?favs.filter(x=>x!==key):[key,...favs].slice(0,60);
+  LS.set('ap_prompt_favorites',next);
+  renderPrompts(window.__activePromptCat||'all');
+  msg(next.includes(key)?'Prompt favorilere eklendi':'Prompt favorilerden çıkarıldı','ok');
+  return false;
+}
+window.togglePromptFavorite=togglePromptFavorite;
 
 function renderPrompts(cat='all'){
+  window.__activePromptCat=cat;
   const catsEl=document.getElementById('prompt-cats');
   const grid=document.getElementById('prompt-grid');
   if(!catsEl||!grid)return;
-  catsEl.innerHTML=PROMPT_CATS.map(c=>`<button class="tool-chip ${cat===c.id?'active':''}" onclick="renderPrompts('${c.id}')" style="${cat===c.id?'background:var(--accent);color:#fff;border-color:var(--accent)':''}">${figIcon(iconForEmoji(c.icon),'inline')} ${c.name}</button>`).join('');
-  const filtered=cat==='all'?PROMPT_LIB:PROMPT_LIB.filter(p=>p.cat===cat);
+  const favs=getPromptFavorites();
+  catsEl.innerHTML=PROMPT_CATS.map(c=>`<button class="tool-chip ${cat===c.id?'active':''}" onclick="renderPrompts('${c.id}')" style="${cat===c.id?'background:var(--accent);color:#fff;border-color:var(--accent)':''}">${figIcon(iconForEmoji(c.icon),'inline')} ${c.name}${c.id==='fav'?` <span>${favs.length}</span>`:''}</button>`).join('');
+  const filtered=cat==='all'?PROMPT_LIB:(cat==='fav'?PROMPT_LIB.filter(p=>favs.includes(promptKey(p))):PROMPT_LIB.filter(p=>p.cat===cat));
+  if(cat==='fav'&&!filtered.length){grid.innerHTML='<div class="prompt-empty-v188">Henüz favori prompt yok. Kartlardaki yıldızdan favori ekleyebilirsin.</div>';return;}
   const promptColors = ['#7c3aed,#a78bfa','#ec4899,#f472b6','#10b981,#34d399','#3b82f6,#60a5fa','#ef4444,#f87171','#f59e0b,#fbbf24','#06b6d4,#22d3ee','#8b5cf6,#c084fc','#14b8a6,#5eead4'];
   grid.innerHTML=filtered.map((p,i)=>{
     const grad = promptColors[i % promptColors.length];
+    const key=promptKey(p);
+    const isFav=favs.includes(key);
     return `<div class="card prompt-card" onclick="usePrompt('${esc(p.prompt).replace(/'/g,"\\\\'")}')" >
+    <button class="prompt-fav-btn ${isFav?'on':''}" onclick="return togglePromptFavorite('${jsStr(key)}',event)" title="${isFav?'Favoriden çıkar':'Favoriye ekle'}">★</button>
     <div class="persona-icon-3d" style="background:linear-gradient(135deg,${grad});width:52px;height:52px;border-radius:14px;margin:0 auto 10px">${iconSvg(iconForEmoji(p.icon),24)}</div>
     <h3>${p.title}</h3><p>${p.desc}</p>
     <div style="margin-top:10px;font-size:11px;color:var(--accent2)">Tıkla → Sohbete ekle</div>
@@ -4975,16 +5069,30 @@ const DEFAULT_PERSONAS=[
   {id:'chef',name:'Şef AI',icon:'👨‍🍳',prompt:'Sen ünlü bir aşçıbaşısın. Yemek tarifleri ver, malzeme öner, pişirme teknikleri açıkla.'},
   {id:'writer',name:'Yazar AI',icon:'✒️',prompt:'Sen ödüllü bir yazar ve editörsün. Metinleri düzenle, yaratıcı yazı önerileri ver.'}
 ];
+function getPersonaFavorites(){return LS.get('ap_persona_favorites',[])}
+function togglePersonaFavorite(id,event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  const favs=getPersonaFavorites();
+  const next=favs.includes(id)?favs.filter(x=>x!==id):[id,...favs].slice(0,40);
+  LS.set('ap_persona_favorites',next);
+  renderPersonas();
+  msg(next.includes(id)?'Sohbet ajanı favorilere eklendi':'Sohbet ajanı favorilerden çıkarıldı','ok');
+  return false;
+}
+window.togglePersonaFavorite=togglePersonaFavorite;
 function renderPersonas(){
   const grid=document.getElementById('persona-grid');if(!grid)return;
   const custom=LS.get('ap_personas',[]);
   const all=[...DEFAULT_PERSONAS,...custom];
+  const favs=getPersonaFavorites();
   grid.innerHTML=all.map((p,i)=>{
     const colors = ['#7c3aed,#a78bfa','#ec4899,#f472b6','#10b981,#34d399','#3b82f6,#60a5fa','#ef4444,#f87171','#f59e0b,#fbbf24','#06b6d4,#22d3ee','#8b5cf6,#c084fc','#14b8a6,#5eead4'];
     const grad = colors[i % colors.length];
     const skills=getPersonaSkills(p);
     const initial=(p.name||'A').trim().charAt(0).toUpperCase();
-    return `<div class="card persona-card" onclick="activatePersona(${i})">
+    const fav=favs.includes(p.id);
+    return `<div class="card persona-card persona-card-v188" onclick="activatePersona(${i})">
+    <button class="persona-fav-btn ${fav?'on':''}" onclick="return togglePersonaFavorite('${jsStr(p.id)}',event)" title="${fav?'Favoriden çıkar':'Favoriye ekle'}">★</button>
     <div class="persona-avatar" style="background:linear-gradient(135deg,${grad})">${esc(initial)}</div>
     <h3 style="text-align:center;font-size:14px">${esc(p.name)}</h3>
     <p style="font-size:11px;text-align:center">${esc(p.prompt).substring(0,60)}...</p>
@@ -5620,8 +5728,10 @@ async function genImage(){
   if(!prompt) return msg('Lütfen bir prompt girin!','error');
   if(!user) return msg('Lütfen giriş yapın!','error');
   const estimatedCost=getClientModelCreditCost(model,imageProviderForModel(model),'image');
-  if(user?.guest && (Number(user.totalTokens||GUEST_STARTER_CREDITS)-Number(user.usedTokens||0))<estimatedCost){
-    return msg('Misafir krediniz yetersiz. Ücretsiz hesap açınca 100 kredi alırsınız.','error');
+  const currentRemaining=remainingUserCredits();
+  if(Number.isFinite(currentRemaining)&&currentRemaining<estimatedCost){
+    showCreditBlock('image',estimatedCost,currentRemaining,getImageModelLabel(model)||model);
+    return;
   }
   
   btn.disabled = true;
@@ -6006,22 +6116,38 @@ function renderMemory() {
   }
   const e = typeof esc === 'function' ? esc : (t => t.replace(/</g,'&lt;').replace(/>/g,'&gt;'));
   list.innerHTML = mems.map(m => `
-    <div class="kb-memory-item">
+    <div class="kb-memory-item ${LS.get('ap_active_memory_id',null)===m.id?'active':''}">
       <div class="kb-item-icon">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3a3 3 0 0 0-3 3v1a3 3 0 0 0 0 6v1a3 3 0 0 0 3 3"/><path d="M15 3a3 3 0 0 1 3 3v1a3 3 0 0 1 0 6v1a3 3 0 0 1-3 3"/><path d="M9 7h6M9 17h6"/></svg>
       </div>
       <div class="kb-item-body">
         <strong>${e(m.text)}</strong>
         <small>${m.created || 'Yeni not'}</small>
+        <div class="kb-memory-actions"><button type="button" onclick="startChatWithMemory(${m.id})">Bu hafızayla sohbet başlat</button></div>
       </div>
       <button class="kb-delete-btn" onclick="deleteMemory(${m.id})" title="Sil">×</button>
     </div>`).join('');
 }
+function startChatWithMemory(id){
+  const mems=LS.get('ap_memory',[]);
+  const mem=mems.find(m=>m.id===id);
+  if(!mem)return;
+  LS.set('ap_active_memory_id',id);
+  if(typeof newChat==='function')newChat();
+  const ta=document.getElementById('chat-in');
+  if(ta)ta.value='Bu hafıza notunu dikkate alarak cevap ver: '+mem.text+'\n\n';
+  renderMemory();
+  panelTab('chat');
+  msg('Seçili hafıza ile yeni sohbet hazır.','ok');
+}
+window.startChatWithMemory=startChatWithMemory;
 
 function getMemoryContext() {
   const mems = LS.get('ap_memory', []);
   if (mems.length === 0) return '';
-  return '\n\n[KULLANICI HAKKINDA HAFIZA]:\n' + mems.map((m,i) => (i+1)+'. '+m.text).join('\n') + '\n[/HAFIZA]\nBu bilgileri kullanarak kullanıcıya kişiselleştirilmiş yanıtlar ver.';
+  const activeId=LS.get('ap_active_memory_id',null);
+  const active=activeId?mems.filter(m=>m.id===activeId):mems;
+  return '\n\n[KULLANICI HAKKINDA HAFIZA]:\n' + active.map((m,i) => (i+1)+'. '+m.text).join('\n') + '\n[/HAFIZA]\nBu bilgileri kullanarak kullanıcıya kişiselleştirilmiş yanıtlar ver.';
 }
 
 // ═══════════════════════════════════════════════════════
@@ -8821,6 +8947,12 @@ async function compareImageModels(){
     return;
   }
   var models=['flux','cf-sdxl'];
+  var totalCost=models.reduce(function(sum,model){return sum+getClientModelCreditCost(model,imageProviderForModel(model),'image');},0);
+  var remaining=remainingUserCredits();
+  if(Number.isFinite(remaining)&&remaining<totalCost){
+    showCreditBlock('image',totalCost,remaining,'Modelleri Karşılaştır');
+    return;
+  }
   resEl.innerHTML=`<div class="img-compare-shell">
     <button type="button" class="img-compare-close" onclick="document.getElementById('img-result').innerHTML=''">Kapat</button>
     ${models.map(function(model){
@@ -8835,6 +8967,9 @@ async function compareImageModels(){
     if(!card)continue;
     const title=model==='flux'?'Flux AI':'Cloudflare SDXL';
     const result=await requestImageWithFallback(prompt,model,28000);
+    if(result&&result.url){
+      await chargeSuccessfulUse(model,imageProviderForModel(model),'image',getClientModelCreditCost(model,imageProviderForModel(model),'image'));
+    }
     card.innerHTML=`<img src="${escAttr(result.url)}" class="img-compare-preview" alt="${escAttr(title)}" onerror="this.onerror=null;this.src='${escAttr(clientImageFallbackUrl(prompt,title))}'">
       <div class="img-compare-meta">
         <div class="img-compare-copy">
@@ -8880,6 +9015,13 @@ async function batchGenImage(){
     return;
   }
   var model=document.getElementById('img-model')?.value||'flux';
+  var unitCost=getClientModelCreditCost(model,imageProviderForModel(model),'image');
+  var totalCost=unitCost*prompts.length;
+  var remaining=remainingUserCredits();
+  if(Number.isFinite(remaining)&&remaining<totalCost){
+    showCreditBlock('image',totalCost,remaining,'Toplu üretim');
+    return;
+  }
   res.innerHTML=prompts.map(function(item,i){
     return `<article class="img-batch-item img-batch-item-loading" id="img-batch-${i}">
       ${imageLoadingHtml(item, getImageModelLabel(model))}
@@ -8890,6 +9032,9 @@ async function batchGenImage(){
     const card=document.getElementById('img-batch-'+i);
     if(!card)continue;
     const result=await requestImageWithFallback(prompt,model,28000);
+    if(result&&result.url){
+      await chargeSuccessfulUse(model,imageProviderForModel(model),'image',unitCost);
+    }
     card.classList.remove('img-batch-item-loading');
     card.innerHTML=`<img src="${escAttr(result.url)}" class="img-batch-thumb" alt="Üretilen görsel" onerror="this.onerror=null;this.src='${escAttr(clientImageFallbackUrl(prompt,getImageModelLabel(model)))}'">
       <div class="img-batch-copy">
