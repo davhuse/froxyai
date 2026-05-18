@@ -3601,6 +3601,7 @@ function getModelCreditCost(model, provider) {
   if (provider === 'groq') return MODEL_CREDIT_COST.free;
   
   // ── IMAGE MODELS ──
+  if (m.includes('imagen-4-fast')) return 15;
   if (m.includes('imagen-4-ultra')) return MODEL_CREDIT_COST.image_ultra;
   if (m.includes('imagen-4') || m.includes('gpt-image')) return MODEL_CREDIT_COST.image_mid;
   if (m === 'flux' || m.includes('style-') || m === 'turbo' || m === 'sana' || m.includes('cf-sdxl')) return MODEL_CREDIT_COST.image_free;
@@ -3642,8 +3643,10 @@ function getModelCreditCost(model, provider) {
 
 // Credit deduction endpoint (called by frontend after successful chat)
 app.post('/api/deduct-credit', authMiddleware, (req, res) => {
-  const { model, provider } = req.body;
-  const cost = getModelCreditCost(model, provider);
+  const { model, provider, requestedModel, requestedProvider } = req.body;
+  const billModel = requestedModel || model;
+  const billProvider = requestedProvider || provider;
+  const cost = getModelCreditCost(billModel, billProvider);
   
   if (cost === 0) return res.json({ cost: 0, remaining: null, free: true });
 
@@ -3659,13 +3662,15 @@ app.post('/api/deduct-credit', authMiddleware, (req, res) => {
   db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);
   incrementDaily(req.user.id, 'chat');
   const updated = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
-  res.json({ cost, remaining: updated.credits, free: false });
+  res.json({ cost, remaining: updated.credits, free: false, model: billModel, provider: billProvider, actualModel: model });
 });
 
 // Image generation credit deduction
 app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
-  const { model } = req.body;
-  const m = (model || '').toLowerCase();
+  const { model, provider, requestedModel, requestedProvider } = req.body;
+  const billModel = requestedModel || model;
+  const billProvider = requestedProvider || provider;
+  const m = (billModel || '').toLowerCase();
   
   // Daily limit check
   const dailyCheck = checkDailyLimit(req.user.id, 'image');
@@ -3677,12 +3682,12 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
   let cost = MODEL_CREDIT_COST.image_free; // default 8
   if (['flux','turbo','sana','cf-sdxl'].includes(m) || m.startsWith('style-')) {
     cost = MODEL_CREDIT_COST.image_free; // 8 kredi
+  } else if (m.includes('imagen-4-fast')) {
+    cost = 15; // fast = cheaper
   } else if (m.includes('imagen-4-ultra')) {
     cost = MODEL_CREDIT_COST.image_ultra; // 40 kredi
   } else if (m.includes('imagen-4') || m.includes('gpt-image')) {
     cost = MODEL_CREDIT_COST.image_mid; // 25 kredi
-  } else if (m.includes('imagen-4-fast')) {
-    cost = 15; // fast = cheaper
   }
   
   const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
@@ -3692,7 +3697,7 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
   db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);
   incrementDaily(req.user.id, 'image');
   const updated = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
-  res.json({ cost, remaining: updated.credits, free: false, model });
+  res.json({ cost, remaining: updated.credits, free: false, model: billModel, provider: billProvider, actualModel: model });
 });
 
 // Credit cost info endpoint

@@ -2271,6 +2271,7 @@ function getClientModelCreditCost(model,provider,kind){
   const id=String(model||'').toLowerCase();
   const p=String(provider||'').toLowerCase();
   if(kind==='image' || id.includes('imagen') || id.includes('gpt-image') || id==='flux' || id==='turbo' || id==='sana' || id.includes('cf-sdxl') || id.includes('style-')){
+    if(id.includes('imagen-4-fast'))return 15;
     if(id.includes('imagen-4-ultra'))return CLIENT_MODEL_CREDIT_COST.image_ultra;
     if(id.includes('imagen-4') || id.includes('gpt-image'))return CLIENT_MODEL_CREDIT_COST.image_mid;
     return CLIENT_MODEL_CREDIT_COST.image_free;
@@ -2294,8 +2295,8 @@ function syncActiveCreditDisplay(remaining,cost){
   }
   if(typeof updateQuota==='function')updateQuota();
 }
-async function chargeSuccessfulUse(model,provider,kind){
-  const cost=getClientModelCreditCost(model,provider,kind);
+async function chargeSuccessfulUse(model,provider,kind,forcedCost){
+  const cost=Number.isFinite(Number(forcedCost))?Number(forcedCost):getClientModelCreditCost(model,provider,kind);
   if(!cost)return {cost:0,remaining:null};
   if(user?.guest){
     const remaining=Math.max(0,Number(user.totalTokens||GUEST_STARTER_CREDITS)-Number(user.usedTokens||0));
@@ -2312,7 +2313,7 @@ async function chargeSuccessfulUse(model,provider,kind){
   if(authToken){
     const endpoint=kind==='image'?'/api/deduct-image-credit':'/api/deduct-credit';
     try{
-      const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},body:JSON.stringify({model,provider})});
+      const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},body:JSON.stringify({model,provider,requestedModel:model,requestedProvider:provider,kind})});
       const d=await readApiJson(r);
       if(!r.ok)throw new Error(d.error?.message||d.error||'Kredi düşülemedi');
       syncActiveCreditDisplay(d.remaining,d.cost);
@@ -3066,7 +3067,10 @@ async function sendMsg(){
     msg('Krediniz seçili modele yetmediği için uygun çalışan modele geçildi.','ok');
   }
   const apiModel=modelDef?.apiId||model;
-  const estimatedCost=getClientModelCreditCost(model,modelDef?.provider||getModelProvider(model),'chat');
+  const requestedModel=model;
+  const requestedProvider=modelDef?.provider||getModelProvider(model);
+  const requestedCost=getClientModelCreditCost(requestedModel,requestedProvider,'chat');
+  const estimatedCost=requestedCost;
   if(user?.guest && (Number(user.totalTokens||GUEST_STARTER_CREDITS)-Number(user.usedTokens||0))<estimatedCost){
     msg('Misafir krediniz yetersiz. Ücretsiz hesap açınca 100 kredi alırsınız.','err');
     return;
@@ -3097,7 +3101,9 @@ async function sendMsg(){
       addImageHistory(directUrl,p,cmdModel);
       botMsg.content='__IMG__'+directUrl+'__PROMPT__'+p;
       saveChats();renderMsgs({stickToBottom:true});
-      await chargeSuccessfulUse(cmdModel,imageProviderForModel(cmdModel),'image');
+      const billedProvider=imageProviderForModel(cmdModel);
+      const billedCost=getClientModelCreditCost(cmdModel,billedProvider,'image');
+      await chargeSuccessfulUse(cmdModel,billedProvider,'image',billedCost);
       setChatSendState(false);
       return;
     }
@@ -3107,7 +3113,9 @@ async function sendMsg(){
         addImageHistory(imgData.url,p,cmdModel);
         botMsg.content='__IMG__'+imgData.url+'__PROMPT__'+p;
         saveChats();renderMsgs({stickToBottom:true});
-        await chargeSuccessfulUse(imgData.model||cmdModel,imgData.provider||imageProviderForModel(cmdModel),'image');
+        const billedProvider=imageProviderForModel(cmdModel);
+        const billedCost=getClientModelCreditCost(cmdModel,billedProvider,'image');
+        await chargeSuccessfulUse(cmdModel,billedProvider,'image',billedCost);
       }else{
         botMsg.content='❌ Görsel üretilemedi: '+(imgData.error||'Bilinmeyen hata');
         saveChats();renderMsgs();
@@ -3117,7 +3125,9 @@ async function sendMsg(){
       addImageHistory(fallbackUrl,p,cmdModel);
       botMsg.content='__IMG__'+fallbackUrl+'__PROMPT__'+p;
       saveChats();renderMsgs({stickToBottom:true});
-      await chargeSuccessfulUse('flux','pollinations','image');
+      const billedProvider=imageProviderForModel(cmdModel);
+      const billedCost=getClientModelCreditCost(cmdModel,billedProvider,'image');
+      await chargeSuccessfulUse(cmdModel,billedProvider,'image',billedCost);
       if(typeof msg==='function')msg('Görsel sağlayıcısı gecikti; çalışan Flux yedeğine geçildi.','err');
     }
     setChatSendState(false);
@@ -3134,7 +3144,10 @@ async function sendMsg(){
       addImageHistory(directUrl,imagePrompt,modelDef?.id || 'image');
       botMsg.content='__IMG__'+directUrl+'__PROMPT__'+imagePrompt;
       saveChats();renderMsgs({stickToBottom:true});
-      await chargeSuccessfulUse(apiModel,imageProviderForModel(apiModel),'image');
+      const billedImageModel=modelDef?.id||apiModel;
+      const billedProvider=imageProviderForModel(apiModel);
+      const billedCost=getClientModelCreditCost(billedImageModel,billedProvider,'image');
+      await chargeSuccessfulUse(billedImageModel,billedProvider,'image',billedCost);
       setChatSendState(false);
       return;
     }
@@ -3144,7 +3157,10 @@ async function sendMsg(){
         addImageHistory(imgData.url,imagePrompt,modelDef?.id || 'image');
         botMsg.content='__IMG__'+imgData.url+'__PROMPT__'+imagePrompt;
         saveChats();renderMsgs({stickToBottom:true});
-        await chargeSuccessfulUse(imgData.model||apiModel,imgData.provider||imageProviderForModel(apiModel),'image');
+        const billedImageModel=modelDef?.id||apiModel;
+        const billedProvider=imageProviderForModel(apiModel);
+        const billedCost=getClientModelCreditCost(billedImageModel,billedProvider,'image');
+        await chargeSuccessfulUse(billedImageModel,billedProvider,'image',billedCost);
       }else{
         botMsg.content='❌ Görsel üretilemedi: '+(imgData.error||'Bilinmeyen hata');
         saveChats();renderMsgs();
@@ -3154,7 +3170,10 @@ async function sendMsg(){
       addImageHistory(fallbackUrl,imagePrompt,modelDef?.id || 'image');
       botMsg.content='__IMG__'+fallbackUrl+'__PROMPT__'+imagePrompt;
       saveChats();renderMsgs({stickToBottom:true});
-      await chargeSuccessfulUse('flux','pollinations','image');
+      const billedImageModel=modelDef?.id||apiModel;
+      const billedProvider=imageProviderForModel(apiModel);
+      const billedCost=getClientModelCreditCost(billedImageModel,billedProvider,'image');
+      await chargeSuccessfulUse(billedImageModel,billedProvider,'image',billedCost);
       if(typeof msg==='function')msg('Görsel sağlayıcısı gecikti; çalışan Flux yedeğine geçildi.','err');
     }
     setChatSendState(false);
@@ -3259,15 +3278,13 @@ async function sendMsg(){
     }
     // Analytics tracking
     if(typeof trackAnalytics==='function')trackAnalytics(model);
-    const chargedModel=data.fallback||data.__model||model;
-    const chargedDef=ALL_MODELS.find(m=>m.id===chargedModel)||modelDef;
-    await chargeSuccessfulUse(chargedModel,chargedDef?.provider||provider,'chat');
+    await chargeSuccessfulUse(requestedModel,requestedProvider,'chat',requestedCost);
   }catch(err){
     try{
       const directReply=await directPollinationsReply([{role:'user',content:txt}],'pollinations-openai');
       botMsg.content=directReply;
       saveChats();renderMsgs({stickToBottom:true});
-      await chargeSuccessfulUse('pollinations-openai','pollinations','chat');
+      await chargeSuccessfulUse(requestedModel,requestedProvider,'chat',requestedCost);
       if(typeof msg==='function')msg('Seçili model yanıt vermedi; GPT Sınırsız yedeğine geçildi.','ok');
     }catch(fallbackErr){
       botMsg.content='Seçili model şu an yanıt vermedi. Çalışan yedek model önerim: GPT Sınırsız veya Llama 3.1 8B.';
@@ -5623,16 +5640,22 @@ async function genImage(){
     if (res.ok && data.url) {
       const note = data.provider ? `${data.provider} ile üretildi` : '';
       renderImageResult(resEl, data.url, prompt, model, note);
-      await chargeSuccessfulUse(data.model||model,data.provider||imageProviderForModel(model),'image');
+      const billedProvider=imageProviderForModel(model);
+      const billedCost=getClientModelCreditCost(model,billedProvider,'image');
+      await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
     } else {
       const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
       renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
-      await chargeSuccessfulUse('flux','pollinations','image');
+      const billedProvider=imageProviderForModel(model);
+      const billedCost=getClientModelCreditCost(model,billedProvider,'image');
+      await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
     }
   } catch (err) {
     const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
     renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
-    await chargeSuccessfulUse('flux','pollinations','image');
+    const billedProvider=imageProviderForModel(model);
+    const billedCost=getClientModelCreditCost(model,billedProvider,'image');
+    await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
   }
   
   btn.disabled = false;

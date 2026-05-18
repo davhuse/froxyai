@@ -1,4 +1,4 @@
-﻿+----:root{
++----:root{
   /* Core palette */
   --bg:#0B0F1A;--bg2:#111827;--bg3:#1a2035;
   --glass:rgba(255,255,255,.05);--border:rgba(255,255,255,.08);
@@ -18159,4 +18159,118 @@ body.theme-light #ptab-agents .agent-fav-btn.on{
     width:32px!important;
     height:32px!important;
   }
+}
+
+/* v186 — auth robot full-body restore */
+.auth-modal-v2 .auth-hero-logo-rail,
+.auth-modal-v2 .auth-logo-rail,
+.auth-modal-v2 .auth-brand-rail,
+.auth-modal-v2 .auth-hero [class*="logo-rail"]{
+  display:none!important;
+}
+.auth-modal-v2 .auth-robots{
+  width:340px!important;
+  height:350px!important;
+  overflow:visible!important;
+}
+.auth-modal-v2 .auth-robot{
+  overflow:visible!important;
+}
+.auth-modal-v2 .auth-robot.r1{
+  top:49%!important;
+  transform:translate(-50%,-50%) scale(1.12)!important;
+}
+.auth-modal-v2 .auth-robot .robot-body{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  overflow:visible!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.auth-modal-v2 .auth-robot .robot-head{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  overflow:visible!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.auth-modal-v2 .auth-robot .robot-face{
+  position:relative!important;
+  z-index:3!important;
+}
+.auth-modal-v2 .auth-robot .robot-torso{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  position:relative!important;
+  opacity:1!important;
+  visibility:visible!important;
+  border:2px solid rgba(125,211,252,.20)!important;
+  background:
+    radial-gradient(circle at 50% 18%,rgba(125,211,252,.12),transparent 38%),
+    linear-gradient(180deg,#223450,#0e1728)!important;
+  box-shadow:0 16px 32px rgba(2,6,23,.34),0 0 24px rgba(34,211,238,.12),inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+.auth-modal-v2 .auth-robot.r1 .robot-torso{
+  width:90px!important;
+  height:72px!important;
+  margin-top:5px!important;
+  border-radius:22px!important;
+}
+.auth-modal-v2 .auth-robot.r2 .robot-torso.mini{
+  width:58px!important;
+  height:42px!important;
+  margin-top:5px!important;
+  border-radius:15px!important;
+}
+.auth-modal-v2 .auth-robot.r3 .robot-torso.slim{
+  width:60px!important;
+  height:46px!important;
+  margin-top:5px!important;
+  border-radius:16px!important;
+}
+.auth-modal-v2 .auth-robot .robot-arm{
+  opacity:1!important;
+  visibility:visible!important;
+  background:linear-gradient(180deg,#273957,#101827)!important;
+  border:1.5px solid rgba(125,211,252,.20)!important;
+  box-shadow:0 8px 18px rgba(2,6,23,.32),0 0 12px rgba(34,211,238,.10)!important;
+}
+.auth-modal-v2 .auth-robot.r1 .robot-arm.left{
+  left:-18px!important;
+}
+.auth-modal-v2 .auth-robot.r1 .robot-arm.right{
+  right:-18px!important;
+}
+.auth-modal-v2 .auth-robot .robot-belly,
+.auth-modal-v2 .auth-robot .robot-core-chip{
+  opacity:1!important;
+  visibility:visible!important;
+  color:rgba(103,232,249,.88)!important;
+  filter:drop-shadow(0 0 10px rgba(34,211,238,.35))!important;
+}
+.auth-modal-v2 .auth-robot .robot-core-bar,
+.auth-modal-v2 .auth-robot .robot-shoulder{
+  opacity:1!important;
+  visibility:visible!important;
+  background:linear-gradient(90deg,#22d3ee,#7c3aed)!important;
+  box-shadow:0 0 18px rgba(34,211,238,.38)!important;
+}
+.auth-modal-v2 .auth-robot .robot-core-bar{
+  width:40px!important;
+  height:5px!important;
+  bottom:10px!important;
+}
+.auth-modal-v2 .auth-robots.shy-mode .robot-eye{
+  height:4px!important;
+  min-height:4px!important;
+  transform:none!important;
+}
+.auth-modal-v2 .auth-robots.shy-mode .robot-pupil{
+  opacity:0!important;
+  visibility:hidden!important;
 }
