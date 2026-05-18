@@ -2,6 +2,32 @@
 let authToken = localStorage.getItem('saas_token') || null;
 let authUser = JSON.parse(localStorage.getItem('saas_user') || 'null');
 const GOOGLE_OAUTH_CLIENT_ID = '580593981475-ap8a5orgj3f1lit8g3rgr8dd7svl06qi.apps.googleusercontent.com';
+const DEFAULT_REMOTE_API_ORIGIN = 'https://froxyai-production.up.railway.app';
+const API_ORIGIN = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname)
+  ? ''
+  : (localStorage.getItem('ap_api_origin') || DEFAULT_REMOTE_API_ORIGIN);
+
+function apiUrl(input){
+  if(!input || typeof input !== 'string')return input;
+  if(input.startsWith('/api/'))return API_ORIGIN ? (API_ORIGIN + input) : input;
+  try{
+    const parsed=new URL(input, window.location.origin);
+    if(parsed.origin===window.location.origin && parsed.pathname.startsWith('/api/')){
+      return (API_ORIGIN || parsed.origin) + parsed.pathname + parsed.search;
+    }
+  }catch(e){}
+  return input;
+}
+
+const nativeFetch = window.fetch.bind(window);
+window.fetch = function(input, init){
+  if(typeof input === 'string') return nativeFetch(apiUrl(input), init);
+  if(input instanceof Request){
+    const rewritten = apiUrl(input.url);
+    if(rewritten !== input.url) return nativeFetch(new Request(rewritten, input), init);
+  }
+  return nativeFetch(input, init);
+};
 
 // v135: Visible UI text repair. Some older edits saved Turkish strings as
 // mojibake or literal question marks, so dynamic panels are normalized at render time.
@@ -9,13 +35,26 @@ const GOOGLE_OAUTH_CLIENT_ID = '580593981475-ap8a5orgj3f1lit8g3rgr8dd7svl06qi.ap
   const CHAR_REPAIRS = [
     ['Ç','\u00c7'],['ç','\u00e7'],['Ö','\u00d6'],['ö','\u00f6'],['Ü','\u00dc'],['ü','\u00fc'],
     ['İ','\u0130'],['ı','\u0131'],['Ğ','\u011e'],['ğ','\u011f'],['Ş','\u015e'],['ş','\u015f'],
+    ['Ã‡','\u00c7'],['Ã§','\u00e7'],['Ã–','\u00d6'],['Ã¶','\u00f6'],['Ãœ','\u00dc'],['Ã¼','\u00fc'],
+    ['Ä°','\u0130'],['Ä±','\u0131'],['Äž','\u011e'],['ÄŸ','\u011f'],['Åž','\u015e'],['ÅŸ','\u015f'],
     ['·','\u00b7'],['Â₺','\u20ba'],['₺','\u20ba'],['—','\u2014'],['–','\u2013'],['…','\u2026'],['→','\u2192'],
+    ['â‚º','\u20ba'],['â€”','\u2014'],['â€“','\u2013'],['â€¦','\u2026'],['â†’','\u2192'],['â†','\u2190'],['â†—','\u2197'],['â†µ','\u21b5'],
+    ['â–¼','\u25bc'],['âŒ','\u2301'],
     ['✅','\u2705'],['❌','\u274c'],['⏳','\u23f3'],['✕','\u00d7'],['✓','\u2713'],['⬇','\u2b07'],['⭐','\u2b50'],
+    ['âœ“','\u2713'],['âœ…','\u2705'],['âŒ','\u274c'],['â³','\u23f3'],['âœ•','\u00d7'],['â¬‡','\u2b07'],['â­','\u2b50'],
     ['🤖','\ud83e\udd16'],['🎨','\ud83c\udfa8'],['🎬','\ud83c\udfac'],['💻','\ud83d\udcbb'],
     ['📝','\ud83d\udcdd'],['🌐','\ud83c\udf10'],['🔊','\ud83d\udd0a'],['📊','\ud83d\udcca'],
     ['📋','\ud83d\udccb'],['📄','\ud83d\udcc4'],['🔥','\ud83d\udd25'],['🧠','\ud83e\udde0'],
     ['💬','\ud83d\udcac'],['🚀','\ud83d\ude80'],['🔍','\ud83d\udd0d'],['👥','\ud83d\udc65'],
-    ['🛒','\ud83d\uded2'],['🎫','\ud83c\udfab'],['🌙','\ud83c\udf19']
+    ['🛒','\ud83d\uded2'],['🎫','\ud83c\udfab'],['🌙','\ud83c\udf19'],
+    ['ğŸ¤–','\ud83e\udd16'],['ğŸ¨','\ud83c\udfa8'],['ğŸ¬','\ud83c\udfac'],['ğŸ’»','\ud83d\udcbb'],
+    ['ğŸ“','\ud83d\udcdd'],['ğŸŒ','\ud83c\udf10'],['ğŸ”Š','\ud83d\udd0a'],['ğŸ“Š','\ud83d\udcca'],
+    ['ğŸ“‹','\ud83d\udccb'],['ğŸ“„','\ud83d\udcc4'],['ğŸ”¥','\ud83d\udd25'],['ğŸ§ ','\ud83e\udde0'],
+    ['ğŸ’¬','\ud83d\udcac'],['ğŸš€','\ud83d\ude80'],['ğŸ”','\ud83d\udd0d'],['ğŸ‘¥','\ud83d\udc65'],
+    ['ğŸ›’','\ud83d\uded2'],['ğŸŽ«','\ud83c\udfab'],['ğŸŒ™','\ud83c\udf19'],['ğŸ›¡','\ud83d\udee1'],['ğŸ“‰','\ud83d\udcc9'],
+    ['ğŸ›','\ud83d\udc1b'],['ğŸ†','\ud83c\udfc6'],['ğŸ”‘','\ud83d\udd11'],['ğŸ‘¥','\ud83d\udc65'],['ğŸ”§','\ud83d\udd27'],
+    ['ğŸ“¢','\ud83d\udce2'],['ğŸŽ«','\ud83c\udfab'],['ğŸ’¾','\ud83d\udcbe'],['ğŸ”—','\ud83d\udd17'],['ğŸŽ','\ud83c\udf81'],
+    ['ğŸ”“','\ud83d\udd13'],['ğŸ–¼ï¸','🖼️']
   ];
   const PHRASE_REPAIRS = [
     ['G?rsel ?ret','G\u00f6rsel \u00dcret'],['G?rsel ?retildi','G\u00f6rsel \u00fcretildi'],['G?rsel olu?turuluyor','G\u00f6rsel olu\u015fturuluyor'],
@@ -42,7 +81,7 @@ const GOOGLE_OAUTH_CLIENT_ID = '580593981475-ap8a5orgj3f1lit8g3rgr8dd7svl06qi.ap
   const SKIP_TAGS = new Set(['SCRIPT','STYLE','TEXTAREA','CODE','PRE','NOSCRIPT','SVG']);
   let observer;
   function tryDecodeMojibake(value){
-    if(!/[ÃÄÅÂ]/.test(value))return value;
+    if(!/[ÃÄÅÂâğ]/.test(value))return value;
     try{
       const bytes=[];
       for(const ch of value){
@@ -86,6 +125,47 @@ const GOOGLE_OAUTH_CLIENT_ID = '580593981475-ap8a5orgj3f1lit8g3rgr8dd7svl06qi.ap
       .replace(/\bHatas\?\b/g,'Hatas\u0131')
       .replace(/Å\u009e/g,'\u015e')
       .replace(/Å\x9e/g,'\u015e')
+      .replace(/GiriÅŸ/g,'Giriş')
+      .replace(/BaÅŸla/g,'Başla')
+      .replace(/baÅŸla/g,'başla')
+      .replace(/oluÅŸ/g,'oluş')
+      .replace(/oluÅŸtur/g,'oluştur')
+      .replace(/çalıÅŸ/g,'çalış')
+      .replace(/çalÄ±ÅŸ/g,'çalış')
+      .replace(/ÇalıÅŸ/g,'Çalış')
+      .replace(/akıÅŸ/g,'akış')
+      .replace(/AkıÅŸ/g,'Akış')
+      .replace(/eriÅŸ/g,'eriş')
+      .replace(/keÅŸ/g,'keş')
+      .replace(/karÅŸ/g,'karş')
+      .replace(/karÅŸılaÅŸ/g,'karşılaş')
+      .replace(/MüÅŸ/g,'Müş')
+      .replace(/GeliÅŸ/g,'Geliş')
+      .replace(/hoÅŸ/g,'hoş')
+      .replace(/HoÅŸ/g,'Hoş')
+      .replace(/DıÅŸ/g,'Dış')
+      .replace(/dÄ±ÅŸ/g,'dış')
+      .replace(/DüÅŸ/g,'Düş')
+      .replace(/BaÅŸlÄ±k/g,'Başlık')
+      .replace(/BaÅŸlangÄ±Ã§/g,'Başlangıç')
+      .replace(/Yüklenemedi/g,'Yüklenemedi')
+      .replace(/Baslat/g,'Başlat')
+      .replace(/Toplu Uretim/g,'Toplu Üretim')
+      .replace(/uretiliyor/g,'üretiliyor')
+      .replace(/Giris yapin/g,'Giriş yapın')
+      .replace(/ğŸ\S*/g,'')
+      .replace(/âœ\S*/g,'')
+      .replace(/âš\S*/g,'')
+      .replace(/â†\S*/g,'')
+      .replace(/Ã¯Â¸Â/g,'')
+      .replace(/Â·/g,' · ')
+      .replace(/\s{2,}/g,' ')
+      .replace(/AçÄ±k/g,'Açık')
+      .replace(/AÃ§Ä±k/g,'Açık')
+      .replace(/AÃ§Ä±klama/g,'Açıklama')
+      .replace(/KullanÄ±cÄ±/g,'Kullanıcı')
+      .replace(/Toplam gorsel/g,'Toplam görsel')
+      .replace(/Veri alinamadi/g,'Veri alınamadı')
       .replace(/🩺/g,'\ud83e\ude7a')
       .replace(/\bDetay\b/g,'Detay');
     return out;
@@ -361,7 +441,13 @@ function setChatSendState(busy=false){
 function imageUrlForDisplay(url){
   if(!url)return '';
   if(url.startsWith('data:')||url.startsWith('blob:'))return url;
+  if(url.startsWith('/generated/') && API_ORIGIN)return API_ORIGIN + url + (url.includes('?')?'&':'?') + 't=' + Date.now();
   return url+(url.includes('?')?'&':'?')+'t='+Date.now();
+}
+function imageUrlForDownload(url){
+  if(!url)return '';
+  if(url.startsWith('/generated/') && API_ORIGIN)return API_ORIGIN + url;
+  return url;
 }
 function getImageModelLabel(model){
   const sel=document.getElementById('img-model');
@@ -471,8 +557,8 @@ function renderImageResult(resEl, url, prompt, model, fallbackNote=''){
   if(imgEl){
     imgEl.onload = () => {
       imgEl.dataset.imgState = 'loaded';
-      lastImgUrl = imgEl.src;
-      addImageHistory(imgEl.src, prompt, model);
+      lastImgUrl = imageUrlForDownload(url);
+      addImageHistory(imageUrlForDownload(url), prompt, model);
     };
     imgEl.onerror = () => {
       if(!imgEl.dataset.fallbackTried){
@@ -772,7 +858,8 @@ const ALL_MODELS = [
   {id:'openrouter-qwen3-coder-free',name:'Qwen3 Coder Free',tier:'free',provider:'openrouter',cat:'qwen',apiId:'qwen/qwen-2.5-coder-32b-instruct:free'},
 ];
 const PLANS = {
-  free: { name: 'Free', tokens: 500, price: 0, daily_chat: 10, daily_image: 3 },
+  guest: { name: 'Misafir', tokens: 30, price: 0, daily_chat: 5, daily_image: 1 },
+  free: { name: 'Free', tokens: 100, price: 0, daily_chat: 10, daily_image: 3 },
   starter: { name: 'Starter', tokens: 5000, price: 129.99, daily_chat: 200, daily_image: 50 },
   popular: { name: 'Pop\u00fcler', tokens: 15000, price: 249.99, daily_chat: 500, daily_image: 150 },
   pro: { name: 'Profesyonel', tokens: 50000, price: 449.99, daily_chat: 1500, daily_image: 400 },
@@ -783,6 +870,8 @@ const PLANS = {
   business: { name: 'Business', tokens: 150000, price: 799.99, daily_chat: 5000, daily_image: 1500 },
   enterprise: { name: 'Enterprise', tokens: 500000, price: 1499.99, daily_chat: 999999, daily_image: 999999 }
 };
+const GUEST_STARTER_CREDITS = 30;
+const FREE_STARTER_CREDITS = 100;
 
 // ===== STORAGE =====
 const LS = {
@@ -976,7 +1065,7 @@ let modelCatalogPromise=null;
 let remoteModelCount=0;
 const REMOTE_MODEL_TARGET_COUNT=448;
 const MODEL_TIER_LEVEL={free:0,starter:1,pro:2,enterprise:3};
-const PLAN_MODEL_LEVEL={free:0,starter:1,popular:1,pro:2,creator:2,developer:3,power:3,agency_start:3,business:3,enterprise:3};
+const PLAN_MODEL_LEVEL={guest:0,free:0,starter:1,popular:1,pro:2,creator:2,developer:3,power:3,agency_start:3,business:3,enterprise:3};
 const CLIENT_EXTRA_REMOTE_MODELS=[
   { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', name: 'Llama 3.3 70B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'llama', remote: true },
   { id: '@cf/mistralai/mistral-small-3.1-24b-instruct', name: 'Mistral Small 3.1 24B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'mistral', remote: true },
@@ -1059,7 +1148,7 @@ function syncAuthUserToLocal(){
     email:authUser.email||'',
     plan:authUser.plan,
     apiKey:authToken||'',
-    totalTokens:Number(authUser.credits||PLANS[authUser.plan].tokens||PLANS.free.tokens),
+    totalTokens:Number(authUser.credits ?? PLANS[authUser.plan]?.tokens ?? PLANS.free.tokens),
     usedTokens:Number(authUser.usedTokens||0),
     requests:Number(authUser.total_requests||authUser.requests||0),
     status:'active',
@@ -1144,6 +1233,7 @@ async function loadRemoteModelCatalog(){
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded',()=>{
+  normalizeCreditBalances();
   LS.del('ap_models');
   if(LS.get('ap_admin_pass',null)==='admin123')LS.del('ap_admin_pass');
   enabledModels=ALL_MODELS.map(m=>m.id);
@@ -1206,10 +1296,15 @@ function closeM(){
   let raf = 0;
   let lastX = window.innerWidth / 2;
   let lastY = window.innerHeight / 2;
+  let isPasswordMode = false;
+  
   function updateRobotEyes(){
     raf = 0;
     const modal = document.getElementById('auth-modal');
     if(modal && !modal.classList.contains('open')) return;
+    
+    // Pupil tracking (only when not in password mode)
+    if(isPasswordMode) return;
     pupils.forEach(function(p){
       const eye = p.parentElement;
       if(!eye) return;
@@ -1225,11 +1320,231 @@ function closeM(){
       p.style.transform = 'translate(calc(-50% + '+tx.toFixed(2)+'px), calc(-50% + '+ty.toFixed(2)+'px))';
     });
   }
+  
   document.addEventListener('mousemove', function(e){
     lastX = e.clientX;
     lastY = e.clientY;
     if(!raf) raf = requestAnimationFrame(updateRobotEyes);
   }, { passive:true });
+  
+  // Password mode: close robot eyes (covered by hands)
+  function setPasswordMode(active){
+    isPasswordMode = active;
+    document.querySelectorAll('.auth-robots').forEach(function(wrap){
+      wrap.classList.toggle('shy-mode', active);
+    });
+  }
+  
+  // Listen for password input focus/blur
+  document.addEventListener('focusin', function(e){
+    const t = e.target;
+    if(t && (t.type === 'password' || (t.id && /password|pass|sifre|sifre-yeni/i.test(t.id)))){
+      setPasswordMode(true);
+    }
+  });
+  document.addEventListener('focusout', function(e){
+    const t = e.target;
+    if(t && (t.type === 'password' || (t.id && /password|pass|sifre/i.test(t.id)))){
+      setPasswordMode(false);
+    }
+  });
+})();
+
+// ===== CHAT MOUSE FOLLOW GLOW =====
+(function(){
+  let glowEl = null;
+  let raf = 0;
+  let mx = 0, my = 0;
+  let visible = false;
+  
+  function ensureGlow(){
+    if(glowEl) return glowEl;
+    glowEl = document.createElement('div');
+    glowEl.className = 'chat-mouse-glow';
+    document.body.appendChild(glowEl);
+    return glowEl;
+  }
+  
+  function isInChatArea(target){
+    if(!target) return false;
+    const inChat = target.closest('#v-chat, #ptab-chat, .chat-main, .chat-area, .chat-canvas');
+    return Boolean(inChat);
+  }
+  
+  function updateGlow(){
+    raf = 0;
+    if(!glowEl) return;
+    glowEl.style.left = mx + 'px';
+    glowEl.style.top = my + 'px';
+  }
+  
+  document.addEventListener('mousemove', function(e){
+    const inside = isInChatArea(e.target);
+    if(inside){
+      ensureGlow();
+      mx = e.clientX;
+      my = e.clientY;
+      if(!visible){
+        visible = true;
+        glowEl.classList.add('active');
+      }
+      if(!raf) raf = requestAnimationFrame(updateGlow);
+    } else if(visible){
+      visible = false;
+      if(glowEl) glowEl.classList.remove('active');
+    }
+  }, { passive:true });
+  
+  document.addEventListener('mouseleave', function(){
+    if(visible && glowEl){
+      visible = false;
+      glowEl.classList.remove('active');
+    }
+  });
+})();
+
+// ===== GÖRSEL MODEL CUSTOM PICKER =====
+(function initImgModelPicker(){
+  const NAME_MAP = {
+    'cf-sdxl': { brand: 'CF', desc: 'Cloudflare SDXL — Önerilen', cost: 8, costType: 'free' },
+    'flux': { brand: 'F', desc: 'Flux AI — Hızlı', cost: 8, costType: 'free' },
+    'style-midjourney': { brand: 'MJ', desc: 'Midjourney V6 stili', cost: 8, costType: 'free' },
+    'style-dalle3': { brand: 'D3', desc: 'DALL-E 3 stili', cost: 8, costType: 'free' },
+    'style-anime': { brand: 'AN', desc: 'Anime Diffusion', cost: 8, costType: 'free' },
+    'style-realism': { brand: '8K', desc: 'Hyper-Realism 8K', cost: 8, costType: 'free' },
+    'style-cinematic': { brand: 'CI', desc: 'Cinematic AI', cost: 8, costType: 'free' },
+    'style-3d': { brand: 'UE', desc: 'Unreal Engine 5', cost: 8, costType: 'free' },
+    'style-cyberpunk': { brand: 'CP', desc: 'Cyberpunk Vision', cost: 8, costType: 'free' },
+    'stability-core': { brand: 'SC', desc: 'Stability Core', cost: 25, costType: 'pro' },
+    'stability-ultra': { brand: 'SU', desc: 'Stability Ultra HD', cost: 40, costType: 'pro' },
+    'imagen-4': { brand: 'I4', desc: 'Google Imagen 4.0', cost: 25, costType: 'pro' },
+    'imagen-4-fast': { brand: 'IF', desc: 'Imagen 4.0 Fast', cost: 15, costType: 'pro' }
+  };
+  const FLAG_GRADIENTS = {
+    'cf-sdxl': 'linear-gradient(135deg,#06b6d4,#3b82f6)',
+    'flux': 'linear-gradient(135deg,#0ea5e9,#06b6d4)',
+    'style-midjourney': 'linear-gradient(135deg,#a78bfa,#7c3aed)',
+    'style-dalle3': 'linear-gradient(135deg,#10b981,#3b82f6)',
+    'style-anime': 'linear-gradient(135deg,#ec4899,#f97316)',
+    'style-realism': 'linear-gradient(135deg,#64748b,#0f172a)',
+    'style-cinematic': 'linear-gradient(135deg,#facc15,#ef4444)',
+    'style-3d': 'linear-gradient(135deg,#8b5cf6,#ec4899)',
+    'style-cyberpunk': 'linear-gradient(135deg,#22d3ee,#a855f7)',
+    'stability-core': 'linear-gradient(135deg,#f59e0b,#d97706)',
+    'stability-ultra': 'linear-gradient(135deg,#ec4899,#7c3aed)',
+    'imagen-4': 'linear-gradient(135deg,#4285f4,#9b72cb)',
+    'imagen-4-fast': 'linear-gradient(135deg,#06b6d4,#10b981)'
+  };
+  
+  function init(){
+    const sel = document.getElementById('img-model');
+    if(!sel || sel.dataset.customDone === '1') return;
+    sel.dataset.customDone = '1';
+    sel.dataset.customActive = '1';
+    
+    const wrap = document.createElement('div');
+    wrap.className = 'img-model-picker';
+    wrap.id = 'img-model-picker';
+    
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'img-model-picker-trigger';
+    
+    const panel = document.createElement('div');
+    panel.className = 'img-model-picker-panel';
+    
+    function renderTrigger(){
+      const v = sel.value;
+      const meta = NAME_MAP[v] || { brand: '?', desc: 'Model', cost: 8, costType: 'free' };
+      trigger.innerHTML = `
+        <span class="img-model-picker-flag" style="background:${FLAG_GRADIENTS[v] || 'linear-gradient(135deg,#7c3aed,#3b82f6)'}">${meta.brand}</span>
+        <span class="img-model-picker-info">
+          <strong>${meta.desc.split('—')[0].trim()}</strong>
+          <span>${meta.cost} kredi · ${meta.desc.includes('—') ? meta.desc.split('—')[1].trim() : 'görsel modeli'}</span>
+        </span>
+        <span class="img-model-picker-cost ${meta.costType}">${meta.cost} kredi</span>
+        <svg class="img-model-picker-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      `;
+    }
+    
+    function renderPanel(){
+      let html = '';
+      const groups = sel.querySelectorAll('optgroup');
+      groups.forEach(function(grp){
+        html += `<div class="img-model-picker-group">${grp.label}</div>`;
+        const opts = grp.querySelectorAll('option');
+        opts.forEach(function(opt){
+          const v = opt.value;
+          const meta = NAME_MAP[v] || { brand: '?', desc: opt.textContent, cost: 8, costType: 'free' };
+          const isSelected = sel.value === v;
+          html += `
+            <button type="button" class="img-model-picker-option ${isSelected ? 'selected' : ''}" data-value="${v}">
+              <span class="img-model-picker-option-flag" style="background:${FLAG_GRADIENTS[v] || 'linear-gradient(135deg,#7c3aed,#3b82f6)'}">${meta.brand}</span>
+              <span class="img-model-picker-option-body">
+                <strong>${opt.textContent}</strong>
+                <span>${meta.cost} kredi · ${meta.costType === 'free' ? 'Hızlı' : 'Premium'}</span>
+              </span>
+              <span class="img-model-picker-cost ${meta.costType}">${meta.cost}</span>
+            </button>
+          `;
+        });
+      });
+      panel.innerHTML = html;
+    }
+    
+    function close(){
+      wrap.classList.remove('open');
+    }
+    function toggle(){
+      const wasOpen = wrap.classList.contains('open');
+      // close any others
+      document.querySelectorAll('.img-model-picker.open').forEach(function(w){ w.classList.remove('open'); });
+      if(!wasOpen) {
+        renderPanel();
+        wrap.classList.add('open');
+      }
+    }
+    
+    trigger.addEventListener('click', function(e){
+      e.stopPropagation();
+      toggle();
+    });
+    
+    panel.addEventListener('click', function(e){
+      const opt = e.target.closest('.img-model-picker-option');
+      if(!opt) return;
+      const v = opt.dataset.value;
+      if(!v) return;
+      sel.value = v;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      renderTrigger();
+      close();
+    });
+    
+    document.addEventListener('click', function(e){
+      if(!wrap.contains(e.target)) close();
+    });
+    
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') close();
+    });
+    
+    sel.addEventListener('change', renderTrigger);
+    
+    renderTrigger();
+    renderPanel();
+    wrap.appendChild(trigger);
+    wrap.appendChild(panel);
+    sel.parentElement.insertBefore(wrap, sel);
+  }
+  
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+  // Also init on go('chat') in case panels are dynamic
+  setTimeout(init, 1500);
 })();
 
 function tab(t){
@@ -1506,7 +1821,7 @@ function finishOAuthLogin(provider,name,email,avatar){
   const myRefCode=genRefCode(name);
   user={
     id:Date.now(),name,email,pass:'oauth_'+provider+'_'+Date.now(),plan:'free',
-    apiKey:genKey(),totalTokens:PLANS.free.tokens+500,usedTokens:0,requests:0,status:'active',
+    apiKey:genKey(),totalTokens:PLANS.free.tokens,usedTokens:0,requests:0,status:'active',
     createdAt:new Date().toISOString(),refCode:myRefCode,referrals:[],refBonusTotal:0,
     hasFirstTimeCoupon:true,couponUsed:false,loginStreak:1,
     lastLoginDate:new Date().toISOString().split('T')[0],streakBonusTotal:500,
@@ -1585,7 +1900,7 @@ function handleOAuthCallback(){
     const myRefCode=genRefCode(name);
     user={
       id:Date.now(),name,email,pass:'oauth_'+provider+'_'+Date.now(),plan:'free',
-      apiKey:genKey(),totalTokens:PLANS.free.tokens+500,usedTokens:0,requests:0,status:'active',
+      apiKey:genKey(),totalTokens:PLANS.free.tokens,usedTokens:0,requests:0,status:'active',
       createdAt:new Date().toISOString(),refCode:myRefCode,referrals:[],refBonusTotal:0,
       hasFirstTimeCoupon:true,couponUsed:false,loginStreak:1,
       lastLoginDate:new Date().toISOString().split('T')[0],streakBonusTotal:500,
@@ -1873,27 +2188,52 @@ function genImage(){
     }).catch(e=>res.innerHTML='<p style="color:var(--red)">❌ Hata: '+e.message+'</p>');
 }
 function userKey(){return user?user.id||'admin':'guest'}
+function normalizeCreditBalances(){
+  try{
+    const rows=LS.get('ap_users',[]);
+    let changed=false;
+    rows.forEach(function(u){
+      if(!u)return;
+      if((u.plan||'free')==='free' && !u.isAdmin){
+        u.totalTokens=FREE_STARTER_CREDITS;
+        if(Number(u.usedTokens||0)>FREE_STARTER_CREDITS)u.usedTokens=FREE_STARTER_CREDITS;
+        changed=true;
+      }
+    });
+    if(changed)LS.set('ap_users',rows);
+    const active=LS.get('ap_user',null);
+    if(active && (active.plan||'free')==='free' && !active.isAdmin && !active.guest){
+      active.totalTokens=FREE_STARTER_CREDITS;
+      if(Number(active.usedTokens||0)>FREE_STARTER_CREDITS)active.usedTokens=FREE_STARTER_CREDITS;
+      LS.set('ap_user',active);
+      if(user && user.id===active.id)user=active;
+    }
+  }catch(e){}
+}
 function ensureGuestChatSession(){
   if(user)return;
+  const savedGuest=LS.get('ap_guest_user',null);
+  const used=Math.max(0,Number(savedGuest?.usedTokens||0));
   user={
     id:'guest',
     name:'Misafir',
     email:'',
-    plan:'free',
+    plan:'guest',
     apiKey:'guest',
-    totalTokens:PLANS.free.tokens,
-    usedTokens:0,
-    requests:0,
+    totalTokens:GUEST_STARTER_CREDITS,
+    usedTokens:Math.min(GUEST_STARTER_CREDITS,used),
+    requests:Number(savedGuest?.requests||0),
     status:'active',
     guest:true
   };
+  LS.set('ap_guest_user',user);
   chats=LS.get('ap_chats_guest',[]);
   const psName=document.getElementById('ps-name');
   const psAva=document.getElementById('ps-ava');
   const psPlan=document.getElementById('ps-plan');
   if(psName)psName.textContent='Misafir';
   if(psAva)psAva.textContent='M';
-  if(psPlan)psPlan.textContent='Free';
+  if(psPlan)psPlan.textContent='Misafir';
   updateSidebarAuthActions();
   preferGuestFreeModel();
 }
@@ -1917,6 +2257,77 @@ function preferGuestFreeModel(){
   }
   const btn=document.getElementById('mpb-name');
   if(btn)btn.textContent='GPT Sınırsız';
+}
+
+const CLIENT_MODEL_CREDIT_COST = {free:3,light:8,mid:20,heavy:50,image_free:8,image_mid:25,image_ultra:40};
+function getClientModelCreditCost(model,provider,kind){
+  const id=String(model||'').toLowerCase();
+  const p=String(provider||'').toLowerCase();
+  if(kind==='image' || id.includes('imagen') || id.includes('gpt-image') || id==='flux' || id==='turbo' || id==='sana' || id.includes('cf-sdxl') || id.includes('style-')){
+    if(id.includes('imagen-4-ultra'))return CLIENT_MODEL_CREDIT_COST.image_ultra;
+    if(id.includes('imagen-4') || id.includes('gpt-image'))return CLIENT_MODEL_CREDIT_COST.image_mid;
+    return CLIENT_MODEL_CREDIT_COST.image_free;
+  }
+  if(p==='pollinations' || p==='groq' || p==='cerebras' || id.includes(':free'))return CLIENT_MODEL_CREDIT_COST.free;
+  if(['llama-3.1-8b','llama-3.3-70b','llama-4-scout','llama-4-maverick','gpt-oss-20b','gpt-oss-120b','qwen/qwen3-32b','qwq-32b','mistral-saba','deepseek-r1-distill','gemma2-9b','gemma-3-12b','gemini-flash-latest'].some(x=>id.includes(x)))return CLIENT_MODEL_CREDIT_COST.free;
+  if(['gpt-5.5','gpt-5.4','gpt-5.3-codex','gpt-4.5','claude-opus','claude-sonnet-4-5','o3','o1-pro','gemini-3.1-pro','deepseek-v3.2'].some(x=>id.includes(x)) && !id.includes('mini') && !id.includes('spark'))return CLIENT_MODEL_CREDIT_COST.heavy;
+  if(['gpt-5.4-mini','gpt-5.2','o3-mini','claude-sonnet-4','claude-sonnet-4-6','gemini-3-pro','gemini-2.5-pro','deepseek-v3.1','deepseek-v3','deepseek-v4','grok-3','grok-2'].some(x=>id.includes(x)))return CLIENT_MODEL_CREDIT_COST.mid;
+  if(['claude-haiku','gpt-5.3-codex-spark','gemini-3-flash','gemini-2.5-flash','gemini-2.0-flash','gemma-3','minimax','gpt-5-mini','gpt-5-nano'].some(x=>id.includes(x)))return CLIENT_MODEL_CREDIT_COST.light;
+  if(p==='sambanova' || p==='huggingface')return CLIENT_MODEL_CREDIT_COST.light;
+  return CLIENT_MODEL_CREDIT_COST.light;
+}
+function syncActiveCreditDisplay(remaining,cost){
+  if(Number.isFinite(Number(remaining))){
+    if(authUser)authUser.credits=Number(remaining);
+    if(user){
+      user.totalTokens=Math.max(Number(user.totalTokens||0),Number(remaining));
+      user.usedTokens=Math.max(0,Number(user.totalTokens||0)-Number(remaining));
+      if(authUser)LS.set('ap_user',user);
+    }
+  }
+  if(typeof updateQuota==='function')updateQuota();
+}
+async function chargeSuccessfulUse(model,provider,kind){
+  const cost=getClientModelCreditCost(model,provider,kind);
+  if(!cost)return {cost:0,remaining:null};
+  if(user?.guest){
+    const remaining=Math.max(0,Number(user.totalTokens||GUEST_STARTER_CREDITS)-Number(user.usedTokens||0));
+    if(remaining<cost){
+      if(typeof msg==='function')msg('Misafir krediniz yetersiz. Ücretsiz hesap açınca 100 kredi alırsınız.','err');
+      return {blocked:true,cost,remaining};
+    }
+    user.usedTokens=Math.min(Number(user.totalTokens||GUEST_STARTER_CREDITS),Number(user.usedTokens||0)+cost);
+    user.requests=Number(user.requests||0)+1;
+    LS.set('ap_guest_user',user);
+    updateQuota();
+    return {cost,remaining:Math.max(0,Number(user.totalTokens||0)-Number(user.usedTokens||0))};
+  }
+  if(authToken){
+    const endpoint=kind==='image'?'/api/deduct-image-credit':'/api/deduct-credit';
+    try{
+      const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},body:JSON.stringify({model,provider})});
+      const d=await readApiJson(r);
+      if(!r.ok)throw new Error(d.error?.message||d.error||'Kredi düşülemedi');
+      syncActiveCreditDisplay(d.remaining,d.cost);
+      return d;
+    }catch(e){
+      if(typeof msg==='function')msg(e.message||'Kredi güncellenemedi','err');
+      return {error:e.message,cost};
+    }
+  }
+  if(user?.id){
+    const rows=LS.get('ap_users',[]);
+    const u=rows.find(x=>x.id===user.id);
+    if(u){
+      u.usedTokens=Math.min(Number(u.totalTokens||FREE_STARTER_CREDITS),Number(u.usedTokens||0)+cost);
+      u.requests=Number(u.requests||0)+1;
+      user=u;
+      LS.set('ap_users',rows);
+      LS.set('ap_user',user);
+      updateQuota();
+    }
+  }
+  return {cost};
 }
 
 // ===== VIEWS =====
@@ -2644,6 +3055,11 @@ async function sendMsg(){
     msg('Paketiniz bu modeli desteklemediği için uygun modele geçildi.','ok');
   }
   const apiModel=modelDef?.apiId||model;
+  const estimatedCost=getClientModelCreditCost(model,modelDef?.provider||getModelProvider(model),'chat');
+  if(user?.guest && (Number(user.totalTokens||GUEST_STARTER_CREDITS)-Number(user.usedTokens||0))<estimatedCost){
+    msg('Misafir krediniz yetersiz. Ücretsiz hesap açınca 100 kredi alırsınız.','err');
+    return;
+  }
   
   const tempFileData = currentFileData;
   const tempFileName = currentFile ? currentFile.name : '';
@@ -2670,6 +3086,7 @@ async function sendMsg(){
       addImageHistory(directUrl,p,cmdModel);
       botMsg.content='__IMG__'+directUrl+'__PROMPT__'+p;
       saveChats();renderMsgs({stickToBottom:true});
+      await chargeSuccessfulUse(cmdModel,imageProviderForModel(cmdModel),'image');
       setChatSendState(false);
       return;
     }
@@ -2679,6 +3096,7 @@ async function sendMsg(){
         addImageHistory(imgData.url,p,cmdModel);
         botMsg.content='__IMG__'+imgData.url+'__PROMPT__'+p;
         saveChats();renderMsgs({stickToBottom:true});
+        await chargeSuccessfulUse(imgData.model||cmdModel,imgData.provider||imageProviderForModel(cmdModel),'image');
       }else{
         botMsg.content='❌ Görsel üretilemedi: '+(imgData.error||'Bilinmeyen hata');
         saveChats();renderMsgs();
@@ -2688,10 +3106,10 @@ async function sendMsg(){
       addImageHistory(fallbackUrl,p,cmdModel);
       botMsg.content='__IMG__'+fallbackUrl+'__PROMPT__'+p;
       saveChats();renderMsgs({stickToBottom:true});
+      await chargeSuccessfulUse('flux','pollinations','image');
       if(typeof msg==='function')msg('Görsel sağlayıcısı gecikti; çalışan Flux yedeğine geçildi.','err');
     }
     setChatSendState(false);
-    if(!admin&&user.id){const users=LS.get('ap_users',[]);const u=users.find(x=>x.id===user.id);if(u){u.usedTokens+=500;u.requests++;user=u;LS.set('ap_users',users);LS.set('ap_user',user);updateQuota()}}
     return;
   }
 
@@ -2705,6 +3123,7 @@ async function sendMsg(){
       addImageHistory(directUrl,imagePrompt,modelDef?.id || 'image');
       botMsg.content='__IMG__'+directUrl+'__PROMPT__'+imagePrompt;
       saveChats();renderMsgs({stickToBottom:true});
+      await chargeSuccessfulUse(apiModel,imageProviderForModel(apiModel),'image');
       setChatSendState(false);
       return;
     }
@@ -2714,6 +3133,7 @@ async function sendMsg(){
         addImageHistory(imgData.url,imagePrompt,modelDef?.id || 'image');
         botMsg.content='__IMG__'+imgData.url+'__PROMPT__'+imagePrompt;
         saveChats();renderMsgs({stickToBottom:true});
+        await chargeSuccessfulUse(imgData.model||apiModel,imgData.provider||imageProviderForModel(apiModel),'image');
       }else{
         botMsg.content='❌ Görsel üretilemedi: '+(imgData.error||'Bilinmeyen hata');
         saveChats();renderMsgs();
@@ -2723,10 +3143,10 @@ async function sendMsg(){
       addImageHistory(fallbackUrl,imagePrompt,modelDef?.id || 'image');
       botMsg.content='__IMG__'+fallbackUrl+'__PROMPT__'+imagePrompt;
       saveChats();renderMsgs({stickToBottom:true});
+      await chargeSuccessfulUse('flux','pollinations','image');
       if(typeof msg==='function')msg('Görsel sağlayıcısı gecikti; çalışan Flux yedeğine geçildi.','err');
     }
     setChatSendState(false);
-    if(!admin&&user.id){const users=LS.get('ap_users',[]);const u=users.find(x=>x.id===user.id);if(u){u.usedTokens+=500;u.requests++;user=u;LS.set('ap_users',users);LS.set('ap_user',user);updateQuota()}}
     return;
   }
 
@@ -2828,22 +3248,15 @@ async function sendMsg(){
     }
     // Analytics tracking
     if(typeof trackAnalytics==='function')trackAnalytics(model);
-    if(!admin&&user.id){
-      const users=LS.get('ap_users',[]);const u=users.find(x=>x.id===user.id);
-      if(u){
-        const planObj = PLANS[u.plan] || PLANS.starter;
-        const isFreeModel = modelDef?.tier === 'free';
-        if (!(planObj.free_unlimited && isFreeModel)) {
-          u.usedTokens+=tokUsed;
-        }
-        u.requests++;user=u;LS.set('ap_users',users);LS.set('ap_user',user);updateQuota();
-      }
-    }
+    const chargedModel=data.fallback||data.__model||model;
+    const chargedDef=ALL_MODELS.find(m=>m.id===chargedModel)||modelDef;
+    await chargeSuccessfulUse(chargedModel,chargedDef?.provider||provider,'chat');
   }catch(err){
     try{
       const directReply=await directPollinationsReply([{role:'user',content:txt}],'pollinations-openai');
       botMsg.content=directReply;
       saveChats();renderMsgs({stickToBottom:true});
+      await chargeSuccessfulUse('pollinations-openai','pollinations','chat');
       if(typeof msg==='function')msg('Seçili model yanıt vermedi; GPT Sınırsız yedeğine geçildi.','ok');
     }catch(fallbackErr){
       botMsg.content='Seçili model şu an yanıt vermedi. Çalışan yedek model önerim: GPT Sınırsız veya Llama 3.1 8B.';
@@ -4285,6 +4698,7 @@ function renderUserAnnouncements(){
 // ===== UTILS =====
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+function escAttr(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function msg(t,type){const el=document.getElementById('toast');el.textContent=t;el.className='toast '+(type||'')+' show';setTimeout(()=>el.classList.remove('show'),3000)}
 
 function ensureChatPolish(){
@@ -4660,15 +5074,12 @@ function enhanceStoreShell(){
       </div>
     </section>
 
-    <section class="store-control">
-      <div class="store-control-copy">
-        <strong>Kupon veya üyelik kodu</strong>
-        <span>İndirim, plan yükseltme ve özel üyelik kodlarını buradan uygula.</span>
+    <section class="store-coupon-mini">
+      <div class="store-coupon-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h3l6-6"/><path d="m22 12-4.5-4.5L9.9 15.1"/><circle cx="13" cy="13" r="2"/></svg>
       </div>
-      <div class="store-control-input">
-        <input type="text" id="coupon-input" placeholder="Kupon kodu girin...">
-        <button class="btn btn-primary btn-sm" onclick="applyCoupon()">Uygula</button>
-      </div>
+      <input type="text" id="coupon-input" class="store-coupon-input" placeholder="Kupon veya üyelik kodu...">
+      <button class="store-coupon-btn" onclick="applyCoupon()">Uygula</button>
     </section>
 
     <section class="store-main">
@@ -4724,7 +5135,7 @@ function renderStore(){
   grid.innerHTML=STORE_PACKS.map((p,i)=>{
     const notes=[`${(p.tokens).toLocaleString()} kredi`,...(packNotes[p.id]||[])];
     const label=p.popular?'EN POPÜLER':(p.id==='enterprise'?'ULTIMATE':'');
-    return `<article class="store-pack ${p.popular?'is-pop':''}" style="--pack-color:${p.color}">
+    return `<article class="store-pack ${p.popular?'is-pop':''}" data-id="${p.id}" style="--pack-color:${p.color}">
       ${label?`<div class="store-pack-badge">${esc(label)}</div>`:''}
       <div class="store-pack-icon">${iconSvg(packIcons[p.id]||'store',24)}</div>
       <h3>${esc(p.name)}</h3>
@@ -5134,7 +5545,7 @@ function renderImageHistory(){
   box.innerHTML=items.map((item,i)=>{
     const date=item.date?new Date(item.date).toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
     return `<div class="img-history-card">
-      <img src="${esc(item.url)}" alt="Üretilen görsel" loading="lazy">
+      <img src="${esc(imageUrlForDisplay(item.url))}" alt="Üretilen görsel" loading="lazy">
       <div class="img-history-info">
         <strong>${esc(item.model||'AI')}</strong>
         <span>${esc((item.prompt||'').slice(0,70))}</span>
@@ -5149,7 +5560,7 @@ function renderImageHistory(){
 }
 function openImageHistory(index){
   const item=getImageHistory()[index];
-  if(item?.url)window.open(item.url,'_blank');
+  if(item?.url)window.open(imageUrlForDownload(item.url),'_blank');
 }
 function reuseImageHistory(index){
   const item=getImageHistory()[index];
@@ -5180,6 +5591,10 @@ async function genImage(){
   
   if(!prompt) return msg('Lütfen bir prompt girin!','error');
   if(!user) return msg('Lütfen giriş yapın!','error');
+  const estimatedCost=getClientModelCreditCost(model,imageProviderForModel(model),'image');
+  if(user?.guest && (Number(user.totalTokens||GUEST_STARTER_CREDITS)-Number(user.usedTokens||0))<estimatedCost){
+    return msg('Misafir krediniz yetersiz. Ücretsiz hesap açınca 100 kredi alırsınız.','error');
+  }
   
   btn.disabled = true;
   btn.innerHTML = figIcon('sparkles','inline')+' Üretiliyor...';
@@ -5197,13 +5612,16 @@ async function genImage(){
     if (res.ok && data.url) {
       const note = data.provider ? `${data.provider} ile üretildi` : '';
       renderImageResult(resEl, data.url, prompt, model, note);
+      await chargeSuccessfulUse(data.model||model,data.provider||imageProviderForModel(model),'image');
     } else {
       const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
       renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
+      await chargeSuccessfulUse('flux','pollinations','image');
     }
   } catch (err) {
     const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
     renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
+    await chargeSuccessfulUse('flux','pollinations','image');
   }
   
   btn.disabled = false;
@@ -8247,58 +8665,173 @@ function selectPromptTemplate(el){
 window.showPromptTemplates=showPromptTemplates;
 window.selectPromptTemplate=selectPromptTemplate;
 
+function downloadImageByUrl(url,name){
+  if(!url)return;
+  const a=document.createElement('a');
+  a.href=imageUrlForDownload(url);
+  a.download=(name||('froxyai_'+Date.now()))+'.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+window.downloadImageByUrl=downloadImageByUrl;
+
+function loadImagePromptToComposer(prompt,model){
+  const promptEl=document.getElementById('img-prompt');
+  const modelEl=document.getElementById('img-model');
+  if(promptEl)promptEl.value=prompt||'';
+  if(modelEl&&model)modelEl.value=model;
+  lastImgPrompt=prompt||'';
+  lastImgModel=model||'';
+  msg('Prompt düzenleme alanına taşındı','ok');
+}
+window.loadImagePromptToComposer=loadImagePromptToComposer;
+
+async function requestImageWithFallback(prompt, model, timeoutMs=28000){
+  const provider=imageProviderForModel(model);
+  const payload={prompt:prompt,model:model,apiKey:providerKeyFor(provider)};
+  try{
+    const r=await postJsonApi('/api/image',payload,timeoutMs);
+    const remoteUrl=r?.data?.url||'';
+    if(remoteUrl){
+      return {
+        ok:true,
+        url:imageUrlForDisplay(remoteUrl),
+        downloadUrl:imageUrlForDownload(remoteUrl),
+        note:'',
+        model:model,
+        source:'api'
+      };
+    }
+  }catch(err){
+    console.warn('[IMAGE FALLBACK]',model,err?.message||err);
+  }
+  const directUrl = String(model||'').startsWith('style-') || model==='flux'
+    ? pollinationsDirectUrl(prompt,'flux')
+    : clientImageFallbackUrl(prompt,getImageModelLabel(model));
+  return {
+    ok:false,
+    url:imageUrlForDisplay(directUrl),
+    downloadUrl:imageUrlForDownload(directUrl),
+    note:String(model||'').startsWith('style-') || model==='flux'
+      ? 'Yedek üretim hattı kullanıldı'
+      : 'Canlı sonuç gelmedi, güvenli önizleme hazırlandı',
+    model:model,
+    source:'fallback'
+  };
+}
+
+function imageActionButtons(url,prompt,model,fileStem){
+  const safeUrl=escAttr(url);
+  const safeDownload=escAttr(imageUrlForDownload(url));
+  const safePrompt=escAttr(prompt||'');
+  const safeModel=escAttr(model||'');
+  const safeFile=escAttr(fileStem||'froxyai-image');
+  return `<div class="img-compare-actions">
+    <button type="button" class="img-inline-btn" onclick="downloadImageByUrl('${safeUrl}','${safeFile}')">İndir</button>
+    <button type="button" class="img-inline-btn" onclick="window.open('${safeDownload}','_blank')">Aç</button>
+    <button type="button" class="img-inline-btn" onclick="loadImagePromptToComposer('${safePrompt}','${safeModel}')">Düzenle</button>
+  </div>`;
+}
+
 // 3. Model Karsilastirma (image)
-async function compareModels(){
+async function compareImageModels(){
   var promptEl=document.getElementById('img-prompt');
   var resEl=document.getElementById('img-result');
   if(!promptEl)return;
   var prompt=promptEl.value.trim();
-  if(!prompt)return msg('Prompt girin','error');
-  if(!user)return msg('Giris yapin','error');
-  resEl.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="image-result-card" style="padding:20px;text-align:center"><div class="spinner"></div><p style="margin-top:8px;color:var(--text3)">Flux uretiliyor...</p></div><div class="image-result-card" style="padding:20px;text-align:center"><div class="spinner"></div><p style="margin-top:8px;color:var(--text3)">Stability uretiliyor...</p></div></div>';
-  var models=['flux','stability-core'];
-  var results=await Promise.allSettled(models.map(function(m){return postJsonApi('/api/image',{prompt:prompt,model:m,apiKey:providerKeyFor(imageProviderForModel(m))},120000);}));
-  var html='<div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;border:1px solid rgba(148,163,184,.16);border-radius:18px;background:rgba(15,23,42,.6)">';
-  html+='<button onclick="document.getElementById(\'img-result\').innerHTML=\'\'" style="position:absolute;top:8px;right:12px;background:rgba(244,63,94,.15);border:1px solid rgba(244,63,94,.3);border-radius:8px;color:#fda4af;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:800;z-index:2">X Kapat</button>';
-  results.forEach(function(r,i){
-    var name=models[i]==='flux'?'Flux AI':'Stability Core';
-    if(r.status==='fulfilled'&&r.value.data?.url){
-      html+='<div class="image-result-card" style="padding:12px"><img src="'+r.value.data.url+'" style="width:100%;border-radius:8px;aspect-ratio:1" alt="'+name+'"><p style="text-align:center;margin-top:8px;font-size:13px;color:var(--text2)"><strong>'+name+'</strong></p></div>';
-    }else{
-      html+='<div class="image-result-card" style="padding:20px;text-align:center"><p style="color:var(--danger)">'+name+' basarisiz</p></div>';
-    }
-  });
-  html+='</div>';
-  resEl.innerHTML=html;
+  if(!prompt){
+    promptEl.focus();
+    promptEl.style.borderColor='#ef4444';
+    setTimeout(()=>{promptEl.style.borderColor=''},2000);
+    msg('\u00d6nce bir prompt yaz\u0131n','err');
+    return;
+  }
+  if(!authToken && !user){
+    if(typeof modal==='function')modal('login');
+    else msg('Giri\u015f yap\u0131n','err');
+    return;
+  }
+  var models=['flux','cf-sdxl'];
+  resEl.innerHTML=`<div class="img-compare-shell">
+    <button type="button" class="img-compare-close" onclick="document.getElementById('img-result').innerHTML=''">Kapat</button>
+    ${models.map(function(model){
+      const title=model==='flux'?'Flux AI':'Cloudflare SDXL';
+      return `<article class="image-result-card img-compare-card" id="img-compare-${model}">
+        ${imageLoadingHtml(prompt, title)}
+      </article>`;
+    }).join('')}
+  </div>`;
+  for(const model of models){
+    const card=document.getElementById('img-compare-'+model);
+    if(!card)continue;
+    const title=model==='flux'?'Flux AI':'Cloudflare SDXL';
+    const result=await requestImageWithFallback(prompt,model,28000);
+    card.innerHTML=`<img src="${escAttr(result.url)}" class="img-compare-preview" alt="${escAttr(title)}" onerror="this.onerror=null;this.src='${escAttr(clientImageFallbackUrl(prompt,title))}'">
+      <div class="img-compare-meta">
+        <div class="img-compare-copy">
+          <strong>${esc(title)}</strong>
+          <span>${esc(getImageModelLabel(model))}</span>
+          ${result.note?`<em>${esc(result.note)}</em>`:''}
+        </div>
+        ${imageActionButtons(result.url,prompt,model,title.toLowerCase().replace(/\s+/g,'-'))}
+      </div>`;
+  }
+  msg('Karşılaştırma hazır','ok');
 }
-window.compareModels=compareModels;
+window.compareImageModels=compareImageModels;
 
 // 4. Toplu Uretim
 function showBatchPanel(){
+  if(!authToken && !user){
+    if(typeof modal==='function')modal('login');
+    else msg('Giri\u015f yap\u0131n','err');
+    return;
+  }
   var p=document.getElementById('batch-gen-panel');
   if(p){p.remove();return;}
   p=document.createElement('div');
   p.id='batch-gen-panel';
-  p.style.cssText='margin-top:16px;padding:16px;border:1px solid rgba(148,163,184,.16);border-radius:14px;background:rgba(15,23,42,.5)';
-  p.innerHTML='<strong style="color:#fff;font-size:14px">Toplu Uretim</strong><p style="color:#94a3b8;font-size:12px;margin:4px 0 10px">Her satira bir prompt (max 5)</p><textarea id="batch-prompts" rows="5" style="width:100%;background:rgba(15,23,42,.6);border:1px solid rgba(148,163,184,.18);border-radius:10px;color:#fff;padding:10px;font-size:13px;resize:vertical" placeholder="a cute cat\na sunset over mountains\na futuristic city"></textarea><button onclick="batchGenImage()" class="btn btn-small" style="margin-top:8px">Baslat</button><div id="batch-results" style="margin-top:12px"></div>';
+  p.className='batch-panel-modern';
+  p.innerHTML='<div class="batch-panel-head"><strong>Toplu Görsel Üretimi</strong><button type="button" class="batch-panel-close" onclick="document.getElementById(\'batch-gen-panel\')?.remove()" aria-label="Kapat">×</button></div><p class="batch-panel-hint">Her satıra bir prompt yazın (en fazla 5 adet). Tüm görseller seçili modelle üretilir.</p><textarea id="batch-prompts" rows="5" class="batch-panel-textarea" placeholder="a cute cat\na sunset over mountains\na futuristic city"></textarea><button onclick="batchGenImage()" class="batch-panel-btn">▶ Başlat</button><div id="batch-results" class="img-batch-results"></div>';
   document.getElementById('img-result')?.after(p);
+  setTimeout(()=>{document.getElementById('batch-prompts')?.focus();},120);
 }
 async function batchGenImage(){
   var ta=document.getElementById('batch-prompts');
   var res=document.getElementById('batch-results');
   if(!ta||!res)return;
   var prompts=ta.value.split('\n').map(function(s){return s.trim();}).filter(Boolean).slice(0,5);
-  if(!prompts.length)return msg('Prompt girin','error');
-  var model=document.getElementById('img-model')?.value||'flux';
-  res.innerHTML='';
-  for(var i=0;i<prompts.length;i++){
-    res.innerHTML+='<div style="padding:8px;border-bottom:1px solid rgba(148,163,184,.1);color:#94a3b8;font-size:12px">'+(i+1)+'/'+prompts.length+' uretiliyor: '+prompts[i].slice(0,40)+'...</div>';
-    try{
-      var r=await postJsonApi('/api/image',{prompt:prompts[i],model:model,apiKey:''},120000);
-      if(r.data?.url)res.innerHTML+='<div style="padding:8px"><img src="'+r.data.url+'" style="width:100px;height:100px;object-fit:cover;border-radius:8px;margin-right:8px;vertical-align:middle"><span style="color:#fff;font-size:12px">'+prompts[i].slice(0,30)+'</span></div>';
-    }catch(e){res.innerHTML+='<div style="padding:8px;color:#f87171">Hata: '+prompts[i].slice(0,30)+'</div>';}
+  if(!prompts.length){
+    ta.focus();
+    msg('En az bir prompt girin','err');
+    return;
   }
-  msg('Toplu uretim bitti','ok');
+  if(!authToken && !user){
+    if(typeof modal==='function')modal('login');
+    return;
+  }
+  var model=document.getElementById('img-model')?.value||'flux';
+  res.innerHTML=prompts.map(function(item,i){
+    return `<article class="img-batch-item img-batch-item-loading" id="img-batch-${i}">
+      ${imageLoadingHtml(item, getImageModelLabel(model))}
+    </article>`;
+  }).join('');
+  for(let i=0;i<prompts.length;i++){
+    const prompt=prompts[i];
+    const card=document.getElementById('img-batch-'+i);
+    if(!card)continue;
+    const result=await requestImageWithFallback(prompt,model,28000);
+    card.classList.remove('img-batch-item-loading');
+    card.innerHTML=`<img src="${escAttr(result.url)}" class="img-batch-thumb" alt="Üretilen görsel" onerror="this.onerror=null;this.src='${escAttr(clientImageFallbackUrl(prompt,getImageModelLabel(model)))}'">
+      <div class="img-batch-copy">
+        <strong>${esc(prompt.slice(0,42))}</strong>
+        <span>${esc(getImageModelLabel(model))}</span>
+        ${result.note?`<em>${esc(result.note)}</em>`:''}
+        ${imageActionButtons(result.url,prompt,model,'batch-'+(i+1))}
+      </div>`;
+  }
+  msg('Toplu üretim tamamlandı','ok');
 }
 window.showBatchPanel=showBatchPanel;
 window.batchGenImage=batchGenImage;
@@ -8311,6 +8844,78 @@ function trackImageGen(model,provider,duration){
   if(provider)s.providers[provider]=(s.providers[provider]||0)+1;
   LS.set('ap_image_stats',s);
 }
+
+/* v180: mobile drawer/nav hardening */
+(function(){
+  function mobileRoot(){
+    return document.getElementById('v-chat');
+  }
+  function mobileSidebar(){
+    return document.getElementById('panel-sidebar') || document.querySelector('#v-chat .panel-sidebar,#v-chat .ai-side,.ai-chat-sidebar');
+  }
+  function mobileBackdrop(){
+    return document.getElementById('ai-sidebar-backdrop') || document.querySelector('.ai-sidebar-backdrop');
+  }
+  function setMobileSidebar(open){
+    var root=mobileRoot();
+    var side=mobileSidebar();
+    var back=mobileBackdrop();
+    if(!root || !side) return false;
+    var next=typeof open==='boolean' ? open : !root.classList.contains('sidebar-open');
+    root.classList.toggle('sidebar-open',next);
+    side.classList.toggle('open',next);
+    document.body.classList.toggle('sidebar-open',next);
+    if(back) back.classList.toggle('open',next);
+    return next;
+  }
+  window.__setMobileSidebar=setMobileSidebar;
+  window.__mobileMenuToggle=function(event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+      var desired = !window.__mobileMenuWasOpen;
+      setTimeout(function(){ setMobileSidebar(desired); },0);
+      return false;
+    }
+    setMobileSidebar();
+    return false;
+  };
+  window.__mobileMenuClose=function(event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+    }
+    setMobileSidebar(false);
+    return false;
+  };
+  function bindMobile(){
+    var back=mobileBackdrop();
+    if(back) back.onclick=window.__mobileMenuClose;
+    document.querySelectorAll('.chat-sidebar-toggle,.mobile-app-nav-menu').forEach(function(btn){
+      btn.onclick=window.__mobileMenuToggle;
+    });
+    document.querySelectorAll('.mobile-app-nav-btn:not(.mobile-app-nav-menu),#panel-sidebar .ps-link').forEach(function(btn){
+      if(btn.dataset.v180MobileBound==='1') return;
+      btn.dataset.v180MobileBound='1';
+      btn.addEventListener('click',function(){
+        if(window.innerWidth<=900) setTimeout(function(){ setMobileSidebar(false); },0);
+      },true);
+    });
+  }
+  document.addEventListener('DOMContentLoaded',bindMobile);
+  document.addEventListener('pointerdown',function(ev){
+    if(!ev.target || !ev.target.closest) return;
+    if(ev.target.closest('.chat-sidebar-toggle,.mobile-app-nav-menu')){
+      var root=mobileRoot();
+      window.__mobileMenuWasOpen=!!(root && root.classList.contains('sidebar-open'));
+    }
+  },true);
+  window.addEventListener('resize',bindMobile);
+  setTimeout(bindMobile,250);
+  setTimeout(bindMobile,1200);
+})();
 window.trackImageGen=trackImageGen;
 
 // 6. Gorsel Duzenleme

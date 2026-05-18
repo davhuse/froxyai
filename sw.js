@@ -1,10 +1,8 @@
-// Service Worker — stale-while-revalidate for static assets
-const CACHE = 'froxy-v4';
-const STATIC = ['style.min.css?v=v143', 'app.min.js?v=v143', 'logo-192.png', 'manifest.json'];
+// Service Worker v168 — network-first, safe clone
+const CACHE = 'froxy-v184';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC).catch(() => {})));
 });
 
 self.addEventListener('activate', e => {
@@ -16,18 +14,25 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-  // Only cache same-origin GET requests for static assets
-  if (e.request.method !== 'GET' || url.origin !== location.origin) return;
-  if (url.pathname.startsWith('/api/')) return; // never cache API calls
-
+  const req = e.request;
+  const url = new URL(req.url);
+  
+  // Only handle same-origin GET requests for static files
+  if (req.method !== 'GET' || url.origin !== location.origin) return;
+  if (url.pathname.startsWith('/api/')) return;
+  if (url.pathname.startsWith('/generated/')) return;
+  
+  // Only cache HTML/CSS/JS/images
+  if (!/\.(html|css|js|png|jpg|svg|webp|json)$/.test(url.pathname) && url.pathname !== '/') return;
+  
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      const fresh = fetch(e.request).then(res => {
-        if (res.ok) caches.open(CACHE).then(c => c.put(e.request, res.clone()));
-        return res;
-      });
-      return cached || fresh;
-    })
+    fetch(req).then(networkRes => {
+      // Clone BEFORE consuming the response body
+      if (networkRes && networkRes.ok && networkRes.type === 'basic') {
+        const cloneForCache = networkRes.clone();
+        caches.open(CACHE).then(c => c.put(req, cloneForCache)).catch(() => {});
+      }
+      return networkRes;
+    }).catch(() => caches.match(req))
   );
 });

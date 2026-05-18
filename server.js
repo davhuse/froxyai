@@ -85,6 +85,7 @@ if (!JWT_SECRET) {
   console.warn('[SECURITY] JWT_SECRET env degiskeni bulunamadi. Gecici fallback secret kullaniliyor; Railway Variables icinde kalici bir deger ekleyin.');
 }
 const ACTIVE_JWT_SECRET = JWT_SECRET || 'froxy_ai_fallback_secret_2026_replace_me_in_production';
+const FREE_STARTER_CREDITS = 100;
 
 // Initialize SQLite DB
 const db = new Database('Froxy AI.db');
@@ -98,7 +99,7 @@ db.exec(`
     username TEXT UNIQUE,
     email TEXT UNIQUE,
     password TEXT,
-    credits INTEGER DEFAULT 500,
+    credits INTEGER DEFAULT 100,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
   CREATE TABLE IF NOT EXISTS chats (
@@ -165,6 +166,11 @@ db.exec(`
     is_active INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+  CREATE TABLE IF NOT EXISTS app_meta (
+    key TEXT PRIMARY KEY,
+    value TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Add is_admin column if not exists (migration safe)
@@ -182,6 +188,13 @@ try { db.exec('ALTER TABLE users ADD COLUMN daily_image_count INTEGER DEFAULT 0'
 try { db.exec('ALTER TABLE users ADD COLUMN daily_reset_date TEXT'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN reg_ip TEXT'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN reg_fingerprint TEXT'); } catch(e) {}
+try {
+  const done = db.prepare("SELECT value FROM app_meta WHERE key = 'free_credit_normalized_v184'").get();
+  if (!done) {
+    db.prepare("UPDATE users SET credits = ? WHERE plan = 'free' AND COALESCE(is_admin, 0) = 0").run(FREE_STARTER_CREDITS);
+    db.prepare("INSERT OR REPLACE INTO app_meta (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)").run('free_credit_normalized_v184', '1');
+  }
+} catch(e) {}
 
 // Daily limits per plan
 const DAILY_LIMITS = {
@@ -351,9 +364,9 @@ app.post('/api/register', authLimiter, (req, res) => {
     const hash = bcrypt.hashSync(password, 10);
     const plan = 'free';
     const stmt = db.prepare('INSERT INTO users (username, email, password, plan, credits, reg_ip, reg_fingerprint) VALUES (?, ?, ?, ?, ?, ?, ?)');
-    const info = stmt.run(username, email, hash, plan, 500, clientIp, fp);
+    const info = stmt.run(username, email, hash, plan, FREE_STARTER_CREDITS, clientIp, fp);
     const token = jwt.sign({ id: info.lastInsertRowid, username, email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
-    res.json({ token, user: { id: info.lastInsertRowid, username, email, credits: 500, plan } });
+    res.json({ token, user: { id: info.lastInsertRowid, username, email, credits: FREE_STARTER_CREDITS, plan } });
   } catch(e) {
     res.status(400).json({error: 'Bu e-posta veya kullanici adi zaten kullanilmakta'});
   }
@@ -1852,7 +1865,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   bodyApiKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
   bodyBaseUrl = typeof bodyBaseUrl === 'string' ? bodyBaseUrl.trim() : '';
 
-  // Credit Check & Deduction (model-based)
+  // Credit Check (deduction happens after a successful response via /api/deduct-credit)
   if (req.user?.id) {
   try {
     // Daily limit check
@@ -1866,10 +1879,6 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
     if (!user || user.credits < creditCost) {
       return res.status(402).json({ error: { message: 'Krediniz yetersiz. Gereken: ' + creditCost + ' kredi.' } });
     }
-    if (creditCost > 0) {
-      db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(creditCost, req.user.id);
-    }
-    incrementDaily(req.user.id, 'chat');
   } catch(e) {
     return res.status(500).json({ error: { message: 'Veritabani hatasi (Kredi)' } });
   }
@@ -3637,12 +3646,18 @@ app.post('/api/deduct-credit', authMiddleware, (req, res) => {
   const cost = getModelCreditCost(model, provider);
   
   if (cost === 0) return res.json({ cost: 0, remaining: null, free: true });
+
+  const dailyCheck = checkDailyLimit(req.user.id, 'chat');
+  if (!dailyCheck.allowed) {
+    return res.status(429).json({ error: dailyCheck.reason });
+  }
   
   const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
   if (!user) return res.status(404).json({ error: 'Kullanici bulunamadi' });
   if (user.credits < cost) return res.status(402).json({ error: 'Yetersiz kredi', required: cost, remaining: user.credits });
   
   db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);
+  incrementDaily(req.user.id, 'chat');
   const updated = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
   res.json({ cost, remaining: updated.credits, free: false });
 });
