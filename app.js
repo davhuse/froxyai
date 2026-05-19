@@ -1747,20 +1747,21 @@ function genRefCode(name){
 function socialLogin(provider){
   const names={github:'GitHub',google:'Google'};
   const pName=names[provider]||provider;
+  const authUrl=(API_ORIGIN||'')+'/auth/'+provider+'?return_to='+encodeURIComponent(location.origin);
   if(provider==='google'){
     startGoogleLogin();
     return;
   }
   // Check if configured before redirecting
-  fetch('/auth/'+provider,{redirect:'manual'}).then(r=>{
+  fetch(authUrl,{redirect:'manual'}).then(r=>{
     const loc=r.headers.get('location')||'';
     if(loc.includes('auth_error=')){
       msg(pName+' girişi henüz aktif değil. Domain alındığında aktif edilecek! 🔜','err');
     }else{
-      window.location.href='/auth/'+provider;
+      window.location.href=authUrl;
     }
   }).catch(()=>{
-    window.location.href='/auth/'+provider;
+    window.location.href=authUrl;
   });
 }
 
@@ -1781,9 +1782,10 @@ function startGoogleLogin(){
       scope:'openid email profile',
       prompt:'select_account',
       error_callback:err=>{
-        const origin=location.origin;
         console.warn('Google OAuth error',err);
-        msg(`Google giriş izni bu domain için açık değil. Google Console'da Authorized JavaScript origins kısmına ${origin} eklenmeli.`,'err');
+        const backend=(API_ORIGIN||'')+'/auth/google?return_to='+encodeURIComponent(location.origin);
+        msg('Google popup izni bu domain icin acik degil; yonlendirme ile deneniyor...','info');
+        setTimeout(()=>{window.location.href=backend},450);
       },
       callback:async tokenRes=>{
         if(tokenRes?.error){

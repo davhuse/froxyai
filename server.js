@@ -888,6 +888,33 @@ const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || '';
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
 
+function publicBaseUrl(req) {
+  const configured = process.env.PUBLIC_BASE_URL || process.env.API_PUBLIC_URL || '';
+  if (configured) return configured.replace(/\/+$/, '');
+  const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').split(',')[0].trim();
+  return `${proto}://${req.get('host')}`;
+}
+
+function oauthReturnTo(req) {
+  const raw = String(req.query.return_to || '');
+  if (/^https?:\/\//i.test(raw)) return raw.replace(/\/+$/, '');
+  const ref = req.get('referer') || req.get('origin') || '';
+  try { if (ref) return new URL(ref).origin; } catch(e) {}
+  return process.env.FRONTEND_ORIGIN || publicBaseUrl(req);
+}
+
+function encodeOAuthState(value) {
+  return Buffer.from(JSON.stringify({ returnTo: value || '' })).toString('base64url');
+}
+
+function decodeOAuthState(value, req) {
+  try {
+    const parsed = JSON.parse(Buffer.from(String(value || ''), 'base64url').toString('utf8'));
+    if (parsed.returnTo && /^https?:\/\//i.test(parsed.returnTo)) return parsed.returnTo.replace(/\/+$/, '');
+  } catch(e) {}
+  return process.env.FRONTEND_ORIGIN || publicBaseUrl(req);
+}
+
 // Helper: make HTTPS request
 function httpsRequest(url, options = {}) {
   return new Promise((resolve, reject) => {
@@ -913,16 +940,17 @@ function httpsRequest(url, options = {}) {
 
 // ===== GITHUB OAUTH =====
 app.get('/auth/github', (req, res) => {
-  if (!GITHUB_CLIENT_ID) return res.redirect('/?auth_error=github_not_configured');
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const returnTo = oauthReturnTo(req);
+  if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) return res.redirect(`${returnTo}/?auth_error=github_not_configured`);
+  const baseUrl = publicBaseUrl(req);
   const scope = 'user:email';
-  res.redirect(`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=${scope}&redirect_uri=${encodeURIComponent(baseUrl + '/auth/github/callback')}`);
+  res.redirect(`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=${scope}&state=${encodeURIComponent(encodeOAuthState(returnTo))}&redirect_uri=${encodeURIComponent(baseUrl + '/auth/github/callback')}`);
 });
 
 app.get('/auth/github/callback', async (req, res) => {
-  const { code } = req.query;
-  if (!code) return res.redirect('/?auth_error=no_code');
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const { code, state } = req.query;
+  const returnTo = decodeOAuthState(state, req);
+  if (!code) return res.redirect(`${returnTo}/?auth_error=no_code`);
   try {
     // Exchange code for token
     const tokenRes = await httpsRequest('https://github.com/login/oauth/access_token', {
@@ -950,27 +978,26 @@ app.get('/auth/github/callback', async (req, res) => {
       }
     }
     
-    res.redirect(`/?auth_provider=github&auth_name=${encodeURIComponent(profile.name || profile.login)}&auth_email=${encodeURIComponent(email || profile.login + '@github.com')}&auth_avatar=${encodeURIComponent(profile.avatar_url || '')}`);
+    res.redirect(`${returnTo}/?auth_provider=github&auth_name=${encodeURIComponent(profile.name || profile.login)}&auth_email=${encodeURIComponent(email || profile.login + '@github.com')}&auth_avatar=${encodeURIComponent(profile.avatar_url || '')}`);
   } catch (e) {
-    res.redirect('/?auth_error=' + encodeURIComponent(e.message));
+    res.redirect(`${returnTo}/?auth_error=` + encodeURIComponent(e.message));
   }
 });
 
 // ===== GOOGLE OAUTH =====
 app.get('/auth/google', (req, res) => {
-  // Frontend uses Google Identity Services popup flow. Avoid redirect_uri_mismatch
-  // from the older backend OAuth redirect route.
-  return res.redirect('/?auth_error=google_popup_only');
-  if (!GOOGLE_CLIENT_ID) return res.redirect('/?auth_error=google_not_configured');
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const returnTo = oauthReturnTo(req);
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) return res.redirect(`${returnTo}/?auth_error=google_not_configured`);
+  const baseUrl = publicBaseUrl(req);
   const scope = 'openid email profile';
-  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(baseUrl + '/auth/google/callback')}&response_type=code&scope=${encodeURIComponent(scope)}&prompt=select_account`);
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(baseUrl + '/auth/google/callback')}&response_type=code&scope=${encodeURIComponent(scope)}&prompt=select_account&state=${encodeURIComponent(encodeOAuthState(returnTo))}`);
 });
 
 app.get('/auth/google/callback', async (req, res) => {
-  const { code } = req.query;
-  if (!code) return res.redirect('/?auth_error=no_code');
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const { code, state } = req.query;
+  const returnTo = decodeOAuthState(state, req);
+  if (!code) return res.redirect(`${returnTo}/?auth_error=no_code`);
+  const baseUrl = publicBaseUrl(req);
   try {
     // Exchange code for token
     const tokenRes = await httpsRequest('https://oauth2.googleapis.com/token', {
@@ -986,9 +1013,9 @@ app.get('/auth/google/callback', async (req, res) => {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    res.redirect(`/?auth_provider=google&auth_name=${encodeURIComponent(profile.name || '')}&auth_email=${encodeURIComponent(profile.email || '')}&auth_avatar=${encodeURIComponent(profile.picture || '')}`);
+    res.redirect(`${returnTo}/?auth_provider=google&auth_name=${encodeURIComponent(profile.name || '')}&auth_email=${encodeURIComponent(profile.email || '')}&auth_avatar=${encodeURIComponent(profile.picture || '')}`);
   } catch (e) {
-    res.redirect('/?auth_error=' + encodeURIComponent(e.message));
+    res.redirect(`${returnTo}/?auth_error=` + encodeURIComponent(e.message));
   }
 });
 

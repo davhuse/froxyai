@@ -21312,3 +21312,75 @@ body.mobile-shell-v192 .tools-grid{
     animation:none!important;
   }
 }
+
+/* ===== v193 Theme restore: keep fixes, restore old ambient chat background ===== */
+#v-chat .ai-chat-app{
+  background:
+    linear-gradient(90deg,var(--chat-grid) 1px,transparent 1px),
+    linear-gradient(180deg,var(--chat-grid) 1px,transparent 1px),
+    radial-gradient(circle at 34% -12%,var(--chat-glow-1),transparent 34%),
+    radial-gradient(circle at 100% 18%,var(--chat-glow-2),transparent 30%),
+    var(--chat-bg)!important;
+  background-size:72px 72px,72px 72px,auto,auto,auto!important;
+}
+#v-chat .panel-main{
+  background:transparent!important;
+}
+#v-chat .ai-chat-canvas{
+  background:
+    radial-gradient(circle at 50% 20%,var(--chat-glow-1),transparent 34%),
+    radial-gradient(circle at 78% 55%,var(--chat-glow-2),transparent 28%)!important;
+}
+#v-chat .ai-chat-sidebar,
+#panel-sidebar,
+.panel-sidebar{
+  background:var(--sidebar-bg)!important;
+  border-color:var(--line)!important;
+}
+.ai-chat-topbar{
+  background:var(--topbar-bg)!important;
+  border-bottom-color:var(--line)!important;
+}
+.ai-composer{
+  background:var(--composer-bg)!important;
+  border-color:var(--line-strong)!important;
+}
+.ai-side-brand,
+.ai-side-section,
+.ai-thread-panel,
+.ai-side-user{
+  background:var(--surface-glass)!important;
+  border-color:var(--line)!important;
+}
+body.theme-light #v-chat .ai-chat-app{
+  background:
+    linear-gradient(90deg,rgba(15,23,42,.055) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(15,23,42,.055) 1px,transparent 1px),
+    radial-gradient(circle at 34% -12%,rgba(124,58,237,.10),transparent 34%),
+    radial-gradient(circle at 100% 18%,rgba(14,165,233,.10),transparent 30%),
+    #f8fafc!important;
+  background-size:72px 72px,72px 72px,auto,auto,auto!important;
+}
+body.theme-light #v-chat .ai-chat-canvas{
+  background:
+    radial-gradient(circle at 50% 20%,rgba(124,58,237,.08),transparent 34%),
+    radial-gradient(circle at 78% 55%,rgba(14,165,233,.08),transparent 28%)!important;
+}
+body.theme-ocean #v-chat .ai-chat-app{
+  background:
+    linear-gradient(90deg,rgba(100,255,218,.08) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(100,255,218,.08) 1px,transparent 1px),
+    radial-gradient(circle at 30% -12%,rgba(34,211,238,.18),transparent 34%),
+    radial-gradient(circle at 100% 18%,rgba(59,130,246,.14),transparent 30%),
+    #06131f!important;
+  background-size:72px 72px,72px 72px,auto,auto,auto!important;
+}
+body.theme-forest #v-chat .ai-chat-app{
+  background:
+    linear-gradient(90deg,rgba(134,239,172,.07) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(134,239,172,.07) 1px,transparent 1px),
+    radial-gradient(circle at 30% -12%,rgba(16,185,129,.16),transparent 34%),
+    radial-gradient(circle at 100% 18%,rgba(34,211,238,.10),transparent 30%),
+    #07130e!important;
+  background-size:72px 72px,72px 72px,auto,auto,auto!important;
+}
