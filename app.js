@@ -2698,11 +2698,12 @@ function toggleModelPicker(event){
   const o=document.getElementById('model-picker-overlay');
   if(!p||!o)return;
   if(p.classList.contains('open')){closeModelPicker()}
-  else{p.classList.add('open');o.classList.add('open');const s=document.getElementById('mp-search');if(s)s.focus();renderModelPicker()}
+  else{p.classList.add('open');o.classList.add('open');document.body.classList.add('model-picker-open');const s=document.getElementById('mp-search');if(s)s.focus();renderModelPicker()}
 }
 function closeModelPicker(){
   document.getElementById('model-picker')?.classList.remove('open');
   document.getElementById('model-picker-overlay')?.classList.remove('open');
+  document.body.classList.remove('model-picker-open');
 }
 function renderModelPicker(filter){
   if(!modelCatalogLoaded && ALL_MODELS.length<200)loadRemoteModelCatalog().catch(()=>{});
@@ -9196,6 +9197,100 @@ function trackImageGen(model,provider,duration){
 })();
 window.trackImageGen=trackImageGen;
 
+/* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
+   model sheet and scroll padding deterministic without changing model/API logic. */
+(function(){
+  const VERSION='v192.1';
+  function isMobile(){
+    return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
+  }
+  function clearOldCaches(){
+    if(!('caches' in window))return;
+    caches.keys().then(keys=>{
+      keys.filter(k=>/^froxy-v/i.test(k) && k!=='froxy-'+VERSION).forEach(k=>caches.delete(k));
+    }).catch(()=>{});
+  }
+  function syncViewport(){
+    const mobile=isMobile();
+    document.documentElement.classList.toggle('mobile-shell-v192',mobile);
+    document.body&&document.body.classList.toggle('mobile-shell-v192',mobile);
+    const vv=window.visualViewport;
+    const h=Math.round((vv&&vv.height)||window.innerHeight||document.documentElement.clientHeight||720);
+    document.documentElement.style.setProperty('--vvh',h+'px');
+    document.documentElement.style.setProperty('--mobile-composer-h',mobile?'158px':'0px');
+  }
+  function currentTab(){
+    const active=document.querySelector('.ptab.on');
+    return active&&active.id?active.id.replace(/^ptab-/,''):'chat';
+  }
+  function syncBottomNav(){
+    const tab=currentTab();
+    document.querySelectorAll('.mobile-app-nav-btn').forEach(btn=>{
+      const attr=btn.getAttribute('onclick')||'';
+      const active=!btn.classList.contains('mobile-app-nav-menu') && attr.includes("'"+tab+"'");
+      btn.classList.toggle('active',active);
+      btn.classList.toggle('is-active',active);
+      btn.setAttribute('aria-current',active?'page':'false');
+    });
+  }
+  function setSidebar(open){
+    const root=document.getElementById('v-chat');
+    const side=document.getElementById('panel-sidebar')||document.querySelector('#v-chat .panel-sidebar');
+    const back=document.getElementById('ai-sidebar-backdrop')||document.querySelector('.ai-sidebar-backdrop');
+    if(!root||!side)return false;
+    const next=typeof open==='boolean'?open:!root.classList.contains('sidebar-open');
+    root.classList.toggle('sidebar-open',next);
+    side.classList.toggle('open',next);
+    document.body.classList.toggle('sidebar-open',next);
+    if(back)back.classList.toggle('open',next);
+    return next;
+  }
+  function bind(){
+    clearOldCaches();
+    syncViewport();
+    syncBottomNav();
+    const back=document.getElementById('ai-sidebar-backdrop');
+    if(back)back.onclick=function(ev){ev.preventDefault();ev.stopPropagation();setSidebar(false);return false};
+    document.querySelectorAll('.chat-sidebar-toggle,.mobile-app-nav-menu').forEach(btn=>{
+      btn.onclick=function(ev){if(ev){ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation()}setSidebar();return false};
+    });
+    document.querySelectorAll('.mobile-app-nav-btn:not(.mobile-app-nav-menu),#panel-sidebar .ps-link').forEach(btn=>{
+      if(btn.dataset.v192Bound==='1')return;
+      btn.dataset.v192Bound='1';
+      btn.addEventListener('click',function(){
+        syncBottomNav();
+        if(isMobile())setTimeout(()=>setSidebar(false),0);
+        setTimeout(syncBottomNav,60);
+      },true);
+    });
+    document.querySelectorAll('.ai-chat-top-actions .ai-top-btn').forEach(btn=>{
+      if(btn.title==='Ayarlar')btn.classList.add('mobile-settings-action');
+    });
+  }
+  const prevPanelTab=window.panelTab;
+  if(typeof prevPanelTab==='function'&&!window.__v192PanelWrapped){
+    window.__v192PanelWrapped=true;
+    window.panelTab=function(tab){
+      const result=prevPanelTab.apply(this,arguments);
+      setTimeout(syncBottomNav,30);
+      return result;
+    };
+  }
+  window.__v192SetSidebar=setSidebar;
+  window.addEventListener('resize',syncViewport,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(syncViewport,120),{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',syncViewport,{passive:true});
+    window.visualViewport.addEventListener('scroll',syncViewport,{passive:true});
+  }
+  document.addEventListener('DOMContentLoaded',bind);
+  document.addEventListener('keydown',ev=>{
+    if(ev.key==='Escape'){setSidebar(false);closeModelPicker&&closeModelPicker()}
+  },true);
+  setTimeout(bind,300);
+  setTimeout(bind,1200);
+})();
+
 // 6. Gorsel Duzenleme
 function openImageEditor(url){
   if(!url)url=lastImgUrl;
@@ -9237,6 +9332,172 @@ window.openImageEditor=openImageEditor;
 window.rotateEditorCanvas=rotateEditorCanvas;
 window.flipEditorCanvas=flipEditorCanvas;
 window.downloadEditorCanvas=downloadEditorCanvas;
+
+/* v192.1: support conversation layer. Backwards-compatible with the old
+   ap_tickets shape; no backend/API or credit logic changes. */
+(function(){
+  function currentSupportUser(){
+    return (typeof user!=='undefined'&&user) ? user : (typeof authUser!=='undefined'?authUser:null);
+  }
+  function allTickets(){
+    return (typeof LS!=='undefined') ? LS.get('ap_tickets',[]) : [];
+  }
+  function saveTickets(tickets){
+    if(typeof LS!=='undefined')LS.set('ap_tickets',tickets);
+    if(typeof updateSupportBadge==='function')updateSupportBadge();
+  }
+  function normalizeResponses(ticket){
+    return (ticket.responses||[]).map(r=>({
+      by:r.by || 'support',
+      text:r.text || '',
+      date:r.date || ticket.createdAt || new Date().toISOString()
+    })).filter(r=>r.text);
+  }
+  function ticketStatusLabel(status){
+    const map={
+      open:'Açık',
+      waiting_support:'Yanıt bekliyor',
+      answered:'Yeni yanıt',
+      closed:'Kapalı'
+    };
+    return map[status]||status||'Açık';
+  }
+  function ticketStatusClass(status){
+    if(status==='answered')return 'tk-answered';
+    if(status==='closed')return 'tk-closed';
+    if(status==='waiting_support')return 'tk-waiting';
+    return 'tk-open';
+  }
+  window.renderMyTickets=function(){
+    const el=document.getElementById('my-tickets-list');
+    const u=currentSupportUser();
+    if(!el||!u)return;
+    const tickets=allTickets().filter(t=>String(t.userId)===String(u.id));
+    if(!tickets.length){
+      el.innerHTML='<div class="sp4-empty support-thread-empty">Henüz bilet yok</div>';
+      return;
+    }
+    const catNames={genel:'Genel',teknik:'Teknik',odeme:'Ödeme',api:'API',oneri:'Öneri',diger:'Diğer'};
+    const prBadge={low:'Düşük',medium:'Orta',high:'Yüksek'};
+    el.innerHTML=tickets.map(t=>{
+      const responses=normalizeResponses(t);
+      const isAnswered=t.status==='answered';
+      const thread=[
+        {by:'user',text:t.description||'',date:t.createdAt||new Date().toISOString(),initial:true},
+        ...responses
+      ];
+      return `<article class="tk-card support-thread-card ${isAnswered?'has-new-reply':''}" data-ticket-id="${esc(t.id)}">
+        <div class="tk-head support-thread-head">
+          <div class="support-thread-title">
+            <strong>${esc(t.title)}</strong>
+            <span>${esc(catNames[t.category]||t.category||'Genel')} · ${esc(prBadge[t.priority]||'Düşük')}</span>
+          </div>
+          <span class="tk-badge ${ticketStatusClass(t.status)}">${ticketStatusLabel(t.status)}</span>
+        </div>
+        ${isAnswered?'<div class="support-new-reply">Destekten yeni yanıt var</div>':''}
+        <div class="support-thread">${thread.map(r=>`<div class="support-message ${r.by==='user'?'from-user':'from-support'}">
+          <div class="support-message-meta"><strong>${r.by==='user'?'Sen':'Destek'}</strong><span>${new Date(r.date).toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div>
+          <p>${esc(r.text)}</p>
+        </div>`).join('')}</div>
+        ${t.status==='closed'
+          ? '<div class="support-closed-note">Bu talep kapalı. Yeni konu için yeni bilet oluştur.</div>'
+          : `<div class="support-reply-box">
+              <textarea id="user-reply-${esc(t.id)}" rows="2" placeholder="Bu bilete cevap yaz..."></textarea>
+              <button type="button" onclick="replyMyTicket('${jsStr(String(t.id))}')">Yanıt gönder</button>
+            </div>`}
+      </article>`;
+    }).join('');
+  };
+  window.replyMyTicket=function(id){
+    const u=currentSupportUser();
+    if(!u)return msg('Önce giriş yapın!','err');
+    const tickets=allTickets();
+    const idx=tickets.findIndex(t=>String(t.id)===String(id)&&String(t.userId)===String(u.id));
+    if(idx<0)return;
+    const input=document.getElementById('user-reply-'+id);
+    const text=(input?.value||'').trim();
+    if(!text)return msg('Yanıt yazın!','err');
+    tickets[idx].responses=normalizeResponses(tickets[idx]);
+    tickets[idx].responses.push({by:'user',text,date:new Date().toISOString()});
+    tickets[idx].status='waiting_support';
+    tickets[idx].readByUser=true;
+    saveTickets(tickets);
+    window.renderMyTickets();
+    msg('Yanıtın bilete eklendi.','ok');
+  };
+  const oldReplyTicket=window.replyTicket || (typeof replyTicket==='function'?replyTicket:null);
+  window.replyTicket=function(i){
+    const tickets=allTickets();
+    if(!tickets[i])return;
+    const input=document.getElementById('reply-'+tickets[i].id);
+    const text=(input?.value||'').trim();
+    if(!text)return msg('Yanıt yazın!','err');
+    tickets[i].responses=normalizeResponses(tickets[i]);
+    tickets[i].responses.push({by:'support',text,date:new Date().toISOString()});
+    tickets[i].status='answered';
+    tickets[i].readByUser=false;
+    saveTickets(tickets);
+    if(typeof renderAdminTickets==='function')renderAdminTickets();
+    msg('Yanıt gönderildi','ok');
+  };
+  window.updateSupportBadge=function(){
+    try{
+      const u=currentSupportUser();
+      if(!u)return;
+      const count=allTickets().filter(t=>String(t.userId)===String(u.id)&&(t.status==='answered'||t.readByUser===false)).length;
+      const badge=document.getElementById('ps-ticket-badge');
+      if(badge){
+        if(count>0){badge.textContent=count>99?'99+':String(count);badge.style.display='inline-flex'}
+        else badge.style.display='none';
+      }
+    }catch(e){}
+  };
+  try{renderMyTickets=window.renderMyTickets}catch(e){}
+  try{replyTicket=window.replyTicket}catch(e){}
+  try{updateSupportBadge=window.updateSupportBadge}catch(e){}
+})();
+
+/* v192.1: small interaction feedback for dock, model-adjacent controls and
+   bottom navigation. UI only; model/provider/credit logic is untouched. */
+(function(){
+  function bindPressFeedback(){
+    const selectors=[
+      '.professional-tool-dock button',
+      '.professional-tool-dock .tool-chip',
+      '.ai-composer-tools button',
+      '.ai-composer-tools .tool-chip',
+      '.mobile-app-nav-btn',
+      '.chat-action-pill',
+      '#web-search-btn',
+      '#auto-voice-btn',
+      '[data-tab="img"]',
+      '[data-panel="img"]'
+    ].join(',');
+    document.querySelectorAll(selectors).forEach(btn=>{
+      if(btn.dataset.v1921Press==='1')return;
+      btn.dataset.v1921Press='1';
+      const pulse=function(){
+        btn.classList.remove('v1921-pressed','v1921-running');
+        void btn.offsetWidth;
+        btn.classList.add('v1921-pressed');
+        if(btn.id==='web-search-btn'||btn.id==='auto-voice-btn'||btn.closest('.professional-tool-dock')||btn.closest('.ai-composer-tools')){
+          btn.classList.add('v1921-running');
+          setTimeout(()=>btn.classList.remove('v1921-running'),520);
+        }
+        setTimeout(()=>btn.classList.remove('v1921-pressed'),260);
+      };
+      btn.addEventListener('pointerdown',pulse,{passive:true});
+      btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')pulse()});
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindPressFeedback);
+  else bindPressFeedback();
+  if(typeof MutationObserver!=='undefined'){
+    const obs=new MutationObserver(()=>bindPressFeedback());
+    if(document.body)obs.observe(document.body,{childList:true,subtree:true});
+    else document.addEventListener('DOMContentLoaded',()=>obs.observe(document.body,{childList:true,subtree:true}));
+  }
+})();
 
 
 // ===== v138: Mojibake post-processor (ASCII-safe runtime fixer) =====
