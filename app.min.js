@@ -9284,7 +9284,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v197';
+  const VERSION='v198';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -9622,4 +9622,43 @@ window.downloadEditorCanvas=downloadEditorCanvas;
     if(document.body) obs.observe(document.body, { childList: true, subtree: true, characterData: true });
     else document.addEventListener('DOMContentLoaded', function(){ obs.observe(document.body, { childList: true, subtree: true, characterData: true }); });
   }
+})();
+
+// v198: global preview/gallery fallback shim
+(function(){
+  function htmlEscape(value){return String(value||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  window.buildArtifactHtml=function(code,lang){
+    var src=String(code||'').trim();
+    var language=String(lang||'text').toLowerCase();
+    var baseHead='<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{min-height:100%;margin:0}body{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1020;color:#e5ecff}.artifact-empty{min-height:100vh;display:grid;place-items:center;padding:32px;text-align:center}.artifact-empty b{display:block;font-size:18px;margin-bottom:8px;color:#fff}.artifact-error{position:fixed;left:12px;right:12px;bottom:12px;background:#3b0b14;color:#ffd7df;border:1px solid #fb7185;border-radius:12px;padding:10px 12px;font:13px ui-monospace,monospace;white-space:pre-wrap}</style>';
+    if(language==='html'||/<(?:!doctype|html|body|head|div|section|main|canvas|button|form|input|svg|h[1-6]|p|img)\b/i.test(src)){
+      if(/<(?:!doctype|html)\b/i.test(src))return src.replace(/<head([^>]*)>/i,'<head$1><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">');
+      return '<!DOCTYPE html><html><head>'+baseHead+'</head><body>'+(src||'<div class="artifact-empty"><div><b>Önizlenecek HTML boş.</b><span>Kod bloğunu tekrar oluşturmayı deneyin.</span></div></div>')+'</body></html>';
+    }
+    if(language==='css')return '<!DOCTYPE html><html><head>'+baseHead+'<style>'+src+'</style></head><body><main class="artifact-empty"><div><b>CSS önizlemesi hazır.</b><span>Stiller bu sayfaya yüklendi.</span></div></main></body></html>';
+    if(language==='javascript'||language==='js')return '<!DOCTYPE html><html><head>'+baseHead+'</head><body><main class="artifact-empty" id="artifact-root"><div><b>JavaScript önizlemesi çalışıyor.</b><span>Çıktı sayfada veya konsolda görünebilir.</span></div></main><script>try{'+src+'\n}catch(e){document.body.insertAdjacentHTML("beforeend","<pre class=\\"artifact-error\\">"+String(e).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]})+"</pre>")}<\/script></body></html>';
+    return '<!DOCTYPE html><html><head>'+baseHead+'</head><body><pre style="white-space:pre-wrap;font:14px/1.6 ui-monospace,monospace;padding:24px">'+htmlEscape(src)+'</pre></body></html>';
+  };
+  window.openArtifactFromData=function(btn){
+    var code='';
+    try{code=decodeURIComponent(btn.getAttribute('data-code')||'')}catch(e){code=btn.getAttribute('data-code')||''}
+    var lang=btn.getAttribute('data-lang')||'text';
+    if(!code){if(typeof msg==='function')msg('Önizlenecek kod bulunamadı','err');return}
+    var fullHtml=window.buildArtifactHtml(code,lang);
+    window.currentArtifactHtml=fullHtml;
+    var panel=document.getElementById('artifact-panel');
+    if(panel){panel.style.display='flex';panel.style.width='';panel.classList.add('open')}
+    var mainCol=document.getElementById('chat-main-col');
+    if(mainCol&&window.innerWidth<768)mainCol.style.display='none';
+    var iframe=document.getElementById('artifact-iframe');
+    if(iframe){try{if(iframe.dataset.blobUrl)URL.revokeObjectURL(iframe.dataset.blobUrl)}catch(e){} iframe.removeAttribute('srcdoc'); var blobUrl=URL.createObjectURL(new Blob([fullHtml],{type:'text/html;charset=utf-8'})); iframe.dataset.blobUrl=blobUrl; iframe.src=blobUrl;}
+  };
+  window.handleGalleryImageError=function(img,url){
+    if(!img)return;
+    var card=img.closest('.img-history-card,.gallery-item,.pro-image-strip button,.pro-mini-gallery');
+    img.removeAttribute('src'); img.alt='Görsel yüklenemedi'; img.classList.add('image-load-failed');
+    if(card){card.classList.add('image-card-failed'); if(!card.querySelector('.image-failed-note'))card.insertAdjacentHTML('beforeend','<div class="image-failed-note">Görsel yüklenemedi. Tekrar üretmeyi deneyin.</div>')}
+    try{if(typeof removeImageUrlEverywhere==='function')removeImageUrlEverywhere(url)}catch(e){}
+  };
+  document.addEventListener('click',function(e){var btn=e.target&&e.target.closest&&e.target.closest('.preview-btn'); if(btn){e.preventDefault(); window.openArtifactFromData(btn)}},true);
 })();
