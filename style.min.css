@@ -21392,5 +21392,41 @@ body.theme-forest #v-chat .ai-chat-app{
 @keyframes froxyImgShimmer{0%{background-position:0 0}100%{background-position:220% 0}}
 .image-card-failed{position:relative;min-height:150px;border-style:dashed!important;opacity:.86}
 .image-load-failed{display:none!important}
+
+/* ===== v200 Mobile Selected Model Label ===== */
+#ptab-chat .dock-button.model-picker-chip .dock-label{
+  max-width:150px!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+
+@media(max-width:720px){
+  #ptab-chat .dock-button.model-picker-chip{
+    min-width:112px!important;
+    width:auto!important;
+    max-width:142px!important;
+    padding:0 10px!important;
+    gap:6px!important;
+    font-size:11px!important;
+  }
+  #ptab-chat .dock-button.model-picker-chip > .dock-label{
+    display:inline-block!important;
+    max-width:82px!important;
+    color:inherit!important;
+    opacity:1!important;
+  }
+}
+
+@media(max-width:390px){
+  #ptab-chat .dock-button.model-picker-chip{
+    min-width:100px!important;
+    max-width:118px!important;
+  }
+  #ptab-chat .dock-button.model-picker-chip > .dock-label{
+    max-width:64px!important;
+  }
+}
 .image-failed-note{display:grid;place-items:center;min-height:128px;padding:18px;text-align:center;color:var(--text2);font-size:13px;border-radius:14px;background:rgba(15,23,42,.42);border:1px solid rgba(148,163,184,.18)}
 .pro-image-strip .image-failed-note{min-height:74px;font-size:12px}

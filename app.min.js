@@ -3782,6 +3782,50 @@ function updateModelBadge(){
     icon.innerHTML=iconSvg(ci.icon,14);
   }
 }
+// v200: keep the mobile model dock label synced with the selected model name.
+function updateModelBadge(){
+  const sel=document.getElementById('model-sel');
+  if(sel?.value)LS.set('ap_selected_model',sel.value);
+  const badge=document.getElementById('ch-model-badge');
+  const topName=document.getElementById('mpb-name');
+  const countEl=document.getElementById('model-count');
+  const opt=sel?.options?.[sel.selectedIndex];
+  const raw=opt?opt.text:'Model';
+  const clean=(typeof repairMojibake==='function'?repairMojibake(String(raw)):String(raw))
+    .replace(/^[^\p{L}\p{N}]+/u,'')
+    .replace(/\s+/g,' ')
+    .trim()||'Model';
+  const compact=clean.length>24?clean.slice(0,22).trim()+'...':clean;
+  const dockName=clean
+    .replace(/^(Ucretsiz|Ücretsiz|Free|Premium|Hazir|Hazır)\s*[-—:]\s*/i,'')
+    .replace(/\s*\([^)]*\)\s*$/,'')
+    .trim()||clean;
+  const dockCompact=dockName.length>18?dockName.slice(0,16).trim()+'...':dockName;
+  if(sel && badge){
+    badge.textContent=compact;
+    badge.title=clean;
+  }
+  if(topName){
+    topName.textContent=compact;
+    topName.title=clean;
+  }
+  if(countEl && sel) countEl.textContent=modelCountLabel();
+  document.querySelectorAll('.model-picker-chip').forEach(btn=>{
+    btn.title='Model sec: '+clean;
+    btn.setAttribute('aria-label','Model sec: '+clean);
+  });
+  document.querySelectorAll('.model-picker-chip .dock-label').forEach(label=>{
+    label.textContent=dockCompact;
+    label.title=clean;
+  });
+  const icon=document.querySelector('.ai-top-chip .mpb-icon');
+  const m=ALL_MODELS.find(x=>x.id===sel?.value);
+  if(icon && m){
+    const ci=CAT_INFO[m.cat||'other']||CAT_INFO.other;
+    icon.innerHTML=iconSvg(ci.icon,14);
+  }
+}
+
 // Close tool menu on outside click
 document.addEventListener('click',e=>{
   const dd=document.getElementById('tool-dropdown');
@@ -9284,7 +9328,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v199';
+  const VERSION='v200';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
