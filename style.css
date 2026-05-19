@@ -21517,6 +21517,18 @@ body.theme-forest #v-chat .ai-chat-app{
 .image-failed-note{display:grid;place-items:center;min-height:128px;padding:18px;text-align:center;color:var(--text2);font-size:13px;border-radius:14px;background:rgba(15,23,42,.42);border:1px solid rgba(148,163,184,.18)}
 .pro-image-strip .image-failed-note{min-height:74px;font-size:12px}
 
+/* ===== v204 AI Tools Top Strip Cleanup ===== */
+#ptab-tools .ai-tools-page::before{
+  display:none!important;
+  content:none!important;
+}
+#ptab-tools .ai-tools-page{
+  padding-top:clamp(18px,3vw,34px)!important;
+}
+#ptab-tools .ai-tools-hero{
+  margin-top:0!important;
+}
+
 /* ===== v202 Growth Feature Polish ===== */
 .growth-model-advisor{
   margin:0 18px 14px;
