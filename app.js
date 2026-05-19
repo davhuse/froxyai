@@ -449,6 +449,38 @@ function imageUrlForDownload(url){
   if(url.startsWith('/generated/') && API_ORIGIN)return API_ORIGIN + url;
   return url;
 }
+function isProbablyImageUrl(url){
+  const value=String(url||'').trim();
+  if(!value)return false;
+  if(value.startsWith('data:image/')||value.startsWith('blob:'))return true;
+  if(value.startsWith('/generated/'))return true;
+  try{
+    const parsed=new URL(value, window.location.origin);
+    if(parsed.protocol==='http:'||parsed.protocol==='https:')return true;
+  }catch(e){}
+  return false;
+}
+function removeImageUrlEverywhere(url){
+  const raw=String(url||'');
+  if(!raw)return;
+  const same=(x)=>String(x?.url||'')===raw || imageUrlForDownload(String(x?.url||''))===raw || imageUrlForDisplay(String(x?.url||''))===raw;
+  try{LS.set('ap_image_history',(getImageHistory()||[]).filter(x=>!same(x)))}catch(e){}
+  try{LS.set('ap_image_gallery',(getImageGallery()||[]).filter(x=>!same(x)))}catch(e){}
+}
+function handleGalleryImageError(img,url){
+  if(!img)return;
+  const card=img.closest('.img-history-card,.gallery-item,.pro-image-strip button,.pro-mini-gallery');
+  img.removeAttribute('src');
+  img.alt='Görsel yüklenemedi';
+  img.classList.add('image-load-failed');
+  if(card){
+    card.classList.add('image-card-failed');
+    if(!card.querySelector('.image-failed-note')){
+      card.insertAdjacentHTML('beforeend','<div class="image-failed-note">Görsel yüklenemedi. Tekrar üretmeyi deneyin.</div>');
+    }
+  }
+  removeImageUrlEverywhere(url);
+}
 function getImageModelLabel(model){
   const sel=document.getElementById('img-model');
   const opt=sel?[...sel.options].find(o=>o.value===model):null;
@@ -540,6 +572,7 @@ function shouldUseDirectImageModel(model){
 }
 function renderImageResult(resEl, url, prompt, model, fallbackNote=''){
   const displayUrl=imageUrlForDisplay(url);
+  let settled=false;
   resEl.innerHTML = `
     <div class="image-result-card">
       <img src="${displayUrl}" alt="Oluşturulan görsel" data-img-state="loading">
@@ -554,11 +587,30 @@ function renderImageResult(resEl, url, prompt, model, fallbackNote=''){
       </div>
     </div>`;
   const imgEl = resEl.querySelector('.image-result-card img');
-  if(imgEl){
+  return new Promise(resolve=>{
+    const finish=(ok)=>{
+      if(settled)return;
+      settled=true;
+      resolve(!!ok);
+    };
+    if(!imgEl)return finish(false);
+    const timeout=setTimeout(()=>{
+      if(settled)return;
+      imgEl.dataset.imgState='slow';
+      const metaNote=resEl.querySelector('.image-result-meta em');
+      const text='Görsel hazırlanıyor. Bağlantı yavaşsa sonuç arka planda yüklenmeye devam eder.';
+      if(metaNote)metaNote.textContent=text;
+      else{
+        const meta=resEl.querySelector('.image-result-meta');
+        if(meta)meta.insertAdjacentHTML('beforeend',`<em>${text}</em>`);
+      }
+    },18000);
     imgEl.onload = () => {
+      clearTimeout(timeout);
       imgEl.dataset.imgState = 'loaded';
       lastImgUrl = imageUrlForDownload(url);
       addImageHistory(imageUrlForDownload(url), prompt, model);
+      finish(true);
     };
     imgEl.onerror = () => {
       if(!imgEl.dataset.fallbackTried){
@@ -574,7 +626,11 @@ function renderImageResult(resEl, url, prompt, model, fallbackNote=''){
         return;
       }
       const finalUrl=clientImageFallbackUrl(prompt,getImageModelLabel(model));
-      imgEl.onerror=null;
+      imgEl.onerror=()=>{
+        clearTimeout(timeout);
+        renderImageErrorCard(resEl,prompt,model,finalUrl);
+        finish(false);
+      };
       imgEl.src=finalUrl;
       const metaNote=resEl.querySelector('.image-result-meta em');
       if(metaNote)metaNote.textContent='Canlı görsel hattı yoğun. Şimdilik güvenli önizleme gösteriliyor.';
@@ -583,7 +639,7 @@ function renderImageResult(resEl, url, prompt, model, fallbackNote=''){
         if(meta)meta.insertAdjacentHTML('beforeend','<em>Canlı görsel hattı yoğun. Şimdilik güvenli önizleme gösteriliyor.</em>');
       }
     };
-  }
+  });
 }
 function renderImageErrorCard(resEl, prompt, model, failedUrl){
   // Clear lastImgUrl so downloadImage's existing guard ("İndirilebilir görsel yok")
@@ -5685,7 +5741,7 @@ let lastImgUrl = '';
 
 function getImageHistory(){return LS.get('ap_image_history',[])}
 function addImageHistory(url,prompt,model){
-  if(!url)return;
+  if(!isProbablyImageUrl(url))return;
   const items=getImageHistory().filter(x=>x.url!==url);
   items.unshift({url,prompt,model,date:new Date().toISOString()});
   LS.set('ap_image_history',items.slice(0,24));
@@ -5773,23 +5829,29 @@ async function genImage(){
     
     if (res.ok && data.url) {
       const note = data.provider ? `${data.provider} ile üretildi` : '';
-      renderImageResult(resEl, data.url, prompt, model, note);
-      const billedProvider=imageProviderForModel(model);
-      const billedCost=getClientModelCreditCost(model,billedProvider,'image');
-      await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
+      const ok=await renderImageResult(resEl, data.url, prompt, model, note);
+      if(ok){
+        const billedProvider=imageProviderForModel(model);
+        const billedCost=getClientModelCreditCost(model,billedProvider,'image');
+        await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
+      }
     } else {
       const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
-      renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
+      const ok=await renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
+      if(ok){
+        const billedProvider=imageProviderForModel(model);
+        const billedCost=getClientModelCreditCost(model,billedProvider,'image');
+        await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
+      }
+    }
+  } catch (err) {
+    const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
+    const ok=await renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
+    if(ok){
       const billedProvider=imageProviderForModel(model);
       const billedCost=getClientModelCreditCost(model,billedProvider,'image');
       await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
     }
-  } catch (err) {
-    const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
-    renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
-    const billedProvider=imageProviderForModel(model);
-    const billedCost=getClientModelCreditCost(model,billedProvider,'image');
-    await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
   }
   
   btn.disabled = false;
@@ -5926,9 +5988,10 @@ document.addEventListener('click', function(e) {
 });
 
 function openArtifactFromData(btn) {
-  const code = decodeURIComponent(btn.getAttribute('data-code')||'');
+  let code='';
+  try{code = decodeURIComponent(btn.getAttribute('data-code')||'')}catch(e){code = btn.getAttribute('data-code')||''}
   const lang = btn.getAttribute('data-lang') || 'text';
-  if(!code){if(typeof msg==='function')msg('\u00d6nizlenecek kod bulunamad\u0131','err');return}
+  if(!code){if(typeof msg==='function')msg('Önizlenecek kod bulunamadı','err');return}
   const fullHtml = buildArtifactHtml(code, lang);
   currentArtifactHtml = fullHtml;
   const panel = document.getElementById('artifact-panel');
@@ -5936,7 +5999,13 @@ function openArtifactFromData(btn) {
   const mainCol = document.getElementById('chat-main-col');
   if (mainCol && window.innerWidth < 768) mainCol.style.display = 'none';
   const iframe = document.getElementById('artifact-iframe');
-  if (iframe) { iframe.removeAttribute('src'); iframe.srcdoc = fullHtml; }
+  if (iframe) {
+    try{ if(iframe.dataset.blobUrl) URL.revokeObjectURL(iframe.dataset.blobUrl); }catch(e){}
+    iframe.removeAttribute('srcdoc');
+    const blobUrl=URL.createObjectURL(new Blob([fullHtml],{type:'text/html;charset=utf-8'}));
+    iframe.dataset.blobUrl=blobUrl;
+    iframe.src=blobUrl;
+  }
 }
 
 function buildArtifactHtml(code, lang) {
@@ -5944,7 +6013,9 @@ function buildArtifactHtml(code, lang) {
   const language=String(lang||'text').toLowerCase();
   const baseHead='<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{min-height:100%;margin:0}body{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1020;color:#e5ecff}.artifact-empty{min-height:100vh;display:grid;place-items:center;padding:32px;text-align:center}.artifact-empty b{display:block;font-size:18px;margin-bottom:8px;color:#fff}.artifact-error{position:fixed;left:12px;right:12px;bottom:12px;background:#3b0b14;color:#ffd7df;border:1px solid #fb7185;border-radius:12px;padding:10px 12px;font:13px ui-monospace,monospace;white-space:pre-wrap}</style>';
   if(language==='html' || /<(?:!doctype|html|body|head|div|section|main|canvas|button|form|input|svg|h[1-6]|p|img)\b/i.test(src)){
-    if(/<(?:!doctype|html)\b/i.test(src))return src;
+    if(/<(?:!doctype|html)\b/i.test(src)){
+      return src.replace(/<head([^>]*)>/i,'<head$1><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">');
+    }
     return '<!DOCTYPE html><html><head>'+baseHead+'</head><body>'+(src||'<div class="artifact-empty"><div><b>Önizlenecek HTML boş.</b><span>Kod bloğunu tekrar oluşturmayı deneyin.</span></div></div>')+'</body></html>';
   }
   if(language==='css'){
@@ -5959,6 +6030,13 @@ function buildArtifactHtml(code, lang) {
 function closeArtifact() {
   const panel = document.getElementById('artifact-panel');
   if (panel) { panel.style.display = 'none'; panel.style.width = '0'; panel.classList.remove('open'); }
+  const iframe = document.getElementById('artifact-iframe');
+  if(iframe){
+    try{ if(iframe.dataset.blobUrl) URL.revokeObjectURL(iframe.dataset.blobUrl); }catch(e){}
+    iframe.removeAttribute('src');
+    iframe.removeAttribute('srcdoc');
+    delete iframe.dataset.blobUrl;
+  }
   const mainCol = document.getElementById('chat-main-col');
   if (mainCol) { mainCol.style.display = 'flex'; mainCol.style.width = '100%'; }
 }
@@ -6328,6 +6406,7 @@ function moveChatToFolder(chatId,folder){
 // ===================================================================
 function getImageGallery(){return LS.get('ap_image_gallery',[])}
 function saveToGallery(url,prompt,model){
+  if(!isProbablyImageUrl(url))return;
   const gallery=getImageGallery();
   if(gallery.some(x=>x.url===url))return;
   gallery.unshift({url,prompt,model,date:Date.now(),id:'img_'+Date.now().toString(36)});
@@ -9202,7 +9281,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v195';
+  const VERSION='v196';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }

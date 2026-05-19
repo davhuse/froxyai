@@ -21384,3 +21384,13 @@ body.theme-forest #v-chat .ai-chat-app{
     #07130e!important;
   background-size:72px 72px,72px 72px,auto,auto,auto!important;
 }
+
+
+/* v196 preview/gallery reliability polish */
+.ai-artifact-panel iframe#artifact-iframe{background:#fff;color:#111;min-height:360px}
+.image-result-card img[data-img-state="loading"],.image-result-card img[data-img-state="slow"]{background:linear-gradient(110deg,rgba(99,102,241,.12),rgba(34,211,238,.10),rgba(99,102,241,.12));background-size:220% 100%;animation:froxyImgShimmer 1.8s ease-in-out infinite;min-height:220px;object-fit:cover}
+@keyframes froxyImgShimmer{0%{background-position:0 0}100%{background-position:220% 0}}
+.image-card-failed{position:relative;min-height:150px;border-style:dashed!important;opacity:.86}
+.image-load-failed{display:none!important}
+.image-failed-note{display:grid;place-items:center;min-height:128px;padding:18px;text-align:center;color:var(--text2);font-size:13px;border-radius:14px;background:rgba(15,23,42,.42);border:1px solid rgba(148,163,184,.18)}
+.pro-image-strip .image-failed-note{min-height:74px;font-size:12px}
