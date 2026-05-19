@@ -35,26 +35,26 @@ window.fetch = function(input, init){
   const CHAR_REPAIRS = [
     ['Ç','\u00c7'],['ç','\u00e7'],['Ö','\u00d6'],['ö','\u00f6'],['Ü','\u00dc'],['ü','\u00fc'],
     ['İ','\u0130'],['ı','\u0131'],['Ğ','\u011e'],['ğ','\u011f'],['Ş','\u015e'],['ş','\u015f'],
-    ['Ã‡','\u00c7'],['Ã§','\u00e7'],['Ã–','\u00d6'],['Ã¶','\u00f6'],['Ãœ','\u00dc'],['Ã¼','\u00fc'],
-    ['Ä°','\u0130'],['Ä±','\u0131'],['Äž','\u011e'],['ÄŸ','\u011f'],['Åž','\u015e'],['ÅŸ','\u015f'],
-    ['·','\u00b7'],['Â₺','\u20ba'],['₺','\u20ba'],['—','\u2014'],['–','\u2013'],['…','\u2026'],['→','\u2192'],
-    ['â‚º','\u20ba'],['â€”','\u2014'],['â€“','\u2013'],['â€¦','\u2026'],['â†’','\u2192'],['â†','\u2190'],['â†—','\u2197'],['â†µ','\u21b5'],
-    ['â–¼','\u25bc'],['âŒ','\u2301'],
+    ['Ç','\u00c7'],['ç','\u00e7'],['Ö','\u00d6'],['ö','\u00f6'],['Ü','\u00dc'],['ü','\u00fc'],
+    ['İ','\u0130'],['ı','\u0131'],['Ğ','\u011e'],['ğ','\u011f'],['Ş','\u015e'],['ş','\u015f'],
+    ['·','\u00b7'],['₺','\u20ba'],['₺','\u20ba'],['—','\u2014'],['–','\u2013'],['…','\u2026'],['→','\u2192'],
+    ['₺','\u20ba'],['—','\u2014'],['–','\u2013'],['…','\u2026'],['→','\u2192'],['←','\u2190'],['↗','\u2197'],['↵','\u21b5'],
+    ['▼','\u25bc'],['⌁','\u2301'],
     ['✅','\u2705'],['❌','\u274c'],['⏳','\u23f3'],['✕','\u00d7'],['✓','\u2713'],['⬇','\u2b07'],['⭐','\u2b50'],
-    ['âœ“','\u2713'],['âœ…','\u2705'],['âŒ','\u274c'],['â³','\u23f3'],['âœ•','\u00d7'],['â¬‡','\u2b07'],['â­','\u2b50'],
+    ['✓','\u2713'],['✅','\u2705'],['❌','\u274c'],['⏳','\u23f3'],['✕','\u00d7'],['⬇','\u2b07'],['⭐','\u2b50'],
     ['🤖','\ud83e\udd16'],['🎨','\ud83c\udfa8'],['🎬','\ud83c\udfac'],['💻','\ud83d\udcbb'],
     ['📝','\ud83d\udcdd'],['🌐','\ud83c\udf10'],['🔊','\ud83d\udd0a'],['📊','\ud83d\udcca'],
     ['📋','\ud83d\udccb'],['📄','\ud83d\udcc4'],['🔥','\ud83d\udd25'],['🧠','\ud83e\udde0'],
     ['💬','\ud83d\udcac'],['🚀','\ud83d\ude80'],['🔍','\ud83d\udd0d'],['👥','\ud83d\udc65'],
     ['🛒','\ud83d\uded2'],['🎫','\ud83c\udfab'],['🌙','\ud83c\udf19'],
-    ['ğŸ¤–','\ud83e\udd16'],['ğŸ¨','\ud83c\udfa8'],['ğŸ¬','\ud83c\udfac'],['ğŸ’»','\ud83d\udcbb'],
-    ['ğŸ“','\ud83d\udcdd'],['ğŸŒ','\ud83c\udf10'],['ğŸ”Š','\ud83d\udd0a'],['ğŸ“Š','\ud83d\udcca'],
-    ['ğŸ“‹','\ud83d\udccb'],['ğŸ“„','\ud83d\udcc4'],['ğŸ”¥','\ud83d\udd25'],['ğŸ§ ','\ud83e\udde0'],
-    ['ğŸ’¬','\ud83d\udcac'],['ğŸš€','\ud83d\ude80'],['ğŸ”','\ud83d\udd0d'],['ğŸ‘¥','\ud83d\udc65'],
-    ['ğŸ›’','\ud83d\uded2'],['ğŸŽ«','\ud83c\udfab'],['ğŸŒ™','\ud83c\udf19'],['ğŸ›¡','\ud83d\udee1'],['ğŸ“‰','\ud83d\udcc9'],
-    ['ğŸ›','\ud83d\udc1b'],['ğŸ†','\ud83c\udfc6'],['ğŸ”‘','\ud83d\udd11'],['ğŸ‘¥','\ud83d\udc65'],['ğŸ”§','\ud83d\udd27'],
-    ['ğŸ“¢','\ud83d\udce2'],['ğŸŽ«','\ud83c\udfab'],['ğŸ’¾','\ud83d\udcbe'],['ğŸ”—','\ud83d\udd17'],['ğŸŽ','\ud83c\udf81'],
-    ['ğŸ”“','\ud83d\udd13'],['ğŸ–¼ï¸','🖼️']
+    ['🤖','\ud83e\udd16'],['🎨','\ud83c\udfa8'],['🎬','\ud83c\udfac'],['💻','\ud83d\udcbb'],
+    ['📝','\ud83d\udcdd'],['🌐','\ud83c\udf10'],['🔊','\ud83d\udd0a'],['📊','\ud83d\udcca'],
+    ['📋','\ud83d\udccb'],['📄','\ud83d\udcc4'],['🔥','\ud83d\udd25'],['🧠','\ud83e\udde0'],
+    ['💬','\ud83d\udcac'],['🚀','\ud83d\ude80'],['🔍','\ud83d\udd0d'],['👥','\ud83d\udc65'],
+    ['🛒','\ud83d\uded2'],['??','\ud83c\udfab'],['🌙','\ud83c\udf19'],['🛡','\ud83d\udee1'],['📉','\ud83d\udcc9'],
+    ['🐛','\ud83d\udc1b'],['🏆','\ud83c\udfc6'],['🔑','\ud83d\udd11'],['👥','\ud83d\udc65'],['🔧','\ud83d\udd27'],
+    ['📢','\ud83d\udce2'],['??','\ud83c\udfab'],['💾','\ud83d\udcbe'],['🔗','\ud83d\udd17'],['??','\ud83c\udf81'],
+    ['🔓','\ud83d\udd13'],['🖼️','🖼️']
   ];
   const PHRASE_REPAIRS = [
     ['G?rsel ?ret','G\u00f6rsel \u00dcret'],['G?rsel ?retildi','G\u00f6rsel \u00fcretildi'],['G?rsel olu?turuluyor','G\u00f6rsel olu\u015fturuluyor'],
@@ -81,7 +81,7 @@ window.fetch = function(input, init){
   const SKIP_TAGS = new Set(['SCRIPT','STYLE','TEXTAREA','CODE','PRE','NOSCRIPT','SVG']);
   let observer;
   function tryDecodeMojibake(value){
-    if(!/[ÃÄÅÂâğ]/.test(value))return value;
+    if(!/[ÃÄÅâğ]/.test(value))return value;
     try{
       const bytes=[];
       for(const ch of value){
@@ -125,29 +125,29 @@ window.fetch = function(input, init){
       .replace(/\bHatas\?\b/g,'Hatas\u0131')
       .replace(/Å\u009e/g,'\u015e')
       .replace(/Å\x9e/g,'\u015e')
-      .replace(/GiriÅŸ/g,'Giriş')
-      .replace(/BaÅŸla/g,'Başla')
-      .replace(/baÅŸla/g,'başla')
-      .replace(/oluÅŸ/g,'oluş')
-      .replace(/oluÅŸtur/g,'oluştur')
-      .replace(/çalıÅŸ/g,'çalış')
-      .replace(/çalÄ±ÅŸ/g,'çalış')
-      .replace(/ÇalıÅŸ/g,'Çalış')
-      .replace(/akıÅŸ/g,'akış')
-      .replace(/AkıÅŸ/g,'Akış')
-      .replace(/eriÅŸ/g,'eriş')
-      .replace(/keÅŸ/g,'keş')
-      .replace(/karÅŸ/g,'karş')
-      .replace(/karÅŸılaÅŸ/g,'karşılaş')
-      .replace(/MüÅŸ/g,'Müş')
-      .replace(/GeliÅŸ/g,'Geliş')
-      .replace(/hoÅŸ/g,'hoş')
-      .replace(/HoÅŸ/g,'Hoş')
-      .replace(/DıÅŸ/g,'Dış')
-      .replace(/dÄ±ÅŸ/g,'dış')
-      .replace(/DüÅŸ/g,'Düş')
-      .replace(/BaÅŸlÄ±k/g,'Başlık')
-      .replace(/BaÅŸlangÄ±Ã§/g,'Başlangıç')
+      .replace(/Giriş/g,'Giriş')
+      .replace(/Başla/g,'Başla')
+      .replace(/başla/g,'başla')
+      .replace(/oluş/g,'oluş')
+      .replace(/oluştur/g,'oluştur')
+      .replace(/çalış/g,'çalış')
+      .replace(/çalış/g,'çalış')
+      .replace(/Çalış/g,'Çalış')
+      .replace(/akış/g,'akış')
+      .replace(/Akış/g,'Akış')
+      .replace(/eriş/g,'eriş')
+      .replace(/keş/g,'keş')
+      .replace(/karş/g,'karş')
+      .replace(/karşılaş/g,'karşılaş')
+      .replace(/Müş/g,'Müş')
+      .replace(/Geliş/g,'Geliş')
+      .replace(/hoş/g,'hoş')
+      .replace(/Hoş/g,'Hoş')
+      .replace(/Dış/g,'Dış')
+      .replace(/dış/g,'dış')
+      .replace(/Düş/g,'Düş')
+      .replace(/Başlık/g,'Başlık')
+      .replace(/Başlangıç/g,'Başlangıç')
       .replace(/Yüklenemedi/g,'Yüklenemedi')
       .replace(/Baslat/g,'Başlat')
       .replace(/Toplu Uretim/g,'Toplu Üretim')
@@ -157,13 +157,13 @@ window.fetch = function(input, init){
       .replace(/âœ\S*/g,'')
       .replace(/âš\S*/g,'')
       .replace(/â†\S*/g,'')
-      .replace(/Ã¯Â¸Â/g,'')
-      .replace(/Â·/g,' · ')
+      .replace(/️/g,'')
+      .replace(/·/g,' · ')
       .replace(/\s{2,}/g,' ')
-      .replace(/AçÄ±k/g,'Açık')
-      .replace(/AÃ§Ä±k/g,'Açık')
-      .replace(/AÃ§Ä±klama/g,'Açıklama')
-      .replace(/KullanÄ±cÄ±/g,'Kullanıcı')
+      .replace(/Açık/g,'Açık')
+      .replace(/Açık/g,'Açık')
+      .replace(/Açıklama/g,'Açıklama')
+      .replace(/Kullanıcı/g,'Kullanıcı')
       .replace(/Toplam gorsel/g,'Toplam görsel')
       .replace(/Veri alinamadi/g,'Veri alınamadı')
       .replace(/🩺/g,'\ud83e\ude7a')
@@ -924,7 +924,7 @@ const ICON_PATHS={
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
   layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>'
 };
-const ICON_EMOJI_MAP={'🤖':'bot','🎨':'image','🖼ï¸':'image','🎬':'video','💻':'code','📝':'file','🌐':'globe','🔊':'volume','📊':'chart','🔑':'key','📋':'copy','📄':'file','🔥':'flame','🧠':'brain','✨':'sparkles','💬':'message','🚀':'sparkles','🔍':'search','🎯':'target','👥':'users','🛡ï¸':'shield','🛒':'store','🎫':'ticket','⚙️':'settings','🔧':'settings','📢':'megaphone','⚡':'zap','🎁':'gift','📖':'book','✍️':'file','💼':'store','⭐':'sparkles','🌟':'sparkles','🔄':'refresh','⬇️':'download','🎤':'mic','📎':'attach','🎨':'palette','🌙':'moon','?ï¸':'sun','📚':'layers'};
+const ICON_EMOJI_MAP={'🤖':'bot','🎨':'image','🖼️':'image','🎬':'video','💻':'code','📝':'file','🌐':'globe','🔊':'volume','📊':'chart','🔑':'key','📋':'copy','📄':'file','🔥':'flame','🧠':'brain','✨':'sparkles','💬':'message','🚀':'sparkles','🔍':'search','🎯':'target','👥':'users','🛡️':'shield','🛒':'store','🎫':'ticket','⚙️':'settings','🔧':'settings','📢':'megaphone','⚡':'zap','🎁':'gift','📖':'book','✍️':'file','💼':'store','⭐':'sparkles','🌟':'sparkles','🔄':'refresh','⬇️':'download','🎤':'mic','📎':'attach','🎨':'palette','🌙':'moon','?️':'sun','📚':'layers'};
 function iconSvg(name,size=18){
   const path=ICON_PATHS[name]||ICON_PATHS.sparkles;
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
@@ -937,10 +937,10 @@ function iconForEmoji(value){
 }
 function upgradeEmojiFigures(root=document){
   const items=[
-    ['🎨','image'],['🖼ï¸','image'],['🎬','video'],['🤖','bot'],['🌐','globe'],['🔊','volume'],
+    ['🎨','image'],['🖼️','image'],['🎬','video'],['🤖','bot'],['🌐','globe'],['🔊','volume'],
     ['📊','chart'],['🔑','key'],['📋','copy'],['📄','file'],['🔥','flame'],['🧠','brain'],
     ['✨','sparkles'],['🚀','sparkles'],['💬','message'],['🔍','search'],['🎯','target'],
-    ['👥','users'],['🛡ï¸','shield'],['🛒','store'],['🎫','ticket'],['⚙️','settings'],['🔧','settings'],
+    ['👥','users'],['🛡️','shield'],['🛒','store'],['🎫','ticket'],['⚙️','settings'],['🔧','settings'],
     ['📢','megaphone'],['⚡','zap'],['🎁','gift'],['📖','book'],['✍️','file'],['💼','store'],['⭐','sparkles'],['🌟','sparkles']
   ];
   root.querySelectorAll('.tool-chip,.btn,.pp-head h2,.dash-panel h3,.dsec h3,.dash-greeting h2,.hero-badge,.auth-perks li,.pc h3,.card h3,.task-icon,.da-icon').forEach(el=>{
@@ -3820,7 +3820,7 @@ async function loadAdminUsers(page) {
               ? `<button class="admin-action-btn admin-btn-unblock" onclick="adminBlockUser(${u.id},false)">🔓 Aç</button>`
               : `<button class="admin-action-btn admin-btn-block" onclick="adminBlockUser(${u.id},true)">🚫 Blokla</button>`}
             <button class="admin-action-btn admin-btn-admin" onclick="adminToggleRole(${u.id},${u.is_admin?0:1})">${u.is_admin?'👑 Al':'👑 Ver'}</button>
-            <button class="admin-action-btn admin-btn-delete" onclick="adminDeleteUser(${u.id},'${esc(u.username||u.email)}')">🗑ï¸</button>
+            <button class="admin-action-btn admin-btn-delete" onclick="adminDeleteUser(${u.id},'${esc(u.username||u.email)}')">🗑️</button>
           </div>
         </td>
       </tr>`;
@@ -3899,7 +3899,7 @@ async function adminDeleteUser(userId, username) {
   if(!confirm(`"${username}" kullanıcısını kalıcı olarak silmek istiyor musunuz? Bu işlem geri alınamaz!`)) return;
   try {
     const r = await fetch('/api/admin/users/' + userId, { method: 'DELETE', headers: adminHeader() });
-    if(r.ok) { msg('Kullanıcı silindi 🗑ï¸', 'ok'); loadAdminUsers(); loadAdminStats(); }
+    if(r.ok) { msg('Kullanıcı silindi 🗑️', 'ok'); loadAdminUsers(); loadAdminStats(); }
     else { const d = await r.json(); msg(d.error || 'Hata', 'err'); }
   } catch(e) { msg('Bağlantı hatası', 'err'); }
 }
@@ -3912,7 +3912,7 @@ async function loadAdminLogs() {
     const tbody = document.getElementById('logs-tbody');
     if(!tbody) return;
     if(!d.logs.length) { tbody.innerHTML = '<tr><td colspan="4" class="admin-empty">Henüz log yok</td></tr>'; return; }
-    const actionIcons = { credit_change:'💰', block_user:'🚫', unblock_user:'🔓', delete_user:'🗑ï¸', role_change:'👑', announce:'📢' };
+    const actionIcons = { credit_change:'💰', block_user:'🚫', unblock_user:'🔓', delete_user:'🗑️', role_change:'👑', announce:'📢' };
     tbody.innerHTML = d.logs.map(l => `<tr>
       <td style="font-size:12px;color:var(--text3);white-space:nowrap">${fmtDate(l.created_at)}</td>
       <td><strong>${esc(l.username||'Admin')}</strong></td>
@@ -4698,7 +4698,7 @@ function renderMyTickets(){
   const prBadge={low:'🟢',medium:'🟡',high:'🔴'};
   
   el.innerHTML=tickets.map(t=>{
-    const responses=t.responses.map(r=>`<div class="tk-response"><div class="tk-resp-head"><strong>🛡ï¸ Admin</strong><span>${new Date(r.date).toLocaleDateString('tr')}</span></div><p>${esc(r.text)}</p></div>`).join('');
+    const responses=t.responses.map(r=>`<div class="tk-response"><div class="tk-resp-head"><strong>🛡️ Admin</strong><span>${new Date(r.date).toLocaleDateString('tr')}</span></div><p>${esc(r.text)}</p></div>`).join('');
     return `<div class="tk-card">
       <div class="tk-head">
         <div><span>${prBadge[t.priority]||'🟢'}</span> <strong>${esc(t.title)}</strong></div>
@@ -4742,7 +4742,7 @@ function renderAdminTickets(){
         <input type="text" id="reply-${t.id}" placeholder="Yanıt yaz..." style="flex:1;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:var(--font)">
         <button class="adm-btn adm-btn-green" onclick="replyTicket(${realIdx})" title="Yanıtla" style="width:auto;padding:0 10px;font-size:12px">✉️</button>
         <button class="adm-btn adm-btn-blue" onclick="closeTicket(${realIdx})" title="Kapat" style="width:auto;padding:0 10px;font-size:12px">✅</button>
-        <button class="adm-btn adm-btn-red" onclick="deleteTicket(${realIdx})" title="Sil" style="width:auto;padding:0 10px;font-size:12px">🗑ï¸</button>
+        <button class="adm-btn adm-btn-red" onclick="deleteTicket(${realIdx})" title="Sil" style="width:auto;padding:0 10px;font-size:12px">🗑️</button>
       </div>
     </div>`;
   }).join('');
@@ -4769,7 +4769,7 @@ function closeTicket(i){
 function deleteTicket(i){
   const tickets=LS.get('ap_tickets',[]);
   tickets.splice(i,1);LS.set('ap_tickets',tickets);renderAdminTickets();
-  msg('Bilet silindi 🗑ï¸','ok');
+  msg('Bilet silindi 🗑️','ok');
 }
 
 // ===== ANNOUNCEMENTS (legacy dashboard kartı - ID'ler "legacy-ann-*") =====
@@ -4803,7 +4803,7 @@ function renderAdminAnnouncements(){
   el.innerHTML=anns.map((a,i)=>`<div class="ann-item">
     <div class="ann-head"><span>${icons[a.type]||'📢'}</span><strong>${esc(a.title)}</strong><span style="font-size:11px;color:var(--text3)">${new Date(a.date).toLocaleDateString('tr')}</span></div>
     <p style="font-size:12px;color:var(--text2);margin:4px 0">${esc(a.content).substring(0,80)}...</p>
-    <button class="adm-btn adm-btn-red" onclick="deleteAnnouncement(${i})" title="Sil" style="width:auto;padding:0 8px;font-size:11px;height:24px">🗑ï¸</button>
+    <button class="adm-btn adm-btn-red" onclick="deleteAnnouncement(${i})" title="Sil" style="width:auto;padding:0 8px;font-size:11px;height:24px">🗑️</button>
   </div>`).join('');
 }
 
@@ -4908,7 +4908,7 @@ const PROMPT_LIB=[
   {cat:'yazi',icon:'📧',title:'E-posta Yaz',desc:'Profesyonel mail oluştur',prompt:'Profesyonel bir e-posta yaz. Konu: '},
   {cat:'yazi',icon:'📱',title:'Sosyal Medya',desc:'Viral post içeriği',prompt:'Instagram/Twitter için dikkat çekici bir post yaz. Konu: '},
   {cat:'seo',icon:'🔍',title:'SEO Analiz',desc:'Sayfa SEO önerileri',prompt:'Bu web sayfası için SEO iyileştirme önerileri ver:\n'},
-  {cat:'seo',icon:'🏷ï¸',title:'Meta Tag Üret',desc:'Title ve description',prompt:'Şu sayfa için meta title ve description yaz: '},
+  {cat:'seo',icon:'🏷️',title:'Meta Tag Üret',desc:'Title ve description',prompt:'Şu sayfa için meta title ve description yaz: '},
   {cat:'pazarlama',icon:'📊',title:'Pazarlama Planı',desc:'Dijital strateji oluştur',prompt:'Şu ürün/hizmet için dijital pazarlama stratejisi oluştur: '},
   {cat:'eglence',icon:'music',title:'Şarkı Sözü',desc:'Şarkı sözleri yaz',prompt:'Şu temada Türkçe bir şarkı sözü yaz: '},
   {cat:'egitim',icon:'📖',title:'Konu Anlat',desc:'Kolay anlaşılır açıklama',prompt:'Şu konuyu 10 yaşındaki bir çocuğa anlatır gibi açıkla: '},
@@ -6125,7 +6125,7 @@ function clearAllMemory() {
   if (!confirm('Tüm hafızaları silmek istediğine emin misin?')) return;
   LS.del('ap_memory');
   renderMemory();
-  if(typeof msg==='function') msg('🗑ï¸ Tüm hafızalar silindi.', 'info');
+  if(typeof msg==='function') msg('🗑️ Tüm hafızalar silindi.', 'info');
 }
 
 function renderMemory() {
@@ -6574,7 +6574,7 @@ function renderAgents(){
 const BADGES=[
   {id:'first_msg',name:'İlk Adım',icon:'🎯',desc:'İlk mesajını gönder',check:s=>s.totalMsgs>=1},
   {id:'msg_50',name:'Sohbetçi',icon:'💬',desc:'50 mesaj gönder',check:s=>s.totalMsgs>=50},
-  {id:'msg_200',name:'Konuşkan',icon:'🗣ï¸',desc:'200 mesaj gönder',check:s=>s.totalMsgs>=200},
+  {id:'msg_200',name:'Konuşkan',icon:'🗣️',desc:'200 mesaj gönder',check:s=>s.totalMsgs>=200},
   {id:'msg_1000',name:'Efsane',icon:'👑',desc:'1000 mesaj gönder',check:s=>s.totalMsgs>=1000},
   {id:'models_5',name:'Kaşif',icon:'🔭',desc:'5 farklı model dene',check:s=>Object.keys(s.models).length>=5},
   {id:'models_15',name:'Uzman',icon:'🧪',desc:'15 farklı model dene',check:s=>Object.keys(s.models).length>=15},
@@ -6605,7 +6605,7 @@ function renderBadges(){
 const I18N={
   tr:{newChat:'Yeni Sohbet',send:'Gönder',search:'Ara...',settings:'Ayarlar',logout:'Çıkış',models:'Modeller',history:'Geçmiş',dashboard:'Panel',agents:'AI Ajanlar',gallery:'Galeri',analytics:'Analitik',badges:'Rozetler',apiKeys:'API Anahtarları'},
   en:{newChat:'New Chat',send:'Send',search:'Search...',settings:'Settings',logout:'Logout',models:'Models',history:'History',dashboard:'Dashboard',agents:'AI Agents',gallery:'Gallery',analytics:'Analytics',badges:'Badges',apiKeys:'API Keys'},
-  ar:{newChat:'Ã™…ØÂ­Ã˜Â§Ã˜Â¯Ã˜Â«Ã˜© Ã˜Â¬Ã˜Â¯Ã™Å Ã˜Â¯Ã˜©',send:'Ã˜Â¥Ã˜Â±Ã˜Â³Ã˜§Ù„',search:'Ã˜Â¨Ã˜Â­Ã˜«...',settings:'Ã˜Â§Ã™„ØÂ¥Ã˜Â¹Ã˜Â¯Ã˜Â§Ã˜Â¯Ã˜Â§Ã˜ª',logout:'Ã˜Â®Ã˜Â±Ã™Ë†Ã˜¬',models:'Ã˜Â§Ã™„Ù†Ù…ØÂ§Ã˜Â°Ã˜¬',history:'Ã˜Â§Ã™„ØÂªÃ˜Â§Ã˜Â±Ã™Å Ã˜®',dashboard:'Ã™„ÙË†Ã˜Â­Ã˜©',agents:'Ã™Ë†Ã™Æ’Ã™„ØÂ§Ã˜¡ AI',gallery:'Ã˜Â§Ã™„Ù…ØÂ¹Ã˜Â±Ã˜¶',analytics:'Ã˜ÂªÃ˜Â­Ã™„ÙÅ Ã™„ØÂ§Ã˜ª',badges:'Ã˜Â´Ã˜Â§Ã˜Â±Ã˜Â§Ã˜ª',apiKeys:'Ã™…ÙÂÃ˜Â§Ã˜ÂªÃ™Å Ã˜­ API'}
+  ar:{newChat:'????? ?????',send:'?????',search:'???...',settings:'?????????',logout:'????',models:'???????',history:'?????',dashboard:'????',agents:'????? AI',gallery:'??????',analytics:'???????',badges:'?????',apiKeys:'?????? API'}
 };
 let currentLang=LS.get('ap_lang','tr');
 function t(key){return(I18N[currentLang]||I18N.tr)[key]||key}
@@ -7603,7 +7603,7 @@ const AGENT_CATALOG_V106=[
   {id:'lawyer',name:'Hukuk Danışmanı',tag:'Hukuk',tone:'Genel bilgi',accent:'#f97316',icon:'shield',emoji:'⚖️',desc:'Hukuki konularda genel bilgi ve kontrol listesi sunar.',prompt:'Sen hukuk konularında genel bilgilendirme yapan bir asistansın. Türk hukuku bağlamında anlaşılır açıklama yap, riskleri belirt ve bunun resmi hukuki danışmanlık olmadığını uygun yerde hatırlat.'},
   {id:'fitness',name:'Fitness Koçu',tag:'Yaşam',tone:'Plan çıkarır',accent:'#10b981',icon:'zap',emoji:'💪',desc:'Hedefe göre antrenman, beslenme ve takip planı önerir.',prompt:'Sen fitness ve sağlıklı yaşam koçusun. Kullanıcının hedefine göre güvenli, uygulanabilir ve Türkçe antrenman/beslenme önerileri ver. Sağlık riski varsa uzmana danışmasını söyle.'},
   {id:'story',name:'Hikaye Yazarı',tag:'Yaratıcı',tone:'Anlatı modu',accent:'#a855f7',icon:'book',emoji:'📖',desc:'Karakter, sahne ve atmosfer odaklı yaratıcı metin üretir.',prompt:'Sen yaratıcı bir hikaye yazarısın. Kullanıcının verdiği tema, karakter veya sahneden güçlü atmosferi olan Türkçe hikayeler üret. Dil akıcı, sahneler canlı olsun.'},
-  {id:'debug',name:'Bug Avcısı',tag:'Teknik',tone:'Kök neden',accent:'#ef4444',icon:'search',emoji:'🛠ï¸',desc:'Hata mesajını analiz eder, nedeni ve çözüm adımlarını çıkarır.',prompt:'Sen debugging uzmanısın. Kullanıcının hata mesajını ve bağlamını analiz et; olası kök nedeni, hızlı kontrol listesini ve çözüm adımlarını Türkçe ver.'}
+  {id:'debug',name:'Bug Avcısı',tag:'Teknik',tone:'Kök neden',accent:'#ef4444',icon:'search',emoji:'🛠️',desc:'Hata mesajını analiz eder, nedeni ve çözüm adımlarını çıkarır.',prompt:'Sen debugging uzmanısın. Kullanıcının hata mesajını ve bağlamını analiz et; olası kök nedeni, hızlı kontrol listesini ve çözüm adımlarını Türkçe ver.'}
 ];
 if(Array.isArray(AI_AGENTS)){
   AI_AGENTS.splice(0,AI_AGENTS.length,...AGENT_CATALOG_V106);
@@ -8327,7 +8327,7 @@ function renderProfessionalDashboard(){
     document.documentElement.classList.toggle('theme-light-pre', isLight);
     // Ikon guncelle (nav'da birden fazla toggle olabilir)
     document.querySelectorAll('.theme-toggle-icon').forEach(function(el){
-      el.textContent = isLight ? '?ï¸' : '🌙';
+      el.textContent = isLight ? '?️' : '🌙';
     });
     // Meta theme-color
     var meta = document.querySelector('meta[name="theme-color"]');
@@ -9202,7 +9202,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v192.1';
+  const VERSION='v195';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }

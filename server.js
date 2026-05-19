@@ -40,12 +40,12 @@ try {
 const app = express();
 
 // ===== PERFORMANS & GÜVENLİK =====
-// gzip/br ile metin (JS/CSS/HTML/JSON) yanıtları 3-5Ã— küçülür; LCP ve FCP skoru yükselir.
+// gzip/br ile metin (JS/CSS/HTML/JSON) yanıtları 3-5× küçülür; LCP ve FCP skoru yükselir.
 app.use(compression({
   level: 6,
-  threshold: 1024, // 1 KB altı yanıtları sıkıÅŸtırma
+  threshold: 1024, // 1 KB altı yanıtları sıkıştırma
   filter: (req, res) => {
-    // Zaten sıkıÅŸtırılmıÅŸ medya tiplerini atla
+    // Zaten sıkıştırılmış medya tiplerini atla
     const type = res.getHeader('Content-Type') || '';
     if (/^image\/(jpeg|png|webp|avif)|^video\//.test(type)) return false;
     return compression.filter(req, res);
@@ -53,7 +53,7 @@ app.use(compression({
 }));
 
 // CORS whitelisting: varsayılan olarak prod domain + localhost.
-// İhtiyaç halinde env ile geniÅŸletilebilir: CORS_ORIGINS="https://a.com,https://b.com"
+// İhtiyaç halinde env ile genişletilebilir: CORS_ORIGINS="https://a.com,https://b.com"
 const DEFAULT_ORIGINS = ['https://froxyai.com', 'https://www.froxyai.com', 'http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
@@ -68,7 +68,7 @@ app.use(cors({
   credentials: true,
 }));
 
-// Temel güvenlik baÅŸlıkları (helmet kurmadan minimum set)
+// Temel güvenlik başlıkları (helmet kurmadan minimum set)
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -1027,7 +1027,7 @@ const GEMINI_KEYS = (process.env.GEMINI_API_KEYS || [
 const getGeminiKey = () => GEMINI_KEYS[Math.floor(Math.random() * GEMINI_KEYS.length)];
 const GOOGLE_API_KEY = fromEnv('GOOGLE_API_KEY', fromEnv('GEMINI_API_KEY', ''));
 
-// ⚠ï¸  Hardcoded fallback'ler sadece dev ortamı içindir.
+// ⚠️  Hardcoded fallback'ler sadece dev ortamı içindir.
 // Production'da .env içinde tanımlayın — bu değerler git'e giderse sızar.
 // === GROQ KEY ROTATION ===
 const GROQ_KEYS = (fromEnv('GROQ_API_KEYS') || fromEnv('GROQ_API_KEY') || [
@@ -1075,7 +1075,7 @@ const FAL_API_KEY            = fromEnv('FAL_API_KEY')            || fromEnv('VID
 const REPLICATE_API_TOKEN    = fromEnv('REPLICATE_API_TOKEN');
 const VIDU_API_KEY           = fromEnv('VIDU_API_KEY');
 
-// ===== YENİ SAÄLAYICILAR =====
+// ===== YENİ SAĞLAYICILAR =====
 const RUNWARE_KEYS = (fromEnv('RUNWARE_API_KEYS') || fromEnv('RUNWARE_API_KEY') || [
   'sk_wyR1yhyhvW4SFoTn8Qq76MmarUZb87hv',
   'qWLhQWrK4FzVNEzbntO9vC9JrnIce07J'
@@ -1325,8 +1325,8 @@ function streamPieceFromChoice(choice) {
 
 function stripProviderNotice(text) {
   return String(text || '')
-    .replace(/⚠ï¸\s*IMPORTANT NOTICE\s*⚠ï¸[\s\S]*?(?:continue to work normally\.|normally\.)/gi, '')
-    .replace(/⚠ï¸\s*IMPORTANT NOTICE\s*⚠ï¸/gi, '')
+    .replace(/⚠️\s*IMPORTANT NOTICE\s*⚠️[\s\S]*?(?:continue to work normally\.|normally\.)/gi, '')
+    .replace(/⚠️\s*IMPORTANT NOTICE\s*⚠️/gi, '')
     .replace(/The Pollinations legacy text API[\s\S]*?(?:continue to work normally\.|normally\.)/gi, '')
     .replace(/Please migrate to our new service at https:\/\/enter\.pollinations\.ai[\s\S]*?(?:models\.|normally\.)/gi, '')
     .trim();
@@ -1339,7 +1339,7 @@ function cleanServerAssistantReply(text) {
   // EMOJI/MOJIBAKE TEMIZLIGI - bozuk karakterler, gunes ☀, replacement char vs.
   s = s.replace(/\u2600/g, '').replace(/\uFFFD/g, '');
   s = s.replace(/ğŸ[^ .,!?]{0,3}/g, '').replace(/â[^ .,!?]{0,2}/g, '');
-  const quoted = s.match(/Just\s+["“]([^"”]+)["”]/i);
+  const quoted = s.match(/Just\s+[""]([^""]+)[""]/i);
   if (quoted && quoted[1]) s = quoted[1].trim();
   const lower = s.toLowerCase();
   const markers = ['provide that.', 'just that.', 'okay.', 'final answer:', 'answer:', 'cevap:', 'yanıt:'];
@@ -1354,7 +1354,7 @@ function cleanServerAssistantReply(text) {
   }
   if (markerIdx >= 0 && markerIdx < 800) s = s.slice(markerIdx + markerLen).trim();
   if (/^(we need|the user|user asks|the instruction|means:|they want|so we|probably just reply)\b/i.test(s)) {
-    const quotedParts = [...s.matchAll(/["“]([^"”]{1,180})["”]/g)].map(m => m[1].trim()).filter(Boolean);
+    const quotedParts = [...s.matchAll(/[""]([^""]{1,180})[""]/g)].map(m => m[1].trim()).filter(Boolean);
     if (quotedParts.length) s = quotedParts[quotedParts.length - 1];
   }
   let lines = s.split(/\n+/).map(x => x.trim()).filter(Boolean);
@@ -1364,11 +1364,11 @@ function cleanServerAssistantReply(text) {
   const cleanSentences = sentences.filter(x => !/^(we need|the user|user asks|the instruction|means:|they want|so we|probably just reply|make sure|that is|that's|just)\b/i.test(x));
   if (cleanSentences.length && cleanSentences.length !== sentences.length) s = cleanSentences.slice(-2).join(' ');
   s = s
-    .replace(/\bUser:\s*["“][\s\S]*?["”]\s*/gi, '')
+    .replace(/\bUser:\s*[""][\s\S]*?[""]\s*/gi, '')
     .replace(/\bMeans:\s*[\s\S]*?(?=(Just|Provide|Cevap|Yanıt|Merhaba|$))/gi, '')
     .replace(/\bThey want[\s\S]*?(?=(Just|Provide|Cevap|Yanıt|Merhaba|$))/gi, '')
     .replace(/^(Just|Just that|Provide that|Cevap|Yanıt)\s*[:.-]?\s*/i, '')
-    .replace(/^["'“”\s]+|["'“”\s]+$/g, '')
+    .replace(/^["'""\s]+|["'""\s]+$/g, '')
     .trim();
   if (false && s.includes('"')) {
     const tail = s.split('"').map(x => x.trim()).filter(Boolean).pop();
@@ -1633,7 +1633,7 @@ app.get('/api/health', (req, res) => {
       aimlapi: Boolean(AIMLAPI_KEY),
       together: Boolean(getTogetherKey()),
       gemini_imagen: Boolean(GEMINI_KEYS.length > 0),
-      pollinations: true // anahtarsız çalıÅŸır (image için hala)
+      pollinations: true // anahtarsız çalışır (image için hala)
     },
     searchProviders: {
       tavily: Boolean(TAVILY_API_KEY),
@@ -1645,7 +1645,7 @@ app.get('/api/health', (req, res) => {
 
 // ===== CANLI MODEL CHECK (görsel + chat küçük ping) =====
 // Kullanıcı panelden tıklayınca tüm sağlayıcıları gerçekten test eder.
-// Her sağlayıcıya 1 küçük istek atar; 10sn timeout içinde baÅŸarılıyı "OK" sayar.
+// Her sağlayıcıya 1 küçük istek atar; 10sn timeout içinde başarılıyı "OK" sayar.
 app.get('/api/model-check', async (req, res) => {
   const startAll = Date.now();
 
@@ -1676,7 +1676,7 @@ app.get('/api/model-check', async (req, res) => {
         headers: { 'Authorization': `Bearer ${p.key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'test', messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 })
       });
-      // 4xx (model yok/yetki) = provider yaÅŸıyor, 5xx veya timeout = ölü
+      // 4xx (model yok/yetki) = provider yaşıyor, 5xx veya timeout = ölü
       if (r.status >= 500) throw new Error('HTTP ' + r.status);
       return 'reachable (' + r.status + ')';
     }));
@@ -1870,7 +1870,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
       messages = [
         {
           role: 'system',
-          content: 'Sen Froxy AI asistanısın. Daima Türkçe, doğal ve akıcı cümlelerle cevap ver. Kullanıcının duygusuna empati göster ama cümlelerin sonuna ☀, ⭐, 🌞 gibi gereksiz emoji veya simge KOYMA. Bozuk karakter (ğŸ, â€, ?), garip semboller veya placeholder kullanma. Yanıtların açık, profesyonel ve insan gibi olsun. "Anladım" gibi kalıp ifadelerden kaçın, doğrudan konuya gir.'
+          content: 'Sen Froxy AI asistanısın. Daima Türkçe, doğal ve akıcı cümlelerle cevap ver. Kullanıcının duygusuna empati göster ama cümlelerin sonuna ☀, ⭐, 🌞 gibi gereksiz emoji veya simge KOYMA. Bozuk karakter, mojibake, garip semboller veya placeholder kullanma. Yanıtların açık, profesyonel ve insan gibi olsun. "Anladım" gibi kalıp ifadelerden kaçın, doğrudan konuya gir.'
         },
         ...messages
       ];
@@ -1882,7 +1882,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
         if (!String(existing).includes('Froxy AI')) {
           messages[sysIdx] = {
             role: 'system',
-            content: existing + '\n\nÖNEMLİ: Cümle sonlarına ☀, ⭐ gibi emoji koyma. Bozuk karakter (ğŸ, â€, ?) kullanma. Türkçe cevap ver, doğal ve akıcı yaz.'
+            content: existing + '\n\nÖNEMLİ: Cümle sonlarına ☀, ⭐ gibi emoji koyma. Bozuk karakter veya mojibake kullanma. Türkçe cevap ver, doğal ve akıcı yaz.'
           };
         }
       }
@@ -2468,7 +2468,7 @@ app.post('/api/search', chatLimiter, async (req, res) => {
     res.json({ results, query });
   } catch (err) {
     console.error('[SEARCH ERROR]', err.message);
-    res.status(500).json({ error: err.name === 'AbortError' ? 'Arama zaman aÅŸımına uğradı' : err.message, results: [] });
+    res.status(500).json({ error: err.name === 'AbortError' ? 'Arama zaman aşımına uğradı' : err.message, results: [] });
   }
 });
 
@@ -2495,7 +2495,7 @@ app.post('/api/fetch', chatLimiter, async (req, res) => {
     res.json({ content: trimmed, url, provider: 'jina' });
   } catch (err) {
     console.error('[FETCH ERROR]', err.message);
-    res.status(500).json({ error: err.name === 'AbortError' ? 'URL yükleme zaman aÅŸımı' : err.message });
+    res.status(500).json({ error: err.name === 'AbortError' ? 'URL yükleme zaman aşımı' : err.message });
   }
 });
 
@@ -2572,7 +2572,7 @@ app.post('/api/tts', chatLimiter, async (req, res) => {
     // Use client-specified voice if it's an Edge Neural voice, else auto-detect
     let edgeVoice = voice && voice.includes('Neural') ? voice : null;
     if (!edgeVoice) {
-      const hasTurkish = /[çğıöÅŸüÇÄİÖŞÜ]/.test(cleanText) || /\b(bir|bu|ve|için|ile|ya|da|mi|ne|ben|sen|biz|siz)\b/i.test(cleanText);
+      const hasTurkish = /[çğıöşüÇĞİÖŞÜ]/.test(cleanText) || /\b(bir|bu|ve|için|ile|ya|da|mi|ne|ben|sen|biz|siz)\b/i.test(cleanText);
       edgeVoice = hasTurkish ? 'tr-TR-EmelNeural' : 'en-US-JennyNeural';
     }
 
@@ -2599,7 +2599,7 @@ app.post('/api/tts', chatLimiter, async (req, res) => {
     console.warn('[TTS] Edge TTS failed:', edgeErr.message);
   }
 
-  res.status(503).json({ error: 'TTS servisleri ÅŸu an kullanılamıyor, tarayıcı sesi kullanılacak.' });
+  res.status(503).json({ error: 'TTS servisleri şu an kullanılamıyor, tarayıcı sesi kullanılacak.' });
 });
 
 
@@ -3151,7 +3151,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
 
   // ── POLLINATIONS VIDEO (ltx-2 ücretsiz, seedance/veo paralı) ──────────
   // Yeni endpoint: https://image.pollinations.ai/prompt/{prompt}?model=<videoModel>
-  // Ücretsiz eriÅŸim için sk_ anahtarı gerekli; yoksa anonim dener (pk_ limiti).
+  // Ücretsiz erişim için sk_ anahtarı gerekli; yoksa anonim dener (pk_ limiti).
   if (['pollinations-video', 'ltx-2', 'nova-reel', 'seedance-lite', 'wan-fast'].includes(model)) {
     try {
       const polKey = fromEnv('POLLINATIONS_KEY') || fromEnv('POLLINATIONS_API_KEY');
@@ -3200,7 +3200,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
         const errText = await hfRes.text();
         // Model yüklenmiyorsa açıklayıcı mesaj
         if (hfRes.status === 503) throw new Error('Model HuggingFace üzerinde cold-start yapıyor. 20 saniye sonra tekrar deneyin.');
-        if (hfRes.status === 404) throw new Error('LTX-Video HuggingFace free tier\'da ÅŸu an mevcut değil. Wavespeed Wan veya Pollinations LTX-2 deneyin.');
+        if (hfRes.status === 404) throw new Error('LTX-Video HuggingFace free tier\'da şu an mevcut değil. Wavespeed Wan veya Pollinations LTX-2 deneyin.');
         throw new Error(`HF ${hfRes.status}: ${errText.slice(0, 200)}`);
       }
       const ct = hfRes.headers.get('content-type') || '';
@@ -3254,7 +3254,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
         }
         if (status === 'failed') throw new Error(pollData.data?.error || 'Wavespeed başarısız');
       }
-      throw new Error('Wavespeed zaman aÅŸımı');
+      throw new Error('Wavespeed zaman aşımı');
     } catch (err) {
       console.error('[VIDEO] Wavespeed error:', err.message);
       return res.status(500).json({ error: err.message });
@@ -3263,7 +3263,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
 
   // Handle new video agents (Seedance, CapCut)
   if (['capcut-bro', 'kling-v1'].includes(model)) {
-    return res.status(403).json({ error: `${model.toUpperCase()} ajanı için ÅŸu anda API kota limitine ulaÅŸıldı veya entegrasyon aÅŸamasında. Lütfen daha sonra tekrar deneyin.` });
+    return res.status(403).json({ error: `${model.toUpperCase()} ajanı için şu anda API kota limitine ulaşıldı veya entegrasyon aşamasında. Lütfen daha sonra tekrar deneyin.` });
   }
 
   // Map UI model names to Veo model IDs
@@ -3412,7 +3412,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
     const VIDEO_API_KEY = FAL_API_KEY; 
     if (VIDEO_API_KEY) {
       console.log(`[VIDEO] Starting generation via Fal.ai (Luma) for: "${prompt.substring(0, 50)}"`);
-      // 1. Fal.ai üzerinden video oluÅŸturma isteğini baÅŸlat (Luma Dream Machine)
+      // 1. Fal.ai üzerinden video oluşturma isteğini başlat (Luma Dream Machine)
       const startRes = await fetch('https://queue.fal.run/fal-ai/luma-dream-machine', {
         method: 'POST',
         headers: { 'Authorization': `Key ${VIDEO_API_KEY}`, 'Content-Type': 'application/json' },
@@ -3423,7 +3423,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       
       const reqId = startData.request_id;
       
-      // 2. İÅŸlemin bitmesini bekle (polling)
+      // 2. İşlemin bitmesini bekle (polling)
       for (let i = 0; i < 30; i++) { // Max 150 saniye
         await new Promise(r => setTimeout(r, 5000));
         const checkRes = await fetch(`https://queue.fal.run/fal-ai/luma-dream-machine/requests/${reqId}/status`, {
@@ -3446,7 +3446,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
         }
         throw new Error('Video üretimi başarısız: ' + checkData.status);
       }
-      throw new Error('Video üretim zaman aÅŸımına uğradı');
+      throw new Error('Video üretim zaman aşımına uğradı');
     }
 
     // ── GEMINI VEO (Google Direct) — gerçek çağrı ─────────────────────
@@ -3484,7 +3484,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
         const opData = await opRes.json();
         if (opData.done) { opResult = opData; break; }
       }
-      if (!opResult) throw new Error('Veo zaman aÅŸımı (5 dk)');
+      if (!opResult) throw new Error('Veo zaman aşımı (5 dk)');
       if (opResult.error) throw new Error('Veo hata: ' + (opResult.error.message || JSON.stringify(opResult.error)));
 
       // Video URI al ve indir
