@@ -9328,7 +9328,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v201';
+  const VERSION='v202';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -9460,6 +9460,152 @@ window.openImageEditor=openImageEditor;
 window.rotateEditorCanvas=rotateEditorCanvas;
 window.flipEditorCanvas=flipEditorCanvas;
 window.downloadEditorCanvas=downloadEditorCanvas;
+
+/* v202: growth feature layer. Adds model quality hints, credit estimation,
+   gallery favorites/collections, provider readiness summary and a light mobile
+   onboarding card without touching model/provider/credit execution logic. */
+(function(){
+  if(window.__froxyGrowthV202)return;
+  window.__froxyGrowthV202=true;
+
+  function safeModels(){
+    try{return typeof getEnabledModelsForUser==='function'?getEnabledModelsForUser():(window.ALL_MODELS||ALL_MODELS||[])}catch(e){return []}
+  }
+  function findCurrentModel(){
+    const id=document.getElementById('model-sel')?.value || (typeof LS!=='undefined'?LS.get('ap_selected_model',''):'');
+    return safeModels().find(m=>m.id===id) || safeModels()[0] || null;
+  }
+  function creditCost(m){
+    try{return getClientModelCreditCost(m?.apiId||m?.id,m?.provider,m?.cat==='image'?'image':'chat')}catch(e){return 1}
+  }
+  function modelQuality(m){
+    const cost=creditCost(m);
+    const provider=String(m?.provider||'').toLowerCase();
+    const cat=String(m?.cat||'other').toLowerCase();
+    const free=m?.tier==='free';
+    return {
+      speed: provider.includes('groq')||provider.includes('cerebras')||provider.includes('sambanova')?96:provider.includes('pollinations')?74:82,
+      price: Math.max(35,100-Math.min(65,cost*5)),
+      turkish: cat==='gemini'||cat==='claude'||cat==='gpt'||cat==='mistral'?88:76,
+      code: cat==='qwen'||cat==='deepseek'||cat==='gpt'||String(m?.name||'').toLowerCase().includes('coder')?92:74,
+      creative: cat==='claude'||cat==='gemini'||cat==='spicy'||cat==='image'?90:78,
+      free
+    };
+  }
+  function scoreBar(label,value){
+    return '<span><b>'+esc(label)+'</b><i style="--v:'+Math.max(0,Math.min(100,value))+'%"></i><strong>'+Math.round(value)+'</strong></span>';
+  }
+  function renderModelAdvisor(){
+    const picker=document.getElementById('model-picker');
+    const m=findCurrentModel();
+    if(!picker||!m)return;
+    let host=document.getElementById('growth-model-advisor');
+    const body=picker.querySelector('.mp-body')||picker.querySelector('.mp-list')||picker;
+    if(!host){
+      host=document.createElement('section');
+      host.id='growth-model-advisor';
+      host.className='growth-model-advisor';
+      body.insertAdjacentElement('beforebegin',host);
+    }
+    const q=modelQuality(m);
+    const cost=creditCost(m);
+    host.innerHTML='<div class="growth-advisor-head"><div><small>Seçili model kalite puanı</small><strong>'+esc(m.name||m.id)+'</strong></div><em>'+cost+' kredi</em></div><div class="growth-score-grid">'+
+      scoreBar('Hız',q.speed)+scoreBar('Ucuzluk',q.price)+scoreBar('Türkçe',q.turkish)+scoreBar('Kod',q.code)+scoreBar('Yaratıcı',q.creative)+'</div>';
+  }
+  function renderCreditEstimator(){
+    const m=findCurrentModel();
+    const title=document.querySelector('.ai-chat-titleblock');
+    if(!title||!m)return;
+    let chip=document.getElementById('growth-credit-estimator');
+    if(!chip){
+      chip=document.createElement('button');
+      chip.id='growth-credit-estimator';
+      chip.type='button';
+      chip.className='growth-credit-estimator';
+      chip.onclick=function(e){ if(typeof toggleModelPicker==='function')toggleModelPicker(e); };
+      title.appendChild(chip);
+    }
+    const cost=creditCost(m);
+    const rem=typeof remainingUserCredits==='function'?Math.max(0,remainingUserCredits()):0;
+    chip.innerHTML='<span>İşlem</span><strong>'+cost+' kredi</strong><em>'+Math.max(0,rem-cost)+' kalır</em>';
+    chip.title='Bu model başarılı cevapta '+cost+' kredi yakar.';
+  }
+  function renderProviderReadiness(){
+    const panel=document.querySelector('.model-health-panel');
+    if(!panel)return;
+    let host=document.getElementById('growth-provider-readiness');
+    if(!host){
+      host=document.createElement('div');
+      host.id='growth-provider-readiness';
+      host.className='growth-provider-readiness';
+      const stats=panel.querySelector('.health-stats');
+      (stats||panel).insertAdjacentElement('afterend',host);
+    }
+    const counts=safeModels().reduce((acc,m)=>{const p=m.provider||'openai';acc[p]=(acc[p]||0)+1;return acc},{});
+    const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    host.innerHTML=top.map(([p,c],i)=>'<div class="provider-ready-card"><span>'+(i+1)+'</span><strong>'+esc(typeof providerLabel==='function'?providerLabel(p):p)+'</strong><em>'+c+' model</em><i></i></div>').join('');
+  }
+  function imageFavs(){return typeof LS!=='undefined'?LS.get('ap_image_favorites',[]):[]}
+  function setImageFavs(v){if(typeof LS!=='undefined')LS.set('ap_image_favorites',v)}
+  window.toggleImageFavoriteV202=function(url){
+    const favs=imageFavs();
+    const next=favs.includes(url)?favs.filter(x=>x!==url):[url,...favs].slice(0,80);
+    setImageFavs(next);
+    if(typeof renderGallery==='function')renderGallery();
+    if(typeof renderImageGalleryPro==='function')renderImageGalleryPro();
+    if(typeof msg==='function')msg(next.includes(url)?'Görsel favorilere eklendi':'Görsel favorilerden çıkarıldı','ok');
+  };
+  window.downloadFavoriteImagesV202=function(){
+    const items=(typeof getUnifiedImageGallery==='function'?getUnifiedImageGallery():[]).filter(x=>imageFavs().includes(x.url));
+    if(!items.length)return msg('Favori görsel yok','err');
+    items.slice(0,12).forEach((x,i)=>setTimeout(()=>{const a=document.createElement('a');a.href=x.url;a.download='froxy-favori-'+(i+1)+'.jpg';a.click()},i*220));
+  };
+  const oldRenderGallery=window.renderGallery || (typeof renderGallery==='function'?renderGallery:null);
+  window.renderGallery=function(){
+    const cont=document.getElementById('gallery-grid');
+    if(!cont||typeof getUnifiedImageGallery!=='function'){
+      if(oldRenderGallery)return oldRenderGallery();
+      return;
+    }
+    const gallery=getUnifiedImageGallery();
+    const favs=imageFavs();
+    if(!gallery.length){cont.innerHTML='<div class="growth-empty-gallery">Henüz görsel yok. İlk üretimden sonra favoriler ve koleksiyonlar burada görünecek.</div>';return}
+    cont.innerHTML='<div class="growth-gallery-toolbar"><div><strong>Görsel koleksiyonu</strong><span>'+gallery.length+' çıktı · '+favs.length+' favori</span></div><button type="button" onclick="downloadFavoriteImagesV202()">Favorileri indir</button></div>'+
+      gallery.map(img=>{
+        const isFav=favs.includes(img.url);
+        return '<article class="gallery-item growth-gallery-card '+(isFav?'is-fav':'')+'"><button type="button" class="growth-gallery-star" onclick="toggleImageFavoriteV202(\''+jsStr(img.url)+'\')" title="Favori">'+(isFav?'★':'☆')+'</button><img src="'+esc(img.url)+'" loading="lazy" onclick="window.open(this.src)" onerror="handleGalleryImageError&&handleGalleryImageError(this,this.src)"><p>'+esc(img.prompt||'Görsel')+'</p><div><button type="button" onclick="navigator.clipboard?.writeText(\''+jsStr(img.prompt||'')+'\');msg(\'Prompt kopyalandı\',\'ok\')">Prompt</button><a href="'+esc(img.url)+'" download="froxyai-gorsel.jpg">İndir</a></div></article>';
+      }).join('');
+  };
+  try{renderGallery=window.renderGallery}catch(e){}
+
+  function renderMobileOnboarding(){
+    if(!(window.matchMedia&&matchMedia('(max-width:760px)').matches))return;
+    if(typeof LS!=='undefined'&&LS.get('ap_mobile_onboarding_done',false))return;
+    const msgs=document.getElementById('chat-msgs');
+    if(!msgs||document.getElementById('growth-mobile-onboarding'))return;
+    const card=document.createElement('div');
+    card.id='growth-mobile-onboarding';
+    card.className='growth-mobile-onboarding';
+    card.innerHTML='<strong>Mobil hızlı başlangıç</strong><p>Modeli üstten seç, kredi maliyetini gör, menüden araçlara geç. Bu kart bir kez görünür.</p><button type="button">Tamam</button>';
+    card.querySelector('button').onclick=function(){ if(typeof LS!=='undefined')LS.set('ap_mobile_onboarding_done',true); card.remove(); };
+    msgs.prepend(card);
+  }
+  function renderGrowthLayer(){
+    renderModelAdvisor();
+    renderCreditEstimator();
+    renderProviderReadiness();
+    renderMobileOnboarding();
+  }
+  const oldUpdateModelBadge=window.updateModelBadge || (typeof updateModelBadge==='function'?updateModelBadge:null);
+  window.updateModelBadge=function(){ if(oldUpdateModelBadge)oldUpdateModelBadge.apply(this,arguments); setTimeout(renderGrowthLayer,20); };
+  try{updateModelBadge=window.updateModelBadge}catch(e){}
+  if(typeof panelTab==='function'&&!window.__growthPanelWrappedV202){
+    window.__growthPanelWrappedV202=true;
+    const prev=panelTab;
+    panelTab=function(tab){ prev(tab); setTimeout(renderGrowthLayer,80); if(tab==='gallery'&&typeof renderGallery==='function')setTimeout(renderGallery,90); };
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,900));
+})();
 
 /* v192.1: support conversation layer. Backwards-compatible with the old
    ap_tickets shape; no backend/API or credit logic changes. */
