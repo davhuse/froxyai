@@ -481,6 +481,7 @@ function handleGalleryImageError(img,url){
   }
   removeImageUrlEverywhere(url);
 }
+window.handleGalleryImageError=handleGalleryImageError;
 function getImageModelLabel(model){
   const sel=document.getElementById('img-model');
   const opt=sel?[...sel.options].find(o=>o.value===model):null;
@@ -6007,6 +6008,7 @@ function openArtifactFromData(btn) {
     iframe.src=blobUrl;
   }
 }
+window.openArtifactFromData=openArtifactFromData;
 
 function buildArtifactHtml(code, lang) {
   const src=String(code||'').trim();
@@ -6026,6 +6028,7 @@ function buildArtifactHtml(code, lang) {
   }
   return '<!DOCTYPE html><html><head>'+baseHead+'</head><body><pre style="white-space:pre-wrap;font:14px/1.6 ui-monospace,monospace;padding:24px">'+esc(src)+'</pre></body></html>';
 }
+window.buildArtifactHtml=buildArtifactHtml;
 
 function closeArtifact() {
   const panel = document.getElementById('artifact-panel');
@@ -9281,7 +9284,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v196';
+  const VERSION='v197';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
