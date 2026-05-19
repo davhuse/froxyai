@@ -9284,7 +9284,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v198';
+  const VERSION='v199';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -9622,6 +9622,16 @@ window.downloadEditorCanvas=downloadEditorCanvas;
     if(document.body) obs.observe(document.body, { childList: true, subtree: true, characterData: true });
     else document.addEventListener('DOMContentLoaded', function(){ obs.observe(document.body, { childList: true, subtree: true, characterData: true }); });
   }
+})();
+
+
+// v198: gallery image error capture without relying on global inline handlers
+(function(){
+  document.addEventListener('error',function(ev){
+    var img=ev.target;
+    if(!img||!img.matches||!img.matches('.img-history-card img,.gallery-item img,.pro-image-strip img,.pro-mini-gallery img'))return;
+    try{handleGalleryImageError(img,img.getAttribute('data-img-url')||img.src||'')}catch(e){}
+  },true);
 })();
 
 // v198: global preview/gallery fallback shim
