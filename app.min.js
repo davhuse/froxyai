@@ -1,7 +1,7 @@
 // ===== SAAS & AUTH =====
 let authToken = localStorage.getItem('saas_token') || null;
 let authUser = JSON.parse(localStorage.getItem('saas_user') || 'null');
-const GOOGLE_OAUTH_CLIENT_ID = '580593981475-ap8a5orgj3f1lit8g3rgr8dd7svl06qi.apps.googleusercontent.com';
+const GOOGLE_OAUTH_CLIENT_ID = '580593981475-6pk360d9pn1mmhtdteo4h1vc3f3u1673.apps.googleusercontent.com';
 const DEFAULT_REMOTE_API_ORIGIN = 'https://froxyai-production.up.railway.app';
 const API_ORIGIN = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname)
   ? ''
