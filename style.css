@@ -21428,5 +21428,91 @@ body.theme-forest #v-chat .ai-chat-app{
     max-width:64px!important;
   }
 }
+
+/* ===== v201 Mobile Topbar Model Name Visibility ===== */
+@media(max-width:760px){
+  body.mobile-shell-v192 .ai-chat-top-actions{
+    flex:0 0 auto!important;
+    min-width:0!important;
+    gap:5px!important;
+  }
+  body.mobile-shell-v192 .ai-top-chip{
+    display:inline-grid!important;
+    grid-template-columns:26px minmax(0,1fr)!important;
+    align-items:center!important;
+    column-gap:7px!important;
+    width:136px!important;
+    max-width:36vw!important;
+    min-width:118px!important;
+    height:42px!important;
+    min-height:42px!important;
+    padding:5px 8px!important;
+  }
+  body.mobile-shell-v192 .ai-top-chip .mpb-icon{
+    width:26px!important;
+    height:26px!important;
+    min-width:26px!important;
+  }
+  body.mobile-shell-v192 .ai-top-chip .mpb-copy{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    align-items:flex-start!important;
+    min-width:0!important;
+    width:100%!important;
+    height:auto!important;
+    line-height:1.05!important;
+    overflow:hidden!important;
+  }
+  body.mobile-shell-v192 .ai-top-chip #mpb-name,
+  body.mobile-shell-v192 .ai-top-chip .mpb-copy strong{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:auto!important;
+    min-height:12px!important;
+    line-height:1.08!important;
+    font-size:11px!important;
+    color:var(--text)!important;
+    opacity:1!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  body.mobile-shell-v192 .ai-top-chip #model-count,
+  body.mobile-shell-v192 .ai-top-chip .mpb-copy small{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:auto!important;
+    line-height:1!important;
+    margin:2px 0 0!important;
+    font-size:9px!important;
+    color:var(--text2)!important;
+    opacity:.9!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+}
+
+@media(max-width:390px){
+  body.mobile-shell-v192 .ai-top-chip{
+    width:124px!important;
+    max-width:34vw!important;
+    min-width:108px!important;
+    grid-template-columns:24px minmax(0,1fr)!important;
+    column-gap:6px!important;
+  }
+  body.mobile-shell-v192 .ai-top-chip .mpb-icon{
+    width:24px!important;
+    height:24px!important;
+    min-width:24px!important;
+  }
+  body.mobile-shell-v192 .ai-top-chip #mpb-name,
+  body.mobile-shell-v192 .ai-top-chip .mpb-copy strong{
+    font-size:10.5px!important;
+  }
+}
 .image-failed-note{display:grid;place-items:center;min-height:128px;padding:18px;text-align:center;color:var(--text2);font-size:13px;border-radius:14px;background:rgba(15,23,42,.42);border:1px solid rgba(148,163,184,.18)}
 .pro-image-strip .image-failed-note{min-height:74px;font-size:12px}

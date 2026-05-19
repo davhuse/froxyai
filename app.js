@@ -9328,7 +9328,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v200';
+  const VERSION='v201';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
