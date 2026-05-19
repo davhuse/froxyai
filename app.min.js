@@ -9328,7 +9328,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v202';
+  const VERSION='v203';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -9513,22 +9513,7 @@ window.downloadEditorCanvas=downloadEditorCanvas;
       scoreBar('Hız',q.speed)+scoreBar('Ucuzluk',q.price)+scoreBar('Türkçe',q.turkish)+scoreBar('Kod',q.code)+scoreBar('Yaratıcı',q.creative)+'</div>';
   }
   function renderCreditEstimator(){
-    const m=findCurrentModel();
-    const title=document.querySelector('.ai-chat-titleblock');
-    if(!title||!m)return;
-    let chip=document.getElementById('growth-credit-estimator');
-    if(!chip){
-      chip=document.createElement('button');
-      chip.id='growth-credit-estimator';
-      chip.type='button';
-      chip.className='growth-credit-estimator';
-      chip.onclick=function(e){ if(typeof toggleModelPicker==='function')toggleModelPicker(e); };
-      title.appendChild(chip);
-    }
-    const cost=creditCost(m);
-    const rem=typeof remainingUserCredits==='function'?Math.max(0,remainingUserCredits()):0;
-    chip.innerHTML='<span>İşlem</span><strong>'+cost+' kredi</strong><em>'+Math.max(0,rem-cost)+' kalır</em>';
-    chip.title='Bu model başarılı cevapta '+cost+' kredi yakar.';
+    document.getElementById('growth-credit-estimator')?.remove();
   }
   function renderProviderReadiness(){
     const panel=document.querySelector('.model-health-panel');

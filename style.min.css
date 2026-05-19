@@ -21535,13 +21535,7 @@ body.theme-forest #v-chat .ai-chat-app{
 .growth-score-grid b{font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .growth-score-grid strong{font-size:11px;color:var(--text);text-align:right}
 .growth-score-grid i{grid-column:1/-1;height:5px;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2)) 0/var(--v) 100% no-repeat,rgba(148,163,184,.16)}
-.growth-credit-estimator{
-  display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:5px 9px;border-radius:999px;
-  border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));background:color-mix(in srgb,var(--panel) 86%,transparent);
-  color:var(--text);font-size:10px;font-weight:900;cursor:pointer;
-}
-.growth-credit-estimator span{color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
-.growth-credit-estimator em{font-style:normal;color:var(--text3)}
+.growth-credit-estimator{display:none!important}
 .growth-provider-readiness{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
 .provider-ready-card{position:relative;overflow:hidden;min-height:78px;padding:12px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(135deg,color-mix(in srgb,var(--panel) 94%,transparent),color-mix(in srgb,var(--accent) 7%,transparent))}
 .provider-ready-card span{display:grid;place-items:center;width:24px;height:24px;border-radius:9px;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent2);font-size:11px;font-weight:900}
