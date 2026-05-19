@@ -3694,9 +3694,19 @@ function updateModelBadge(){
   const countEl=document.getElementById('model-count');
   const opt=sel?.options?.[sel.selectedIndex];
   const raw=opt?opt.text:'Model';
-  const clean=String(raw).replace(/^[?🔒🟢?🌐🎁]+\s*/,'').trim()||'Model';
-  if(sel && badge) badge.textContent=clean;
-  if(topName) topName.textContent=clean;
+  const clean=(typeof repairMojibake==='function'?repairMojibake(String(raw)):String(raw))
+    .replace(/^[^\p{L}\p{N}]+/u,'')
+    .replace(/\s+/g,' ')
+    .trim()||'Model';
+  const compact=clean.length>24?clean.slice(0,22).trim()+'...':clean;
+  if(sel && badge){
+    badge.textContent=compact;
+    badge.title=clean;
+  }
+  if(topName){
+    topName.textContent=compact;
+    topName.title=clean;
+  }
   if(countEl && sel) countEl.textContent=modelCountLabel();
   document.querySelectorAll('.model-picker-chip').forEach(btn=>{
     btn.title='Model seç: '+clean;
