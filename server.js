@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const fs = require('fs');
 const zlib = require('zlib');
+const { registerGatewayRoutes } = require('./src/gateway');
 
 // Local key file loader for environments where a real .env is not wired.
 // Supported file: .env.keys (KEY=value lines, # comments ignored)
@@ -3741,6 +3742,15 @@ app.get('/api/credit-costs', (req, res) => {
       image_ultra: 'Imagen 4 Ultra (40 kredi)'
     }
   });
+});
+
+// ===== OPENAI-COMPATIBLE API GATEWAY (/v1/*) =====
+registerGatewayRoutes(app, {
+  db,
+  jwt,
+  activeJwtSecret: ACTIVE_JWT_SECRET,
+  providers: PROVIDERS,
+  inferProviderFromModel
 });
 
 // ===== FEATURE 6: /api/models (OpenAI-compatible) =====

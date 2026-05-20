@@ -13,10 +13,15 @@ AddCharset UTF-8 .html .htm .css .js .json .svg .txt
 
 RewriteEngine On
 
-# Proxy /api/* requests to the local Node server through PHP on shared hosting.
+# Proxy /api/* requests to the Railway backend through PHP on shared hosting.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^api/(.*)$ api.php?path=$1 [QSA,L]
+RewriteRule ^api/(.*)$ api.php?prefix=api&path=$1 [QSA,L]
+
+# OpenAI-compatible API gateway routes are served by the Railway backend.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^v1/(.*)$ api.php?prefix=v1&path=$1 [QSA,L]
 
 <FilesMatch "^(server|app|build)\.js$|^aipaketim\.db(-shm|-wal)?$|^package(-lock)?\.json$|^\.env(\..*)?$|^README_DEPLOY\.txt$">
   Require all denied

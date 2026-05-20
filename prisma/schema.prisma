@@ -1,0 +1,154 @@
+// Froxy AI Gateway data model.
+// PostgreSQL Json fields map to JSONB and are the production target for the
+// dynamic model directory, pricing, architecture, workspaces, BYOK and usage.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Model {
+  id            String   @id
+  name          String
+  contextLength Int      @map("context_length")
+  pricing       Json     @db.JsonB
+  architecture  Json     @db.JsonB
+  provider      String?
+  dataRegions   String[] @default(["US"]) @map("data_regions")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  usageEvents UsageEvent[]
+
+  @@map("models")
+}
+
+model Organization {
+  id          String   @id
+  name        String
+  ownerUserId Int?     @map("owner_user_id")
+  status      String   @default("active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  workspaces Workspace[]
+
+  @@map("organizations")
+}
+
+model Workspace {
+  id                 String   @id
+  organizationId     String   @map("organization_id")
+  name               String
+  plan               String   @default("free")
+  balanceUsd         Decimal  @default(0) @map("balance_usd") @db.Decimal(18, 12)
+  rateLimitPerSecond Int?     @map("rate_limit_per_second")
+  dataRegion         String?  @map("data_region")
+  status             String   @default("active")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  organization Organization           @relation(fields: [organizationId], references: [id])
+  members      WorkspaceMember[]
+  apiKeys      WorkspaceApiKey[]
+  providerKeys WorkspaceProviderKey[]
+  usageEvents  UsageEvent[]
+
+  @@index([organizationId])
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  workspaceId String   @map("workspace_id")
+  userId      Int      @map("user_id")
+  role        String   @default("member")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@id([workspaceId, userId])
+  @@map("workspace_members")
+}
+
+model WorkspaceApiKey {
+  id          String    @id
+  workspaceId String    @map("workspace_id")
+  name        String
+  keyPrefix   String    @map("key_prefix")
+  keyHash     String    @unique @map("key_hash")
+  scopes      Json      @default("[\"chat\",\"models\",\"embeddings\"]") @db.JsonB
+  status      String    @default("active")
+  expiresAt   DateTime? @map("expires_at")
+  lastUsedAt  DateTime? @map("last_used_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
+  usageEvents UsageEvent[]
+
+  @@index([workspaceId])
+  @@map("workspace_api_keys")
+}
+
+model WorkspaceProviderKey {
+  id           String   @id
+  workspaceId  String   @map("workspace_id")
+  provider     String
+  encryptedKey String   @map("encrypted_key")
+  iv           String
+  authTag      String   @map("auth_tag")
+  keyVersion   String   @default("v1") @map("key_version")
+  status       String   @default("active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, provider])
+  @@map("workspace_provider_keys")
+}
+
+model UsageEvent {
+  id                String   @id
+  workspaceId       String?  @map("workspace_id")
+  apiKeyId          String?  @map("api_key_id")
+  userId            Int?     @map("user_id")
+  endpoint          String
+  modelId           String?  @map("model_id")
+  provider          String?
+  latencyMs         Int?     @map("latency_ms")
+  promptTokens      Int      @default(0) @map("prompt_tokens")
+  completionTokens  Int      @default(0) @map("completion_tokens")
+  reasoningTokens   Int      @default(0) @map("reasoning_tokens")
+  cacheReadTokens   Int      @default(0) @map("cache_read_tokens")
+  cacheWriteTokens  Int      @default(0) @map("cache_write_tokens")
+  imageUnits        Int      @default(0) @map("image_units")
+  costUsd           Decimal  @default(0) @map("cost_usd") @db.Decimal(18, 12)
+  status            String   @default("ok")
+  requestId         String?  @map("request_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  workspace Workspace?       @relation(fields: [workspaceId], references: [id])
+  apiKey    WorkspaceApiKey? @relation(fields: [apiKeyId], references: [id])
+  model     Model?           @relation(fields: [modelId], references: [id])
+
+  @@index([workspaceId, createdAt])
+  @@index([apiKeyId, createdAt])
+  @@map("usage_events")
+}
+
+model SecurityEvent {
+  id          String   @id
+  workspaceId String?  @map("workspace_id")
+  apiKeyId    String?  @map("api_key_id")
+  eventType   String   @map("event_type")
+  detail      Json?    @db.JsonB
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([workspaceId, createdAt])
+  @@map("security_events")
+}
