@@ -336,7 +336,7 @@ function getChatFallbackChain(model){
 }
 function chatProviderOverride(provider){
   const payload = { provider };
-  // Chat modellerinde server tarafındaki doğrulanmış key/fallback düzeni kullanılır.
+  // Sohbet modellerinde server tarafındaki doğrulanmış anahtar/yedek düzeni kullanılır.
   // Kullanıcının tarayıcıda kalmış hatalı key'i tüm modeli boşa düşürmesin.
   return payload;
 }
@@ -560,13 +560,46 @@ function pollinationsPromptForModel(prompt, model){
   return finalPrompt;
 }
 const POLLINATIONS_SUPPORTED_MODELS = ['flux'];
-function pollinationsDirectUrl(prompt, model){
+const IMAGE_SIZE_PRESETS = {
+  square: { label:'1:1 Kare', width:1024, height:1024, size:'1024x1024', aspect:'1:1' },
+  portrait: { label:'9:16 Story', width:768, height:1344, size:'1024x1536', aspect:'9:16' },
+  landscape: { label:'16:9 Yatay', width:1344, height:768, size:'1536x1024', aspect:'16:9' },
+  post: { label:'4:5 Post', width:1024, height:1280, size:'1024x1536', aspect:'4:5' }
+};
+function getSelectedImageSize(){
+  let id = 'square';
+  try{ id = localStorage.getItem('ap_image_size') || 'square'; }catch(e){}
+  return IMAGE_SIZE_PRESETS[id] ? id : 'square';
+}
+function getImageSizePayload(){
+  const key = getSelectedImageSize();
+  return { key, ...IMAGE_SIZE_PRESETS[key] };
+}
+function setImageSize(key){
+  const safe = IMAGE_SIZE_PRESETS[key] ? key : 'square';
+  try{ localStorage.setItem('ap_image_size', safe); }catch(e){}
+  document.querySelectorAll('.img-size-pill').forEach(btn=>{
+    const on = btn.dataset.imgSize === safe;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  if(typeof updateImageCreditSurface === 'function'){
+    try{ updateImageCreditSurface(); }catch(e){}
+  }
+}
+window.setImageSize=setImageSize;
+function initImageSizePicker(){
+  setImageSize(getSelectedImageSize());
+}
+window.addEventListener('load',function(){ setTimeout(initImageSizePicker,0); });
+function pollinationsDirectUrl(prompt, model, sizePayload){
   const finalPrompt=pollinationsPromptForModel(prompt,model);
   const seed=Date.now()+Math.floor(Math.random()*9999);
   const safeModel = String(model||'').startsWith('style-')
     ? 'flux'
     : (POLLINATIONS_SUPPORTED_MODELS.includes(model) ? model : 'flux');
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?model=${encodeURIComponent(safeModel)}&width=1024&height=1024&nologo=true&seed=${seed}`;
+  const size = sizePayload || getImageSizePayload();
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?model=${encodeURIComponent(safeModel)}&width=${encodeURIComponent(size.width)}&height=${encodeURIComponent(size.height)}&nologo=true&seed=${seed}`;
 }
 function shouldUseDirectImageModel(model){
   return false; // Tüm modeller server proxy üzerinden çalışır — en stabil yaklaşım
@@ -616,7 +649,7 @@ function renderImageResult(resEl, url, prompt, model, fallbackNote=''){
     imgEl.onerror = () => {
       if(!imgEl.dataset.fallbackTried){
         imgEl.dataset.fallbackTried='1';
-        const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
+        const fallbackUrl=pollinationsDirectUrl(prompt,'flux',getImageSizePayload());
         imgEl.src=imageUrlForDisplay(fallbackUrl);
         const metaNote=resEl.querySelector('.image-result-meta em');
         if(metaNote)metaNote.textContent='Seçili görsel modeli cevap vermedi; Flux yedeği gösteriliyor.';
@@ -829,7 +862,7 @@ const ALL_MODELS = [
   {id:'pollinations-spicy-rp',name:'Spicy RP (18+)',tier:'free',provider:'pollinations',cat:'spicy'},
   {id:'pollinations-flirt',name:'Flirty Partner (18+)',tier:'free',provider:'pollinations',cat:'spicy'},
   {id:'pollinations-romance',name:'Romance Storyteller (18+)',tier:'free',provider:'pollinations',cat:'spicy'},
-  {id:'pollinations-afterdark',name:'After Dark Chat (18+)',tier:'free',provider:'pollinations',cat:'spicy'},
+  {id:'pollinations-afterdark',name:'After Dark Sohbet (18+)',tier:'free',provider:'pollinations',cat:'spicy'},
   {id:'pollinations-safe-intimacy',name:'Safe Intimacy Coach',tier:'free',provider:'pollinations',cat:'spicy'},
   {id:'pollinations-evil',name:'Evil Lite (18+)',tier:'free',provider:'pollinations',cat:'spicy'},
   {id:'llama3.1-8b',name:'Cerebras Llama 3.1 8B',tier:'free',provider:'cerebras',cat:'llama'},
@@ -845,7 +878,7 @@ const ALL_MODELS = [
   {id:'flux',name:'Flux Image',tier:'free',provider:'pollinations',cat:'image'},
   {id:'mistral-small-latest',name:'Mistral Small Latest',tier:'free',provider:'mistral',cat:'mistral'},
   {id:'ministral-8b-latest',name:'Ministral 8B Latest',tier:'free',provider:'mistral',cat:'mistral'},
-  {id:'deepseek-chat-direct',name:'DeepSeek Chat Direct',tier:'pro',provider:'deepseek_direct',cat:'deepseek'},
+  {id:'deepseek-chat-direct',name:'DeepSeek Sohbet Doğrudan',tier:'pro',provider:'deepseek_direct',cat:'deepseek'},
   {id:'deepseek-reasoner-direct',name:'DeepSeek Reasoner Direct',tier:'pro',provider:'deepseek_direct',cat:'deepseek'},
   {id:'Qwen/Qwen2.5-72B-Instruct',name:'HF Qwen 2.5 72B',tier:'free',provider:'huggingface',cat:'qwen'},
   {id:'meta-llama/Llama-3.1-70B-Instruct',name:'HF Llama 3.1 70B',tier:'free',provider:'huggingface',cat:'llama'},
@@ -916,16 +949,16 @@ const ALL_MODELS = [
 ];
 const PLANS = {
   guest: { name: 'Misafir', tokens: 30, price: 0, daily_chat: 5, daily_image: 1 },
-  free: { name: 'Free', tokens: 100, price: 0, daily_chat: 10, daily_image: 3 },
-  starter: { name: 'Starter', tokens: 5000, price: 129.99, daily_chat: 200, daily_image: 50 },
+  free: { name: 'Ücretsiz', tokens: 100, price: 0, daily_chat: 10, daily_image: 3 },
+  starter: { name: 'Başlangıç', tokens: 5000, price: 129.99, daily_chat: 200, daily_image: 50 },
   popular: { name: 'Pop\u00fcler', tokens: 15000, price: 249.99, daily_chat: 500, daily_image: 150 },
   pro: { name: 'Profesyonel', tokens: 50000, price: 449.99, daily_chat: 1500, daily_image: 400 },
-  creator: { name: 'Creator', tokens: 50000, price: 449.99, daily_chat: 1500, daily_image: 400 },
-  developer: { name: 'Developer', tokens: 100000, price: 599.99, daily_chat: 2000, daily_image: 600 },
-  power: { name: 'Power User', tokens: 150000, price: 799.99, daily_chat: 5000, daily_image: 1500 },
+  creator: { name: 'Üretici', tokens: 50000, price: 449.99, daily_chat: 1500, daily_image: 400 },
+  developer: { name: 'Geliştirici', tokens: 100000, price: 599.99, daily_chat: 2000, daily_image: 600 },
+  power: { name: 'Yoğun Kullanıcı', tokens: 150000, price: 799.99, daily_chat: 5000, daily_image: 1500 },
   agency_start: { name: 'Ajans', tokens: 250000, price: 999.99, daily_chat: 5000, daily_image: 2000 },
-  business: { name: 'Business', tokens: 150000, price: 799.99, daily_chat: 5000, daily_image: 1500 },
-  enterprise: { name: 'Enterprise', tokens: 500000, price: 1499.99, daily_chat: 999999, daily_image: 999999 }
+  business: { name: 'İşletme', tokens: 150000, price: 799.99, daily_chat: 5000, daily_image: 1500 },
+  enterprise: { name: 'Kurumsal', tokens: 500000, price: 1499.99, daily_chat: 999999, daily_image: 999999 }
 };
 const GUEST_STARTER_CREDITS = 30;
 const FREE_STARTER_CREDITS = 100;
@@ -2106,7 +2139,7 @@ function logout(){
   localStorage.removeItem('saas_token');
   localStorage.removeItem('saas_user');
   localStorage.removeItem('ap_token');
-  // Chat geçmişi önceki kullanıcıya ait olabilir - sıfırla
+  // Sohbet geçmişi önceki kullanıcıya ait olabilir - sıfırla
   try{
     localStorage.removeItem('ap_chats');
     localStorage.removeItem('ap_active_chat');
@@ -3231,7 +3264,7 @@ async function sendMsg(){
     const cmdModel=document.getElementById('img-model')?.value || 'flux';
     botMsg.content=imageLoadingToken(p,getImageModelLabel(cmdModel));renderMsgs({stickToBottom:true});
     if(shouldUseDirectImageModel(cmdModel)){
-      const directUrl=pollinationsDirectUrl(p,cmdModel);
+      const directUrl=pollinationsDirectUrl(p,cmdModel,getImageSizePayload());
       addImageHistory(directUrl,p,cmdModel);
       botMsg.content='__IMG__'+directUrl+'__PROMPT__'+p;
       saveChats();renderMsgs({stickToBottom:true});
@@ -3255,7 +3288,7 @@ async function sendMsg(){
         saveChats();renderMsgs();
       }
     }catch(e){
-      const fallbackUrl=pollinationsDirectUrl(p,'flux');
+      const fallbackUrl=pollinationsDirectUrl(p,'flux',getImageSizePayload());
       addImageHistory(fallbackUrl,p,cmdModel);
       botMsg.content='__IMG__'+fallbackUrl+'__PROMPT__'+p;
       saveChats();renderMsgs({stickToBottom:true});
@@ -3274,7 +3307,7 @@ async function sendMsg(){
     const imagePrompt = txt || tempFileName || 'Profesyonel bir görsel oluştur.';
     botMsg.content=imageLoadingToken(imagePrompt,modelDef?.name||getImageModelLabel(apiModel));renderMsgs({stickToBottom:true});
     if(shouldUseDirectImageModel(apiModel)){
-      const directUrl=pollinationsDirectUrl(imagePrompt,apiModel);
+      const directUrl=pollinationsDirectUrl(imagePrompt,apiModel,getImageSizePayload());
       addImageHistory(directUrl,imagePrompt,modelDef?.id || 'image');
       botMsg.content='__IMG__'+directUrl+'__PROMPT__'+imagePrompt;
       saveChats();renderMsgs({stickToBottom:true});
@@ -3300,7 +3333,7 @@ async function sendMsg(){
         saveChats();renderMsgs();
       }
     }catch(e){
-      const fallbackUrl=pollinationsDirectUrl(imagePrompt,'flux');
+      const fallbackUrl=pollinationsDirectUrl(imagePrompt,'flux',getImageSizePayload());
       addImageHistory(fallbackUrl,imagePrompt,modelDef?.id || 'image');
       botMsg.content='__IMG__'+fallbackUrl+'__PROMPT__'+imagePrompt;
       saveChats();renderMsgs({stickToBottom:true});
@@ -4119,6 +4152,27 @@ function saveSettings(){ msg('Ayarlar kaydedildi ✅','ok'); }
 function clearData(){}
 
 // ===== ADMIN PANEL CHECK-UP PATCH =====
+function adminTableSkeleton(rows=4,cols=4){
+  const widths=['w3','w4','w1','w2'];
+  return Array.from({length:rows},(_,r)=>
+    '<tr class="admin-skeleton-row" aria-hidden="true">'+
+    Array.from({length:cols},(_,c)=>`<td><span class="admin-skeleton-line ${widths[(r+c)%widths.length]}"></span></td>`).join('')+
+    '</tr>'
+  ).join('');
+}
+function adminBlockSkeleton(rows=4){
+  return '<div class="admin-skeleton-block" aria-hidden="true">'+
+    Array.from({length:rows},(_,i)=>`<span class="admin-skeleton-line ${['w4','w3','w2','w3'][i%4]}"></span>`).join('')+
+    '</div>';
+}
+function adminSetTableSkeleton(id,cols,rows=4){
+  const el=document.getElementById(id);
+  if(el)el.innerHTML=adminTableSkeleton(rows,cols);
+}
+function adminSetBlockSkeleton(id,rows=4){
+  const el=document.getElementById(id);
+  if(el)el.innerHTML=adminBlockSkeleton(rows);
+}
 function ensureAdminShell(){
   const root=document.getElementById('v-admin');
   if(!root || root.dataset.shell==='v23')return;
@@ -4146,7 +4200,7 @@ function ensureAdminShell(){
           <button class="admin-nav-item" onclick="adminTab('settings')" id="an-settings">${ico('settings')}<span>Ayarlar</span></button>
         </nav>
         <div class="admin-sidebar-footer">
-          <button class="admin-exit-btn" onclick="go('chat')">${ico('message')}<span>Chat'e Dön</span></button>
+          <button class="admin-exit-btn" onclick="go('chat')">${ico('message')}<span>Sohbete Dön</span></button>
         </div>
       </aside>
 
@@ -4160,7 +4214,7 @@ function ensureAdminShell(){
           <div class="admin-status-card">
             <span class="admin-status-dot"></span>
             <strong id="admin-api-state">Kontrol ediliyor</strong>
-            <small>Backend / statik fallback</small>
+            <small>Backend / statik yedek</small>
           </div>
         </section>
 
@@ -4179,16 +4233,16 @@ function ensureAdminShell(){
             <div class="admin-card">
               <div class="admin-card-header"><h3>Son kayıt olanlar</h3><button class="admin-chip-btn" onclick="adminTab('users')">Tümünü aç</button></div>
               <div class="admin-card-body admin-table-wrap">
-                <table class="admin-table"><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Kredi</th><th>Kayıt</th><th>İşlem</th></tr></thead><tbody id="at-recent-tbody"><tr><td colspan="5" class="admin-empty">Yükleniyor...</td></tr></tbody></table>
+                <table class="admin-table"><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Kredi</th><th>Kayıt</th><th>İşlem</th></tr></thead><tbody id="at-recent-tbody">${adminTableSkeleton(4,5)}</tbody></table>
               </div>
             </div>
             <div class="admin-card">
               <div class="admin-card-header"><h3>Sağlayıcı Özeti</h3><button class="admin-chip-btn" onclick="adminTab('models')">Modeller</button></div>
-              <div class="admin-card-body" id="admin-provider-list"><div class="admin-empty">Model kataloğu okunuyor...</div></div>
+              <div class="admin-card-body" id="admin-provider-list">${adminBlockSkeleton(4)}</div>
             </div>
           </div>
-          <div class="admin-card" style="margin-top:20px"><div class="admin-card-header"><h3>Hizli Islemler</h3></div><div class="admin-card-body" style="display:flex;flex-wrap:wrap;gap:10px"><button class="admin-btn-primary" style="font-size:12px;padding:8px 14px" onclick="adminTab(\'announce\')">Duyuru</button><button class="admin-btn-primary" style="font-size:12px;padding:8px 14px" onclick="adminTab(\'users\')">Kullanicilar</button><button class="admin-btn-primary" style="font-size:12px;padding:8px 14px" onclick="adminTab(\'models\')">Modeller</button><button class="admin-btn-primary" style="font-size:12px;padding:8px 14px" onclick="adminTab(\'settings\')">Ayarlar</button></div></div>
-          <div class="admin-grid-2" style="margin-top:20px"><div class="admin-card"><div class="admin-card-header"><h3>Gorsel Istatistik</h3></div><div class="admin-card-body" id="admin-img-stats"><div class="admin-empty">Yukleniyor...</div></div></div><div class="admin-card"><div class="admin-card-header"><h3>Sistem Sagligi</h3></div><div class="admin-card-body" id="admin-health-providers"><div class="admin-empty">Kontrol ediliyor...</div></div></div></div>
+          <div class="admin-card" style="margin-top:20px"><div class="admin-card-header"><h3>Hızlı İşlemler</h3></div><div class="admin-card-body" style="display:flex;flex-wrap:wrap;gap:10px"><button class="admin-btn-primary" style="font-size:12px;padding:8px 14px" onclick="adminTab(\'announce\')">Duyuru</button><button class="admin-btn-primary" style="font-size:12px;padding:8px 14px" onclick="adminTab(\'users\')">Kullanıcılar</button><button class="admin-btn-primary" style="font-size:12px;padding:8px 14px" onclick="adminTab(\'models\')">Modeller</button><button class="admin-btn-primary" style="font-size:12px;padding:8px 14px" onclick="adminTab(\'settings\')">Ayarlar</button></div></div>
+          <div class="admin-grid-2" style="margin-top:20px"><div class="admin-card"><div class="admin-card-header"><h3>Görsel İstatistik</h3></div><div class="admin-card-body" id="admin-img-stats">${adminBlockSkeleton(2)}</div></div><div class="admin-card"><div class="admin-card-header"><h3>Sistem Sağlığı</h3></div><div class="admin-card-body" id="admin-health-providers">${adminBlockSkeleton(4)}</div></div></div>
         </div>
 
         <div class="admin-tab" id="at-users">
@@ -4197,7 +4251,7 @@ function ensureAdminShell(){
             <div class="admin-search-wrap"><span class="admin-search-icon">${iconSvg('search',15)}</span><input type="text" id="au-search" class="admin-search-input" placeholder="Ad veya e-posta ara..." oninput="loadAdminUsers(1)"></div>
             <select id="au-filter" class="admin-filter-sel" onchange="loadAdminUsers(1)"><option value="all">Tümü</option><option value="active">Aktif</option><option value="blocked">Bloklu</option><option value="admin">Admin</option></select>
           </div>
-          <div class="admin-card admin-table-wrap"><table class="admin-table"><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Paket</th><th>Kredi</th><th>Durum</th><th>Kayıt</th><th>Son giriş</th><th>İşlemler</th></tr></thead><tbody id="au-tbody"><tr><td colspan="8" class="admin-empty">Yükleniyor...</td></tr></tbody></table><div class="admin-pagination" id="au-pagination"></div></div>
+          <div class="admin-card admin-table-wrap"><table class="admin-table"><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Paket</th><th>Kredi</th><th>Durum</th><th>Kayıt</th><th>Son giriş</th><th>İşlemler</th></tr></thead><tbody id="au-tbody">${adminTableSkeleton(5,8)}</tbody></table><div class="admin-pagination" id="au-pagination"></div></div>
         </div>
 
         <div class="admin-tab" id="at-codes">
@@ -4211,7 +4265,7 @@ function ensureAdminShell(){
               <div class="admin-form-group"><label>Geçerlilik günü</label><input type="number" id="mc-days" class="admin-input" value="30"></div>
               <button class="admin-btn-primary" onclick="createMembershipCode()">Kodu Oluştur</button>
             </div></div>
-            <div class="admin-card"><div class="admin-card-header"><h3>Aktif / geçmiş kodlar</h3></div><div class="admin-card-body" id="mc-list"><div class="admin-empty">Yükleniyor...</div></div></div>
+            <div class="admin-card"><div class="admin-card-header"><h3>Aktif / geçmiş kodlar</h3></div><div class="admin-card-body" id="mc-list">${adminBlockSkeleton(4)}</div></div>
           </div>
         </div>
 
@@ -4240,13 +4294,13 @@ function ensureAdminShell(){
               <div class="admin-form-group"><label>İçerik</label><textarea id="ann-body" class="admin-input admin-textarea" placeholder="Duyuru metni..." rows="4"></textarea></div>
               <button class="admin-btn-primary" onclick="publishAnnouncement()">Yayınla</button>
             </div></div>
-            <div class="admin-card"><div class="admin-card-header"><h3>Mevcut duyurular</h3></div><div class="admin-card-body" id="ann-list"><div class="admin-empty">Yükleniyor...</div></div></div>
+            <div class="admin-card"><div class="admin-card-header"><h3>Mevcut duyurular</h3></div><div class="admin-card-body" id="ann-list">${adminBlockSkeleton(4)}</div></div>
           </div>
         </div>
 
         <div class="admin-tab" id="at-logs">
           <div class="admin-page-header"><h2 class="admin-page-title">Aktivite Kayıtları</h2><button class="admin-refresh-btn" onclick="loadAdminLogs()">Yenile</button></div>
-          <div class="admin-card admin-table-wrap"><table class="admin-table"><thead><tr><th>Zaman</th><th>Admin</th><th>İşlem</th><th>Detay</th></tr></thead><tbody id="logs-tbody"><tr><td colspan="4" class="admin-empty">Yükleniyor...</td></tr></tbody></table></div>
+          <div class="admin-card admin-table-wrap"><table class="admin-table"><thead><tr><th>Zaman</th><th>Admin</th><th>İşlem</th><th>Detay</th></tr></thead><tbody id="logs-tbody">${adminTableSkeleton(4,4)}</tbody></table></div>
         </div>
 
         <div class="admin-tab" id="at-settings">
@@ -4397,6 +4451,10 @@ function adminRenderRecent(users){
   </tr>`).join('');
 }
 async function loadAdminStats(){
+  adminSetTableSkeleton('at-recent-tbody',5,4);
+  adminSetBlockSkeleton('admin-provider-list',4);
+  adminSetBlockSkeleton('admin-health-providers',4);
+  adminSetBlockSkeleton('admin-img-stats',2);
   const api=await adminApiJson('/api/admin/stats');
   const d=api.ok?api.data:adminLocalStats();
   const $=id=>document.getElementById(id);
@@ -4434,6 +4492,7 @@ function adminTab(t){
 function updAdmin(){adminTab('dashboard')}
 async function loadAdminUsers(page){
   if(page)adminCurrentPage=page;
+  adminSetTableSkeleton('au-tbody',8,5);
   const params=new URLSearchParams({search:document.getElementById('au-search')?.value||'',filter:document.getElementById('au-filter')?.value||'all',page:adminCurrentPage,limit:20});
   const api=await adminApiJson('/api/admin/users?'+params);
   const d=api.ok?api.data:adminLocalUsersPage(adminCurrentPage);
@@ -4562,6 +4621,7 @@ async function adminDeleteUser(userId,username){
   msg('Kullanıcı silindi','ok');loadAdminUsers();loadAdminStats();
 }
 async function loadAdminLogs(){
+  adminSetTableSkeleton('logs-tbody',4,4);
   const api=await adminApiJson('/api/admin/logs');
   const logs=api.ok?(api.data.logs||[]):LS.get('ap_admin_logs',[]);
   const tbody=document.getElementById('logs-tbody');if(!tbody)return;
@@ -4569,6 +4629,7 @@ async function loadAdminLogs(){
   tbody.innerHTML=logs.map(l=>`<tr><td class="admin-muted">${fmtDate(l.created_at)}</td><td><strong>${esc(l.username||'Admin')}</strong></td><td><span class="log-action">${esc(l.action||'')}</span></td><td class="admin-muted">${esc(l.detail||'')}</td></tr>`).join('');
 }
 async function loadAdminAnnouncements(){
+  adminSetBlockSkeleton('ann-list',4);
   const api=await adminApiJson('/api/admin/announce');
   const anns=api.ok?(api.data.announcements||[]):LS.get('ap_announcements',[]).map((a,i)=>({...a,id:a.id||i,created_at:a.created_at||a.createdAt}));
   const el=document.getElementById('ann-list');if(!el)return;
@@ -4601,6 +4662,7 @@ function genMembershipCode(plan){
   return 'AIP-'+clean+'-'+Math.random().toString(36).slice(2,8).toUpperCase();
 }
 async function loadMembershipCodes(){
+  adminSetBlockSkeleton('mc-list',4);
   const api=await adminApiJson('/api/admin/membership-codes');
   const codes=api.ok?(api.data.codes||[]):localMembershipCodes();
   const el=document.getElementById('mc-list');if(!el)return;
@@ -5278,12 +5340,12 @@ function toggleNotifPanel(){
 }
 
 const STORE_PACKS=[
-  {id:'starter', name:'Starter', tokens:5000, price:129.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> 200 istek/g\u00fcn', color:'#3b82f6', icon:'\ud83c\udf31'},
+  {id:'starter', name:'Başlangıç', tokens:5000, price:129.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> 200 istek/g\u00fcn', color:'#3b82f6', icon:'\ud83c\udf31'},
   {id:'popular', name:'Pop\u00fcler', tokens:15000, price:249.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> 500 istek/g\u00fcn + G\u00f6rsel', color:'#7c3aed', icon:'\ud83d\udd25', popular:true},
   {id:'pro', name:'Profesyonel', tokens:50000, price:449.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> 1.500 istek/g\u00fcn + \u00d6ncelikli', color:'#10b981', icon:'\ud83d\udc8e'},
-  {id:'developer', name:'Developer', tokens:100000, price:599.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> 2.000 istek/g\u00fcn + RAG', color:'#f472b6', icon:'\ud83d\udcbb'},
-  {id:'business', name:'Business', tokens:150000, price:799.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> 5.000 istek/g\u00fcn + \u00d6ncelikli', color:'#0ea5e9', icon:'\ud83d\udcca'},
-  {id:'enterprise', name:'Enterprise', tokens:500000, price:1499.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> S\u0131n\u0131rs\u0131z istek + White-label', color:'#ef4444', icon:'\ud83d\ude80', popular:true}
+  {id:'developer', name:'Geliştirici', tokens:100000, price:599.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> 2.000 istek/g\u00fcn + RAG', color:'#f472b6', icon:'\ud83d\udcbb'},
+  {id:'business', name:'İşletme', tokens:150000, price:799.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> 5.000 istek/g\u00fcn + \u00d6ncelikli', color:'#0ea5e9', icon:'\ud83d\udcca'},
+  {id:'enterprise', name:'Kurumsal', tokens:500000, price:1499.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> S\u0131n\u0131rs\u0131z istek + beyaz etiket', color:'#ef4444', icon:'\ud83d\ude80', popular:true}
 ];
 function enhanceStoreShell(){
   const root=document.getElementById('ptab-store');
@@ -5617,11 +5679,11 @@ function updatePackageCalculator(){
   const plans=[
     {name:'Popüler',category:'personal',limit:100000},
     {name:'Profesyonel',category:'personal',limit:250000},
-    {name:'Developer',category:'creator',limit:1000000},
-    {name:'Power User',category:'creator',limit:1250000},
+    {name:'Geliştirici',category:'creator',limit:1000000},
+    {name:'Yoğun Kullanıcı',category:'creator',limit:1250000},
     {name:'Ajans Başlangıç',category:'agency',limit:2500000},
-    {name:'Business',category:'agency',limit:6000000},
-    {name:'Enterprise',category:'agency',limit:Infinity}
+    {name:'İşletme',category:'agency',limit:6000000},
+    {name:'Kurumsal',category:'agency',limit:Infinity}
   ];
   const plan=plans.find(p=>credits<=p.limit)||plans[plans.length-1];
   const chatVal=document.getElementById('calc-chat-val');
@@ -5734,7 +5796,7 @@ async function landingBotSend(){
   wrap.scrollTop=wrap.scrollHeight;
   try{
     const reply=await directPollinationsReply([
-      {role:'system',content:'Sen Froxy AI ana sayfasındaki canlı Türkçe asistansın. Kısa, net ve samimi cevap ver. Kullanıcı AI modelleri, fiyatlar, sohbet paneli, görsel/video araçları veya kayıt hakkında sorarsa site içinde ne yapacağını anlat. Gerektiğinde tam sohbet ekranını Chat menüsünden ya da Sohbeti Aç butonundan açabileceğini söyle.'},
+      {role:'system',content:'Sen Froxy AI ana sayfasındaki canlı Türkçe asistansın. Kısa, net ve samimi cevap ver. Kullanıcı AI modelleri, fiyatlar, sohbet paneli, görsel/video araçları veya kayıt hakkında sorarsa site içinde ne yapacağını anlat. Gerektiğinde tam sohbet ekranını Sohbet menüsünden ya da Sohbeti Aç butonundan açabileceğini söyle.'},
       {role:'user',content:text}
     ],'pollinations-openai');
     typing.remove();
@@ -5747,7 +5809,7 @@ async function landingBotSend(){
     typing.remove();
     const aiBubble=document.createElement('div');
     aiBubble.className='bot-msg ai';
-    aiBubble.textContent='Canlı AI şu an gecikti kankam. Chat menüsünden tam sohbet ekranını açıp ücretsiz modellerle devam edebilirsin.';
+    aiBubble.textContent='Canlı AI şu an gecikti kankam. Sohbet menüsünden tam sohbet ekranını açıp ücretsiz modellerle devam edebilirsin.';
     wrap.appendChild(aiBubble);
     wrap.scrollTop=wrap.scrollHeight;
   }
@@ -5849,6 +5911,7 @@ async function genImage(){
   
   const prompt = promptEl.value.trim();
   const model = modelEl ? modelEl.value : 'flux';
+  const imageSize = getImageSizePayload();
   
   if(!prompt) return msg('Lütfen bir prompt girin!','error');
   if(!user) return msg('Lütfen giriş yapın!','error');
@@ -5870,7 +5933,7 @@ async function genImage(){
     const isImagen = model.startsWith('imagen-');
     const endpoint = isImagen ? '/api/imagen' : '/api/image';
     
-    const {res,data} = await postJsonApi(endpoint, { prompt, model, apiKey: providerKeyFor(imageProviderForModel(model)) }, 120000);
+    const {res,data} = await postJsonApi(endpoint, { prompt, model, imageSize: imageSize.key, width: imageSize.width, height: imageSize.height, aspectRatio: imageSize.aspect, size: imageSize.size, apiKey: providerKeyFor(imageProviderForModel(model)) }, 120000);
     
     if (res.ok && data.url) {
       const note = data.provider ? `${data.provider} ile üretildi` : '';
@@ -5881,7 +5944,7 @@ async function genImage(){
         await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
       }
     } else {
-      const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
+      const fallbackUrl=pollinationsDirectUrl(prompt,'flux',imageSize);
       const ok=await renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
       if(ok){
         const billedProvider=imageProviderForModel(model);
@@ -5890,7 +5953,7 @@ async function genImage(){
       }
     }
   } catch (err) {
-    const fallbackUrl=pollinationsDirectUrl(prompt,'flux');
+    const fallbackUrl=pollinationsDirectUrl(prompt,'flux',imageSize);
     const ok=await renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
     if(ok){
       const billedProvider=imageProviderForModel(model);
@@ -6593,7 +6656,7 @@ function renderApiKeyPanel(){
   const keys=getUserKeys();
   const groups=[
     {
-      title:'Chat ve LLM',
+      title:'Sohbet ve Dil Modelleri',
       items:[
         {id:'openai',name:'OpenAI',placeholder:'sk-...'},
         {id:'groq',name:'Groq',placeholder:'gsk_...'},
@@ -6730,7 +6793,7 @@ function renderBadges(){
 // ===================================================================
 const I18N={
   tr:{newChat:'Yeni Sohbet',send:'Gönder',search:'Ara...',settings:'Ayarlar',logout:'Çıkış',models:'Modeller',history:'Geçmiş',dashboard:'Panel',agents:'AI Ajanlar',gallery:'Galeri',analytics:'Analitik',badges:'Rozetler',apiKeys:'API Anahtarları'},
-  en:{newChat:'New Chat',send:'Send',search:'Search...',settings:'Settings',logout:'Logout',models:'Models',history:'History',dashboard:'Dashboard',agents:'AI Agents',gallery:'Gallery',analytics:'Analytics',badges:'Badges',apiKeys:'API Keys'},
+  en:{newChat:'Yeni Sohbet',send:'Gönder',search:'Ara...',settings:'Ayarlar',logout:'Çıkış',models:'Modeller',history:'Geçmiş',dashboard:'Panel',agents:'AI Ajanlar',gallery:'Galeri',analytics:'Analitik',badges:'Rozetler',apiKeys:'API Anahtarları'},
   ar:{newChat:'????? ?????',send:'?????',search:'???...',settings:'?????????',logout:'????',models:'???????',history:'?????',dashboard:'????',agents:'????? AI',gallery:'??????',analytics:'???????',badges:'?????',apiKeys:'?????? API'}
 };
 let currentLang=LS.get('ap_lang','tr');
@@ -8125,7 +8188,7 @@ function renderProfessionalDashboard(){
 
 
 // ============================================
-// PHASE 2 FEATURES — Chat Export, Shortcuts, Favorites, Reactions
+// PHASE 2 FEATURES — Sohbet dışa aktarma, kısayollar, favoriler, tepkiler
 // ============================================
 
 (function phase2Features() {
@@ -8378,7 +8441,7 @@ function renderProfessionalDashboard(){
       }, 300);
     }).observe(document.body, { childList: true, subtree: true });
 
-    console.log('[PHASE2] Chat export, shortcuts, favorites, reactions loaded');
+    console.log('[PHASE2] Sohbet dışa aktarma, kısayollar, favoriler ve tepkiler yüklendi');
   }
 
   if (document.readyState === 'loading') {
@@ -8706,14 +8769,14 @@ window.usePromptChip = function(btn) {
 
   var COMMANDS = [
     // Navigasyon
-    { group: 'Navigasyon', icon: '💬', label: 'Sohbet', hint: 'Chat', action: function() { if(typeof go==='function')go('chat'); } },
-    { group: 'Navigasyon', icon: '📊', label: 'Dashboard', hint: 'Dash', action: function() { if(typeof panelTab==='function')panelTab('dash'); } },
+    { group: 'Navigasyon', icon: '💬', label: 'Sohbet', hint: 'Sohbet', action: function() { if(typeof go==='function')go('chat'); } },
+    { group: 'Navigasyon', icon: '📊', label: 'Kontrol Paneli', hint: 'Panel', action: function() { if(typeof panelTab==='function')panelTab('dash'); } },
     { group: 'Navigasyon', icon: '🎨', label: 'Görsel Üret', hint: 'Image', action: function() { if(typeof panelTab==='function')panelTab('img'); } },
     { group: 'Navigasyon', icon: '🤖', label: 'AI Ajanlar', hint: 'Agents', action: function() { if(typeof panelTab==='function')panelTab('agents'); } },
     { group: 'Navigasyon', icon: '📚', label: 'Prompt Kütüphanesi', hint: 'Prompts', action: function() { if(typeof panelTab==='function')panelTab('prompts'); } },
     { group: 'Navigasyon', icon: '🧠', label: 'Bilgi Bankası', hint: 'RAG', action: function() { if(typeof panelTab==='function')panelTab('rag'); } },
     { group: 'Navigasyon', icon: '💎', label: 'Mağaza', hint: 'Store', action: function() { if(typeof panelTab==='function')panelTab('store'); } },
-    { group: 'Navigasyon', icon: '🎫', label: 'Destek', hint: 'Support', action: function() { if(typeof panelTab==='function')panelTab('support'); } },
+    { group: 'Navigasyon', icon: '🎫', label: 'Destek', hint: 'Destek', action: function() { if(typeof panelTab==='function')panelTab('support'); } },
     // v138: API Key navigasyon kaldirildi
     // Eylemler
     { group: 'Eylemler', icon: '✨', label: 'Yeni Sohbet', hint: 'Ctrl+N', action: function() { if(typeof newChat==='function')newChat(); } },
@@ -8932,8 +8995,8 @@ window.fetchUrlContent = async function(url) {
 
 
 /* =====================================================================
-   v118.7: Model Check Paneli (Chat + Görsel sağlayıcı canlı testi)
-   Dashboard'a küçük bir kart olarak enjekte edilir. Tıklayınca
+   v118.7: Model Check Paneli (sohbet + görsel sağlayıcı canlı testi)
+   Kontrol paneline küçük bir kart olarak enjekte edilir. Tıklayınca
    /api/model-check çağrısı yapar ve sonucu tablo olarak gösterir.
    ===================================================================== */
 (function() {
@@ -8957,7 +9020,7 @@ window.fetchUrlContent = async function(url) {
     var sumEl   = document.getElementById('mc-summary');
     if (!chatEl || !imgEl) return;
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Kontrol ediliyor...'; }
-    chatEl.innerHTML = '<div class="mc-loading">Chat sağlayıcıları test ediliyor...</div>';
+    chatEl.innerHTML = '<div class="mc-loading">Sohbet sağlayıcıları test ediliyor...</div>';
     imgEl.innerHTML  = '<div class="mc-loading">Görsel sağlayıcıları test ediliyor...</div>';
     if (sumEl) sumEl.textContent = '';
     try {
@@ -8970,7 +9033,7 @@ window.fetchUrlContent = async function(url) {
       renderRows(d.chat, chatEl);
       renderRows(d.image, imgEl);
       if (sumEl) {
-        sumEl.innerHTML = 'Chat: <b>' + d.summary.chatOk + '/' + d.summary.chatTotal + '</b> aktif · Görsel: <b>' + d.summary.imageOk + '/' + d.summary.imageTotal + '</b> aktif · ' + d.totalMs + 'ms';
+        sumEl.innerHTML = 'Sohbet: <b>' + d.summary.chatOk + '/' + d.summary.chatTotal + '</b> aktif · Görsel: <b>' + d.summary.imageOk + '/' + d.summary.imageTotal + '</b> aktif · ' + d.totalMs + 'ms';
       }
     } catch(e) {
       chatEl.innerHTML = '<div class="mc-loading" style="color:#ef4444">Hata: ' + (e.message || e) + '</div>';
@@ -8990,15 +9053,15 @@ window.fetchUrlContent = async function(url) {
     p.innerHTML =
       '<div class="mc-head">' +
         '<div><h3 style="margin:0">Sağlayıcı Sağlık Kontrolü</h3>' +
-        '<small style="color:var(--text3)">Chat ve görsel API\'lerini anlık test eder (yaklaşık 10 saniye)</small></div>' +
+        '<small style="color:var(--text3)">Sohbet ve görsel API\'lerini anlık test eder (yaklaşık 10 saniye)</small></div>' +
         '<button class="btn btn-primary btn-sm" onclick="runModelCheck(this)">Kontrol et</button>' +
       '</div>' +
       '<div id="mc-summary" class="mc-summary"></div>' +
       '<div class="mc-grid">' +
-        '<div class="mc-col"><div class="mc-col-title">Chat / LLM</div><div id="mc-chat-list" class="mc-list"><div class="mc-loading">Kontrol için "Kontrol et" butonuna basın</div></div></div>' +
+        '<div class="mc-col"><div class="mc-col-title">Sohbet / Dil Modelleri</div><div id="mc-chat-list" class="mc-list"><div class="mc-loading">Kontrol için "Kontrol et" butonuna basın</div></div></div>' +
         '<div class="mc-col"><div class="mc-col-title">Görsel</div><div id="mc-img-list" class="mc-list"></div></div>' +
       '</div>';
-    // Dashboard grid'inin sonuna ekle
+    // Kontrol paneli grid'inin sonuna ekle
     var target = dash.querySelector('.panel-page') || dash;
     target.appendChild(p);
   }
@@ -9077,7 +9140,8 @@ window.loadImagePromptToComposer=loadImagePromptToComposer;
 
 async function requestImageWithFallback(prompt, model, timeoutMs=28000){
   const provider=imageProviderForModel(model);
-  const payload={prompt:prompt,model:model,apiKey:providerKeyFor(provider)};
+  const imageSize=getImageSizePayload();
+  const payload={prompt:prompt,model:model,imageSize:imageSize.key,width:imageSize.width,height:imageSize.height,aspectRatio:imageSize.aspect,size:imageSize.size,apiKey:providerKeyFor(provider)};
   try{
     const r=await postJsonApi('/api/image',payload,timeoutMs);
     const remoteUrl=r?.data?.url||'';
@@ -9095,7 +9159,7 @@ async function requestImageWithFallback(prompt, model, timeoutMs=28000){
     console.warn('[IMAGE FALLBACK]',model,err?.message||err);
   }
   const directUrl = String(model||'').startsWith('style-') || model==='flux'
-    ? pollinationsDirectUrl(prompt,'flux')
+    ? pollinationsDirectUrl(prompt,'flux',imageSize)
     : clientImageFallbackUrl(prompt,getImageModelLabel(model));
   return {
     ok:false,
@@ -9328,7 +9392,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v204';
+  const VERSION='v206';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -9846,4 +9910,18 @@ window.downloadEditorCanvas=downloadEditorCanvas;
     try{if(typeof removeImageUrlEverywhere==='function')removeImageUrlEverywhere(url)}catch(e){}
   };
   document.addEventListener('click',function(e){var btn=e.target&&e.target.closest&&e.target.closest('.preview-btn'); if(btn){e.preventDefault(); window.openArtifactFromData(btn)}},true);
+})();
+
+/* v206: logo splash screen */
+(function(){
+  function hideFroxySplash(){
+    var splash=document.getElementById('froxy-splash');
+    if(!splash)return;
+    splash.classList.add('is-hidden');
+    setTimeout(function(){
+      if(splash&&splash.parentNode)splash.parentNode.removeChild(splash);
+    },520);
+  }
+  window.addEventListener('load',function(){setTimeout(hideFroxySplash,420);});
+  setTimeout(hideFroxySplash,3200);
 })();

@@ -2628,9 +2628,30 @@ function createLocalImageFallback(prompt, reason = '') {
   return `/generated/${fileName}`;
 }
 
+function resolveImageSize(input = {}) {
+  const presets = {
+    square: { width: 1024, height: 1024, size: '1024x1024', aspectRatio: '1:1' },
+    portrait: { width: 768, height: 1344, size: '1024x1536', aspectRatio: '9:16' },
+    landscape: { width: 1344, height: 768, size: '1536x1024', aspectRatio: '16:9' },
+    post: { width: 1024, height: 1280, size: '1024x1536', aspectRatio: '4:5' }
+  };
+  const key = String(input.imageSize || input.sizeKey || '').toLowerCase();
+  const byKey = presets[key] || null;
+  const rawW = Number(input.width);
+  const rawH = Number(input.height);
+  if (Number.isFinite(rawW) && Number.isFinite(rawH)) {
+    const clamp = n => Math.max(512, Math.min(1536, Math.round(n / 64) * 64));
+    const width = clamp(rawW);
+    const height = clamp(rawH);
+    return { width, height, size: `${width}x${height}`, aspectRatio: input.aspectRatio || `${width}:${height}` };
+  }
+  return byKey || presets.square;
+}
+
 // Image generation endpoint supporting both Pollinations and Guicore API
 app.post('/api/image', chatLimiter, async (req, res) => {
   const { prompt, model, apiKey: bodyApiKey } = req.body;
+  const imageSize = resolveImageSize(req.body || {});
   if (!prompt) return res.status(400).json({ error: 'Prompt required' });
   
   // Daily image limit check
@@ -2710,7 +2731,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
       const tRes = await fetch('https://api.together.xyz/v1/images/generations', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${togetherKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'black-forest-labs/FLUX.1-schnell-Free', prompt, width: 1024, height: 1024, steps: 4, n: 1 })
+        body: JSON.stringify({ model: 'black-forest-labs/FLUX.1-schnell-Free', prompt, width: imageSize.width, height: imageSize.height, steps: 4, n: 1 })
       });
       const tData = await tRes.json();
       if (!tRes.ok) throw new Error(tData.error?.message || 'Together image error');
@@ -2749,7 +2770,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
           'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ prompt, width: 1024, height: 1024, num_steps: 20 })
+        body: JSON.stringify({ prompt, width: imageSize.width, height: imageSize.height, num_steps: 20 })
       });
 
       const contentType = response.headers.get('content-type') || 'image/png';
@@ -2795,7 +2816,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         const cfRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CLOUDFLARE_API_TOKEN },
-          body: JSON.stringify({ prompt: cfPrompt, width: 1024, height: 1024, num_steps: 20 }),
+          body: JSON.stringify({ prompt: cfPrompt, width: imageSize.width, height: imageSize.height, num_steps: 20 }),
           signal: AbortSignal.timeout(60000)
         });
         if (cfRes.ok) {
@@ -2833,7 +2854,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
           'style-cyberpunk': ', cyberpunk style, neon lights, futuristic'
         }[imgModel] || '') : '';
         const shenPrompt = String(prompt) + styleAddOn;
-        const shenBody = JSON.stringify({ model: 'gpt-image-2', prompt: shenPrompt, n: 1, size: '1024x1024' });
+        const shenBody = JSON.stringify({ model: 'gpt-image-2', prompt: shenPrompt, n: 1, size: imageSize.size });
         const shenRes = await fetch('https://api.shenfengwl.fun/v1/images/generations', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SHEN_KEY_IMG },
@@ -2887,7 +2908,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
         const seed = Date.now() + attempt * 7777 + Math.floor(Math.random() * 99999);
-        const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?model=flux&width=1024&height=1024&nologo=true&seed=${seed}`;
+        const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?model=flux&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 60000);
         const response = await fetch(imgUrl, {
@@ -2935,7 +2956,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         const cfRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: finalPrompt, width: 1024, height: 1024, num_steps: 20 })
+          body: JSON.stringify({ prompt: finalPrompt, width: imageSize.width, height: imageSize.height, num_steps: 20 })
         });
         if (cfRes.ok) {
           const buf = Buffer.from(await cfRes.arrayBuffer());
@@ -3007,7 +3028,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
     // Pollinations server üzerinden indir
     try {
       const seed = Date.now() + Math.floor(Math.random() * 99999);
-      const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=1024&height=1024&nologo=true&seed=${seed}`;
+      const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), 60000);
       const polRes = await fetch(polUrl, {
@@ -3074,8 +3095,9 @@ function throttledPollinationsFetch(fn) {
 
 app.get('/api/img-proxy', async (req, res) => {
   const { prompt, seed, model } = req.query;
+  const imageSize = resolveImageSize(req.query || {});
   if (!prompt) return res.status(400).send('Prompt required');
-  const cacheKey = crypto.createHash('md5').update(`${prompt}_${seed||''}_${model||'flux'}`).digest('hex');
+  const cacheKey = crypto.createHash('md5').update(`${prompt}_${seed||''}_${model||'flux'}_${imageSize.width}x${imageSize.height}`).digest('hex');
   const genDir = path.join(__dirname, 'generated', 'proxy');
   if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
   const cachePath = path.join(genDir, `${cacheKey}.jpg`);
@@ -3092,7 +3114,7 @@ app.get('/api/img-proxy', async (req, res) => {
       for (let attempt = 0; attempt < 4; attempt++) {
         try {
           const seedToUse = Number(finalSeed) + attempt * 1000;
-          const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${polModel}&width=1024&height=1024&nologo=true&seed=${seedToUse}`;
+          const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${polModel}&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seedToUse}`;
           const ctrl = new AbortController();
           const t = setTimeout(() => ctrl.abort(), 120000);
           const polRes = await fetch(polUrl, {
@@ -3517,6 +3539,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
 // Gemini Imagen 4.0 image generation endpoint
 app.post('/api/imagen', chatLimiter, async (req, res) => {
   const { prompt, model, apiKey: bodyApiKey } = req.body;
+  const imageSize = resolveImageSize(req.body || {});
   if (!prompt) return res.status(400).json({ error: 'Prompt gerekli' });
   const overrideKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
 
@@ -3544,7 +3567,7 @@ app.post('/api/imagen', chatLimiter, async (req, res) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         instances: [{ prompt }],
-        parameters: { sampleCount: 1 }
+        parameters: { sampleCount: 1, aspectRatio: imageSize.aspectRatio }
       })
     });
 
@@ -3566,7 +3589,7 @@ app.post('/api/imagen', chatLimiter, async (req, res) => {
     // Pollinations fallback - server üzerinden indir
     try {
       const seed = Date.now() + Math.floor(Math.random() * 99999);
-      const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=1024&height=1024&nologo=true&seed=${seed}`;
+      const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), 60000);
       const polRes = await fetch(polUrl, {
