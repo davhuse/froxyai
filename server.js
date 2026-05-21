@@ -292,6 +292,57 @@ try {
   console.error('[ADMIN] Force admin sync hatasi:', e.message);
 }
 
+function publicUserRow(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    username: row.username,
+    email: row.email,
+    credits: row.credits,
+    plan: row.plan || 'free',
+    is_admin: row.is_admin || 0,
+    total_requests: row.total_requests || 0
+  };
+}
+
+function issueUserToken(row) {
+  const plan = row.plan || 'free';
+  return jwt.sign({ id: row.id, username: row.username, email: row.email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
+}
+
+function upsertOAuthUser({ provider, email, name }) {
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  if (!cleanEmail) throw new Error('OAuth e-posta bilgisi alınamadı.');
+  const usernameBase = String(name || cleanEmail.split('@')[0] || provider || 'user').trim().slice(0, 36) || 'user';
+  let row = db.prepare('SELECT * FROM users WHERE lower(email) = ?').get(cleanEmail);
+  if (!row) {
+    let username = usernameBase;
+    let suffix = 1;
+    while (db.prepare('SELECT id FROM users WHERE username = ?').get(username)) {
+      username = `${usernameBase.slice(0, 28)}_${suffix++}`;
+    }
+    const hash = bcrypt.hashSync(`oauth:${provider}:${cleanEmail}:${Date.now()}`, 10);
+    const info = db.prepare('INSERT INTO users (username, email, password, plan, credits) VALUES (?, ?, ?, ?, ?)')
+      .run(username, cleanEmail, hash, 'free', FREE_STARTER_CREDITS);
+    row = db.prepare('SELECT * FROM users WHERE id = ?').get(info.lastInsertRowid);
+  }
+  if (isForceAdminEmail(cleanEmail)) syncForceAdminEmail(cleanEmail);
+  db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(row.id);
+  row = db.prepare('SELECT * FROM users WHERE id = ?').get(row.id);
+  return { user: publicUserRow(row), token: issueUserToken(row) };
+}
+
+function oauthSuccessRedirect(returnTo, provider, profile, auth) {
+  const url = new URL(returnTo);
+  url.searchParams.set('auth_provider', provider);
+  url.searchParams.set('auth_name', profile.name || profile.login || profile.email || '');
+  url.searchParams.set('auth_email', profile.email || '');
+  url.searchParams.set('auth_avatar', profile.avatar_url || profile.picture || '');
+  url.searchParams.set('auth_token', auth.token);
+  url.searchParams.set('auth_user', JSON.stringify(auth.user));
+  return url.toString();
+}
+
 // ===== RATE LIMITERS =====
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 dakika
@@ -1015,7 +1066,16 @@ app.get('/auth/github/callback', async (req, res) => {
       }
     }
     
-    res.redirect(`${returnTo}/?auth_provider=github&auth_name=${encodeURIComponent(profile.name || profile.login)}&auth_email=${encodeURIComponent(email || profile.login + '@github.com')}&auth_avatar=${encodeURIComponent(profile.avatar_url || '')}`);
+    const auth = upsertOAuthUser({
+      provider: 'github',
+      email: email || `${profile.login}@github.com`,
+      name: profile.name || profile.login
+    });
+    res.redirect(oauthSuccessRedirect(returnTo, 'github', {
+      name: profile.name || profile.login,
+      email: auth.user.email,
+      avatar_url: profile.avatar_url || ''
+    }, auth));
   } catch (e) {
     res.redirect(`${returnTo}/?auth_error=` + encodeURIComponent(e.message));
   }
@@ -1050,7 +1110,16 @@ app.get('/auth/google/callback', async (req, res) => {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    res.redirect(`${returnTo}/?auth_provider=google&auth_name=${encodeURIComponent(profile.name || '')}&auth_email=${encodeURIComponent(profile.email || '')}&auth_avatar=${encodeURIComponent(profile.picture || '')}`);
+    const auth = upsertOAuthUser({
+      provider: 'google',
+      email: profile.email || '',
+      name: profile.name || profile.email || 'Google User'
+    });
+    res.redirect(oauthSuccessRedirect(returnTo, 'google', {
+      name: profile.name || '',
+      email: auth.user.email,
+      picture: profile.picture || ''
+    }, auth));
   } catch (e) {
     res.redirect(`${returnTo}/?auth_error=` + encodeURIComponent(e.message));
   }

@@ -1838,10 +1838,6 @@ function socialLogin(provider){
   const names={github:'GitHub',google:'Google'};
   const pName=names[provider]||provider;
   const authUrl=(API_ORIGIN||'')+'/auth/'+provider+'?return_to='+encodeURIComponent(location.origin);
-  if(provider==='google'){
-    startGoogleLogin();
-    return;
-  }
   // Check if configured before redirecting
   fetch(authUrl,{redirect:'manual'}).then(r=>{
     const loc=r.headers.get('location')||'';
@@ -1981,6 +1977,47 @@ function handleOAuthCallback(){
   }
   
   if(!provider) return;
+
+  const backendToken=params.get('auth_token')||'';
+  const backendUserRaw=params.get('auth_user')||'';
+  if(backendToken){
+    history.replaceState(null,'','/');
+    (async()=>{
+      try{
+        authToken=backendToken;
+        localStorage.setItem('saas_token',authToken);
+        if(backendUserRaw){
+          try{
+            authUser=JSON.parse(backendUserRaw);
+            authUser.plan=normalizePlanId(authUser.plan||'free');
+            applyClientForceAdmin(authUser);
+            localStorage.setItem('saas_user',JSON.stringify(authUser));
+          }catch(_){}
+        }
+        const res=await fetch('/api/me',{headers:{'Authorization':'Bearer '+authToken}});
+        const data=await readApiJson(res);
+        if(!res.ok||!data.user)throw new Error((data&&data.error)||'Backend oturumu dogrulanamadi');
+        authUser=data.user;
+        authUser.plan=normalizePlanId(authUser.plan||'free');
+        applyClientForceAdmin(authUser);
+        syncAuthUserToLocal();
+        localStorage.setItem('saas_user',JSON.stringify(authUser));
+        loginUI();
+        updateCreditsUI();
+        renderModelSelect();
+        if(typeof loadChatsFromServer==='function')setTimeout(loadChatsFromServer,250);
+        go((authUser.is_admin||authUser.isAdmin)?'admin':'chat');
+        msg((provider==='github'?'GitHub':'Google')+' ile giris tamamlandi.','ok');
+      }catch(e){
+        localStorage.removeItem('saas_token');
+        localStorage.removeItem('saas_user');
+        authToken=null;
+        authUser=null;
+        msg('Backend oturumu alinamadi: '+e.message,'err');
+      }
+    })();
+    return;
+  }
   
   const name=params.get('auth_name')||'Kullanıcı';
   const email=params.get('auth_email')||'';
@@ -4379,6 +4416,10 @@ function adminPlanName(plan){
   return PLANS[normalizePlanId(plan)]?.name || plan || 'Free';
 }
 async function adminApiJson(url,options={}){
+  if(!authToken){
+    adminSetApiState('fallback');
+    return {ok:false,status:401,data:{error:'Admin islemleri icin backend oturumu gerekli. Lutfen Google/GitHub ile tekrar giris yapin.'}};
+  }
   try{
     const headers={...adminHeader(),...(options.headers||{})};
     const res=await fetch(url,{...options,headers});
@@ -9436,7 +9477,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v210';
+  const VERSION='v211';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -9875,7 +9916,8 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
     const el=document.getElementById('mc-list');
     if(!el)return;
     if(!api.ok){
-      el.innerHTML=`<div class="admin-empty admin-error-box">Üyelik kodları backend'den alınamadı. Local kod oluşturma kapalı; kullanıcıların kullanamayacağı kod üretilmez.</div>`;
+      const detail=adminErrorText(api.data||api.error,'Backend oturumu gerekli.');
+      el.innerHTML=`<div class="admin-empty admin-error-box">Uyelik kodlari backend'den alinamadi. ${esc(detail)} Local kod olusturma kapali; kullanicilarin kullanamayacagi kod uretilmez.</div>`;
       return;
     }
     const codes=api.data.codes||[];
