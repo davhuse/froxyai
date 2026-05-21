@@ -4733,27 +4733,28 @@ async function deleteAnnouncement(id){
   msg('Duyuru silindi','ok');loadAdminAnnouncements();
 }
 function localMembershipCodes(){
-  return LS.get('ap_membership_codes',[]);
+  return [];
 }
-function saveLocalMembershipCodes(codes){
-  LS.set('ap_membership_codes',codes);
+function saveLocalMembershipCodes(){
+  console.warn('[ADMIN] Local membership code fallback disabled.');
 }
 function genMembershipCode(plan){
   const clean=String(plan||'starter').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)||'PLAN';
-  return 'AIP-'+clean+'-'+Math.random().toString(36).slice(2,8).toUpperCase();
+  return 'FRX-'+clean+'-'+Math.random().toString(36).slice(2,8).toUpperCase();
 }
 async function loadMembershipCodes(){
   adminSetBlockSkeleton('mc-list',4);
   const api=await adminApiJson('/api/admin/membership-codes');
-  const codes=api.ok?(api.data.codes||[]):localMembershipCodes();
   const el=document.getElementById('mc-list');if(!el)return;
+  if(!api.ok){
+    el.innerHTML='<div class="admin-empty admin-error-box">Üyelik kodları backendden alınamadı. Admin işlemleri için Google/GitHub ile tekrar giriş yapın; local kod oluşturma kapalı.</div>';
+    return;
+  }
+  const codes=api.data.codes||[];
   if(!codes.length){el.innerHTML='<div class="admin-empty">Henüz üyelik kodu yok</div>';return}
   el.innerHTML=codes.map(c=>{
     const active=c.is_active!==0 && (!c.expires_at || new Date(c.expires_at).getTime()>Date.now()) && Number(c.used_count||0)<Number(c.max_uses||1);
-    return `<div class="membership-code-item ${active?'':'passive'}">
-      <div><strong>${esc(c.code)}</strong><span>${esc(adminPlanName(c.plan))} · ${Number(c.credits||0).toLocaleString('tr-TR')} kredi · ${Number(c.used_count||0)}/${Number(c.max_uses||1)} kullanım</span><small>${c.expires_at?'Bitiş: '+fmtDate(c.expires_at):'Süresiz'}</small></div>
-      <button class="admin-action-btn admin-btn-delete" onclick="disableMembershipCode(${adminJsArg(c.id||c.code)})">Pasifleştir</button>
-    </div>`;
+    return '<div class="membership-code-item '+(active?'':'passive')+'"><div><strong>'+esc(c.code)+'</strong><span>'+esc(adminPlanName(c.plan))+' · '+Number(c.credits||0).toLocaleString('tr-TR')+' kredi · '+Number(c.used_count||0)+'/'+Number(c.max_uses||1)+' kullanım</span><small>'+(c.expires_at?'Bitiş: '+fmtDate(c.expires_at):'Süresiz')+'</small></div><button class="admin-action-btn admin-btn-delete" onclick="disableMembershipCode('+adminJsArg(c.id)+')">Pasifleştir</button></div>';
   }).join('');
 }
 async function createMembershipCode(){
@@ -4763,24 +4764,14 @@ async function createMembershipCode(){
   const max_uses=Math.max(1,parseInt(document.getElementById('mc-uses')?.value||'1',10));
   const expires_days=Math.max(1,parseInt(document.getElementById('mc-days')?.value||'30',10));
   const api=await adminApiJson('/api/admin/membership-codes',{method:'POST',body:JSON.stringify({code,plan,credits,max_uses,expires_days})});
-  if(!api.ok){
-    const codes=localMembershipCodes();
-    if(codes.some(c=>c.code===code))return msg('Bu kod zaten var','err');
-    codes.unshift({id:Date.now(),code,plan,credits,max_uses,used_count:0,expires_at:new Date(Date.now()+expires_days*86400000).toISOString(),is_active:1,created_at:new Date().toISOString()});
-    saveLocalMembershipCodes(codes);
-    adminLocalLog('create_membership_code',`${code}: ${plan}`);
-  }
+  if(!api.ok)return msg(adminErrorText(api.data,'Kod backend üzerinde oluşturulamadı. Admin oturumunu kontrol edin.'),'err');
   const codeInput=document.getElementById('mc-code');if(codeInput)codeInput.value='';
-  msg('Üyelik kodu oluşturuldu: '+code,'ok');
+  msg('Üyelik kodu oluşturuldu: '+(api.data.code?.code||code),'ok');
   loadMembershipCodes();
 }
 async function disableMembershipCode(id){
-  const api=await adminApiJson('/api/admin/membership-codes/'+id,{method:'DELETE'});
-  if(!api.ok){
-    const codes=localMembershipCodes().map(c=>String(c.id)===String(id)||String(c.code)===String(id)?{...c,is_active:0}:c);
-    saveLocalMembershipCodes(codes);
-    adminLocalLog('disable_membership_code',String(id));
-  }
+  const api=await adminApiJson('/api/admin/membership-codes/'+encodeURIComponent(id),{method:'DELETE'});
+  if(!api.ok)return msg(adminErrorText(api.data,'Kod pasifleştirilemedi.'),'err');
   msg('Kod pasifleştirildi','ok');loadMembershipCodes();
 }
 function adminFindUser(userId){
@@ -9498,7 +9489,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v212';
+  const VERSION='v213';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -10323,4 +10314,115 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
   }
   window.addEventListener('load',function(){setTimeout(hideFroxySplash,180);});
   setTimeout(hideFroxySplash,4200);
+})();
+
+/* v213: membership code animated feedback and backend-only code flow */
+(function(){
+  function couponEls(){
+    var input=document.getElementById('coupon-input');
+    var panel=input&&input.closest('.store-coupon-mini');
+    var btn=panel&&panel.querySelector('.store-coupon-btn');
+    var status=panel&&panel.querySelector('.coupon-status-card');
+    if(panel&&!status){
+      status=document.createElement('div');
+      status.className='coupon-status-card';
+      status.setAttribute('role','status');
+      status.setAttribute('aria-live','polite');
+      panel.appendChild(status);
+    }
+    return {input:input,panel:panel,btn:btn,status:status};
+  }
+  function setCouponState(type,title,body){
+    var els=couponEls();
+    if(!els.panel)return;
+    els.panel.classList.remove('is-checking','is-success','is-error');
+    if(type)els.panel.classList.add('is-'+type);
+    if(els.btn){
+      els.btn.classList.toggle('is-working',type==='checking');
+      els.btn.disabled=type==='checking';
+      els.btn.textContent=type==='checking'?'Kontrol ediliyor':'Uygula';
+    }
+    if(els.status){
+      if(!type){els.status.className='coupon-status-card';els.status.innerHTML='';return}
+      var icon=type==='success'?'✓':(type==='error'?'!':'…');
+      els.status.className='coupon-status-card show '+(type==='success'?'success':type==='error'?'error':'');
+      els.status.innerHTML='<i>'+icon+'</i><div><b>'+esc(title||'Durum')+'</b><span>'+esc(body||'')+'</span></div>';
+    }
+  }
+  function clearCouponStateSoon(){
+    setTimeout(function(){
+      var els=couponEls();
+      if(els.panel)els.panel.classList.remove('is-checking','is-success','is-error');
+      if(els.btn){els.btn.classList.remove('is-working');els.btn.disabled=false;els.btn.textContent='Uygula'}
+    },2200);
+  }
+  window.applyCoupon=async function(){
+    var els=couponEls();
+    var code=els.input&&els.input.value.trim().toUpperCase();
+    if(!code){setCouponState('error','Kod gerekli','Kupon veya üyelik kodunu yazıp tekrar deneyin.');clearCouponStateSoon();return}
+    if(!authToken){
+      setCouponState('error','Giriş gerekli','Kodu kullanmak için Google, GitHub veya e-posta ile giriş yapın.');
+      clearCouponStateSoon();
+      return;
+    }
+    setCouponState('checking','Kod kontrol ediliyor','Backend kodu doğruluyor ve üyeliğinize uygulanıyor.');
+    try{
+      var res=await fetch('/api/redeem-code',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},body:JSON.stringify({code:code})});
+      var data=await readApiJson(res);
+      if(!res.ok||!data.success)throw new Error(adminErrorText(data,'Kod uygulanamadı.'));
+      if(data.user){
+        authUser=data.user;
+        localStorage.setItem('saas_user',JSON.stringify(data.user));
+        syncAuthUserToLocal();
+      }
+      var planName=adminPlanName(data.user&&data.user.plan);
+      var added=Number(data.credits_added||0).toLocaleString('tr-TR');
+      var credits=Number((data.user&&data.user.credits)||0).toLocaleString('tr-TR');
+      if(els.input)els.input.value='';
+      setCouponState('success','Kod uygulandı',planName+' paketi aktif. +'+added+' kredi eklendi; güncel kredi: '+credits+'.');
+      toast('Üyelik kodu uygulandı: '+planName+' · '+credits+' kredi','ok');
+      loginUI();updateCreditsUI();
+      clearCouponStateSoon();
+    }catch(e){
+      setCouponState('error','Kod kullanılamadı',String(e.message||'Kod doğrulanamadı.'));
+      toast(String(e.message||'Kod doğrulanamadı'),'err');
+      clearCouponStateSoon();
+    }
+  };
+  var baseLoadMembershipCodes=window.loadMembershipCodes;
+  window.loadMembershipCodes=async function(){
+    if(typeof baseLoadMembershipCodes==='function')await baseLoadMembershipCodes();
+    var code=window.__lastCreatedMembershipCode;
+    if(code){
+      setTimeout(function(){
+        document.querySelectorAll('.membership-code-item strong').forEach(function(el){
+          if(el.textContent.trim()===code){
+            var card=el.closest('.membership-code-item');
+            if(card){card.classList.add('code-created-pulse');setTimeout(function(){card.classList.remove('code-created-pulse')},1300)}
+          }
+        });
+        window.__lastCreatedMembershipCode='';
+      },80);
+    }
+  };
+  window.createMembershipCode=async function(){
+    var plan=normalizePlanId(document.getElementById('mc-plan')&&document.getElementById('mc-plan').value||'starter');
+    var code=((document.getElementById('mc-code')&&document.getElementById('mc-code').value.trim().toUpperCase())||genMembershipCode(plan)).replace(/[^A-Z0-9-]/g,'');
+    var credits=Math.max(0,parseInt(document.getElementById('mc-credits')&&document.getElementById('mc-credits').value||'0',10));
+    var max_uses=Math.max(1,parseInt(document.getElementById('mc-uses')&&document.getElementById('mc-uses').value||'1',10));
+    var expires_days=Math.max(1,parseInt(document.getElementById('mc-days')&&document.getElementById('mc-days').value||'30',10));
+    var btn=document.querySelector('#at-codes .admin-btn-primary');
+    if(btn){btn.classList.add('is-working');btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent='Kod oluşturuluyor'}
+    var api=await adminApiJson('/api/admin/membership-codes',{method:'POST',body:JSON.stringify({code:code,plan:plan,credits:credits,max_uses:max_uses,expires_days:expires_days})});
+    if(btn){btn.classList.remove('is-working');btn.disabled=false;btn.textContent=btn.dataset.oldText||'Kodu oluştur'}
+    if(!api.ok){
+      toast(adminErrorText(api.data,'Kod backend üzerinde oluşturulamadı. Google/GitHub ile tekrar giriş yapın ve backend bağlantısını kontrol edin.'),'err');
+      return;
+    }
+    var created=(api.data&&api.data.code&&api.data.code.code)||code;
+    window.__lastCreatedMembershipCode=created;
+    var codeInput=document.getElementById('mc-code');if(codeInput)codeInput.value='';
+    toast('Üyelik kodu oluşturuldu: '+created,'ok');
+    await window.loadMembershipCodes();
+  };
 })();

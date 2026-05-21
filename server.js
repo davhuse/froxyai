@@ -708,9 +708,7 @@ app.post('/api/forgot-password', authLimiter, (req, res) => {
       const expires = new Date(Date.now() + 3600000).toISOString(); // 1 saat
       db.prepare('INSERT INTO reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)').run(user.id, token, expires);
       // Production'da token'ı loglamıyoruz; dev'de debug için yazıyoruz.
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[RESET TOKEN]', token);
-      }
+      // Reset token console'a yazilmaz; sadece dev response icinde doner.
       const payload = { success: true, message: 'Şifre sıfırlama bağlantısı e-postanıza gönderildi.' };
       if (process.env.NODE_ENV !== 'production') payload.dev_token = token;
       res.json(payload);
