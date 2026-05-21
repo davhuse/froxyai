@@ -5347,6 +5347,20 @@ const STORE_PACKS=[
   {id:'business', name:'İşletme', tokens:150000, price:799.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> 5.000 istek/g\u00fcn + \u00d6ncelikli', color:'#0ea5e9', icon:'\ud83d\udcca'},
   {id:'enterprise', name:'Kurumsal', tokens:500000, price:1499.99, desc:'T\u00fcm modellere eri\u015fim<br><span class="ck">\u2713</span> S\u0131n\u0131rs\u0131z istek + beyaz etiket', color:'#ef4444', icon:'\ud83d\ude80', popular:true}
 ];
+const SHOPIER_PRODUCT_URLS={
+  starter:'https://www.shopier.com/froxyai/47408136',
+  popular:'https://www.shopier.com/froxyai/47408138',
+  pro:'https://www.shopier.com/froxyai/47408141',
+  developer:'https://www.shopier.com/froxyai/47408145',
+  business:'https://www.shopier.com/froxyai/47408149',
+  enterprise:'https://www.shopier.com/froxyai/47408150'
+};
+function getShopierPlanUrl(planId){
+  return SHOPIER_PRODUCT_URLS[planId]||'https://www.shopier.com/froxyai';
+}
+function buyTokensById(planId){
+  window.open(getShopierPlanUrl(planId),'_blank','noopener,noreferrer');
+}
 function enhanceStoreShell(){
   const root=document.getElementById('ptab-store');
   if(!root||root.dataset.enhanced==='1')return;
@@ -5470,9 +5484,8 @@ function renderStore(){
   }).join('');
 }
 function buyTokens(i){
-  if(!user)return msg('Önce giriş yapın!','err');
-  msg('Ödeme sistemi yakında aktif olacak! 🔜','ok');
-  addNotification('Kredi satın alma özelliği yakında aktif olacak!','info');
+  const pack=STORE_PACKS[i];
+  buyTokensById(pack?.id||'starter');
 }
 function applyCoupon(){
   const code=document.getElementById('coupon-input')?.value.trim().toUpperCase();if(!code)return;
@@ -9392,7 +9405,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v208';
+  const VERSION='v209';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -9653,7 +9666,294 @@ window.downloadEditorCanvas=downloadEditorCanvas;
     const prev=panelTab;
     panelTab=function(tab){ prev(tab); setTimeout(renderGrowthLayer,80); if(tab==='gallery'&&typeof renderGallery==='function')setTimeout(renderGallery,90); };
   }
-  document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,900));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,900));
+})();
+
+/* v209: Shopier + admin authority layer. Keeps backend as the single source
+   for membership codes so admins cannot create local-only codes by accident. */
+(function(){
+  const SHOPIER_URLS={
+    starter:'https://www.shopier.com/froxyai/47408136',
+    popular:'https://www.shopier.com/froxyai/47408138',
+    pro:'https://www.shopier.com/froxyai/47408141',
+    developer:'https://www.shopier.com/froxyai/47408145',
+    business:'https://www.shopier.com/froxyai/47408149',
+    enterprise:'https://www.shopier.com/froxyai/47408150'
+  };
+  window.SHOPIER_PRODUCT_URLS=Object.assign({},window.SHOPIER_PRODUCT_URLS||{},SHOPIER_URLS);
+  window.getShopierPlanUrl=function(planId){
+    return window.SHOPIER_PRODUCT_URLS[planId]||'https://www.shopier.com/froxyai';
+  };
+  window.buyTokensById=function(planId){
+    window.open(window.getShopierPlanUrl(planId),'_blank','noopener,noreferrer');
+  };
+  window.buyTokens=function(i){
+    const pack=(typeof STORE_PACKS!=='undefined'&&STORE_PACKS[i])?STORE_PACKS[i]:null;
+    window.buyTokensById(pack?.id||'starter');
+  };
+  try{buyTokens=window.buyTokens;buyTokensById=window.buyTokensById}catch(e){}
+
+  function adminIcon(name,size=18){
+    try{return iconSvg(name,size)||''}catch(e){return ''}
+  }
+  function toast(text,type='ok'){
+    if(typeof msg==='function')msg(text,type);
+  }
+  function codeStatus(c){
+    const expired=c.expires_at && new Date(c.expires_at).getTime()<Date.now();
+    const used=Number(c.used_count||0)>=Number(c.max_uses||1);
+    const passive=c.is_active===0||c.is_active===false;
+    if(passive)return {label:'Pasif',cls:'passive'};
+    if(expired)return {label:'Süresi doldu',cls:'expired'};
+    if(used)return {label:'Limit doldu',cls:'used'};
+    return {label:'Aktif',cls:'active'};
+  }
+  function adminErrorText(data,fallback){
+    return data?.error||data?.message||fallback||'İşlem tamamlanamadı';
+  }
+  function adminCopy(text,label='Kopyalandı'){
+    navigator.clipboard?.writeText(String(text||'')).then(()=>toast(label,'ok')).catch(()=>toast('Kopyalanamadı','err'));
+  }
+  window.copyMembershipCode=function(code){ adminCopy(code,'Kod kopyalandı'); };
+
+  window.ensureAdminShell=function(){
+    const root=document.getElementById('v-admin');
+    if(!root||root.dataset.shell==='v209')return;
+    const ico=name=>`<span class="admin-line-icon">${adminIcon(name,18)}</span>`;
+    root.dataset.shell='v209';
+    root.innerHTML=`<div class="admin-layout admin-pro-layout admin-v209">
+      <aside class="admin-sidebar admin-pro-sidebar">
+        <div class="admin-sidebar-header">
+          <div class="admin-brand">
+            <span class="admin-brand-icon">${adminIcon('shield',20)}</span>
+            <div><div class="admin-brand-title">Froxy AI Admin</div><div class="admin-brand-sub">Kontrol merkezi</div></div>
+          </div>
+        </div>
+        <nav class="admin-nav">
+          <button class="admin-nav-item active" onclick="adminTab('dashboard')" id="an-dashboard">${ico('chart')}<span>Genel Bakış</span></button>
+          <button class="admin-nav-item" onclick="adminTab('users')" id="an-users">${ico('users')}<span>Kullanıcılar</span><span class="admin-nav-badge" id="an-user-count">0</span></button>
+          <button class="admin-nav-item" onclick="adminTab('codes')" id="an-codes">${ico('key')}<span>Üyelik Kodları</span></button>
+          <button class="admin-nav-item" onclick="adminTab('support')" id="an-support">${ico('ticket')}<span>Destek</span><span class="admin-nav-badge" id="admin-ticket-count">0</span></button>
+          <button class="admin-nav-item" onclick="adminTab('models')" id="an-models">${ico('bot')}<span>Modeller</span></button>
+          <button class="admin-nav-item" onclick="adminTab('announce')" id="an-announce">${ico('megaphone')}<span>Duyurular</span></button>
+          <button class="admin-nav-item" onclick="adminTab('logs')" id="an-logs">${ico('copy')}<span>Loglar</span></button>
+          <button class="admin-nav-item" onclick="adminTab('settings')" id="an-settings">${ico('settings')}<span>Ayarlar</span></button>
+        </nav>
+        <div class="admin-sidebar-footer">
+          <button class="admin-exit-btn" onclick="go('chat')">${ico('message')}<span>Sohbete Dön</span></button>
+        </div>
+      </aside>
+      <main class="admin-main admin-pro-main">
+        <section class="admin-hero admin-v209-hero">
+          <div>
+            <span class="admin-eyebrow">Yönetim konsolu</span>
+            <h1>Platform operasyonunu tek panelden yönet</h1>
+            <p>Kullanıcılar, üyelik kodları, destek talepleri, modeller ve sistem sağlığı aynı profesyonel akışta.</p>
+          </div>
+          <div class="admin-status-card"><span class="admin-status-dot"></span><strong id="admin-api-state">Kontrol ediliyor</strong><small>Backend bağlantısı</small></div>
+        </section>
+
+        <div class="admin-tab active" id="at-dashboard">
+          <div class="admin-page-header"><h2 class="admin-page-title">Genel Bakış</h2><button class="admin-refresh-btn" onclick="loadAdminStats()">${adminIcon('refresh',16)} Yenile</button></div>
+          <div class="admin-stats-grid">
+            <div class="admin-stat-card"><div class="admin-stat-icon">${adminIcon('users',22)}</div><div><div class="admin-stat-value" id="as-users">0</div><div class="admin-stat-label">Toplam kullanıcı</div><div class="admin-stat-sub" id="as-users-today">+0 bugün</div></div></div>
+            <div class="admin-stat-card"><div class="admin-stat-icon">${adminIcon('zap',22)}</div><div><div class="admin-stat-value" id="as-credits">0</div><div class="admin-stat-label">Toplam kredi</div><div class="admin-stat-sub">Hesaplardaki bakiye</div></div></div>
+            <div class="admin-stat-card"><div class="admin-stat-icon">${adminIcon('message',22)}</div><div><div class="admin-stat-value" id="as-chats">0</div><div class="admin-stat-label">Toplam sohbet</div><div class="admin-stat-sub" id="as-docs">0 belge</div></div></div>
+            <div class="admin-stat-card"><div class="admin-stat-icon">${adminIcon('shield',22)}</div><div><div class="admin-stat-value" id="as-blocked">0</div><div class="admin-stat-label">Bloklu kullanıcı</div><div class="admin-stat-sub" id="as-admins">0 admin</div></div></div>
+          </div>
+          <div class="admin-grid-2">
+            <div class="admin-card"><div class="admin-card-header"><h3>Son kayıt olanlar</h3><button class="admin-chip-btn" onclick="adminTab('users')">Tümünü aç</button></div><div class="admin-card-body admin-table-wrap"><table class="admin-table"><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Kredi</th><th>Kayıt</th><th>İşlem</th></tr></thead><tbody id="at-recent-tbody">${adminTableSkeleton(4,5)}</tbody></table></div></div>
+            <div class="admin-card"><div class="admin-card-header"><h3>Sağlayıcı özeti</h3><button class="admin-chip-btn" onclick="adminTab('models')">Modeller</button></div><div class="admin-card-body" id="admin-provider-list">${adminBlockSkeleton(4)}</div></div>
+          </div>
+          <div class="admin-card admin-quick-actions"><div class="admin-card-header"><h3>Hızlı işlemler</h3></div><div class="admin-card-body"><button onclick="adminTab('codes')">${adminIcon('key',15)} Kod oluştur</button><button onclick="adminTab('users')">${adminIcon('users',15)} Kullanıcı yönet</button><button onclick="adminTab('support')">${adminIcon('ticket',15)} Destek talepleri</button><button onclick="adminTab('models')">${adminIcon('bot',15)} Model kontrolü</button></div></div>
+          <div class="admin-grid-2"><div class="admin-card"><div class="admin-card-header"><h3>Görsel istatistik</h3></div><div class="admin-card-body" id="admin-img-stats">${adminBlockSkeleton(2)}</div></div><div class="admin-card"><div class="admin-card-header"><h3>Sistem sağlığı</h3></div><div class="admin-card-body" id="admin-health-providers">${adminBlockSkeleton(4)}</div></div></div>
+        </div>
+
+        <div class="admin-tab" id="at-users">
+          <div class="admin-page-header"><h2 class="admin-page-title">Kullanıcı Yönetimi</h2><span class="admin-count-badge" id="au-total-badge">0 kullanıcı</span></div>
+          <div class="admin-toolbar"><div class="admin-search-wrap"><span class="admin-search-icon">${adminIcon('search',15)}</span><input type="text" id="au-search" class="admin-search-input" placeholder="Ad veya e-posta ara..." oninput="loadAdminUsers(1)"></div><select id="au-filter" class="admin-filter-sel" onchange="loadAdminUsers(1)"><option value="all">Tümü</option><option value="active">Aktif</option><option value="blocked">Bloklu</option><option value="admin">Admin</option></select></div>
+          <div class="admin-card admin-table-wrap"><table class="admin-table"><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Paket</th><th>Kredi</th><th>Durum</th><th>Kayıt</th><th>Son giriş</th><th>İşlemler</th></tr></thead><tbody id="au-tbody">${adminTableSkeleton(5,8)}</tbody></table><div class="admin-pagination" id="au-pagination"></div></div>
+        </div>
+
+        <div class="admin-tab" id="at-codes">
+          <div class="admin-page-header"><h2 class="admin-page-title">Üyelik Kodları</h2><button class="admin-refresh-btn" onclick="loadMembershipCodes()">${adminIcon('refresh',16)} Yenile</button></div>
+          <div class="admin-two-col">
+            <div class="admin-card"><div class="admin-card-header"><h3>Yeni kod oluştur</h3></div><div class="admin-card-body">
+              <div class="admin-form-group"><label>Kod</label><input type="text" id="mc-code" class="admin-input" placeholder="Boş bırakırsan otomatik üretir"></div>
+              <div class="admin-form-group"><label>Paket</label><select id="mc-plan" class="admin-input">${adminPlanOptions('starter')}</select></div>
+              <div class="admin-form-group"><label>Ek kredi</label><input type="number" id="mc-credits" class="admin-input" value="5000"></div>
+              <div class="admin-form-grid"><div class="admin-form-group"><label>Kullanım limiti</label><input type="number" id="mc-uses" class="admin-input" value="1"></div><div class="admin-form-group"><label>Geçerlilik günü</label><input type="number" id="mc-days" class="admin-input" value="30"></div></div>
+              <button class="admin-btn-primary" onclick="createMembershipCode()">${adminIcon('key',16)} Kodu oluştur</button>
+              <p class="admin-help">Kodlar canlı backend'e yazılır. Backend hatasında local kod üretilmez; kullanıcı kullanamayacağı kod görmez.</p>
+            </div></div>
+            <div class="admin-card"><div class="admin-card-header"><h3>Aktif ve geçmiş kodlar</h3></div><div class="admin-card-body" id="mc-list">${adminBlockSkeleton(4)}</div></div>
+          </div>
+        </div>
+
+        <div class="admin-tab" id="at-support">
+          <div class="admin-page-header"><h2 class="admin-page-title">Destek Talepleri</h2><select id="ticket-filter" class="admin-filter-sel" onchange="renderAdminTickets()"><option value="all">Tümü</option><option value="open">Açık</option><option value="waiting_support">Yanıt bekliyor</option><option value="answered">Yanıtlandı</option><option value="closed">Kapalı</option></select></div>
+          <div class="admin-card"><div class="admin-card-body" id="admin-tickets-list">${adminBlockSkeleton(4)}</div></div>
+        </div>
+
+        <div class="admin-tab" id="at-models">
+          <div class="admin-page-header"><h2 class="admin-page-title">Model Kontrolü</h2><button class="admin-refresh-btn" onclick="renderAdminModels()">Listeyi yenile</button></div>
+          <div class="admin-stats-grid admin-model-stats"><div class="admin-stat-card"><div class="admin-stat-value" id="adm-model-total">0</div><div class="admin-stat-label">Toplam model</div></div><div class="admin-stat-card"><div class="admin-stat-value" id="adm-model-enabled">0</div><div class="admin-stat-label">Aktif model</div></div><div class="admin-stat-card"><div class="admin-stat-value" id="adm-model-free">0</div><div class="admin-stat-label">Ücretsiz model</div></div><div class="admin-stat-card"><div class="admin-stat-value" id="adm-model-providers">0</div><div class="admin-stat-label">Sağlayıcı</div></div></div>
+          <div class="admin-toolbar"><div class="admin-search-wrap"><span class="admin-search-icon">${adminIcon('search',15)}</span><input type="text" id="adm-model-search" class="admin-search-input" placeholder="Model ara..." oninput="renderAdminModels()"></div><select id="adm-model-filter" class="admin-filter-sel" onchange="renderAdminModels()"><option value="all">Tümü</option><option value="free">Ücretsiz</option><option value="pro">Pro</option><option value="enterprise">Enterprise</option></select><button class="admin-refresh-btn" onclick="adminEnableAllModels()">Tümünü aktif et</button></div>
+          <div class="admin-card"><div class="admin-model-grid" id="admin-model-grid"></div></div>
+        </div>
+
+        <div class="admin-tab" id="at-announce">
+          <div class="admin-page-header"><h2 class="admin-page-title">Duyurular</h2></div>
+          <div class="admin-two-col"><div class="admin-card"><div class="admin-card-header"><h3>Yeni duyuru</h3></div><div class="admin-card-body"><div class="admin-form-group"><label>Başlık</label><input type="text" id="ann-title" class="admin-input" placeholder="Kısa başlık"></div><div class="admin-form-group"><label>Tür</label><select id="ann-type" class="admin-input"><option value="info">Bilgi</option><option value="success">Başarı</option><option value="warning">Uyarı</option><option value="danger">Kritik</option></select></div><div class="admin-form-group"><label>İçerik</label><textarea id="ann-body" class="admin-input admin-textarea" placeholder="Duyuru metni..." rows="4"></textarea></div><button class="admin-btn-primary" onclick="publishAnnouncement()">Yayınla</button></div></div><div class="admin-card"><div class="admin-card-header"><h3>Mevcut duyurular</h3></div><div class="admin-card-body" id="ann-list">${adminBlockSkeleton(4)}</div></div></div>
+        </div>
+
+        <div class="admin-tab" id="at-logs"><div class="admin-page-header"><h2 class="admin-page-title">Aktivite Logları</h2><button class="admin-refresh-btn" onclick="loadAdminLogs()">Yenile</button></div><div class="admin-card admin-table-wrap"><table class="admin-table"><thead><tr><th>Zaman</th><th>Admin</th><th>İşlem</th><th>Detay</th></tr></thead><tbody id="logs-tbody">${adminTableSkeleton(4,4)}</tbody></table></div></div>
+
+        <div class="admin-tab" id="at-settings">
+          <div class="admin-page-header"><h2 class="admin-page-title">Sistem Ayarları</h2></div>
+          <div class="admin-two-col"><div class="admin-card"><div class="admin-card-header"><h3>Admin yetkilendirme</h3></div><div class="admin-card-body"><p class="admin-help">E-posta adresiyle bir kullanıcıyı admin yap.</p><div class="admin-form-group"><label>E-posta</label><input type="email" id="st-admin-email" class="admin-input" placeholder="kullanici@mail.com"></div><div class="admin-form-group"><label>Bootstrap Secret</label><input type="password" id="st-admin-secret" class="admin-input" placeholder="ADMIN_BOOTSTRAP_SECRET"></div><button class="admin-btn-primary" onclick="makeAdminByEmail()">Admin yap</button><div id="st-admin-msg" class="admin-inline-msg"></div></div></div><div class="admin-card"><div class="admin-card-header"><h3>Sistem bilgisi</h3></div><div class="admin-card-body"><div class="admin-info-row"><span>Platform</span><strong>Froxy AI</strong></div><div class="admin-info-row"><span>Backend</span><strong id="st-auth-mode">JWT backend</strong></div><div class="admin-info-row"><span>Aktif model</span><strong id="st-model-count">0 model</strong></div><div class="admin-info-row"><span>API</span><strong>${esc(API_ORIGIN||location.origin)}</strong></div></div></div></div>
+        </div>
+      </main>
+    </div>`;
+  };
+
+  window.adminTab=function(t){
+    ensureAdminShell();
+    document.querySelectorAll('#v-admin .admin-tab').forEach(el=>el.classList.remove('active'));
+    document.querySelectorAll('#v-admin .admin-nav-item').forEach(el=>el.classList.remove('active'));
+    document.getElementById('at-'+t)?.classList.add('active');
+    document.getElementById('an-'+t)?.classList.add('active');
+    if(t==='dashboard')loadAdminStats();
+    if(t==='users')loadAdminUsers(1);
+    if(t==='codes')loadMembershipCodes();
+    if(t==='support')renderAdminTickets();
+    if(t==='models')renderAdminModels();
+    if(t==='announce')loadAdminAnnouncements();
+    if(t==='logs')loadAdminLogs();
+    if(t==='settings'){
+      renderAdminProviderSummary();
+      const c=document.getElementById('st-model-count');
+      if(c)c.textContent=(typeof ALL_MODELS!=='undefined'?ALL_MODELS.length:0).toLocaleString('tr-TR')+' model';
+    }
+  };
+
+  window.loadMembershipCodes=async function(){
+    ensureAdminShell();
+    adminSetBlockSkeleton('mc-list',4);
+    const api=await adminApiJson('/api/admin/membership-codes');
+    const el=document.getElementById('mc-list');
+    if(!el)return;
+    if(!api.ok){
+      el.innerHTML=`<div class="admin-empty admin-error-box">Üyelik kodları backend'den alınamadı. Local kod oluşturma kapalı; kullanıcıların kullanamayacağı kod üretilmez.</div>`;
+      return;
+    }
+    const codes=api.data.codes||[];
+    if(!codes.length){el.innerHTML='<div class="admin-empty">Henüz üyelik kodu yok</div>';return}
+    el.innerHTML=codes.map(c=>{
+      const st=codeStatus(c);
+      return `<article class="membership-code-item ${st.cls==='active'?'':'passive'}">
+        <div class="membership-code-main">
+          <div class="membership-code-top"><strong>${esc(c.code)}</strong><span class="code-status ${st.cls}">${st.label}</span></div>
+          <span>${esc(adminPlanName(c.plan))} · ${Number(c.credits||0).toLocaleString('tr-TR')} kredi · ${Number(c.used_count||0)}/${Number(c.max_uses||1)} kullanım</span>
+          <small>${c.expires_at?'Bitiş: '+fmtDate(c.expires_at):'Süresiz'}</small>
+        </div>
+        <div class="membership-code-actions">
+          <button class="admin-action-btn admin-btn-detail" onclick="copyMembershipCode('${jsStr(String(c.code))}')">Kopyala</button>
+          <button class="admin-action-btn admin-btn-delete" onclick="disableMembershipCode(${adminJsArg(c.id)})">Pasifleştir</button>
+        </div>
+      </article>`;
+    }).join('');
+  };
+
+  window.createMembershipCode=async function(){
+    const plan=normalizePlanId(document.getElementById('mc-plan')?.value||'starter');
+    const code=(document.getElementById('mc-code')?.value.trim().toUpperCase()||genMembershipCode(plan)).replace(/[^A-Z0-9-]/g,'');
+    const credits=Math.max(0,parseInt(document.getElementById('mc-credits')?.value||'0',10));
+    const max_uses=Math.max(1,parseInt(document.getElementById('mc-uses')?.value||'1',10));
+    const expires_days=Math.max(1,parseInt(document.getElementById('mc-days')?.value||'30',10));
+    const btn=document.querySelector('#at-codes .admin-btn-primary');
+    if(btn){btn.classList.add('is-working');btn.disabled=true}
+    const api=await adminApiJson('/api/admin/membership-codes',{method:'POST',body:JSON.stringify({code,plan,credits,max_uses,expires_days})});
+    if(btn){btn.classList.remove('is-working');btn.disabled=false}
+    if(!api.ok){
+      toast(adminErrorText(api.data,'Kod backend üzerinde oluşturulamadı. Lütfen admin oturumunu ve backend bağlantısını kontrol et.'),'err');
+      return;
+    }
+    const codeInput=document.getElementById('mc-code');if(codeInput)codeInput.value='';
+    toast('Üyelik kodu oluşturuldu: '+(api.data.code?.code||code),'ok');
+    loadMembershipCodes();
+  };
+
+  window.disableMembershipCode=async function(id){
+    const api=await adminApiJson('/api/admin/membership-codes/'+encodeURIComponent(id),{method:'DELETE'});
+    if(!api.ok)return toast(adminErrorText(api.data,'Kod pasifleştirilemedi'),'err');
+    toast('Kod pasifleştirildi','ok');
+    loadMembershipCodes();
+  };
+
+  window.applyCoupon=async function(){
+    const input=document.getElementById('coupon-input');
+    const code=input?.value.trim().toUpperCase();
+    if(!code)return;
+    if(!authToken)return toast('Kod kullanmak için giriş yapmalısın','err');
+    try{
+      const res=await fetch('/api/redeem-code',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},body:JSON.stringify({code})});
+      const data=await readApiJson(res);
+      if(!res.ok||!data.success)return toast(adminErrorText(data,'Kod uygulanamadı'),'err');
+      if(data.user){
+        authUser=data.user;
+        localStorage.setItem('saas_user',JSON.stringify(data.user));
+      }
+      if(input)input.value='';
+      toast('Üyelik kodu uygulandı: '+adminPlanName(data.user?.plan)+' · '+Number(data.user?.credits||0).toLocaleString('tr-TR')+' kredi','ok');
+      loginUI();updateCreditsUI();
+    }catch(e){
+      toast('Bağlantı hatası: kod doğrulanamadı','err');
+    }
+  };
+
+  window.renderAdminTickets=function(){
+    ensureAdminShell();
+    const el=document.getElementById('admin-tickets-list');
+    if(!el)return;
+    const filter=document.getElementById('ticket-filter')?.value||'all';
+    let all=LS.get('ap_tickets',[]);
+    const count=all.filter(t=>t.status==='open'||t.status==='waiting_support').length;
+    const badge=document.getElementById('admin-ticket-count');
+    if(badge)badge.textContent=count;
+    let tickets=filter==='all'?all:all.filter(t=>String(t.status||'open')===filter);
+    if(!tickets.length){el.innerHTML='<div class="admin-empty">Bilet yok</div>';return;}
+    const labels={open:'Açık',waiting_support:'Yanıt bekliyor',answered:'Yanıtlandı',closed:'Kapalı'};
+    const priorities={low:'Düşük',medium:'Orta',high:'Yüksek'};
+    el.innerHTML=tickets.map(t=>{
+      const realIdx=all.findIndex(x=>String(x.id)===String(t.id));
+      const responses=(t.responses||[]).map(r=>({by:r.by||'support',text:r.text||'',date:r.date||t.createdAt||new Date().toISOString()})).filter(r=>r.text);
+      return `<article class="admin-ticket-card">
+        <div class="admin-ticket-head">
+          <div><strong>${esc(t.title||'Destek talebi')}</strong><span>${esc(t.userName||t.userEmail||'Kullanıcı')} · ${esc(priorities[t.priority]||'Düşük')}</span></div>
+          <em class="tk-badge ${t.status==='closed'?'tk-closed':t.status==='answered'?'tk-answered':'tk-open'}">${esc(labels[t.status]||'Açık')}</em>
+        </div>
+        <p>${esc(t.description||'')}</p>
+        ${responses.length?`<div class="admin-ticket-thread">${responses.map(r=>`<div class="${r.by==='user'?'user':'support'}"><b>${r.by==='user'?'Kullanıcı':'Destek'}</b><span>${esc(r.text)}</span></div>`).join('')}</div>`:''}
+        <div class="admin-ticket-reply">
+          <input id="reply-${esc(t.id)}" type="text" placeholder="Kullanıcıya yanıt yaz...">
+          <button class="admin-action-btn admin-btn-unblock" onclick="replyTicket(${realIdx})">Yanıtla</button>
+          <button class="admin-action-btn admin-btn-admin" onclick="closeTicket(${realIdx})">Kapat</button>
+          <button class="admin-action-btn admin-btn-delete" onclick="deleteTicket(${realIdx})">Sil</button>
+        </div>
+      </article>`;
+    }).join('');
+  };
+
+  try{
+    ensureAdminShell=window.ensureAdminShell;
+    adminTab=window.adminTab;
+    loadMembershipCodes=window.loadMembershipCodes;
+    createMembershipCode=window.createMembershipCode;
+    disableMembershipCode=window.disableMembershipCode;
+    applyCoupon=window.applyCoupon;
+    renderAdminTickets=window.renderAdminTickets;
+  }catch(e){}
 })();
 
 /* v192.1: support conversation layer. Backwards-compatible with the old

@@ -47,7 +47,7 @@
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
-  <link rel="stylesheet" href="style.min.css?v=v208">
+  <link rel="stylesheet" href="style.min.css?v=v209">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="logo-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
@@ -597,15 +597,16 @@
       <div class="pricing-panels fu">
         <div class="pricing-panel active" data-pricing-panel="personal">
           <div class="price-grid">
-            <div class="pc"><h3>Başlangıç</h3><div class="pr">129.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 5.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 200 istek/gün limiti</li><li><span class="ck">✓</span> Topluluk Desteği</li></ul><button class="btn btn-ghost" onclick="modal('reg')">Hemen Başla</button></div>
-            <div class="pc pop"><div class="pop-b">EN POPÜLER</div><h3>Popüler</h3><div class="pr">249.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 15.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 500 istek/gün limiti</li><li><span class="ck">✓</span> Görsel üretim dahil</li></ul><button class="btn btn-primary" onclick="modal('reg')">Hemen Başla</button></div>
-            <div class="pc"><h3>Profesyonel</h3><div class="pr">449.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 50.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 1.500 istek/gün limiti</li><li><span class="ck">✓</span> Öncelikli destek</li></ul><button class="btn btn-ghost" onclick="modal('reg')">Hemen Başla</button></div>
+            <div class="pc"><h3>Başlangıç</h3><div class="pr">129.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 5.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 200 istek/gün limiti</li><li><span class="ck">✓</span> Topluluk Desteği</li></ul><button class="btn btn-ghost" onclick="buyTokensById('starter')">Hemen Başla</button></div>
+            <div class="pc pop"><div class="pop-b">EN POPÜLER</div><h3>Popüler</h3><div class="pr">249.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 15.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 500 istek/gün limiti</li><li><span class="ck">✓</span> Görsel üretim dahil</li></ul><button class="btn btn-primary" onclick="buyTokensById('popular')">Hemen Başla</button></div>
+            <div class="pc"><h3>Profesyonel</h3><div class="pr">449.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 50.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 1.500 istek/gün limiti</li><li><span class="ck">✓</span> Öncelikli destek</li></ul><button class="btn btn-ghost" onclick="buyTokensById('pro')">Hemen Başla</button></div>
           </div>
         </div>
         <div class="pricing-panel" data-pricing-panel="creator">
           <div class="price-grid">
-            <div class="pc pop"><div class="pop-b">KURUMSAL</div><h3>İşletme</h3><div class="pr">799.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 150.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 5.000 istek/gün limiti</li><li><span class="ck">✓</span> Öncelikli erişim + RAG</li></ul><button class="btn btn-primary" style="background:linear-gradient(135deg,#0ea5e9,#3b82f6)" onclick="modal('reg')">Satın Al</button></div>
-            <div class="pc pop" style="background:linear-gradient(180deg, var(--bg2) 0%, rgba(139,92,246,0.1) 100%);border-color:var(--primary)"><div class="pop-b">EN ÜST</div><h3>Kurumsal</h3><div class="pr">1.499.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 500.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> Sınırsız istek</li><li><span class="ck">✓</span> Beyaz etiket + Özel destek</li></ul><button class="btn btn-primary" onclick="modal('reg')">Bize Ulaşın</button></div>
+            <div class="pc"><h3>Geliştirici</h3><div class="pr">599.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 100.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 2.000 istek/gün + RAG</li><li><span class="ck">✓</span> Kod ve otomasyon araçları</li></ul><button class="btn btn-primary" onclick="buyTokensById('developer')">Satın Al</button></div>
+            <div class="pc pop"><div class="pop-b">KURUMSAL</div><h3>İşletme</h3><div class="pr">799.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 150.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 5.000 istek/gün limiti</li><li><span class="ck">✓</span> Öncelikli erişim + RAG</li></ul><button class="btn btn-primary" style="background:linear-gradient(135deg,#0ea5e9,#3b82f6)" onclick="buyTokensById('business')">Satın Al</button></div>
+            <div class="pc pop" style="background:linear-gradient(180deg, var(--bg2) 0%, rgba(139,92,246,0.1) 100%);border-color:var(--primary)"><div class="pop-b">EN ÜST</div><h3>Kurumsal</h3><div class="pr">1.499.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 500.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> Sınırsız istek</li><li><span class="ck">✓</span> Beyaz etiket + Özel destek</li></ul><button class="btn btn-primary" onclick="buyTokensById('enterprise')">Bize Ulaşın</button></div>
           </div>
         </div>
       </div>
@@ -2177,7 +2178,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       return false;
     };
   </script>
-  <script src="app.min.js?v=v208" defer></script>
+  <script src="app.min.js?v=v209" defer></script>
 
 <!-- NEW TABS: Görevler, AI Hafıza, Video -->
 <script>

@@ -556,18 +556,20 @@ app.get('/api/admin/membership-codes', adminMiddleware, (req, res) => {
 app.post('/api/admin/membership-codes', adminMiddleware, (req, res) => {
   const allowedPlans = ['free','starter','popular','pro','creator','developer','power','agency_start','business','enterprise'];
   let { code, plan = 'starter', credits = 0, max_uses = 1, expires_days = 30 } = req.body;
-  if(!allowedPlans.includes(plan)) return res.status(400).json({error: 'Geçerli paket seçin'});
+  if(!allowedPlans.includes(plan)) return res.status(400).json({error: 'Ge\u00e7erli bir paket se\u00e7in.'});
   credits = Math.max(0, parseInt(credits || 0, 10));
   max_uses = Math.max(1, parseInt(max_uses || 1, 10));
   expires_days = Math.max(1, parseInt(expires_days || 30, 10));
   code = String(code || '').trim().toUpperCase().replace(/[^A-Z0-9-]/g, '');
-  if(!code) code = `AIP-${plan.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)}-${Math.random().toString(36).slice(2,8).toUpperCase()}`;
+  if(!code) code = `FRX-${plan.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)}-${Math.random().toString(36).slice(2,8).toUpperCase()}`;
   const expiresAt = new Date(Date.now() + expires_days * 86400000).toISOString();
   try {
     const r = db.prepare('INSERT INTO membership_codes (code, plan, credits, max_uses, expires_at) VALUES (?, ?, ?, ?, ?)').run(code, plan, credits, max_uses, expiresAt);
     logActivity(req.user.id, 'create_membership_code', `${code}: ${plan}, ${credits} kredi`);
     res.json({ success: true, code: { id: r.lastInsertRowid, code, plan, credits, max_uses, used_count: 0, expires_at: expiresAt, is_active: 1 } });
-  } catch(e) { res.status(400).json({error: 'Kod zaten var veya oluşturulamadı'}); }
+  } catch(e) {
+    res.status(400).json({error: 'Kod zaten var veya olu\u015fturulamad\u0131.'});
+  }
 });
 
 // DELETE /api/admin/membership-codes/:id
@@ -582,17 +584,25 @@ app.delete('/api/admin/membership-codes/:id', adminMiddleware, (req, res) => {
 // POST /api/redeem-code
 app.post('/api/redeem-code', authMiddleware, (req, res) => {
   const code = String(req.body.code || '').trim().toUpperCase();
-  if(!code) return res.status(400).json({error: 'Kod gerekli'});
+  if(!code) return res.status(400).json({error: 'Kod gerekli.'});
   try {
-    const c = db.prepare('SELECT * FROM membership_codes WHERE code = ? AND is_active = 1').get(code);
-    if(!c) return res.status(404).json({error: 'Kod bulunamadı'});
-    if(c.expires_at && new Date(c.expires_at).getTime() < Date.now()) return res.status(400).json({error: 'Kodun süresi dolmuş'});
-    if(c.used_count >= c.max_uses) return res.status(400).json({error: 'Kod kullanım limiti dolmuş'});
-    db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(c.plan, c.credits || 0, req.user.id);
-    db.prepare('UPDATE membership_codes SET used_count = used_count + 1 WHERE id = ?').run(c.id);
-    const user = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(req.user.id);
-    res.json({ success: true, user, code: c.code });
-  } catch(e) { res.status(500).json({error: e.message}); }
+    const redeem = db.transaction((userId, cleanCode) => {
+      const c = db.prepare('SELECT * FROM membership_codes WHERE code = ? AND is_active = 1').get(cleanCode);
+      if(!c) return { status: 404, error: 'Kod bulunamad\u0131 veya pasif durumda.' };
+      if(c.expires_at && new Date(c.expires_at).getTime() < Date.now()) return { status: 400, error: 'Kodun s\u00fcresi dolmu\u015f.' };
+      if(Number(c.used_count || 0) >= Number(c.max_uses || 1)) return { status: 400, error: 'Kod kullan\u0131m limiti dolmu\u015f.' };
+      db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(c.plan, Math.max(0, Number(c.credits || 0)), userId);
+      db.prepare('UPDATE membership_codes SET used_count = used_count + 1 WHERE id = ?').run(c.id);
+      logActivity(userId, 'redeem_membership_code', `${c.code}: ${c.plan}, +${c.credits || 0} kredi`);
+      const user = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(userId);
+      return { success: true, user, code: c.code, plan: c.plan, credits_added: Number(c.credits || 0) };
+    });
+    const result = redeem(req.user.id, code);
+    if(!result.success) return res.status(result.status || 400).json({ error: result.error || 'Kod uygulanamad\u0131.' });
+    res.json(result);
+  } catch(e) {
+    res.status(500).json({error: e.message});
+  }
 });
 
 // POST /api/admin/make-admin-by-email (bootstrapping)
