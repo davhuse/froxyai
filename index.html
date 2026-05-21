@@ -47,7 +47,7 @@
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
-  <link rel="stylesheet" href="style.min.css?v=v207">
+  <link rel="stylesheet" href="style.min.css?v=v208">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="logo-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
@@ -119,6 +119,8 @@
       <div class="froxy-splash-logo">
         <span class="froxy-splash-orbit o1"></span>
         <span class="froxy-splash-orbit o2"></span>
+        <span class="froxy-splash-dot d1"></span>
+        <span class="froxy-splash-dot d2"></span>
         <img src="logo-192.png" alt="Froxy AI" width="78" height="78" decoding="async">
       </div>
       <div class="froxy-splash-copy">
@@ -128,7 +130,11 @@
       <div class="froxy-splash-steps" aria-hidden="true">
         <em>Arayüz</em><em>Modeller</em><em>Hazır</em>
       </div>
-      <div class="froxy-splash-bar" aria-hidden="true"><i></i></div>
+      <div class="froxy-splash-progress" aria-hidden="true">
+        <span class="froxy-splash-side-dot"></span>
+        <div class="froxy-splash-bar"><i></i></div>
+        <span class="froxy-splash-side-dot"></span>
+      </div>
     </div>
   </div>
   <!-- Navigation -->
@@ -2171,7 +2177,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       return false;
     };
   </script>
-  <script src="app.min.js?v=v207" defer></script>
+  <script src="app.min.js?v=v208" defer></script>
 
 <!-- NEW TABS: Görevler, AI Hafıza, Video -->
 <script>

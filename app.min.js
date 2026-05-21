@@ -9392,7 +9392,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v207';
+  const VERSION='v208';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -9915,7 +9915,7 @@ window.downloadEditorCanvas=downloadEditorCanvas;
 /* v206: logo splash screen */
 (function(){
   var startedAt=Date.now();
-  var MIN_SPLASH_MS=1350;
+  var MIN_SPLASH_MS=2650;
   function hideFroxySplash(){
     var splash=document.getElementById('froxy-splash');
     if(!splash)return;
@@ -9927,6 +9927,6 @@ window.downloadEditorCanvas=downloadEditorCanvas;
       },620);
     },wait);
   }
-  window.addEventListener('load',function(){setTimeout(hideFroxySplash,260);});
-  setTimeout(hideFroxySplash,3600);
+  window.addEventListener('load',function(){setTimeout(hideFroxySplash,180);});
+  setTimeout(hideFroxySplash,4200);
 })();

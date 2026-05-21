@@ -21666,3 +21666,82 @@ body.theme-light .growth-model-advisor,body.theme-light .growth-gallery-toolbar,
 .img-size-pill.active span{color:rgba(255,255,255,.82)}
 @media(max-width:720px){.froxy-splash-card{min-height:284px;border-radius:28px}.froxy-splash-logo{width:108px;height:108px;border-radius:30px}.froxy-splash-logo img{width:70px;height:70px}.froxy-splash-card strong{font-size:24px}.froxy-splash-steps em{padding:6px 9px}.img-size-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.img-size-pill{min-height:48px;padding:9px 10px}}
 @media(prefers-reduced-motion:reduce){.froxy-splash-logo,.froxy-splash-bar i,.froxy-splash-orbit,.froxy-splash-card::before,.froxy-splash-steps em{animation:none!important}}
+
+/* ===== v208 Splash Timing + Proper Progress ===== */
+.froxy-splash-card{
+  width:min(390px,90vw)!important;
+  min-height:342px!important;
+  gap:16px!important;
+}
+.froxy-splash-logo{
+  width:132px!important;
+  height:132px!important;
+  border-radius:38px!important;
+}
+.froxy-splash-dot{
+  position:absolute;
+  z-index:3;
+  width:12px;
+  height:12px;
+  border-radius:999px;
+  background:#22d3ee;
+  box-shadow:0 0 18px rgba(34,211,238,.9);
+  animation:froxyDotBreathe 1.35s ease-in-out infinite;
+}
+.froxy-splash-dot.d1{left:-7px;top:50%;animation-delay:.1s}
+.froxy-splash-dot.d2{right:-7px;top:50%;background:#8b5cf6;box-shadow:0 0 18px rgba(139,92,246,.9);animation-delay:.42s}
+.froxy-splash-progress{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:10px minmax(0,210px) 10px;
+  align-items:center;
+  gap:10px;
+  margin-top:6px;
+}
+.froxy-splash-side-dot{
+  width:9px;
+  height:9px;
+  border-radius:999px;
+  background:#22d3ee;
+  box-shadow:0 0 16px rgba(34,211,238,.8);
+  animation:froxySideDot 1.2s ease-in-out infinite;
+}
+.froxy-splash-side-dot:last-child{
+  background:#8b5cf6;
+  box-shadow:0 0 16px rgba(139,92,246,.8);
+  animation-delay:.28s;
+}
+.froxy-splash-bar{
+  width:100%!important;
+  margin-top:0!important;
+  height:7px!important;
+  background:rgba(148,163,184,.14)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.froxy-splash-bar i{
+  width:100%!important;
+  transform-origin:left center;
+  transform:scaleX(0);
+  animation:froxySplashFill 2.45s cubic-bezier(.22,.75,.25,1) forwards!important;
+}
+@keyframes froxySplashFill{
+  0%{transform:scaleX(0)}
+  18%{transform:scaleX(.18)}
+  52%{transform:scaleX(.58)}
+  78%{transform:scaleX(.86)}
+  100%{transform:scaleX(1)}
+}
+@keyframes froxyDotBreathe{
+  0%,100%{transform:translateY(-50%) scale(.86);opacity:.72}
+  50%{transform:translateY(-50%) scale(1.18);opacity:1}
+}
+@keyframes froxySideDot{
+  0%,100%{transform:scale(.78);opacity:.62}
+  50%{transform:scale(1.16);opacity:1}
+}
+@media(max-width:720px){
+  .froxy-splash-card{min-height:320px!important;width:min(350px,90vw)!important}
+  .froxy-splash-logo{width:112px!important;height:112px!important}
+  .froxy-splash-progress{grid-template-columns:9px minmax(0,188px) 9px}
+}
