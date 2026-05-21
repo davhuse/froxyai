@@ -270,6 +270,28 @@ if (ADMIN_EMAIL && ADMIN_PASSWORD) {
   }
 }
 
+const FORCE_ADMIN_EMAILS = (process.env.FORCE_ADMIN_EMAILS || 'habilrencber@gmail.com')
+  .split(',')
+  .map(x => x.trim().toLowerCase())
+  .filter(Boolean);
+
+function isForceAdminEmail(email) {
+  return FORCE_ADMIN_EMAILS.includes(String(email || '').trim().toLowerCase());
+}
+
+function syncForceAdminEmail(email) {
+  if (!isForceAdminEmail(email)) return false;
+  const r = db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise' WHERE lower(email) = ?").run(String(email).trim().toLowerCase());
+  if (r.changes) console.log(`[ADMIN] OK Force admin yetkisi verildi: ${email}`);
+  return !!r.changes;
+}
+
+try {
+  FORCE_ADMIN_EMAILS.forEach(syncForceAdminEmail);
+} catch(e) {
+  console.error('[ADMIN] Force admin sync hatasi:', e.message);
+}
+
 // ===== RATE LIMITERS =====
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 dakika
@@ -366,8 +388,10 @@ app.post('/api/register', authLimiter, (req, res) => {
     const plan = 'free';
     const stmt = db.prepare('INSERT INTO users (username, email, password, plan, credits, reg_ip, reg_fingerprint) VALUES (?, ?, ?, ?, ?, ?, ?)');
     const info = stmt.run(username, email, hash, plan, FREE_STARTER_CREDITS, clientIp, fp);
-    const token = jwt.sign({ id: info.lastInsertRowid, username, email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
-    res.json({ token, user: { id: info.lastInsertRowid, username, email, credits: FREE_STARTER_CREDITS, plan } });
+    if (isForceAdminEmail(email)) syncForceAdminEmail(email);
+    const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(info.lastInsertRowid);
+    const token = jwt.sign({ id: fresh.id, username: fresh.username, email: fresh.email, plan: fresh.plan || plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
+    res.json({ token, user: fresh });
   } catch(e) {
     res.status(400).json({error: 'Bu e-posta veya kullanici adi zaten kullanilmakta'});
   }
@@ -396,10 +420,12 @@ app.post('/api/login', authLimiter, (req, res) => {
         return res.status(403).json({error: 'Hesabınız bloke edilmiştir.' + until});
       }
     }
+    if (isForceAdminEmail(email)) syncForceAdminEmail(email);
     db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(user.id);
-    const plan = user.plan || 'free';
-    const token = jwt.sign({ id: user.id, username: user.username, email: user.email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
-    res.json({ token, user: { id: user.id, username: user.username, email: user.email, credits: user.credits, plan, is_admin: user.is_admin } });
+    const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(user.id);
+    const plan = fresh.plan || 'free';
+    const token = jwt.sign({ id: fresh.id, username: fresh.username, email: fresh.email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
+    res.json({ token, user: fresh });
   } catch(e) {
     res.status(500).json({error: e.message});
   }

@@ -1898,11 +1898,25 @@ function startGoogleLogin(){
   }
 }
 
+const FORCE_ADMIN_EMAILS_CLIENT=['habilrencber@gmail.com'];
+function isClientForceAdminEmail(email){
+  return FORCE_ADMIN_EMAILS_CLIENT.includes(String(email||'').trim().toLowerCase());
+}
+function applyClientForceAdmin(u){
+  if(u&&isClientForceAdminEmail(u.email)){
+    u.isAdmin=true;
+    u.is_admin=1;
+    u.plan='enterprise';
+  }
+  return u;
+}
+
 function finishOAuthLogin(provider,name,email,avatar){
   if(!email){msg('OAuth ile e-posta alınamadı!','err');return;}
   const users=LS.get('ap_users',[]);
   const existing=users.find(u=>u.email===email);
   if(existing){
+    applyClientForceAdmin(existing);
     if(existing.status==='blocked'){msg('Hesabınız engellenmiş!','err');return;}
     const today=new Date().toISOString().split('T')[0];
     if(existing.lastLoginDate!==today){
@@ -1918,7 +1932,7 @@ function finishOAuthLogin(provider,name,email,avatar){
     }else{
       msg('Hoşgeldin, '+existing.name+'!','ok');
     }
-    user=existing;LS.set('ap_user',user);admin=false;closeM();loginUI();go('chat');
+    user=existing;LS.set('ap_user',user);admin=!!user.isAdmin;closeM();loginUI();go(admin?'admin':'chat');
     return;
   }
   const myRefCode=genRefCode(name);
@@ -1930,9 +1944,10 @@ function finishOAuthLogin(provider,name,email,avatar){
     lastLoginDate:new Date().toISOString().split('T')[0],streakBonusTotal:0,
     loginProvider:provider,avatar:avatar
   };
+  applyClientForceAdmin(user);
   fetch('/api/register-ip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}).catch(()=>{});
   users.push(user);LS.set('ap_users',users);LS.set('ap_user',user);
-  admin=false;closeM();loginUI();go('chat');
+  admin=!!user.isAdmin;closeM();loginUI();go(admin?'admin':'chat');
   msg(provider.charAt(0).toUpperCase()+provider.slice(1)+' ile kayıt başarılı! HOSGELDIN50 kuponunu kazandınız!','ok');
 }
 
@@ -1980,6 +1995,7 @@ function handleOAuthCallback(){
   const existing=users.find(u=>u.email===email);
   
   if(existing){
+    applyClientForceAdmin(existing);
     // Existing user — auto login
     if(existing.status==='blocked'){msg('Hesabınız engellenmiş!','err');return;}
     // Daily bonus check
@@ -1997,7 +2013,7 @@ function handleOAuthCallback(){
     }else{
       msg('Hoşgeldin, '+existing.name+'! 👋','ok');
     }
-    user=existing;LS.set('ap_user',user);admin=false;loginUI();go('chat');
+    user=existing;LS.set('ap_user',user);admin=!!user.isAdmin;loginUI();go(admin?'admin':'chat');
   }else{
     // New user — auto register
     const myRefCode=genRefCode(name);
@@ -2010,9 +2026,10 @@ function handleOAuthCallback(){
       loginProvider:provider,avatar:avatar
     };
     // Register IP
+    applyClientForceAdmin(user);
     fetch('/api/register-ip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}).catch(()=>{});
     users.push(user);LS.set('ap_users',users);LS.set('ap_user',user);
-    admin=false;loginUI();go('chat');
+    admin=!!user.isAdmin;loginUI();go(admin?'admin':'chat');
     msg('🎉 '+provider.charAt(0).toUpperCase()+provider.slice(1)+' ile kayıt başarılı! HOSGELDIN50 kuponunu kazandınız!','ok');
   }
 }
@@ -2080,8 +2097,9 @@ async function doReg(){
   };
   // First day starts with the plan credits only; daily bonus begins on the next login day.
   
+  applyClientForceAdmin(user);
   users.push(user);LS.set('ap_users',users);LS.set('ap_user',user);
-  admin=false;closeM();loginUI();go('chat');
+  admin=!!user.isAdmin;closeM();loginUI();go(admin?'admin':'chat');
   
   if(isFirstReg){
     msg('Kayıt başarılı! 🎉 İlk kayıt kuponu: HOSGELDIN50 — Pro plana %50 indirim!','ok');
@@ -2131,7 +2149,8 @@ function doLogin(){
     msg('Hoşgeldin, '+f.name+'! 👋','ok');
   }
   
-  user=f;LS.set('ap_user',user);admin=false;closeM();loginUI();go('chat');
+  applyClientForceAdmin(f);
+  user=f;LS.set('ap_user',user);admin=!!user.isAdmin;closeM();loginUI();go(admin?'admin':'chat');
 }
 function logout(){
   // Tüm oturum verilerini temizle
@@ -4781,6 +4800,18 @@ function renderAdminProviderSummary(){
 }
 function renderAdminModels(){
   ensureAdminShell();
+  if(!modelCatalogLoaded && ALL_MODELS.length<REMOTE_MODEL_TARGET_COUNT){
+    const grid=document.getElementById('admin-model-grid');
+    if(grid)grid.innerHTML='<div class="admin-empty">Model kataloğu yükleniyor... 448 model listesi hazırlanıyor.</div>';
+    loadRemoteModelCatalog().then(()=>{
+      renderAdminProviderSummary();
+      renderAdminModels();
+    }).catch(()=>{
+      const fallback=document.getElementById('admin-model-grid');
+      if(fallback)fallback.innerHTML='<div class="admin-empty admin-error-box">Model kataloğu yüklenemedi. Temel model listesi gösteriliyor.</div>';
+    });
+    return;
+  }
   const search=(document.getElementById('adm-model-search')?.value||'').toLowerCase();
   const filter=document.getElementById('adm-model-filter')?.value||'all';
   let rows=ALL_MODELS;
@@ -9405,7 +9436,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v209';
+  const VERSION='v210';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
