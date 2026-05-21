@@ -1125,6 +1125,24 @@ app.get('/auth/google/callback', async (req, res) => {
   }
 });
 
+app.post('/api/oauth/google-token', async (req, res) => {
+  const accessToken = String(req.body?.access_token || '').trim();
+  if (!accessToken) return res.status(400).json({ error: 'Google access token eksik.' });
+  try {
+    const profile = await httpsRequest('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    const auth = upsertOAuthUser({
+      provider: 'google',
+      email: profile.email || '',
+      name: profile.name || profile.email || 'Google User'
+    });
+    res.json({ token: auth.token, user: auth.user });
+  } catch (e) {
+    res.status(401).json({ error: 'Google oturumu dogrulanamadi: ' + e.message });
+  }
+});
+
 // API Keys & Base URLs per provider
 const fromEnv = (name, fallback = '') => process.env[name] || fallback;
 const GEMINI_KEYS = (process.env.GEMINI_API_KEYS || [

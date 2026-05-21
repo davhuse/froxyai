@@ -1838,6 +1838,10 @@ function socialLogin(provider){
   const names={github:'GitHub',google:'Google'};
   const pName=names[provider]||provider;
   const authUrl=(API_ORIGIN||'')+'/auth/'+provider+'?return_to='+encodeURIComponent(location.origin);
+  if(provider==='google'){
+    startGoogleLogin();
+    return;
+  }
   // Check if configured before redirecting
   fetch(authUrl,{redirect:'manual'}).then(r=>{
     const loc=r.headers.get('location')||'';
@@ -1880,9 +1884,26 @@ function startGoogleLogin(){
         }
         if(!tokenRes?.access_token){msg('Google girişi tamamlanamadı.','err');return;}
         try{
-          const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+tokenRes.access_token}});
-          const profile=await r.json();
-          finishOAuthLogin('google',profile.name||'Google Kullanıcısı',profile.email||'',profile.picture||'');
+          const br=await fetch('/api/oauth/google-token',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({access_token:tokenRes.access_token})
+          });
+          const bd=await readApiJson(br);
+          if(!br.ok||!bd.token||!bd.user)throw new Error((bd&&bd.error)||'Backend oturumu alinamadi');
+          authToken=bd.token;
+          authUser=bd.user;
+          authUser.plan=normalizePlanId(authUser.plan||'free');
+          applyClientForceAdmin(authUser);
+          localStorage.setItem('saas_token',authToken);
+          localStorage.setItem('saas_user',JSON.stringify(authUser));
+          syncAuthUserToLocal();
+          loginUI();
+          updateCreditsUI();
+          renderModelSelect();
+          closeM();
+          go((authUser.is_admin||authUser.isAdmin)?'admin':'chat');
+          msg('Google ile giris tamamlandi.','ok');
         }catch(e){
           msg('Google profil bilgisi alınamadı: '+e.message,'err');
         }
@@ -9477,7 +9498,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v211';
+  const VERSION='v212';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
