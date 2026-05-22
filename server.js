@@ -3370,7 +3370,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
   }
 
   // 1) POLLINATIONS (Ücretsiz Modeller ve Stiller) — retry + model rotation
-  if (['flux', 'turbo', 'sana', 'zimage', 'klein', 'gptimage', 'wan-image', 'qwen-image'].includes(imgModel) || imgModel.startsWith('style-')) {
+  if (['flux', 'turbo', 'sana', 'zimage', 'klein', 'gptimage', 'wan-image', 'qwen-image', 'flux-realism', 'flux-anime', 'flux-3d'].includes(imgModel) || imgModel.startsWith('style-')) {
     let finalPrompt = prompt;
     
     // === CLOUDFLARE WORKERS AI PRIMARY (12s, 10K/gün ÜCRETSİZ, YENİLENİYOR) ===
@@ -3481,7 +3481,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
         const seed = Date.now() + attempt * 7777 + Math.floor(Math.random() * 99999);
-        const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?model=flux&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
+        const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?model=${encodeURIComponent(finalModel)}&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 60000);
         const response = await fetch(imgUrl, {
@@ -4228,7 +4228,7 @@ function getModelCreditCost(model, provider) {
   if (m.includes('imagen-4-fast')) return 15;
   if (m.includes('imagen-4-ultra')) return MODEL_CREDIT_COST.image_ultra;
   if (m.includes('imagen-4') || m.includes('gpt-image')) return MODEL_CREDIT_COST.image_mid;
-  if (m === 'flux' || m.includes('style-') || m === 'turbo' || m === 'sana' || m.includes('cf-sdxl')) return MODEL_CREDIT_COST.image_free;
+  if (m === 'flux' || m.includes('style-') || m === 'turbo' || m === 'sana' || m.includes('cf-sdxl') || m.includes('flux-') || m === 'together-flux') return MODEL_CREDIT_COST.image_free;
   
   // ── HEAVY (50 kredi) — en pahali modeller ──
   const heavyModels = [
@@ -4305,7 +4305,7 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
   
   // Free image models still cost bandwidth credits
   let cost = MODEL_CREDIT_COST.image_free; // default 8
-  if (['flux','turbo','sana','cf-sdxl'].includes(m) || m.startsWith('style-')) {
+  if (['flux','turbo','sana','cf-sdxl','together-flux'].includes(m) || m.startsWith('style-') || m.startsWith('flux-')) {
     cost = MODEL_CREDIT_COST.image_free; // 8 kredi
   } else if (m.includes('imagen-4-fast')) {
     cost = 15; // fast = cheaper
@@ -4356,6 +4356,11 @@ app.get('/api/models', (req, res) => {
   const models = [
     {id:'flux', name:'Flux AI', provider:'cloudflare-sdxl', type:'image'},
     {id:'cf-sdxl', name:'Cloudflare SDXL', provider:'cloudflare', type:'image'},
+    {id:'together-flux', name:'Together Flux', provider:'together', type:'image'},
+    {id:'flux-realism', name:'Flux Realism', provider:'pollinations', type:'image'},
+    {id:'flux-anime', name:'Flux Anime', provider:'pollinations', type:'image'},
+    {id:'flux-3d', name:'Flux 3D', provider:'pollinations', type:'image'},
+    {id:'sana', name:'Sana Image', provider:'pollinations', type:'image'},
     {id:'stability-core', name:'Stability Core', provider:'stability', type:'image'},
     {id:'stability-ultra', name:'Stability Ultra HD', provider:'stability', type:'image'},
     {id:'imagen-4', name:'Imagen 4.0', provider:'gemini', type:'image'},
