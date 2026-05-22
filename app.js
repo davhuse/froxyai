@@ -10739,11 +10739,11 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
       host.className='admin-card admin-shopier-payments-v215';
       target.appendChild(host);
     }
-    host.innerHTML='<div class="admin-card-header"><h3>Shopier ödeme akışı</h3><button class="admin-chip-btn" onclick="renderAdminShopierPaymentsV215()">Yenile</button></div><div class="admin-card-body admin-mini-loading">Ödemeler okunuyor...</div>';
+    host.innerHTML='<div class="admin-card-header"><h3>Shopier ödeme akışı</h3><div class="admin-shopier-actions-v216"><button class="admin-chip-btn" onclick="syncShopierOrdersV216()">Siparişleri eşitle</button><button class="admin-chip-btn" onclick="registerShopierWebhookV216()">Webhook kur</button><button class="admin-chip-btn" onclick="renderAdminShopierPaymentsV215()">Yenile</button></div></div><div class="admin-card-body admin-mini-loading">Ödemeler okunuyor...</div>';
     try{
       const api=await adminApiJson('/api/admin/shopier-payments');
       const rows=api.ok?(api.data.payments||[]):[];
-      host.innerHTML='<div class="admin-card-header"><h3>Shopier ödeme akışı</h3><button class="admin-chip-btn" onclick="renderAdminShopierPaymentsV215()">Yenile</button></div><div class="admin-card-body">'+(rows.length?'<div class="admin-shopier-list-v215">'+rows.slice(0,14).map(r=>{
+      host.innerHTML='<div class="admin-card-header"><h3>Shopier ödeme akışı</h3><div class="admin-shopier-actions-v216"><button class="admin-chip-btn" onclick="syncShopierOrdersV216()">Siparişleri eşitle</button><button class="admin-chip-btn" onclick="registerShopierWebhookV216()">Webhook kur</button><button class="admin-chip-btn" onclick="renderAdminShopierPaymentsV215()">Yenile</button></div></div><div class="admin-card-body">'+(rows.length?'<div class="admin-shopier-list-v215">'+rows.slice(0,14).map(r=>{
         const cls=String(r.status||'pending').replace(/[^a-z0-9_-]/gi,'');
         const plan=(typeof adminPlanName==='function')?adminPlanName(r.plan):r.plan;
         return '<article class="'+esc(cls)+'"><div><strong>'+esc(r.email||r.username||'Eşleşme bekliyor')+'</strong><span>'+esc(plan||'-')+' · +'+Number(r.credits||0).toLocaleString('tr-TR')+' kredi · '+fmtShopierDateV215(r.created_at)+'</span></div><em>'+esc(shopierStatusLabelV215(r.status))+'</em><small>'+esc(r.payment_id||r.platform_order_id||'-')+'</small></article>';
@@ -10753,6 +10753,30 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
     }
   }
   window.renderAdminShopierPaymentsV215=renderAdminShopierPaymentsV215;
+
+  window.syncShopierOrdersV216=async function(){
+    try{
+      if(typeof msg==='function')msg('Shopier siparişleri kontrol ediliyor...','info');
+      const api=await adminApiJson('/api/admin/shopier-sync-orders',{method:'POST',body:JSON.stringify({limit:30})});
+      if(!api.ok)throw new Error(api.data?.error||'Siparişler alınamadı');
+      const applied=(api.data.results||[]).filter(x=>x.ok&&x.status==='applied').length;
+      if(typeof msg==='function')msg('Shopier eşitleme tamamlandı. Yüklenen: '+applied,'ok');
+      renderAdminShopierPaymentsV215();
+    }catch(e){
+      if(typeof msg==='function')msg(e.message||'Shopier eşitleme başarısız','err');
+    }
+  };
+
+  window.registerShopierWebhookV216=async function(){
+    try{
+      if(typeof msg==='function')msg('Shopier webhook kuruluyor...','info');
+      const api=await adminApiJson('/api/admin/shopier-register-webhook',{method:'POST',body:JSON.stringify({})});
+      if(!api.ok)throw new Error(api.data?.error||'Webhook kurulamadı');
+      if(typeof msg==='function')msg('Shopier webhook hazır: '+(api.data.url||''),'ok');
+    }catch(e){
+      if(typeof msg==='function')msg(e.message||'Shopier webhook kurulamadı','err');
+    }
+  };
 
   const oldAdminTabV215=window.adminTab || (typeof adminTab==='function'?adminTab:null);
   if(oldAdminTabV215&&!window.__adminTabShopierV215Wrapped){

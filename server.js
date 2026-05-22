@@ -78,7 +78,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json({limit: '50mb'}));
+app.use(express.json({
+  limit: '50mb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf ? buf.toString('utf8') : '';
+  }
+}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -260,6 +265,7 @@ const SHOPIER_PACKAGE_CATALOG = {
 };
 const SHOPIER_PRODUCT_TO_PLAN = Object.fromEntries(Object.entries(SHOPIER_PACKAGE_CATALOG).map(([plan, pack]) => [pack.productId, plan]));
 const SHOPIER_STATIC_URLS = Object.fromEntries(Object.entries(SHOPIER_PACKAGE_CATALOG).map(([plan, pack]) => [plan, `https://www.shopier.com/froxyai/${pack.productId}`]));
+const SHOPIER_API_BASE = process.env.SHOPIER_API_BASE || 'https://api.shopier.com/v1';
 
 function getShopierPlan(plan) {
   return SHOPIER_PACKAGE_CATALOG[String(plan || '').trim()] || SHOPIER_PACKAGE_CATALOG.starter;
@@ -486,37 +492,38 @@ function getShopierPayload(req) {
 }
 
 function getShopierPaymentId(payload) {
-  return shopierString(payload.payment_id || payload.paymentId || payload.order_id || payload.orderId || payload.id || payload.platform_order_id || payload.platform_orderId || payload.platform_order);
+  return shopierString(payload.payment_id || payload.paymentId || payload.order_id || payload.orderId || payload.orderNumber || payload.id || payload.platform_order_id || payload.platform_orderId || payload.platform_order || payload.data?.id || payload.data?.orderNumber);
 }
 
 function getShopierOrderId(payload) {
-  return shopierString(payload.platform_order_id || payload.platform_orderId || payload.platform_order || payload.order_id || payload.orderId);
+  return shopierString(payload.platform_order_id || payload.platform_orderId || payload.platform_order || payload.order_id || payload.orderId || payload.orderNumber || payload.id || payload.data?.id || payload.data?.orderNumber);
 }
 
 function getShopierProductId(payload) {
-  const raw = shopierString(payload.product_id || payload.productId || payload.product || payload.item_id || payload.itemId);
+  const item = Array.isArray(payload.lineItems) ? payload.lineItems[0] : (Array.isArray(payload.items) ? payload.items[0] : null);
+  const raw = shopierString(payload.product_id || payload.productId || payload.product || payload.item_id || payload.itemId || item?.productId || item?.product_id || item?.id || payload.data?.productId);
   const match = raw.match(/\d{6,}/);
   return match ? match[0] : raw;
 }
 
 function getShopierEmail(payload) {
-  return shopierString(payload.buyer_email || payload.email || payload.customer_email || payload.mail).toLowerCase();
+  return shopierString(payload.buyer_email || payload.email || payload.customer_email || payload.mail || payload.customer?.email || payload.buyer?.email || payload.billingAddress?.email || payload.shippingAddress?.email).toLowerCase();
 }
 
 function getShopierAmount(payload) {
-  const raw = shopierString(payload.total_order_value || payload.total || payload.amount || payload.price).replace(',', '.');
+  const raw = shopierString(payload.total_order_value || payload.total || payload.totalPrice || payload.total_price || payload.amount || payload.price || payload.payment?.amount).replace(',', '.');
   const value = Number(raw);
   return Number.isFinite(value) ? value : null;
 }
 
 function getShopierStatus(payload) {
-  return shopierString(payload.status || payload.payment_status || payload.transaction_status || payload.result).toLowerCase();
+  return shopierString(payload.status || payload.payment_status || payload.paymentStatus || payload.transaction_status || payload.result || payload.data?.status).toLowerCase();
 }
 
 function isShopierSuccess(payload) {
   const status = getShopierStatus(payload);
   if (!status) return true;
-  return ['success', 'successful', 'paid', 'approved', '1', 'ok', 'completed'].includes(status);
+  return ['success', 'successful', 'paid', 'approved', '1', 'ok', 'completed', 'fulfilled', 'created'].includes(status);
 }
 
 function getShopierPlanFromPayload(payload) {
@@ -524,7 +531,8 @@ function getShopierPlanFromPayload(payload) {
   if (orderPlan) return orderPlan;
   const productId = getShopierProductId(payload);
   if (productId && SHOPIER_PRODUCT_TO_PLAN[productId]) return SHOPIER_PRODUCT_TO_PLAN[productId];
-  const text = `${payload.product_name || ''} ${payload.productName || ''} ${payload.item_name || ''}`.toLowerCase();
+  const item = Array.isArray(payload.lineItems) ? payload.lineItems[0] : (Array.isArray(payload.items) ? payload.items[0] : null);
+  const text = `${payload.product_name || ''} ${payload.productName || ''} ${payload.item_name || ''} ${item?.title || ''} ${item?.name || ''}`.toLowerCase();
   if (/kurumsal|enterprise/.test(text)) return 'enterprise';
   if (/isletme|i\u015fletme|business/.test(text)) return 'business';
   if (/gelistirici|geli\u015ftirici|developer/.test(text)) return 'developer';
@@ -538,7 +546,7 @@ function getShopierUserIdFromPayload(payload) {
   const orderId = getShopierOrderId(payload);
   const match = String(orderId || '').match(/FRX-(\d+)-/);
   if (match) return Number(match[1]);
-  const buyer = Number(payload.buyer_id || payload.user_id || payload.userId || 0);
+  const buyer = Number(payload.buyer_id || payload.user_id || payload.userId || payload.customer?.id || payload.buyer?.id || 0);
   return Number.isFinite(buyer) && buyer > 0 ? buyer : null;
 }
 
@@ -549,13 +557,19 @@ function safeEqual(a, b) {
 }
 
 function verifyShopierRequest(req, payload) {
+  if (payload.__verifiedViaShopierApi) return { verified: true, method: 'shopier_api' };
   const callbackSecret = process.env.SHOPIER_CALLBACK_SECRET;
   const suppliedSecret = req.headers['x-froxy-webhook-secret'] || req.headers['x-shopier-webhook-secret'] || payload.secret;
   if (callbackSecret && suppliedSecret && safeEqual(callbackSecret, suppliedSecret)) return { verified: true, method: 'callback_secret' };
 
-  const apiSecret = process.env.SHOPIER_API_SECRET;
+  const apiSecret = process.env.SHOPIER_WEBHOOK_SECRET || process.env.SHOPIER_API_SECRET || process.env.SHOPIER_PERSONAL_ACCESS_TOKEN || process.env.SHOPIER_ACCESS_TOKEN;
   const signature = shopierString(payload.signature || req.headers['x-shopier-signature']);
   if (!apiSecret || !signature) return { verified: false, method: 'missing_signature' };
+  if (req.rawBody) {
+    const rawDigest = crypto.createHmac('sha256', apiSecret).update(req.rawBody).digest('hex');
+    const rawDigestBase64 = crypto.createHmac('sha256', apiSecret).update(req.rawBody).digest('base64');
+    if (safeEqual(signature, rawDigest) || safeEqual(signature, rawDigestBase64)) return { verified: true, method: 'raw_hmac' };
+  }
   const random = shopierString(payload.random_nr || payload.random || payload.randomNr);
   const orderId = getShopierOrderId(payload);
   const amount = shopierString(payload.total_order_value || payload.total || payload.amount || payload.price);
@@ -576,7 +590,8 @@ function verifyShopierRequest(req, payload) {
 
 function recordShopierPayment({ payload, paymentId, orderId, plan, pack, userId, verified, status }) {
   const productId = getShopierProductId(payload);
-  const productName = shopierString(payload.product_name || payload.productName || payload.item_name || pack?.label || plan || '');
+  const item = Array.isArray(payload.lineItems) ? payload.lineItems[0] : (Array.isArray(payload.items) ? payload.items[0] : null);
+  const productName = shopierString(payload.product_name || payload.productName || payload.item_name || item?.title || item?.name || pack?.label || plan || '');
   const email = getShopierEmail(payload);
   const amount = getShopierAmount(payload);
   const currency = shopierString(payload.currency || 'TRY') || 'TRY';
@@ -633,6 +648,61 @@ function applyShopierPayment(req, payload) {
   });
   const applied = tx();
   return { ok: true, status: applied.already ? 'already_applied' : 'applied', payment_id: paymentId, plan, credits: pack.credits, user: applied.user };
+}
+
+function getShopierAccessToken() {
+  return process.env.SHOPIER_PERSONAL_ACCESS_TOKEN || process.env.SHOPIER_ACCESS_TOKEN || process.env.SHOPIER_PAT || '';
+}
+
+function shopierApiRequest(method, apiPath, body) {
+  return new Promise((resolve, reject) => {
+    const token = getShopierAccessToken();
+    if (!token) return reject(new Error('SHOPIER_PERSONAL_ACCESS_TOKEN eksik.'));
+    const url = new URL(apiPath, SHOPIER_API_BASE.endsWith('/') ? SHOPIER_API_BASE : SHOPIER_API_BASE + '/');
+    const data = body ? JSON.stringify(body) : null;
+    const req = https.request(url, {
+      method,
+      headers: Object.assign({
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/json'
+      }, data ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) } : {})
+    }, (resp) => {
+      let raw = '';
+      resp.on('data', chunk => raw += chunk);
+      resp.on('end', () => {
+        let json = null;
+        try { json = raw ? JSON.parse(raw) : null; } catch(e) {}
+        if (resp.statusCode >= 200 && resp.statusCode < 300) return resolve({ status: resp.statusCode, data: json, raw });
+        const err = new Error((json && (json.message || json.error)) || raw || ('Shopier API hata: ' + resp.statusCode));
+        err.status = resp.statusCode;
+        err.data = json;
+        reject(err);
+      });
+    });
+    req.on('error', reject);
+    if (data) req.write(data);
+    req.end();
+  });
+}
+
+function normalizeShopierOrder(order) {
+  return Object.assign({}, order || {}, {
+    __verifiedViaShopierApi: true,
+    id: order?.id || order?.orderNumber,
+    orderNumber: order?.orderNumber || order?.id,
+    email: order?.customer?.email || order?.buyer?.email || order?.email || order?.billingAddress?.email,
+    status: order?.status || order?.paymentStatus || order?.payment_status || 'paid',
+    total: order?.total || order?.totalPrice || order?.total_price,
+    lineItems: order?.lineItems || order?.items || []
+  });
+}
+
+function extractShopierOrders(apiData) {
+  if (Array.isArray(apiData)) return apiData;
+  if (Array.isArray(apiData?.data)) return apiData.data;
+  if (Array.isArray(apiData?.orders)) return apiData.orders;
+  if (Array.isArray(apiData?.items)) return apiData.items;
+  return [];
 }
 
 
@@ -842,6 +912,45 @@ app.get('/api/admin/shopier-payments', adminMiddleware, (req, res) => {
       LIMIT 200`).all();
     res.json({ payments });
   } catch(e) { res.status(500).json({error: e.message}); }
+});
+
+// POST /api/admin/shopier-sync-orders
+app.post('/api/admin/shopier-sync-orders', adminMiddleware, async (req, res) => {
+  try {
+    const limit = Math.max(1, Math.min(50, Number(req.body.limit || 20)));
+    const api = await shopierApiRequest('GET', `orders?limit=${limit}`);
+    const orders = extractShopierOrders(api.data);
+    const results = [];
+    for (const order of orders) {
+      try {
+        results.push(applyShopierPayment(req, normalizeShopierOrder(order)));
+      } catch(e) {
+        results.push({ ok: false, status: 'error', error: e.message, payment_id: order?.id || order?.orderNumber || null });
+      }
+    }
+    logActivity(req.user.id, 'shopier_sync_orders', `${orders.length} siparis kontrol edildi`);
+    res.json({ success: true, checked: orders.length, results });
+  } catch(e) {
+    res.status(e.status || 500).json({ error: e.message || 'Shopier siparişleri alınamadı.' });
+  }
+});
+
+// POST /api/admin/shopier-register-webhook
+app.post('/api/admin/shopier-register-webhook', adminMiddleware, async (req, res) => {
+  try {
+    const publicBase = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const callbackUrl = req.body.url || `${publicBase.replace(/\/$/, '')}/api/shopier/callback`;
+    const payload = {
+      url: callbackUrl,
+      events: req.body.events || ['order.created'],
+      isActive: true
+    };
+    const api = await shopierApiRequest('POST', 'webhooks', payload);
+    logActivity(req.user.id, 'shopier_register_webhook', callbackUrl);
+    res.json({ success: true, webhook: api.data || api.raw, url: callbackUrl });
+  } catch(e) {
+    res.status(e.status || 500).json({ error: e.message || 'Shopier webhook oluşturulamadı.' });
+  }
 });
 
 // POST /api/shopier/start
