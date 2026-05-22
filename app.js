@@ -10301,6 +10301,14 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
 (function(){
   var startedAt=Date.now();
   var MIN_SPLASH_MS=2650;
+  try {
+    if (window.sessionStorage && window.sessionStorage.getItem('froxy_splash_shown')) {
+      MIN_SPLASH_MS=200; // subsequent visits load instantly!
+    } else if (window.sessionStorage) {
+      window.sessionStorage.setItem('froxy_splash_shown', '1');
+    }
+  } catch(e) {}
+
   function hideFroxySplash(){
     var splash=document.getElementById('froxy-splash');
     if(!splash)return;

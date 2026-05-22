@@ -1,4 +1,4 @@
-﻿const crypto = require('crypto');
+const crypto = require('crypto');
 const { createId, safeJsonParse } = require('./model-catalog');
 
 function optionalRequire(name) {
@@ -120,6 +120,9 @@ function openAiError(res, status, message, type = 'invalid_request_error') {
   return res.status(status).json({ error: { message, type } });
 }
 
+const lastApiKeyUsedUpdate = new Map();
+const lastMetricUpdate = new Map();
+
 function createGatewayAuth({ db, jwt, activeJwtSecret }) {
   return async function gatewayAuthMiddleware(req, res, next) {
     try {
@@ -143,7 +146,15 @@ function createGatewayAuth({ db, jwt, activeJwtSecret }) {
         if (apiKey.status !== 'active') return openAiError(res, 403, 'API key is not active', 'authentication_error');
         if (apiKey.workspace_status !== 'active' || apiKey.organization_status !== 'active') return openAiError(res, 403, 'Workspace is not active', 'authentication_error');
         if (apiKey.expires_at && new Date(apiKey.expires_at).getTime() <= Date.now()) return openAiError(res, 403, 'API key expired', 'authentication_error');
-        db.prepare('UPDATE workspace_api_keys SET last_used_at = CURRENT_TIMESTAMP WHERE id = ?').run(apiKey.id);
+        
+        const now = Date.now();
+        const lastUsedUpdate = lastApiKeyUsedUpdate.get(apiKey.id) || 0;
+        if (now - lastUsedUpdate > 30000) { // update last_used_at at most once every 30 seconds
+          lastApiKeyUsedUpdate.set(apiKey.id, now);
+          setImmediate(() => {
+            try { db.prepare('UPDATE workspace_api_keys SET last_used_at = CURRENT_TIMESTAMP WHERE id = ?').run(apiKey.id); } catch(_) {}
+          });
+        }
         req.gatewayAuth = {
           type: 'api_key',
           apiKeyId: apiKey.id,
@@ -270,17 +281,22 @@ function createAnomalyDetector({ db }) {
         if (auth.workspaceId) db.prepare("UPDATE workspaces SET status = 'suspended' WHERE id = ?").run(auth.workspaceId);
         return openAiError(res, 403, 'API key temporarily suspended due to anomalous traffic', 'authentication_error');
       }
-      setImmediate(() => {
-        try {
-          const currentRpm = count / 5;
-          const nextBaseline = (baselineRpm * 0.95) + (currentRpm * 0.05);
-          db.prepare(`
-            INSERT INTO api_key_metrics (subject_id, baseline_rpm, last_window_count, updated_at)
-            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-            ON CONFLICT(subject_id) DO UPDATE SET baseline_rpm = ?, last_window_count = ?, updated_at = CURRENT_TIMESTAMP
-          `).run(subject, nextBaseline, count, nextBaseline, count);
-        } catch (_) {}
-      });
+      const now = Date.now();
+      const lastUpdate = lastMetricUpdate.get(subject) || 0;
+      if (now - lastUpdate > 10000) { // update metrics baseline at most once every 10 seconds per subject
+        lastMetricUpdate.set(subject, now);
+        setImmediate(() => {
+          try {
+            const currentRpm = count / 5;
+            const nextBaseline = (baselineRpm * 0.95) + (currentRpm * 0.05);
+            db.prepare(`
+              INSERT INTO api_key_metrics (subject_id, baseline_rpm, last_window_count, updated_at)
+              VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+              ON CONFLICT(subject_id) DO UPDATE SET baseline_rpm = ?, last_window_count = ?, updated_at = CURRENT_TIMESTAMP
+            `).run(subject, nextBaseline, count, nextBaseline, count);
+          } catch (_) {}
+        });
+      }
       return next();
     } catch (err) {
       console.warn('[ANOMALY]', err.message);

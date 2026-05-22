@@ -1,4 +1,4 @@
-﻿const { createId, DEFAULT_PRICING, normalizePricing } = require('./model-catalog');
+const { createId, DEFAULT_PRICING, normalizePricing } = require('./model-catalog');
 const { getRedisClient } = require('./security');
 
 function optionalRequire(name) {
@@ -131,6 +131,70 @@ function persistWorkspaceBalance(db, workspaceId, balance) {
 
 function createBillingEngine({ db }) {
   let usageQueuePromise = null;
+  const logBuffer = [];
+  let flushTimeout = null;
+
+  const insertUsageStmt = db.prepare(`
+    INSERT INTO usage_events (
+      id, workspace_id, api_key_id, user_id, endpoint, model_id, provider, latency_ms,
+      prompt_tokens, completion_tokens, reasoning_tokens, cache_read_tokens, cache_write_tokens,
+      image_units, cost_usd, status, request_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const flushUsageBuffer = db.transaction((events) => {
+    for (const payload of events) {
+      insertUsageStmt.run(
+        payload.id,
+        payload.workspace_id || null,
+        payload.api_key_id || null,
+        payload.user_id || null,
+        payload.endpoint || 'unknown',
+        payload.model_id || null,
+        payload.provider || null,
+        Math.trunc(toNumber(payload.latency_ms)),
+        Math.trunc(toNumber(payload.prompt_tokens)),
+        Math.trunc(toNumber(payload.completion_tokens)),
+        Math.trunc(toNumber(payload.reasoning_tokens)),
+        Math.trunc(toNumber(payload.cache_read_tokens)),
+        Math.trunc(toNumber(payload.cache_write_tokens)),
+        Math.trunc(toNumber(payload.image_units)),
+        String(payload.cost_usd || '0'),
+        payload.status || 'ok',
+        payload.request_id || null
+      );
+    }
+  });
+
+  function triggerFlush() {
+    if (flushTimeout) {
+      clearTimeout(flushTimeout);
+      flushTimeout = null;
+    }
+    if (logBuffer.length === 0) return;
+    const batch = [...logBuffer];
+    logBuffer.length = 0;
+    try {
+      flushUsageBuffer(batch);
+    } catch (err) {
+      console.warn('[BILLING_BATCH_FLUSH]', err.message);
+    }
+  }
+
+  function queueUsageEventBatch(payload) {
+    logBuffer.push(payload);
+    if (logBuffer.length >= 50) {
+      triggerFlush();
+    } else if (!flushTimeout) {
+      flushTimeout = setTimeout(triggerFlush, 2000);
+    }
+  }
+
+  try {
+    process.on('exit', () => {
+      try { triggerFlush(); } catch(_) {}
+    });
+  } catch(_) {}
 
   async function getUsageQueue() {
     if (!process.env.REDIS_URL || !process.env.BILLING_QUEUE_ENABLED) return null;
@@ -205,37 +269,7 @@ function createBillingEngine({ db }) {
       await queue.add('usage-event', payload, { removeOnComplete: 10000, removeOnFail: 1000 });
       return payload;
     }
-    setImmediate(() => {
-      try {
-        db.prepare(`
-          INSERT INTO usage_events (
-            id, workspace_id, api_key_id, user_id, endpoint, model_id, provider, latency_ms,
-            prompt_tokens, completion_tokens, reasoning_tokens, cache_read_tokens, cache_write_tokens,
-            image_units, cost_usd, status, request_id
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
-          payload.id,
-          payload.workspace_id || null,
-          payload.api_key_id || null,
-          payload.user_id || null,
-          payload.endpoint || 'unknown',
-          payload.model_id || null,
-          payload.provider || null,
-          Math.trunc(toNumber(payload.latency_ms)),
-          Math.trunc(toNumber(payload.prompt_tokens)),
-          Math.trunc(toNumber(payload.completion_tokens)),
-          Math.trunc(toNumber(payload.reasoning_tokens)),
-          Math.trunc(toNumber(payload.cache_read_tokens)),
-          Math.trunc(toNumber(payload.cache_write_tokens)),
-          Math.trunc(toNumber(payload.image_units)),
-          String(payload.cost_usd || '0'),
-          payload.status || 'ok',
-          payload.request_id || null
-        );
-      } catch (err) {
-        console.warn('[USAGE_EVENT]', err.message);
-      }
-    });
+    queueUsageEventBatch(payload);
     return payload;
   }
 
