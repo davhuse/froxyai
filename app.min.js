@@ -10701,12 +10701,8 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
   }
 
   window.buyTokensById=function(planId){
-    const popup=window.open('about:blank','_blank','noopener,noreferrer');
-    if(popup){
-      popup.document.write('<!doctype html><meta charset="utf-8"><title>Shopier</title><body style="font-family:Inter,Arial;background:#080b16;color:#fff;display:grid;place-items:center;height:100vh;margin:0"><div>Shopier ödeme sayfası hazırlanıyor...</div></body>');
-      popup.document.close();
-    }
-    startShopierCheckout(planId||'starter',popup);
+    const fallback=window.getShopierPlanUrl(planId);
+    window.open(fallback,'_blank','noopener,noreferrer');
   };
   window.buyTokens=function(i){
     const pack=(typeof STORE_PACKS!=='undefined'&&STORE_PACKS[i])?STORE_PACKS[i]:null;
