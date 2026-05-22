@@ -89,7 +89,7 @@
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
-  <link rel="stylesheet" href="style.min.css?v=v220">
+  <link rel="stylesheet" href="style.min.css?v=v221">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="logo-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
@@ -1302,6 +1302,8 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                       <optgroup label="Hızlı Üretim">
                         <option value="cf-sdxl" selected>Cloudflare SDXL — Önerilen</option>
                         <option value="flux">Flux AI</option>
+                        <option value="together-flux">Together Flux — Hızlı</option>
+                        <option value="sana">Sana AI — Çok Hızlı</option>
                       </optgroup>
                       <optgroup label="Stiller (Flux tabanlı)">
                         <option value="style-midjourney">Midjourney V6</option>
@@ -1311,6 +1313,9 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                         <option value="style-cinematic">Cinematic AI</option>
                         <option value="style-3d">Unreal Engine 5</option>
                         <option value="style-cyberpunk">Cyberpunk Vision</option>
+                        <option value="flux-realism">Flux Realizm</option>
+                        <option value="flux-anime">Flux Anime</option>
+                        <option value="flux-3d">Flux 3D</option>
                       </optgroup>
                       <optgroup label="Premium">
                         <option value="stability-core">Stability Core</option>
@@ -2141,7 +2146,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       return false;
     };
   </script>
-  <script src="app.min.js?v=v220" defer></script>
+  <script src="app.min.js?v=v221" defer></script>
 
 <!-- NEW TABS: Görevler, AI Hafıza, Video -->
 <script>
