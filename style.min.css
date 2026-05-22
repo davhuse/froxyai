@@ -22317,3 +22317,62 @@ body.theme-light .coupon-status-card b{color:#0f172a!important}
     max-width: 86px !important;
   }
 }
+
+/* v226 Model picker click authority */
+#ptab-chat .ai-chat-topbar,
+#ptab-chat .ai-chat-top-actions,
+#ptab-chat .professional-tool-dock,
+#ptab-chat .ai-composer-zone {
+  position: relative !important;
+  pointer-events: auto !important;
+}
+
+#ptab-chat .ai-chat-topbar {
+  z-index: 260 !important;
+}
+
+#ptab-chat .ai-chat-top-actions {
+  z-index: 270 !important;
+}
+
+#ptab-chat .ai-composer-zone {
+  z-index: 240 !important;
+}
+
+#ptab-chat .professional-tool-dock {
+  z-index: 255 !important;
+}
+
+#ptab-chat .ai-top-chip,
+#ptab-chat .model-picker-chip,
+#ptab-chat .dock-button.model-picker-chip,
+#ptab-chat .professional-tool-dock button {
+  position: relative !important;
+  z-index: 280 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+}
+
+#ptab-chat .chat-canvas-fx,
+#ptab-chat .chat-fx-grid,
+#ptab-chat .chat-fx-orb,
+#ptab-chat .chat-fx-particle,
+#ptab-chat .ai-empty-state::before,
+#ptab-chat .ai-composer-zone::before,
+#ptab-chat .ai-composer-zone::after {
+  pointer-events: none !important;
+}
+
+#model-picker-overlay {
+  pointer-events: none !important;
+}
+
+#model-picker-overlay.open {
+  pointer-events: auto !important;
+}
+
+#model-picker {
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+}

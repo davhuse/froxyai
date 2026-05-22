@@ -2893,6 +2893,18 @@ function closeModelPicker(){
   document.getElementById('model-picker-overlay')?.classList.remove('open');
   document.body.classList.remove('model-picker-open');
 }
+
+// v226: some late mobile/theme layers can sit above the model buttons; keep a
+// delegated capture handler so every visible model trigger opens the picker.
+document.addEventListener('click',function(e){
+  const trigger=e.target.closest?.('.ai-top-chip,.model-picker-chip,[data-open-model-picker]');
+  if(!trigger)return;
+  if(trigger.closest?.('#model-picker'))return;
+  e.preventDefault();
+  e.stopPropagation();
+  toggleModelPicker(e);
+},true);
+
 function renderModelPicker(filter){
   if(!modelCatalogLoaded && ALL_MODELS.length<200)loadRemoteModelCatalog().catch(()=>{});
   filter=filter||'';
