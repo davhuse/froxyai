@@ -40,48 +40,6 @@
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
   <style>
     :root{--bg:#0B0F1A;--bg2:#111827;--text:#f8fafc;--text2:#94a3b8;--accent:#7c3aed;--accent2:#3b82f6;--font:'Plus Jakarta Sans','Inter',system-ui,-apple-system,sans-serif}
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Froxy AI — Premium AI API Platformu</title>
-  <meta name="description" content="GPT-5, Gemini, Claude API erişimi. Froxy AI ile yapay zeka gücünü keşfedin.">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://froxyai.com">
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Froxy AI — Premium AI API Platformu">
-  <meta property="og:description" content="GPT-5, Gemini, Claude ve 20+ AI modele tek API ile erişin. Ücretsiz başlayın.">
-  <meta property="og:image" content="https://froxyai.com/logo.png">
-  <meta property="og:url" content="https://froxyai.com">
-  <meta property="og:site_name" content="Froxy AI">
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Froxy AI — Premium AI API Platformu">
-  <meta name="twitter:description" content="GPT-5, Gemini, Claude ve 20+ AI modele tek API ile erişin.">
-  <meta name="twitter:image" content="https://froxyai.com/logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="https://image.pollinations.ai">
-  <link rel="preload" href="logo-192.png" as="image" fetchpriority="low">
-  <script>
-  /* Theme bootstrap: FOUC olmasın diye diğer her şeyden önce. */
-  (function(){
-    try{
-      var saved = localStorage.getItem('ap_theme');
-      if(!saved){
-        var mq = window.matchMedia('(prefers-color-scheme: light)');
-        saved = mq && mq.matches ? 'light' : 'dark';
-      }
-      if(saved === 'light') document.documentElement.classList.add('theme-light-pre');
-    }catch(e){}
-  })();
-  </script>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
-  <style>
-    :root{--bg:#0B0F1A;--bg2:#111827;--text:#f8fafc;--text2:#94a3b8;--accent:#7c3aed;--accent2:#3b82f6;--font:'Plus Jakarta Sans','Inter',system-ui,-apple-system,sans-serif}
     *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font)}body{overflow-x:hidden}
     .v{display:none}.v.on{display:block}.nav{height:64px;background:#0b0f1a;border-bottom:1px solid rgba(255,255,255,.08)}
     #v-chat.on{display:block;min-height:100vh;background:linear-gradient(135deg,#0b0f1a,#111827)}
@@ -89,7 +47,7 @@
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
-  <link rel="stylesheet" href="style.min.css?v=v222">
+  <link rel="stylesheet" href="style.min.css?v=v225">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="logo-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
@@ -2146,7 +2104,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       return false;
     };
   </script>
-  <script src="app.min.js?v=v222" defer></script>
+  <script src="app.min.js?v=v225" defer></script>
 
 <!-- NEW TABS: Görevler, AI Hafıza, Video -->
 <script>
@@ -2314,6 +2272,22 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 </div>
+
+<!-- MODEL PICKER MODAL -->
+<div id="model-picker-overlay" onclick="closeModelPicker()"></div>
+<div id="model-picker">
+  <div class="mp-header">
+    <h3>🤖 Model Seçin</h3>
+    <span id="mp-count" style="font-size:12px;color:var(--text3)"></span>
+    <button onclick="closeModelPicker()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;margin-left:auto">✕</button>
+  </div>
+  <input type="text" id="mp-search" placeholder="Model ara..." oninput="filterModels(this.value)" style="width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:13px;box-sizing:border-box;margin-bottom:12px">
+  <div class="mp-body">
+    <div class="mp-sidebar" id="mp-cats"></div>
+    <div class="mp-list" id="mp-list"></div>
+  </div>
+</div>
+
 </body>
 </html>
 

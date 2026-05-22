@@ -21874,3 +21874,446 @@ body.theme-light .coupon-status-card b{color:#0f172a!important}
 .admin-shopier-list-v215 small{grid-column:1/-1;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all}
 .admin-shopier-actions-v216{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
 @media(max-width:640px){.shopier-payment-banner-v215{align-items:flex-start;flex-direction:column;margin:10px}.admin-shopier-list-v215 article{grid-template-columns:1fr}.admin-shopier-list-v215 em{justify-self:start}}
+
+/* ===== v223 Premium Design Overrides & Critical UI Fixes ===== */
+
+/* 1. TOP BAR INTERACTIVE DEADLOCK FIX */
+.ai-chat-topbar {
+  position: relative !important;
+  z-index: 100 !important;
+  pointer-events: auto !important;
+}
+
+/* 2. MOBILE DOCK CLIPPING & HORIZONTAL SCROLL FIX */
+#ptab-chat .ai-composer-tools,
+#ptab-chat .chat-tools-left,
+#ptab-chat .professional-tool-dock {
+  overflow: visible !important;
+}
+
+/* 3. AUTH HERO: LUXURIOUS GLOWING GRID & FUTURISTIC ROBOTS */
+.auth-modal-v2 .auth-hero {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 20px !important;
+  padding: 32px 24px !important;
+  overflow: hidden !important;
+  background: 
+    radial-gradient(circle at 50% 20%, rgba(124, 58, 237, 0.28), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(34, 211, 238, 0.16), transparent 50%),
+    linear-gradient(155deg, #030712 0%, #0b1528 50%, #110d29 100%) !important;
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.auth-modal-v2 .auth-hero::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px) !important;
+  background-size: 32px 32px !important;
+  mask-image: radial-gradient(circle at 50% 50%, black 50%, transparent 95%) !important;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, black 50%, transparent 95%) !important;
+  opacity: 1 !important;
+  z-index: 1 !important;
+  animation: grid-pulse 8s ease-in-out infinite alternate !important;
+}
+
+@keyframes grid-pulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 0.9; }
+}
+
+/* Robots container animation */
+.auth-modal-v2 .auth-robots {
+  position: relative !important;
+  z-index: 5 !important;
+  width: 340px !important;
+  height: 350px !important;
+  overflow: visible !important;
+  animation: float-container 6s ease-in-out infinite !important;
+}
+
+@keyframes float-container {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Individual robots animations & placement overrides */
+.auth-modal-v2 .auth-robot {
+  position: absolute !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.45)) !important;
+  transition: transform .35s ease, filter .35s ease !important;
+}
+
+.auth-modal-v2 .auth-robot.r1 {
+  top: 49% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) scale(1.12) !important;
+  animation: float-r1 5s ease-in-out infinite alternate !important;
+}
+
+@keyframes float-r1 {
+  0% { transform: translate(-50%, -50%) scale(1.12) translateY(0); }
+  100% { transform: translate(-50%, -50%) scale(1.12) translateY(-6px); }
+}
+
+.auth-modal-v2 .auth-robot.r2 {
+  left: 20px !important;
+  bottom: 30px !important;
+  transform: scale(0.76) rotate(-2deg) !important;
+  animation: float-r2 6s ease-in-out infinite alternate !important;
+}
+
+@keyframes float-r2 {
+  0% { transform: scale(0.76) rotate(-2deg) translateY(0); }
+  100% { transform: scale(0.76) rotate(-2deg) translateY(4px); }
+}
+
+.auth-modal-v2 .auth-robot.r3 {
+  right: 28px !important;
+  top: 44px !important;
+  transform: scale(0.72) rotate(3deg) !important;
+  animation: float-r3 7s ease-in-out infinite alternate !important;
+}
+
+@keyframes float-r3 {
+  0% { transform: scale(0.72) rotate(3deg) translateY(0); }
+  100% { transform: scale(0.72) rotate(3deg) translateY(-5px); }
+}
+
+/* Futuristic Glassmorphic Overrides */
+.auth-modal-v2 .auth-robot .robot-face {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.9)) !important;
+  border: 1px solid rgba(125, 211, 252, 0.28) !important;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.45),
+    inset 0 0 16px rgba(56, 189, 248, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 30px rgba(34, 211, 238, 0.08) !important;
+  backdrop-filter: blur(10px) !important;
+  transition: border-color 0.3s, box-shadow 0.3s !important;
+}
+
+.auth-modal-v2 .auth-robot:hover .robot-face {
+  border-color: rgba(34, 211, 238, 0.5) !important;
+  box-shadow: 
+    0 20px 45px rgba(0, 0, 0, 0.55),
+    inset 0 0 20px rgba(56, 189, 248, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 40px rgba(34, 211, 238, 0.2) !important;
+}
+
+.auth-modal-v2 .auth-robot .robot-torso {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.9)) !important;
+  border: 1px solid rgba(125, 211, 252, 0.24) !important;
+  box-shadow: 
+    0 18px 36px rgba(0, 0, 0, 0.4),
+    inset 0 0 12px rgba(56, 189, 248, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 24px rgba(34, 211, 238, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Neon Dynamic Eyes */
+.auth-modal-v2 .auth-robot .robot-pupil {
+  background: radial-gradient(circle at 35% 35%, #ffffff 0% 12%, #06b6d4 25% 65%, #7c3aed 85% 100%) !important;
+  box-shadow: 0 0 14px rgba(6, 182, 212, 0.75), 0 0 28px rgba(124, 58, 237, 0.45) !important;
+}
+
+/* R1 Loader Belly Spin */
+.auth-modal-v2 .auth-robot.r1 .robot-belly svg {
+  animation: belly-spin 2.5s linear infinite !important;
+  color: #22d3ee !important;
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.6)) !important;
+}
+
+@keyframes belly-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* R2 Status breathing pulse */
+.auth-modal-v2 .auth-robot.r2 .robot-status-dot {
+  background: #22d3ee !important;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.4) !important;
+  animation: status-pulse 2s infinite alternate !important;
+}
+
+@keyframes status-pulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; filter: brightness(1.2); }
+}
+
+/* R3 Core Chip glow */
+.auth-modal-v2 .auth-robot.r3 .robot-core-chip {
+  background: #c084fc !important;
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.8) !important;
+  animation: chip-glow 1.5s infinite alternate !important;
+}
+
+@keyframes chip-glow {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.1); opacity: 1; }
+}
+
+/* Premium Badge Elements */
+.auth-modal-v2 .auth-hero-strap {
+  position: relative !important;
+  z-index: 10 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  text-align: center !important;
+}
+
+.auth-modal-v2 .auth-hero-pill {
+  background: rgba(15, 23, 42, 0.55) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  box-shadow: 
+    0 12px 30px rgba(0,0,0,0.35),
+    0 0 20px rgba(56, 189, 248, 0.05),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  backdrop-filter: blur(14px) !important;
+  padding: 10px 18px !important;
+  border-radius: 999px !important;
+  transition: all 0.3s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.auth-modal-v2 .auth-hero-pill:hover {
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 
+    0 12px 35px rgba(0,0,0,0.45),
+    0 0 24px rgba(56, 189, 248, 0.15),
+    inset 0 1px 0 rgba(255,255,255,0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.auth-modal-v2 .auth-hero-pill i {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #22d3ee, #8b5cf6) !important;
+  box-shadow: 0 0 12px #22d3ee !important;
+  animation: breath 2s infinite alternate !important;
+}
+
+@keyframes breath {
+  0% { transform: scale(0.95); filter: brightness(0.9); }
+  100% { transform: scale(1.15); filter: brightness(1.2); }
+}
+
+.auth-modal-v2 .auth-hero-pill strong {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  background: linear-gradient(135deg, #ffffff 30%, #e2e8f0 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  line-height: 1 !important;
+}
+
+.auth-modal-v2 .auth-hero-pill span {
+  color: #a5f3fc !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+}
+
+.auth-modal-v2 .auth-hero-copy {
+  max-width: 260px !important;
+  color: rgba(241, 245, 249, 0.85) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1.6 !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5) !important;
+}
+
+/* Fix Tool Menu clipping on all screens and mobile views */
+#ptab-chat .ai-composer-tools,
+#ptab-chat .chat-tools-left,
+#ptab-chat .professional-tool-dock,
+#ptab-chat .tool-dropdown {
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+
+#ptab-chat .tool-menu {
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+}
+
+/* v225 Chat header + model dock authority */
+#ptab-chat .ai-chat-topbar {
+  display: grid !important;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(260px, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  min-height: 72px !important;
+  padding: 0 clamp(18px, 2.4vw, 36px) !important;
+  overflow: hidden !important;
+}
+
+#ptab-chat .ai-chat-titleblock {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  justify-self: center !important;
+  justify-content: center !important;
+}
+
+#ptab-chat .ai-chat-top-actions {
+  grid-column: 3 !important;
+  justify-self: end !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+#ptab-chat .ai-top-chip {
+  max-width: min(330px, 34vw) !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+#ptab-chat .ai-top-chip .mpb-copy,
+#ptab-chat .ai-top-chip #mpb-name {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+#ptab-chat .ai-top-chip #mpb-name {
+  display: block !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+#ptab-chat .ai-top-chip small,
+#ptab-chat #model-count {
+  white-space: nowrap !important;
+}
+
+#ptab-chat .ai-top-btn {
+  flex: 0 0 auto !important;
+}
+
+@media (min-width: 901px) {
+  #ptab-chat .chat-sidebar-toggle {
+    display: none !important;
+  }
+}
+
+#ptab-chat .professional-tool-dock {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  max-width: min(720px, calc(100vw - 56px)) !important;
+  padding: 7px !important;
+  overflow: visible !important;
+}
+
+#ptab-chat .dock-button {
+  flex: 0 0 auto !important;
+  min-width: 42px !important;
+  gap: 8px !important;
+}
+
+#ptab-chat .dock-button .dock-icon {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+}
+
+#ptab-chat .dock-button.model-picker-chip {
+  min-width: 148px !important;
+  max-width: 220px !important;
+  justify-content: flex-start !important;
+}
+
+#ptab-chat .model-picker-chip .dock-label {
+  display: inline-block !important;
+  max-width: 138px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+
+@media (max-width: 720px) {
+  #ptab-chat .ai-chat-topbar {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    min-height: 66px !important;
+    padding: 8px 10px !important;
+    gap: 8px !important;
+  }
+
+  #ptab-chat .ai-chat-titleblock {
+    grid-column: 1 / 3 !important;
+    justify-self: start !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  #ptab-chat .ai-chat-top-actions {
+    grid-column: 3 !important;
+    gap: 6px !important;
+  }
+
+  #ptab-chat .ai-top-chip {
+    max-width: 136px !important;
+    padding: 7px 9px !important;
+    border-radius: 18px !important;
+  }
+
+  #ptab-chat .ai-top-chip #mpb-name {
+    max-width: 86px !important;
+    font-size: 12px !important;
+  }
+
+  #ptab-chat .ai-top-chip small {
+    font-size: 10px !important;
+  }
+
+  #ptab-chat .ai-chat-top-actions .ai-top-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+  }
+
+  #ptab-chat .professional-tool-dock {
+    max-width: calc(100vw - 28px) !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+  }
+
+  #ptab-chat .professional-tool-dock::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  #ptab-chat .dock-button.model-picker-chip {
+    min-width: 126px !important;
+    max-width: 148px !important;
+  }
+
+  #ptab-chat .model-picker-chip .dock-label {
+    display: inline-block !important;
+    max-width: 86px !important;
+  }
+}

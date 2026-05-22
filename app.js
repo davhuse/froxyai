@@ -2949,16 +2949,58 @@ if(!document.getElementById('mp-anim-style')){const s=document.createElement('st
 // ===== WEB SEARCH + AUTO VOICE =====
 let webSearchActive=false;
 let autoVoice=false;
+let isVoicePlaying=false;
+function updateVoiceBtnState(speaking){
+  isVoicePlaying=speaking;
+  const btn=document.getElementById('auto-voice-btn');
+  if(!btn)return;
+  if(speaking){
+    btn.classList.add('playing');
+    btn.innerHTML=`<span class="dock-icon"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></span><span>Durdur</span>`;
+    btn.title="Sesi Durdur";
+    btn.style.color="#ef4444";
+    btn.style.borderColor="rgba(239, 68, 68, 0.4)";
+  }else{
+    btn.classList.remove('playing');
+    btn.innerHTML=`<span class="dock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg></span><span>Sesli</span>`;
+    btn.title=autoVoice?'Otomatik Ses: Açık':'Otomatik Ses: Kapalı';
+    btn.style.color=autoVoice?'var(--primary-glow)':'';
+    btn.style.borderColor='';
+    btn.classList.toggle('active',autoVoice);
+  }
+}
 function toggleWebSearch(){
   webSearchActive=!webSearchActive;
   const btn=document.getElementById('web-search-btn');
   if(btn){btn.classList.toggle('active',webSearchActive);btn.title=webSearchActive?'Web Arama: A\u00e7\u0131k':'Web Arama: Kapal\u0131'}
 }
 function toggleAutoVoice(){
+  if(isVoicePlaying){
+    if(currentAudio){
+      try{currentAudio.pause()}catch(e){}
+      currentAudio=null;
+    }
+    if(window.speechSynthesis){
+      try{window.speechSynthesis.cancel()}catch(e){}
+    }
+    updateVoiceBtnState(false);
+    
+    // Completely disable autoVoice feature too when manually stopped during playback
+    autoVoice = false;
+    const btn=document.getElementById('auto-voice-btn');
+    if(btn){
+      btn.classList.remove('active');
+      btn.title='Otomatik Ses: Kapalı';
+    }
+    
+    if(typeof msg==='function')msg('Ses durduruldu ve kapatıldı','info');
+    return;
+  }
   autoVoice=!autoVoice;
   const btn=document.getElementById('auto-voice-btn');
   if(btn){btn.classList.toggle('active',autoVoice);btn.title=autoVoice?'Otomatik Ses: A\u00e7\u0131k':'Otomatik Ses: Kapal\u0131'}
 }
+
 
 // ===== COMPANION PERSONAS =====
 const COMPANION_PERSONAS=[
@@ -3587,6 +3629,8 @@ function formatMsg(t){
   
 
   
+  t=stripProviderNotice(String(t||''));
+
   if (window.marked && window.DOMPurify) {
     try {
       const renderer = new marked.Renderer();
@@ -3702,13 +3746,21 @@ function cleanAssistantReply(text){
 }
 function stripProviderNotice(text){
   let s=String(text||'');
-  s=s.replace(/⚠️\s*IMPORTANT NOTICE\s*⚠️[\s\S]*?(?:continue to work normally\.|normally\.)/gi,'');
-  s=s.replace(/⚠️\s*IMPORTANT NOTICE\s*⚠️/gi,'');
-  s=s.replace(/⚠️\s*IMPORTANT NOTICE\s*⚠️[\s\S]*?(?:continue to work normally\.|normally\.)/gi,'');
-  s=s.replace(/⚠️\s*IMPORTANT NOTICE\s*⚠️/gi,'');
+  s=s.replace(/IMPORTANT NOTICE[\s\S]*?(?:continue to work normally\.|normally\.)/gi,'');
   s=s.replace(/The Pollinations legacy text API[\s\S]*?(?:continue to work normally\.|normally\.)/gi,'');
   s=s.replace(/Please migrate to our new service at https:\/\/enter\.pollinations\.ai[\s\S]*?(?:models\.|normally\.)/gi,'');
-  return s.trim();
+  s=s.split(/\n/).filter(line=>{
+    const l=line.trim();
+    if(!l)return true;
+    if(/^[-—–]{2,}$/.test(l))return false;
+    if(/^Support Pollinations\.AI:?$/i.test(l))return false;
+    if(/^\W*\s*Ad\s*\W*$/i.test(l))return false;
+    if(/Powered by Pollinations\.AI free text APIs/i.test(l))return false;
+    if(/Support our mission/i.test(l))return false;
+    if(/pollinations\.ai\/redirect\/kofi/i.test(l))return false;
+    return true;
+  }).join('\n');
+  return s.replace(/\n{3,}/g,'\n\n').trim();
 }
 async function repairAssistantReply(rawReply,userText,model,provider,apiModel){
   try{
@@ -3741,14 +3793,17 @@ function browserSpeakText(text){
   if(preferred)u.voice=preferred;
   u.rate=0.94;
   u.pitch=1;
+  u.onstart = () => updateVoiceBtnState(true);
+  u.onend = () => updateVoiceBtnState(false);
+  u.onerror = () => updateVoiceBtnState(false);
   window.speechSynthesis.speak(u);
   return true;
 }
 async function speakMsg(idx) {
   const c = chats.find(x => x.id === activeChat);
   if (!c || idx < 0 || idx >= c.messages.length || !c.messages[idx]) return;
-  if (currentAudio) { currentAudio.pause(); currentAudio = null; if(typeof msg==='function')msg('Ses durduruldu','info'); return; }
-  if (window.speechSynthesis && window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); if(typeof msg==='function')msg('Ses durduruldu','info'); return; }
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; updateVoiceBtnState(false); if(typeof msg==='function')msg('Ses durduruldu','info'); return; }
+  if (window.speechSynthesis && window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); updateVoiceBtnState(false); if(typeof msg==='function')msg('Ses durduruldu','info'); return; }
   let text = cleanSpeechText(c.messages[idx].content);
   if (!text || text === '__TYPING__') return;
   if(typeof msg === 'function') msg('Seslendiriliyor...', 'info');
@@ -3775,10 +3830,13 @@ async function speakMsg(idx) {
     }
     const url = URL.createObjectURL(blob);
     currentAudio = new Audio(url);
-    currentAudio.onended = () => { currentAudio = null; URL.revokeObjectURL(url); };
+    currentAudio.onended = () => { currentAudio = null; URL.revokeObjectURL(url); updateVoiceBtnState(false); };
+    currentAudio.onerror = () => { currentAudio = null; URL.revokeObjectURL(url); updateVoiceBtnState(false); };
+    updateVoiceBtnState(true);
     await currentAudio.play();
   } catch (error) {
     console.error('TTS Hatas\u0131:', error);
+    updateVoiceBtnState(false);
     if(browserSpeakText(text)){
       if(typeof msg === 'function') msg('Sunucu sesi gecikti, tarayıcı sesiyle oynatılıyor','info');
     }else if(typeof msg === 'function') msg('Seslendirme desteklenmiyor: ' + error.message, 'err');
@@ -3795,6 +3853,7 @@ function toggleVoice() {
   }
   
   if (recognition && recognition.isStarted) {
+    recognition.userStopped = true; // Mark as manually stopped by the user
     recognition.stop();
     return;
   }
@@ -3807,6 +3866,7 @@ function toggleVoice() {
   
   recognition.onstart = () => {
     recognition.isStarted = true;
+    recognition.userStopped = false; // Reset the flag
     micBtn.style.color = '#ef4444'; // Red when listening
     micBtn.classList.add('pulse');
     chatIn.placeholder = 'Dinleniyor...';
@@ -3828,11 +3888,12 @@ function toggleVoice() {
     micBtn.classList.remove('pulse');
     chatIn.placeholder = 'Mesajınızı yazın...';
     
-    // Auto-send if there is text
-    if (chatIn.value.trim() !== '') {
+    // Auto-send if there is text and it was NOT manually stopped by the user
+    if (chatIn.value.trim() !== '' && !recognition.userStopped) {
       if (!autoVoice) toggleAutoVoice(); // Enable auto TTS reading
       sendMsg();
     }
+    recognition.userStopped = false; // Reset
   };
   
   recognition.start();
@@ -3875,43 +3936,12 @@ function toolAction(type){
     case 'analyze': inp.value='Şu konuyu detaylı analiz et:\n'; inp.focus(); break;
   }
 }
-function updateModelBadge(){
-  const sel=document.getElementById('model-sel');
-  if(sel?.value)LS.set('ap_selected_model',sel.value);
-  const badge=document.getElementById('ch-model-badge');
-  const topName=document.getElementById('mpb-name');
-  const countEl=document.getElementById('model-count');
-  const opt=sel?.options?.[sel.selectedIndex];
-  const raw=opt?opt.text:'Model';
-  const clean=(typeof repairMojibake==='function'?repairMojibake(String(raw)):String(raw))
-    .replace(/^[^\p{L}\p{N}]+/u,'')
-    .replace(/\s+/g,' ')
-    .trim()||'Model';
-  const compact=clean.length>24?clean.slice(0,22).trim()+'...':clean;
-  if(sel && badge){
-    badge.textContent=compact;
-    badge.title=clean;
-  }
-  if(topName){
-    topName.textContent=compact;
-    topName.title=clean;
-  }
-  if(countEl && sel) countEl.textContent=modelCountLabel();
-  document.querySelectorAll('.model-picker-chip').forEach(btn=>{
-    btn.title='Model seç: '+clean;
-    btn.setAttribute('aria-label','Model seç');
-  });
-  document.querySelectorAll('.model-picker-chip .dock-label').forEach(label=>{
-    label.textContent='Modeller';
-  });
-  const icon=document.querySelector('.ai-top-chip .mpb-icon');
-  const m=ALL_MODELS.find(x=>x.id===sel?.value);
-  if(icon && m){
-    const ci=CAT_INFO[m.cat||'other']||CAT_INFO.other;
-    icon.innerHTML=iconSvg(ci.icon,14);
-  }
-}
+
 // v200: keep the mobile model dock label synced with the selected model name.
+
+
+
+// v225: single source for top model chip and bottom model dock label.
 function updateModelBadge(){
   const sel=document.getElementById('model-sel');
   if(sel?.value)LS.set('ap_selected_model',sel.value);
@@ -3919,40 +3949,21 @@ function updateModelBadge(){
   const topName=document.getElementById('mpb-name');
   const countEl=document.getElementById('model-count');
   const opt=sel?.options?.[sel.selectedIndex];
-  const raw=opt?opt.text:'Model';
-  const clean=(typeof repairMojibake==='function'?repairMojibake(String(raw)):String(raw))
-    .replace(/^[^\p{L}\p{N}]+/u,'')
-    .replace(/\s+/g,' ')
-    .trim()||'Model';
-  const compact=clean.length>24?clean.slice(0,22).trim()+'...':clean;
-  const dockName=clean
-    .replace(/^(Ucretsiz|Ücretsiz|Free|Premium|Hazir|Hazır)\s*[-—:]\s*/i,'')
-    .replace(/\s*\([^)]*\)\s*$/,'')
-    .trim()||clean;
+  const raw=opt?opt.text:'Model seç';
+  const repaired=(typeof repairMojibake==='function'?repairMojibake(String(raw)):String(raw));
+  const clean=repaired.replace(/^[^\p{L}\p{N}]+/u,'').replace(/\s+/g,' ').trim()||'Model seç';
+  const topCompact=clean.length>28?clean.slice(0,25).trim()+'...':clean;
+  const dockName=clean.replace(/^(Ücretsiz|Ucretsiz|Free|Premium|Hazır|Hazir|Hızlı|Hizli)\s*[-—:]+\s*/i,'').replace(/\s*\([^)]*\)\s*$/,'').replace(/\s+/g,' ').trim()||clean;
   const dockCompact=dockName.length>18?dockName.slice(0,16).trim()+'...':dockName;
-  if(sel && badge){
-    badge.textContent=compact;
-    badge.title=clean;
-  }
-  if(topName){
-    topName.textContent=compact;
-    topName.title=clean;
-  }
-  if(countEl && sel) countEl.textContent=modelCountLabel();
-  document.querySelectorAll('.model-picker-chip').forEach(btn=>{
-    btn.title='Model sec: '+clean;
-    btn.setAttribute('aria-label','Model sec: '+clean);
-  });
-  document.querySelectorAll('.model-picker-chip .dock-label').forEach(label=>{
-    label.textContent=dockCompact;
-    label.title=clean;
-  });
-  const icon=document.querySelector('.ai-top-chip .mpb-icon');
+  if(sel&&badge){badge.textContent=topCompact;badge.title=clean;}
+  if(topName){topName.textContent=topCompact;topName.title=clean;}
+  if(countEl&&sel)countEl.textContent=modelCountLabel();
+  document.querySelectorAll('.model-picker-chip').forEach(btn=>{btn.title='Model seç: '+clean;btn.setAttribute('aria-label','Model seç: '+clean);btn.dataset.modelName=dockName;});
+  document.querySelectorAll('.model-picker-chip .dock-label').forEach(label=>{label.textContent=dockCompact;label.title=clean;});
+  const topIcon=document.querySelector('.ai-top-chip .mpb-icon');
+  const dockIcon=document.querySelector('.model-picker-chip .dock-icon');
   const m=ALL_MODELS.find(x=>x.id===sel?.value);
-  if(icon && m){
-    const ci=CAT_INFO[m.cat||'other']||CAT_INFO.other;
-    icon.innerHTML=iconSvg(ci.icon,14);
-  }
+  if(m){const ci=CAT_INFO[m.cat||'other']||CAT_INFO.other;if(topIcon)topIcon.innerHTML=iconSvg(ci.icon,14);if(dockIcon)dockIcon.innerHTML=iconSvg(ci.icon,14);}
 }
 
 // Close tool menu on outside click
