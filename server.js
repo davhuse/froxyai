@@ -188,6 +188,24 @@ db.exec(`
     status TEXT DEFAULT 'success',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+  CREATE TABLE IF NOT EXISTS shopier_payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    payment_id TEXT UNIQUE,
+    platform_order_id TEXT,
+    product_id TEXT,
+    product_name TEXT,
+    email TEXT,
+    user_id INTEGER,
+    plan TEXT,
+    credits INTEGER DEFAULT 0,
+    amount REAL,
+    currency TEXT,
+    status TEXT DEFAULT 'pending',
+    verified INTEGER DEFAULT 0,
+    raw_json TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    applied_at DATETIME
+  );
   CREATE TABLE IF NOT EXISTS app_meta (
     key TEXT PRIMARY KEY,
     value TEXT,
@@ -230,6 +248,28 @@ const DAILY_LIMITS = {
 
 function getDailyLimits(plan) {
   return DAILY_LIMITS[plan] || DAILY_LIMITS.free;
+}
+
+const SHOPIER_PACKAGE_CATALOG = {
+  starter: { productId: '47408136', name: 'Baslangic', label: 'Başlangıç', credits: 5000, price: 129.99 },
+  popular: { productId: '47408138', name: 'Populer', label: 'Popüler', credits: 15000, price: 249.99 },
+  pro: { productId: '47408141', name: 'Profesyonel', label: 'Profesyonel', credits: 50000, price: 449.99 },
+  developer: { productId: '47408145', name: 'Gelistirici', label: 'Geliştirici', credits: 100000, price: 599.99 },
+  business: { productId: '47408149', name: 'Isletme', label: 'İşletme', credits: 150000, price: 799.99 },
+  enterprise: { productId: '47408150', name: 'Kurumsal', label: 'Kurumsal', credits: 500000, price: 1499.99 }
+};
+const SHOPIER_PRODUCT_TO_PLAN = Object.fromEntries(Object.entries(SHOPIER_PACKAGE_CATALOG).map(([plan, pack]) => [pack.productId, plan]));
+const SHOPIER_STATIC_URLS = Object.fromEntries(Object.entries(SHOPIER_PACKAGE_CATALOG).map(([plan, pack]) => [plan, `https://www.shopier.com/froxyai/${pack.productId}`]));
+
+function getShopierPlan(plan) {
+  return SHOPIER_PACKAGE_CATALOG[String(plan || '').trim()] || SHOPIER_PACKAGE_CATALOG.starter;
+}
+
+function parseShopierPlanFromOrder(orderId) {
+  const parts = String(orderId || '').split('-');
+  const idx = parts.findIndex(p => p === 'FRX');
+  if (idx >= 0 && parts[idx + 2] && SHOPIER_PACKAGE_CATALOG[parts[idx + 2]]) return parts[idx + 2];
+  return null;
 }
 
 function resetDailyIfNeeded(userId) {
@@ -437,6 +477,164 @@ function logCreditUsage({ userId, kind, model, provider, actualModel, cost, rema
   } catch(e) {}
 }
 
+function shopierString(value) {
+  return String(value == null ? '' : value).trim();
+}
+
+function getShopierPayload(req) {
+  return Object.assign({}, req.query || {}, req.body || {});
+}
+
+function getShopierPaymentId(payload) {
+  return shopierString(payload.payment_id || payload.paymentId || payload.order_id || payload.orderId || payload.id || payload.platform_order_id || payload.platform_orderId || payload.platform_order);
+}
+
+function getShopierOrderId(payload) {
+  return shopierString(payload.platform_order_id || payload.platform_orderId || payload.platform_order || payload.order_id || payload.orderId);
+}
+
+function getShopierProductId(payload) {
+  const raw = shopierString(payload.product_id || payload.productId || payload.product || payload.item_id || payload.itemId);
+  const match = raw.match(/\d{6,}/);
+  return match ? match[0] : raw;
+}
+
+function getShopierEmail(payload) {
+  return shopierString(payload.buyer_email || payload.email || payload.customer_email || payload.mail).toLowerCase();
+}
+
+function getShopierAmount(payload) {
+  const raw = shopierString(payload.total_order_value || payload.total || payload.amount || payload.price).replace(',', '.');
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : null;
+}
+
+function getShopierStatus(payload) {
+  return shopierString(payload.status || payload.payment_status || payload.transaction_status || payload.result).toLowerCase();
+}
+
+function isShopierSuccess(payload) {
+  const status = getShopierStatus(payload);
+  if (!status) return true;
+  return ['success', 'successful', 'paid', 'approved', '1', 'ok', 'completed'].includes(status);
+}
+
+function getShopierPlanFromPayload(payload) {
+  const orderPlan = parseShopierPlanFromOrder(getShopierOrderId(payload));
+  if (orderPlan) return orderPlan;
+  const productId = getShopierProductId(payload);
+  if (productId && SHOPIER_PRODUCT_TO_PLAN[productId]) return SHOPIER_PRODUCT_TO_PLAN[productId];
+  const text = `${payload.product_name || ''} ${payload.productName || ''} ${payload.item_name || ''}`.toLowerCase();
+  if (/kurumsal|enterprise/.test(text)) return 'enterprise';
+  if (/isletme|i\u015fletme|business/.test(text)) return 'business';
+  if (/gelistirici|geli\u015ftirici|developer/.test(text)) return 'developer';
+  if (/profesyonel|professional|pro/.test(text)) return 'pro';
+  if (/populer|pop\u00fcler|popular/.test(text)) return 'popular';
+  if (/baslangic|ba\u015flang\u0131\u00e7|starter/.test(text)) return 'starter';
+  return null;
+}
+
+function getShopierUserIdFromPayload(payload) {
+  const orderId = getShopierOrderId(payload);
+  const match = String(orderId || '').match(/FRX-(\d+)-/);
+  if (match) return Number(match[1]);
+  const buyer = Number(payload.buyer_id || payload.user_id || payload.userId || 0);
+  return Number.isFinite(buyer) && buyer > 0 ? buyer : null;
+}
+
+function safeEqual(a, b) {
+  const left = Buffer.from(String(a || ''));
+  const right = Buffer.from(String(b || ''));
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
+function verifyShopierRequest(req, payload) {
+  const callbackSecret = process.env.SHOPIER_CALLBACK_SECRET;
+  const suppliedSecret = req.headers['x-froxy-webhook-secret'] || req.headers['x-shopier-webhook-secret'] || payload.secret;
+  if (callbackSecret && suppliedSecret && safeEqual(callbackSecret, suppliedSecret)) return { verified: true, method: 'callback_secret' };
+
+  const apiSecret = process.env.SHOPIER_API_SECRET;
+  const signature = shopierString(payload.signature || req.headers['x-shopier-signature']);
+  if (!apiSecret || !signature) return { verified: false, method: 'missing_signature' };
+  const random = shopierString(payload.random_nr || payload.random || payload.randomNr);
+  const orderId = getShopierOrderId(payload);
+  const amount = shopierString(payload.total_order_value || payload.total || payload.amount || payload.price);
+  const currency = shopierString(payload.currency || 'TRY');
+  const candidates = [
+    random + orderId + amount + currency,
+    random + orderId + amount,
+    orderId + amount + currency,
+    orderId + amount
+  ].filter(Boolean);
+  for (const base of candidates) {
+    const digest = crypto.createHmac('sha256', apiSecret).update(base).digest('base64');
+    const digestHex = crypto.createHmac('sha256', apiSecret).update(base).digest('hex');
+    if (safeEqual(signature, digest) || safeEqual(signature, digestHex)) return { verified: true, method: 'hmac' };
+  }
+  return { verified: false, method: 'bad_signature' };
+}
+
+function recordShopierPayment({ payload, paymentId, orderId, plan, pack, userId, verified, status }) {
+  const productId = getShopierProductId(payload);
+  const productName = shopierString(payload.product_name || payload.productName || payload.item_name || pack?.label || plan || '');
+  const email = getShopierEmail(payload);
+  const amount = getShopierAmount(payload);
+  const currency = shopierString(payload.currency || 'TRY') || 'TRY';
+  const raw = JSON.stringify(payload || {}).slice(0, 12000);
+  const existing = paymentId ? db.prepare('SELECT * FROM shopier_payments WHERE payment_id = ?').get(paymentId) : null;
+  if (existing) {
+    db.prepare(`UPDATE shopier_payments SET platform_order_id = ?, product_id = ?, product_name = ?, email = ?, user_id = COALESCE(?, user_id), plan = ?, credits = ?, amount = ?, currency = ?, status = ?, verified = ?, raw_json = ? WHERE id = ?`)
+      .run(orderId || existing.platform_order_id, productId || existing.product_id, productName || existing.product_name, email || existing.email, userId || existing.user_id, plan || existing.plan, pack?.credits || existing.credits || 0, amount, currency, status, verified ? 1 : 0, raw, existing.id);
+    return existing.id;
+  }
+  const r = db.prepare(`INSERT INTO shopier_payments (payment_id, platform_order_id, product_id, product_name, email, user_id, plan, credits, amount, currency, status, verified, raw_json)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(paymentId || null, orderId || null, productId || null, productName || null, email || null, userId || null, plan || null, pack?.credits || 0, amount, currency, status, verified ? 1 : 0, raw);
+  return r.lastInsertRowid;
+}
+
+function applyShopierPayment(req, payload) {
+  const verification = verifyShopierRequest(req, payload);
+  const paymentId = getShopierPaymentId(payload) || `manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const orderId = getShopierOrderId(payload);
+  const plan = getShopierPlanFromPayload(payload);
+  const pack = plan ? getShopierPlan(plan) : null;
+  let userId = getShopierUserIdFromPayload(payload);
+  const email = getShopierEmail(payload);
+  if (!userId && email) {
+    const user = db.prepare('SELECT id FROM users WHERE lower(email) = ?').get(email);
+    if (user) userId = user.id;
+  }
+  const success = isShopierSuccess(payload);
+  const existing = db.prepare('SELECT * FROM shopier_payments WHERE payment_id = ?').get(paymentId);
+  if (existing && existing.status === 'applied') {
+    return { ok: true, status: 'already_applied', payment_id: paymentId, plan: existing.plan, credits: existing.credits };
+  }
+  if (!success) {
+    recordShopierPayment({ payload, paymentId, orderId, plan, pack, userId, verified: verification.verified, status: 'failed' });
+    return { ok: false, status: 'failed', reason: 'payment_not_successful' };
+  }
+  if (!verification.verified || !userId || !plan || !pack) {
+    const missing = !verification.verified ? 'unverified' : (!userId ? 'missing_user' : 'missing_plan');
+    recordShopierPayment({ payload, paymentId, orderId, plan, pack, userId, verified: verification.verified, status: missing });
+    return { ok: false, status: missing, payment_id: paymentId, verification: verification.method };
+  }
+  const tx = db.transaction(() => {
+    const row = db.prepare('SELECT * FROM shopier_payments WHERE payment_id = ?').get(paymentId);
+    if (row && row.status === 'applied') return { already: true, user: db.prepare('SELECT id, username, email, credits, plan FROM users WHERE id = ?').get(row.user_id) };
+    const before = db.prepare('SELECT credits FROM users WHERE id = ?').get(userId);
+    if (!before) throw new Error('Kullanici bulunamadi');
+    db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(plan, pack.credits, userId);
+    recordShopierPayment({ payload, paymentId, orderId, plan, pack, userId, verified: true, status: 'applied' });
+    db.prepare('UPDATE shopier_payments SET applied_at = CURRENT_TIMESTAMP WHERE payment_id = ?').run(paymentId);
+    const user = db.prepare('SELECT id, username, email, credits, plan FROM users WHERE id = ?').get(userId);
+    logActivity(userId, 'shopier_payment_applied', `${paymentId}: ${plan}, +${pack.credits} kredi`);
+    return { already: false, user };
+  });
+  const applied = tx();
+  return { ok: true, status: applied.already ? 'already_applied' : 'applied', payment_id: paymentId, plan, credits: pack.credits, user: applied.user };
+}
+
 
 // ===== SAAS & AUTH ENDPOINTS =====
 app.post('/api/register', authLimiter, (req, res) => {
@@ -633,6 +831,100 @@ app.get('/api/admin/code-redemptions', adminMiddleware, (req, res) => {
     res.json({ redemptions });
   } catch(e) { res.status(500).json({error: e.message}); }
 });
+
+// GET /api/admin/shopier-payments
+app.get('/api/admin/shopier-payments', adminMiddleware, (req, res) => {
+  try {
+    const payments = db.prepare(`SELECT sp.*, u.username
+      FROM shopier_payments sp
+      LEFT JOIN users u ON u.id = sp.user_id
+      ORDER BY sp.created_at DESC
+      LIMIT 200`).all();
+    res.json({ payments });
+  } catch(e) { res.status(500).json({error: e.message}); }
+});
+
+// POST /api/shopier/start
+app.post('/api/shopier/start', authMiddleware, (req, res) => {
+  const plan = String(req.body.plan || 'starter').trim();
+  const pack = SHOPIER_PACKAGE_CATALOG[plan];
+  if (!pack) return res.status(400).json({ error: 'Geçerli paket seçin.' });
+  const fallbackUrl = SHOPIER_STATIC_URLS[plan] || 'https://www.shopier.com/froxyai';
+  const apiKey = process.env.SHOPIER_API_KEY;
+  const apiSecret = process.env.SHOPIER_API_SECRET;
+  if (!apiKey || !apiSecret) {
+    return res.json({ fallback: true, url: fallbackUrl, reason: 'shopier_api_missing' });
+  }
+  try {
+    const user = db.prepare('SELECT id, username, email FROM users WHERE id = ?').get(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+    const random = crypto.randomBytes(8).toString('hex');
+    const platformOrderId = `FRX-${user.id}-${plan}-${Date.now()}-${random.slice(0, 6)}`;
+    const total = Number(pack.price).toFixed(2);
+    const currency = 'TRY';
+    const signatureBase = random + platformOrderId + total + currency;
+    const signature = crypto.createHmac('sha256', apiSecret).update(signatureBase).digest('base64');
+    const [firstName, ...lastParts] = String(user.username || 'Froxy AI Kullanıcısı').trim().split(/\s+/);
+    const lastName = lastParts.join(' ') || 'Kullanıcı';
+    const frontend = process.env.FRONTEND_ORIGIN || 'https://froxyai.com';
+    const fields = {
+      API_key: apiKey,
+      website_index: process.env.SHOPIER_WEBSITE_INDEX || '1',
+      platform_order_id: platformOrderId,
+      product_name: `Froxy AI ${pack.label}`,
+      product_type: '0',
+      buyer_name: firstName || 'Froxy',
+      buyer_surname: lastName,
+      buyer_email: user.email || '',
+      buyer_account_age: '0',
+      buyer_id_nr: String(user.id),
+      buyer_phone: process.env.SHOPIER_DEFAULT_PHONE || '5555555555',
+      billing_address: 'Online hizmet',
+      billing_city: 'Istanbul',
+      billing_country: 'TR',
+      billing_postcode: '34000',
+      shipping_address: 'Online teslimat',
+      shipping_city: 'Istanbul',
+      shipping_country: 'TR',
+      shipping_postcode: '34000',
+      total_order_value: total,
+      currency,
+      platform: '0',
+      is_in_frame: '0',
+      current_language: '0',
+      modul_version: 'FroxyAI-1.0',
+      random_nr: random,
+      signature
+    };
+    recordShopierPayment({ payload: fields, paymentId: platformOrderId, orderId: platformOrderId, plan, pack, userId: user.id, verified: false, status: 'started' });
+    logActivity(user.id, 'shopier_payment_started', `${platformOrderId}: ${plan}`);
+    const inputs = Object.entries(fields).map(([k, v]) => `<input type="hidden" name="${String(k).replace(/"/g, '&quot;')}" value="${String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}">`).join('');
+    const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Shopier'e yönlendiriliyor</title></head><body><form id="shopier-form" method="post" action="https://www.shopier.com/ShowProduct/api_pay4.php">${inputs}</form><script>document.getElementById('shopier-form').submit();setTimeout(function(){location.href=${JSON.stringify(frontend)}},12000);<\/script></body></html>`;
+    res.json({ fallback: false, action: 'https://www.shopier.com/ShowProduct/api_pay4.php', fields, html, platform_order_id: platformOrderId });
+  } catch(e) {
+    res.status(500).json({ error: 'Shopier ödeme başlatılamadı: ' + e.message, fallback_url: fallbackUrl });
+  }
+});
+
+// POST/GET /api/shopier/callback
+function handleShopierCallback(req, res) {
+  const payload = getShopierPayload(req);
+  try {
+    const result = applyShopierPayment(req, payload);
+    const wantsJson = String(req.headers.accept || '').includes('application/json') || req.method === 'POST';
+    if (wantsJson) return res.status(result.ok ? 200 : 202).json(result);
+    const frontend = process.env.FRONTEND_ORIGIN || 'https://froxyai.com';
+    const status = result.ok ? 'success' : 'pending';
+    return res.redirect(`${frontend}/?payment=${status}&t=${Date.now()}`);
+  } catch(e) {
+    console.error('[SHOPIER CALLBACK]', e.message);
+    if (String(req.headers.accept || '').includes('application/json') || req.method === 'POST') return res.status(500).json({ error: e.message });
+    const frontend = process.env.FRONTEND_ORIGIN || 'https://froxyai.com';
+    return res.redirect(`${frontend}/?payment=error&t=${Date.now()}`);
+  }
+}
+app.post('/api/shopier/callback', handleShopierCallback);
+app.get('/api/shopier/callback', handleShopierCallback);
 
 // POST /api/admin/announce
 app.post('/api/admin/announce', adminMiddleware, (req, res) => {

@@ -10628,3 +10628,142 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindV214);
   else setTimeout(bindV214,500);
 })();
+
+/* v215: Shopier payment automation layer. If Shopier API env keys exist on the
+   backend, purchases start with a user-bound order id; otherwise static product
+   links remain as a safe fallback. */
+(function(){
+  if(window.__froxyShopierV215)return;
+  window.__froxyShopierV215=true;
+
+  const SHOPIER_URLS_V215={
+    starter:'https://www.shopier.com/froxyai/47408136',
+    popular:'https://www.shopier.com/froxyai/47408138',
+    pro:'https://www.shopier.com/froxyai/47408141',
+    developer:'https://www.shopier.com/froxyai/47408145',
+    business:'https://www.shopier.com/froxyai/47408149',
+    enterprise:'https://www.shopier.com/froxyai/47408150'
+  };
+  window.SHOPIER_PRODUCT_URLS=Object.assign({},window.SHOPIER_PRODUCT_URLS||{},SHOPIER_URLS_V215);
+  window.getShopierPlanUrl=function(planId){
+    return window.SHOPIER_PRODUCT_URLS[planId]||'https://www.shopier.com/froxyai';
+  };
+
+  function notifyPaymentState(){
+    try{
+      const params=new URLSearchParams(location.search);
+      const payment=params.get('payment');
+      if(!payment||window.__paymentNoticeShownV215)return;
+      window.__paymentNoticeShownV215=true;
+      const text=payment==='success'?'Ödeme alındı. Krediler hesabınıza işlendi.':payment==='pending'?'Ödeme bildirimi alındı. Eşleştirme için kontrol ediliyor.':'Ödeme doğrulanamadı. Destek merkezinden bize yazabilirsiniz.';
+      if(typeof msg==='function')msg(text,payment==='success'?'ok':payment==='error'?'err':'info');
+      const root=document.getElementById('ptab-store')||document.querySelector('.panel-main')||document.body;
+      if(root&&!document.getElementById('shopier-payment-banner-v215')){
+        const banner=document.createElement('div');
+        banner.id='shopier-payment-banner-v215';
+        banner.className='shopier-payment-banner-v215 '+payment;
+        banner.innerHTML='<strong>'+esc(payment==='success'?'Ödeme tamamlandı':payment==='pending'?'Ödeme kontrol ediliyor':'Ödeme kontrolü gerekli')+'</strong><span>'+esc(text)+'</span><button type="button" onclick="this.parentElement.remove()">Kapat</button>';
+        root.prepend(banner);
+      }
+    }catch(e){}
+  }
+
+  async function startShopierCheckout(planId,popup){
+    const fallback=window.getShopierPlanUrl(planId);
+    if(!authToken){
+      if(popup)popup.location.href=fallback;else window.open(fallback,'_blank','noopener,noreferrer');
+      return;
+    }
+    try{
+      const res=await fetch('/api/shopier/start',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},
+        body:JSON.stringify({plan:planId})
+      });
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(data.error||'Shopier başlatılamadı');
+      if(data.html){
+        const win=popup&&!popup.closed?popup:window.open('about:blank','_blank','noopener,noreferrer');
+        if(win){win.document.open();win.document.write(data.html);win.document.close();}
+        else window.location.href=fallback;
+        return;
+      }
+      if(data.url||data.fallback){
+        const url=data.url||fallback;
+        if(popup&&!popup.closed)popup.location.href=url;else window.open(url,'_blank','noopener,noreferrer');
+        return;
+      }
+      if(popup&&!popup.closed)popup.location.href=fallback;else window.open(fallback,'_blank','noopener,noreferrer');
+    }catch(e){
+      try{if(typeof msg==='function')msg('Shopier otomatik ödeme başlatılamadı, ilan sayfası açılıyor.','info')}catch(_){}
+      if(popup&&!popup.closed)popup.location.href=fallback;else window.open(fallback,'_blank','noopener,noreferrer');
+    }
+  }
+
+  window.buyTokensById=function(planId){
+    const popup=window.open('about:blank','_blank','noopener,noreferrer');
+    if(popup){
+      popup.document.write('<!doctype html><meta charset="utf-8"><title>Shopier</title><body style="font-family:Inter,Arial;background:#080b16;color:#fff;display:grid;place-items:center;height:100vh;margin:0"><div>Shopier ödeme sayfası hazırlanıyor...</div></body>');
+      popup.document.close();
+    }
+    startShopierCheckout(planId||'starter',popup);
+  };
+  window.buyTokens=function(i){
+    const pack=(typeof STORE_PACKS!=='undefined'&&STORE_PACKS[i])?STORE_PACKS[i]:null;
+    window.buyTokensById(pack?.id||'starter');
+  };
+  try{buyTokens=window.buyTokens;buyTokensById=window.buyTokensById}catch(e){}
+
+  function fmtShopierDateV215(value){
+    try{return new Date(value||Date.now()).toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return ''}
+  }
+  function shopierStatusLabelV215(status){
+    const s=String(status||'pending');
+    if(s==='applied')return 'Yüklendi';
+    if(s==='started')return 'Başlatıldı';
+    if(s==='unverified')return 'Doğrulama bekliyor';
+    if(s==='missing_user')return 'Kullanıcı eşleşmedi';
+    if(s==='missing_plan')return 'Paket eşleşmedi';
+    if(s==='failed')return 'Başarısız';
+    return 'Beklemede';
+  }
+  async function renderAdminShopierPaymentsV215(){
+    const dash=document.getElementById('at-dashboard');
+    const logs=document.getElementById('at-logs');
+    const target=logs||dash;
+    if(!target||!authToken)return;
+    let host=document.getElementById('admin-shopier-payments-v215');
+    if(!host){
+      host=document.createElement('div');
+      host.id='admin-shopier-payments-v215';
+      host.className='admin-card admin-shopier-payments-v215';
+      target.appendChild(host);
+    }
+    host.innerHTML='<div class="admin-card-header"><h3>Shopier ödeme akışı</h3><button class="admin-chip-btn" onclick="renderAdminShopierPaymentsV215()">Yenile</button></div><div class="admin-card-body admin-mini-loading">Ödemeler okunuyor...</div>';
+    try{
+      const api=await adminApiJson('/api/admin/shopier-payments');
+      const rows=api.ok?(api.data.payments||[]):[];
+      host.innerHTML='<div class="admin-card-header"><h3>Shopier ödeme akışı</h3><button class="admin-chip-btn" onclick="renderAdminShopierPaymentsV215()">Yenile</button></div><div class="admin-card-body">'+(rows.length?'<div class="admin-shopier-list-v215">'+rows.slice(0,14).map(r=>{
+        const cls=String(r.status||'pending').replace(/[^a-z0-9_-]/gi,'');
+        const plan=(typeof adminPlanName==='function')?adminPlanName(r.plan):r.plan;
+        return '<article class="'+esc(cls)+'"><div><strong>'+esc(r.email||r.username||'Eşleşme bekliyor')+'</strong><span>'+esc(plan||'-')+' · +'+Number(r.credits||0).toLocaleString('tr-TR')+' kredi · '+fmtShopierDateV215(r.created_at)+'</span></div><em>'+esc(shopierStatusLabelV215(r.status))+'</em><small>'+esc(r.payment_id||r.platform_order_id||'-')+'</small></article>';
+      }).join('')+'</div>':'<div class="admin-empty">Henüz Shopier ödeme bildirimi yok.</div>')+'</div>';
+    }catch(e){
+      host.innerHTML='<div class="admin-card-header"><h3>Shopier ödeme akışı</h3></div><div class="admin-card-body"><div class="admin-empty admin-error-box">Shopier ödeme geçmişi alınamadı.</div></div>';
+    }
+  }
+  window.renderAdminShopierPaymentsV215=renderAdminShopierPaymentsV215;
+
+  const oldAdminTabV215=window.adminTab || (typeof adminTab==='function'?adminTab:null);
+  if(oldAdminTabV215&&!window.__adminTabShopierV215Wrapped){
+    window.__adminTabShopierV215Wrapped=true;
+    window.adminTab=function(tab){
+      const result=oldAdminTabV215.apply(this,arguments);
+      if(tab==='logs'||tab==='dashboard')setTimeout(renderAdminShopierPaymentsV215,260);
+      return result;
+    };
+    try{adminTab=window.adminTab}catch(e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{notifyPaymentState();setTimeout(renderAdminShopierPaymentsV215,1200);});
+  else setTimeout(()=>{notifyPaymentState();renderAdminShopierPaymentsV215();},900);
+})();
