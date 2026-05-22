@@ -167,6 +167,27 @@ db.exec(`
     is_active INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+  CREATE TABLE IF NOT EXISTS membership_code_redemptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code_id INTEGER,
+    code TEXT,
+    user_id INTEGER,
+    plan TEXT,
+    credits INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE TABLE IF NOT EXISTS credit_usage (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    kind TEXT,
+    model TEXT,
+    provider TEXT,
+    actual_model TEXT,
+    cost INTEGER DEFAULT 0,
+    remaining INTEGER,
+    status TEXT DEFAULT 'success',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
   CREATE TABLE IF NOT EXISTS app_meta (
     key TEXT PRIMARY KEY,
     value TEXT,
@@ -409,6 +430,13 @@ function logActivity(userId, action, detail='') {
   try { db.prepare('INSERT INTO activity_logs (user_id, action, detail) VALUES (?, ?, ?)').run(userId, action, detail); } catch(e) {}
 }
 
+function logCreditUsage({ userId, kind, model, provider, actualModel, cost, remaining, status='success' }) {
+  try {
+    db.prepare('INSERT INTO credit_usage (user_id, kind, model, provider, actual_model, cost, remaining, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(userId, kind || 'chat', model || '', provider || '', actualModel || model || '', Number(cost || 0), Number.isFinite(Number(remaining)) ? Number(remaining) : null, status || 'success');
+  } catch(e) {}
+}
+
 
 // ===== SAAS & AUTH ENDPOINTS =====
 app.post('/api/register', authLimiter, (req, res) => {
@@ -594,6 +622,18 @@ app.get('/api/admin/logs', adminMiddleware, (req, res) => {
   } catch(e) { res.status(500).json({error: e.message}); }
 });
 
+// GET /api/admin/code-redemptions
+app.get('/api/admin/code-redemptions', adminMiddleware, (req, res) => {
+  try {
+    const redemptions = db.prepare(`SELECT r.*, u.username, u.email
+      FROM membership_code_redemptions r
+      LEFT JOIN users u ON u.id = r.user_id
+      ORDER BY r.created_at DESC
+      LIMIT 200`).all();
+    res.json({ redemptions });
+  } catch(e) { res.status(500).json({error: e.message}); }
+});
+
 // POST /api/admin/announce
 app.post('/api/admin/announce', adminMiddleware, (req, res) => {
   const { title, body, type } = req.body;
@@ -670,6 +710,8 @@ app.post('/api/redeem-code', authMiddleware, (req, res) => {
       if(Number(c.used_count || 0) >= Number(c.max_uses || 1)) return { status: 400, error: 'Kod kullan\u0131m limiti dolmu\u015f.' };
       db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(c.plan, Math.max(0, Number(c.credits || 0)), userId);
       db.prepare('UPDATE membership_codes SET used_count = used_count + 1 WHERE id = ?').run(c.id);
+      db.prepare('INSERT INTO membership_code_redemptions (code_id, code, user_id, plan, credits) VALUES (?, ?, ?, ?, ?)')
+        .run(c.id, c.code, userId, c.plan, Math.max(0, Number(c.credits || 0)));
       logActivity(userId, 'redeem_membership_code', `${c.code}: ${c.plan}, +${c.credits || 0} kredi`);
       const user = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(userId);
       return { success: true, user, code: c.code, plan: c.plan, credits_added: Number(c.credits || 0) };
@@ -809,6 +851,15 @@ app.get('/api/me', authMiddleware, (req, res) => {
     if(!user) return res.status(404).json({error: 'Kullanıcı bulunamadı'});
     const limits = getDailyLimits(user.plan || 'free');
     res.json({ user, limits });
+  } catch(e) {
+    res.status(500).json({error: e.message});
+  }
+});
+
+app.get('/api/credit-history', authMiddleware, (req, res) => {
+  try {
+    const items = db.prepare('SELECT kind, model, provider, actual_model, cost, remaining, status, created_at FROM credit_usage WHERE user_id = ? ORDER BY created_at DESC LIMIT 80').all(req.user.id);
+    res.json({ items });
   } catch(e) {
     res.status(500).json({error: e.message});
   }
@@ -2242,7 +2293,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
     model = GROQ_FALLBACK[model];
   }
 
-  console.log(`[CHAT] Model: ${model}, Provider: ${provider || 'openai'}, Base: ${p.base}, Key: ${key ? key.substring(0,10) : 'none'}...`);
+  console.log(`[CHAT] Model: ${model}, Provider: ${provider || 'openai'}, Base: ${p.base}, Key: ${key ? 'configured' : 'missing'}`);
 
   const isPollinations = provider === 'pollinations';
   const payload = JSON.stringify({
@@ -3834,6 +3885,7 @@ app.post('/api/deduct-credit', authMiddleware, (req, res) => {
   db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);
   incrementDaily(req.user.id, 'chat');
   const updated = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
+  logCreditUsage({ userId: req.user.id, kind: 'chat', model: billModel, provider: billProvider, actualModel: model, cost, remaining: updated.credits });
   res.json({ cost, remaining: updated.credits, free: false, model: billModel, provider: billProvider, actualModel: model });
 });
 
@@ -3869,6 +3921,7 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
   db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);
   incrementDaily(req.user.id, 'image');
   const updated = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
+  logCreditUsage({ userId: req.user.id, kind: 'image', model: billModel, provider: billProvider, actualModel: model, cost, remaining: updated.credits });
   res.json({ cost, remaining: updated.credits, free: false, model: billModel, provider: billProvider, actualModel: model });
 });
 
@@ -3971,6 +4024,34 @@ app.get('/api/health/providers', (req, res) => {
     },
     version: 'v137'
   });
+});
+
+app.get('/api/admin/provider-health-live', adminMiddleware, (req, res) => {
+  const providerRows = Object.entries(PROVIDERS || {}).map(([name, p]) => ({
+    name,
+    configured: Boolean(p && p.key),
+    base: p && p.base ? String(p.base).replace(/\/+$/,'') : '',
+    models: 0,
+    status: p && p.key ? 'ready' : 'missing_key'
+  }));
+  try {
+    providerRows.forEach(row => {
+      row.models = 0;
+    });
+    res.json({
+      success: true,
+      checked_at: new Date().toISOString(),
+      uptime: Math.round(process.uptime()),
+      providers: providerRows,
+      generated_images: (() => {
+        try {
+          return fs.readdirSync(path.join(__dirname, 'generated')).filter(f => /\.(png|jpg|jpeg|svg|webp)$/i.test(f)).length;
+        } catch(e) { return 0; }
+      })()
+    });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ===== 404 CATCH-ALL =====

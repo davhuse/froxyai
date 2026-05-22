@@ -9489,7 +9489,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v213';
+  const VERSION='v214';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -10425,4 +10425,206 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
     toast('Üyelik kodu oluşturuldu: '+created,'ok');
     await window.loadMembershipCodes();
   };
+})();
+
+/* v214: growth operations layer. Adds visible credit history, code redemption
+   history, provider health cards and image queue feedback without changing
+   model/provider selection or credit pricing rules. */
+(function(){
+  if(window.__froxyGrowthOpsV214)return;
+  window.__froxyGrowthOpsV214=true;
+
+  function fmtV214Date(value){
+    try{return new Date(value||Date.now()).toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return ''}
+  }
+  function shortV214(value,len){
+    value=String(value||'');
+    return value.length>len?value.slice(0,len-1)+'…':value;
+  }
+  function localCreditHistory(){
+    try{return LS.get('ap_credit_history_v214',[])}catch(e){return []}
+  }
+  function saveLocalCreditHistory(items){
+    try{LS.set('ap_credit_history_v214',items.slice(0,80))}catch(e){}
+  }
+  function addLocalCreditHistory(entry){
+    const items=localCreditHistory();
+    items.unshift(Object.assign({created_at:new Date().toISOString(),status:'success'},entry));
+    saveLocalCreditHistory(items);
+  }
+
+  const baseChargeSuccessfulUse=window.chargeSuccessfulUse || (typeof chargeSuccessfulUse==='function'?chargeSuccessfulUse:null);
+  if(baseChargeSuccessfulUse){
+    window.chargeSuccessfulUse=async function(model,provider,kind,forcedCost){
+      const result=await baseChargeSuccessfulUse.apply(this,arguments);
+      const cost=Number(result&&result.cost||forcedCost||0);
+      if(cost>0 && result && !result.error && !result.blocked && !authToken){
+        addLocalCreditHistory({
+          kind:kind||'chat',
+          model:model||'',
+          provider:provider||'',
+          actual_model:(result&&result.actualModel)||model||'',
+          cost:cost,
+          remaining:Number.isFinite(Number(result.remaining))?Number(result.remaining):remainingUserCredits()
+        });
+      }
+      setTimeout(renderCreditHistoryPanel,120);
+      return result;
+    };
+    try{chargeSuccessfulUse=window.chargeSuccessfulUse}catch(e){}
+  }
+
+  async function fetchCreditHistory(){
+    if(authToken){
+      try{
+        const res=await fetch('/api/credit-history',{headers:{Authorization:'Bearer '+authToken}});
+        const data=await readApiJson(res);
+        if(res.ok)return data.items||[];
+      }catch(e){}
+    }
+    return localCreditHistory();
+  }
+
+  async function renderCreditHistoryPanel(){
+    const root=document.getElementById('ptab-store');
+    if(!root)return;
+    const page=root.querySelector('.store-page')||root;
+    if(!page)return;
+    let host=document.getElementById('credit-history-panel-v214');
+    if(!host){
+      host=document.createElement('section');
+      host.id='credit-history-panel-v214';
+      host.className='credit-history-panel-v214';
+      const anchor=root.querySelector('.store-coupon-mini')||root.querySelector('.store-main')||page.firstElementChild;
+      if(anchor)anchor.insertAdjacentElement('afterend',host);else page.appendChild(host);
+    }
+    host.innerHTML='<div class="credit-history-head"><div><span>Kredi geçmişi</span><strong>Son işlemler</strong></div><button type="button" onclick="renderCreditHistoryPanel()">Yenile</button></div><div class="credit-history-loading">İşlemler okunuyor...</div>';
+    const rows=(await fetchCreditHistory()).slice(0,8);
+    if(!rows.length){
+      host.innerHTML='<div class="credit-history-head"><div><span>Kredi geçmişi</span><strong>Henüz işlem yok</strong></div><button type="button" onclick="renderCreditHistoryPanel()">Yenile</button></div><p class="credit-history-empty">Başarılı chat veya görsel işleminden sonra burada model, maliyet ve kalan kredi görünür.</p>';
+      return;
+    }
+    host.innerHTML='<div class="credit-history-head"><div><span>Kredi geçmişi</span><strong>Son '+rows.length+' işlem</strong></div><button type="button" onclick="renderCreditHistoryPanel()">Yenile</button></div><div class="credit-history-list">'+rows.map(r=>{
+      const kind=r.kind==='image'?'Görsel':'Sohbet';
+      const model=shortV214(r.model||r.actual_model||'Model',34);
+      const provider=shortV214(r.provider||'sağlayıcı',18);
+      const rem=Number.isFinite(Number(r.remaining))?Number(r.remaining).toLocaleString('tr-TR'):'-';
+      return '<article><i class="'+(r.kind==='image'?'img':'chat')+'">'+(r.kind==='image'?'IMG':'AI')+'</i><div><strong>'+esc(model)+'</strong><span>'+esc(kind)+' · '+esc(provider)+' · '+fmtV214Date(r.created_at)+'</span></div><b>-'+Number(r.cost||0).toLocaleString('tr-TR')+'</b><em>Kalan '+rem+'</em></article>';
+    }).join('')+'</div>';
+  }
+  window.renderCreditHistoryPanel=renderCreditHistoryPanel;
+
+  async function renderAdminCodeRedemptions(){
+    const codesTab=document.getElementById('at-codes');
+    if(!codesTab||!authToken)return;
+    let host=document.getElementById('admin-code-redemptions-v214');
+    if(!host){
+      host=document.createElement('div');
+      host.id='admin-code-redemptions-v214';
+      host.className='admin-card admin-code-redemptions-v214';
+      codesTab.appendChild(host);
+    }
+    host.innerHTML='<div class="admin-card-header"><h3>Kod kullanım geçmişi</h3><button class="admin-chip-btn" onclick="renderAdminCodeRedemptions()">Yenile</button></div><div class="admin-card-body admin-mini-loading">Kod kullanımları okunuyor...</div>';
+    try{
+      const api=await adminApiJson('/api/admin/code-redemptions');
+      const rows=api.ok?(api.data.redemptions||[]):[];
+      host.innerHTML='<div class="admin-card-header"><h3>Kod kullanım geçmişi</h3><button class="admin-chip-btn" onclick="renderAdminCodeRedemptions()">Yenile</button></div><div class="admin-card-body">'+(rows.length?'<div class="admin-redemption-list">'+rows.slice(0,12).map(r=>{
+        return '<article><strong>'+esc(r.code||'-')+'</strong><span>'+esc(r.email||r.username||'Kullanıcı')+'</span><em>'+esc(adminPlanName(r.plan))+' · +'+Number(r.credits||0).toLocaleString('tr-TR')+' kredi · '+fmtV214Date(r.created_at)+'</em></article>';
+      }).join('')+'</div>':'<div class="admin-empty">Henüz kod kullanımı yok</div>')+'</div>';
+    }catch(e){
+      host.innerHTML='<div class="admin-card-header"><h3>Kod kullanım geçmişi</h3></div><div class="admin-card-body"><div class="admin-empty admin-error-box">Kod kullanım geçmişi alınamadı.</div></div>';
+    }
+  }
+  window.renderAdminCodeRedemptions=renderAdminCodeRedemptions;
+
+  async function renderAdminProviderLive(){
+    const dashboard=document.getElementById('at-dashboard');
+    const models=document.getElementById('at-models');
+    const target=document.getElementById('admin-health-providers') || (models&&models.querySelector('.admin-card')) || dashboard;
+    if(!target||!authToken)return;
+    let host=document.getElementById('provider-live-v214');
+    if(!host){
+      host=document.createElement('div');
+      host.id='provider-live-v214';
+      host.className='provider-live-v214';
+      target.appendChild(host);
+    }
+    host.innerHTML='<div class="provider-live-head"><strong>Canlı sağlayıcı durumu</strong><button type="button" onclick="renderAdminProviderLive()">Kontrol et</button></div><div class="provider-live-loading">Sağlayıcılar kontrol ediliyor...</div>';
+    try{
+      const api=await adminApiJson('/api/admin/provider-health-live');
+      const providers=api.ok?(api.data.providers||[]):[];
+      const ready=providers.filter(p=>p.configured).length;
+      host.innerHTML='<div class="provider-live-head"><strong>Canlı sağlayıcı durumu</strong><span>'+ready+'/'+providers.length+' hazır</span><button type="button" onclick="renderAdminProviderLive()">Kontrol et</button></div><div class="provider-live-grid">'+providers.slice(0,10).map(p=>{
+        const label=(typeof providerLabel==='function')?providerLabel(p.name):p.name;
+        return '<article class="'+(p.configured?'ready':'missing')+'"><i></i><strong>'+esc(label)+'</strong><span>'+esc(p.configured?'Hazır':'Key eksik')+'</span></article>';
+      }).join('')+'</div>';
+    }catch(e){
+      host.innerHTML='<div class="provider-live-head"><strong>Canlı sağlayıcı durumu</strong></div><div class="admin-empty admin-error-box">Sağlayıcı sağlığı okunamadı.</div>';
+    }
+  }
+  window.renderAdminProviderLive=renderAdminProviderLive;
+
+  function setImageQueue(active,prompt,model){
+    const area=document.getElementById('ptab-img');
+    if(!area)return;
+    let host=document.getElementById('image-queue-v214');
+    if(!host){
+      host=document.createElement('section');
+      host.id='image-queue-v214';
+      host.className='image-queue-v214';
+      const result=document.getElementById('img-result');
+      if(result)result.insertAdjacentElement('beforebegin',host);else area.prepend(host);
+    }
+    if(!active){host.classList.remove('on');host.innerHTML='';return}
+    host.classList.add('on');
+    host.innerHTML='<div><strong>Görsel kuyruğa alındı</strong><span>'+esc(shortV214(prompt||'',80))+'</span></div><ol><li class="on">Prompt</li><li>Sağlayıcı</li><li>Render</li><li>Galeri</li></ol><b>'+esc(getImageModelLabel?getImageModelLabel(model):model||'Model')+'</b>';
+    const steps=[...host.querySelectorAll('li')];
+    let i=0;
+    clearInterval(window.__imageQueueTimerV214);
+    window.__imageQueueTimerV214=setInterval(()=>{i=(i+1)%steps.length;steps.forEach((s,idx)=>s.classList.toggle('on',idx<=i));},900);
+  }
+  const baseGenImage=window.genImage || (typeof genImage==='function'?genImage:null);
+  if(baseGenImage){
+    window.genImage=async function(){
+      const prompt=document.getElementById('img-prompt')?.value||'';
+      const model=document.getElementById('img-model')?.value||'flux';
+      setImageQueue(true,prompt,model);
+      try{return await baseGenImage.apply(this,arguments)}
+      finally{
+        clearInterval(window.__imageQueueTimerV214);
+        setTimeout(()=>setImageQueue(false),1200);
+        setTimeout(renderCreditHistoryPanel,300);
+      }
+    };
+    try{genImage=window.genImage}catch(e){}
+  }
+
+  function bindV214(){
+    if(typeof renderCreditHistoryPanel==='function')setTimeout(renderCreditHistoryPanel,180);
+    if(typeof renderAdminCodeRedemptions==='function')setTimeout(renderAdminCodeRedemptions,240);
+    if(typeof renderAdminProviderLive==='function')setTimeout(renderAdminProviderLive,260);
+  }
+  const oldPanelTab=window.panelTab || (typeof panelTab==='function'?panelTab:null);
+  if(oldPanelTab&&!window.__panelTabV214Wrapped){
+    window.__panelTabV214Wrapped=true;
+    window.panelTab=function(tab){
+      const result=oldPanelTab.apply(this,arguments);
+      if(tab==='store')setTimeout(renderCreditHistoryPanel,260);
+      return result;
+    };
+    try{panelTab=window.panelTab}catch(e){}
+  }
+  const oldAdminTab=window.adminTab || (typeof adminTab==='function'?adminTab:null);
+  if(oldAdminTab&&!window.__adminTabV214Wrapped){
+    window.__adminTabV214Wrapped=true;
+    window.adminTab=function(tab){
+      const result=oldAdminTab.apply(this,arguments);
+      if(tab==='codes')setTimeout(renderAdminCodeRedemptions,220);
+      if(tab==='dashboard'||tab==='models')setTimeout(renderAdminProviderLive,260);
+      return result;
+    };
+    try{adminTab=window.adminTab}catch(e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindV214);
+  else setTimeout(bindV214,500);
 })();
