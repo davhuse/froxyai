@@ -3299,7 +3299,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
   if (imgModel === 'together-flux') {
     const togetherKey = overrideKey || getTogetherKey();
     if (!togetherKey) {
-      imgModel = 'flux';
+      imgModel = 'cf-sdxl';
     } else try {
       const tRes = await fetch('https://api.together.xyz/v1/images/generations', {
         method: 'POST',
@@ -3319,8 +3319,8 @@ app.post('/api/image', chatLimiter, async (req, res) => {
       console.log(`[IMAGE] Together Flux saved: /generated/${fileName}`);
       return res.json({ url: `/generated/${fileName}`, prompt, provider: 'together' });
     } catch (err) {
-      console.warn('[IMAGE FALLBACK] Together failed:', err.message, '→ Pollinations');
-      imgModel = 'flux';
+      console.warn('[IMAGE FALLBACK] Together failed:', err.message, '→ Cloudflare Workers AI');
+      imgModel = 'cf-sdxl';
     }
   }
 
@@ -3475,7 +3475,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
     }
 
     // Model rotation: 429 gelirse farklı seed ile tekrar dene
-    const MAX_RETRIES = 3;
+    const MAX_RETRIES = 2;
     let lastErr = null;
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -3483,7 +3483,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         const seed = Date.now() + attempt * 7777 + Math.floor(Math.random() * 99999);
         const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?model=${encodeURIComponent(finalModel)}&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 60000);
+        const timeout = setTimeout(() => controller.abort(), 12000);
         const response = await fetch(imgUrl, {
           signal: controller.signal,
           headers: {
@@ -3495,8 +3495,8 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         clearTimeout(timeout);
 
         if (response.status === 429 || response.status === 402) {
-          console.warn(`[IMAGE] Attempt ${attempt+1}/${MAX_RETRIES} status ${response.status}, waiting ${3+attempt*2}s...`);
-          await new Promise(r => setTimeout(r, 3000 + attempt * 2000));
+          console.warn(`[IMAGE] Attempt ${attempt+1}/${MAX_RETRIES} status ${response.status}, waiting 1.5s...`);
+          await new Promise(r => setTimeout(r, 1500));
           continue;
         }
         if (!response.ok) throw new Error(`Pollinations HTTP ${response.status}`);
@@ -3516,20 +3516,36 @@ app.post('/api/image', chatLimiter, async (req, res) => {
       } catch (err) {
         lastErr = err;
         if (err.name === 'AbortError') {
-          console.warn(`[IMAGE] Attempt ${attempt+1} timeout`);
+          console.warn(`[IMAGE] Attempt ${attempt+1} timeout (12s)`);
         } else {
           console.warn(`[IMAGE] Attempt ${attempt+1} failed: ${err.message}`);
         }
-        if (attempt < MAX_RETRIES - 1) await new Promise(r => setTimeout(r, 1200));
+        if (attempt < MAX_RETRIES - 1) await new Promise(r => setTimeout(r, 500));
       }
     }
-    // Pollinations 3 retry de başarısız oldu - HuggingFace LTX-Video / Cloudflare SDXL dene
+    // Pollinations retry de başarısız oldu - Cloudflare Workers AI SDXL'e hızlıca düş
     if (CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN) {
       try {
+        console.log(`[IMAGE] Pollinations failed. Falling back to Cloudflare Workers AI for model: ${imgModel}`);
+        const styleAddOn = imgModel.startsWith('style-') ? ({
+          'style-midjourney': ', in the style of Midjourney V6, highly detailed, masterpiece',
+          'style-dalle3': ', DALL-E 3 aesthetic, vibrant colors',
+          'style-anime': ', anime style, studio ghibli, highly detailed',
+          'style-realism': ', ultra realistic, 8k, photorealistic',
+          'style-cinematic': ', cinematic lighting, dramatic shadows, movie still',
+          'style-3d': ', 3d render, unreal engine 5, octane render',
+          'style-cyberpunk': ', cyberpunk style, neon lights, futuristic'
+        }[imgModel] || '') : ({
+          'flux-realism': ', ultra realistic, 8k resolution, photorealistic, photography, canon eos, sharp focus',
+          'flux-anime': ', anime style, beautiful illustration, studio ghibli style, makoto shinkai, vibrant colors',
+          'flux-3d': ', 3d render, unreal engine 5, highly detailed, octane render, ray tracing'
+        }[imgModel] || '');
+        const fallbackPrompt = String(prompt) + styleAddOn;
         const cfRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: finalPrompt, width: imageSize.width, height: imageSize.height, num_steps: 20 })
+          body: JSON.stringify({ prompt: fallbackPrompt, width: imageSize.width, height: imageSize.height, num_steps: 20 }),
+          signal: AbortSignal.timeout(20000)
         });
         if (cfRes.ok) {
           const buf = Buffer.from(await cfRes.arrayBuffer());
@@ -3537,8 +3553,8 @@ app.post('/api/image', chatLimiter, async (req, res) => {
           if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
           const fileName = `cf_${Date.now()}.png`;
           fs.writeFileSync(path.join(genDir, fileName), buf);
-          console.log(`[IMAGE] Cloudflare fallback saved: /generated/${fileName}`);
-          return res.json({ url: `/generated/${fileName}`, prompt: finalPrompt, model: 'cloudflare-sdxl', provider: 'cloudflare-fallback' });
+          console.log(`[IMAGE] Cloudflare fallback saved: /generated/${fileName} (Pollinations fallback success)`);
+          return res.json({ url: `/generated/${fileName}`, prompt: fallbackPrompt, model: imgModel, provider: 'cloudflare-fallback' });
         }
       } catch (cfErr) {
         console.warn('[IMAGE] Cloudflare fallback failed:', cfErr.message);
