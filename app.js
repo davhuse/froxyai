@@ -10709,6 +10709,11 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
   }
 
   window.buyTokensById=function(planId){
+    try {
+      if (typeof msg === 'function') {
+        msg('Ödeme sayfası yeni sekmede açılıyor...', 'success');
+      }
+    } catch (_) {}
     const fallback=window.getShopierPlanUrl(planId);
     window.open(fallback,'_blank','noopener,noreferrer');
   };
@@ -10717,6 +10722,32 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
     window.buyTokensById(pack?.id||'starter');
   };
   try{buyTokens=window.buyTokens;buyTokensById=window.buyTokensById}catch(e){}
+
+  // Global fetch interceptor for automatic logout and modal redirect on 401/403 expired sessions
+  (function() {
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+      const res = await originalFetch.apply(this, args);
+      try {
+        const status = res.status;
+        if (status === 401 || status === 403) {
+          const url = typeof args[0] === 'string' ? args[0] : (args[0] instanceof URL ? args[0].href : (args[0] && args[0].url));
+          if (url && (url.startsWith('/api/') || url.includes('/api/')) && !url.includes('/api/me') && !url.includes('/api/register-ip')) {
+            if (localStorage.getItem('saas_token')) {
+              localStorage.removeItem('saas_token');
+              localStorage.removeItem('saas_user');
+              if (typeof authToken !== 'undefined') authToken = null;
+              if (typeof authUser !== 'undefined') authUser = null;
+              if (typeof updateSidebarAuthActions === 'function') updateSidebarAuthActions();
+              if (typeof msg === 'function') msg('Oturumunuz sonlandırıldı. Lütfen tekrar giriş yapın.', 'err');
+              if (typeof openM === 'function') openM('auth-modal');
+            }
+          }
+        }
+      } catch (_) {}
+      return res;
+    };
+  })();
 
   function fmtShopierDateV215(value){
     try{return new Date(value||Date.now()).toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return ''}
