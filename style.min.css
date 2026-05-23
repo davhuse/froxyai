@@ -22376,3 +22376,46 @@ body.theme-light .coupon-status-card b{color:#0f172a!important}
   z-index: 999999 !important;
   pointer-events: auto !important;
 }
+
+/* v228 Chat control click authority */
+#ptab-chat .ai-top-chip,
+#ptab-chat .ai-chat-top-actions .ai-top-btn,
+#ptab-chat .model-picker-chip,
+#ptab-chat .dock-button.model-picker-chip {
+  pointer-events: auto !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none !important;
+  isolation: isolate !important;
+}
+
+#ptab-chat .ai-top-chip *,
+#ptab-chat .ai-chat-top-actions .ai-top-btn *,
+#ptab-chat .model-picker-chip > * {
+  pointer-events: none !important;
+}
+
+#model-picker.open,
+#model-picker.open * {
+  pointer-events: auto !important;
+}
+
+#model-picker .mp-list,
+#model-picker .mp-item {
+  position: relative !important;
+  z-index: 1000001 !important;
+  pointer-events: auto !important;
+}
+
+#model-picker .mp-item {
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+}
+
+#model-picker .mp-item:not(.mp-star) * {
+  pointer-events: none;
+}
+
+#model-picker .mp-star,
+#model-picker .mp-star * {
+  pointer-events: auto !important;
+}

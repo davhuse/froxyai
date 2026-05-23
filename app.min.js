@@ -2880,30 +2880,100 @@ const CAT_INFO={
   nvidia:{icon:'chart',label:'NVIDIA',color:'#76b900'},mistral:{icon:'globe',label:'Mistral',color:'#ef4444'},
   image:{icon:'image',label:'Görsel',color:'#ec4899'},spicy:{icon:'flame',label:'Spicy 18+',color:'#ef4444'},other:{icon:'sparkles',label:'Di\u011fer',color:'#8b5cf6'}
 };
-function toggleModelPicker(event){
-  if(event)event.stopPropagation();
+function ensureFloatingPanelsRoot(){
+  ['settings-modal','model-picker-overlay','model-picker'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.parentElement!==document.body)document.body.appendChild(el);
+  });
+}
+function openModelPicker(event){
+  if(event){
+    event.preventDefault?.();
+    event.stopPropagation?.();
+    event.stopImmediatePropagation?.();
+  }
+  ensureFloatingPanelsRoot();
   const p=document.getElementById('model-picker');
   const o=document.getElementById('model-picker-overlay');
   if(!p||!o)return;
-  if(p.classList.contains('open')){closeModelPicker()}
-  else{p.classList.add('open');o.classList.add('open');document.body.classList.add('model-picker-open');const s=document.getElementById('mp-search');if(s)s.focus();renderModelPicker()}
+  p.classList.add('open');
+  o.classList.add('open');
+  document.body.classList.add('model-picker-open');
+  renderModelPicker();
+  const s=document.getElementById('mp-search');
+  if(s)setTimeout(()=>s.focus(),30);
+}
+function toggleModelPicker(event){
+  if(event){
+    event.preventDefault?.();
+    event.stopPropagation?.();
+  }
+  const p=document.getElementById('model-picker');
+  if(!p)return;
+  if(p.classList.contains('open'))closeModelPicker();
+  else openModelPicker(event);
 }
 function closeModelPicker(){
+  ensureFloatingPanelsRoot();
   document.getElementById('model-picker')?.classList.remove('open');
   document.getElementById('model-picker-overlay')?.classList.remove('open');
   document.body.classList.remove('model-picker-open');
 }
 
-// v226: some late mobile/theme layers can sit above the model buttons; keep a
-// delegated capture handler so every visible model trigger opens the picker.
-document.addEventListener('click',function(e){
-  const trigger=e.target.closest?.('.ai-top-chip,.model-picker-chip,[data-open-model-picker]');
-  if(!trigger)return;
-  if(trigger.closest?.('#model-picker'))return;
-  e.preventDefault();
-  e.stopPropagation();
-  toggleModelPicker(e);
-},true);
+function openSettingsModal(){
+  ensureFloatingPanelsRoot();
+  const modal=document.getElementById('settings-modal');
+  if(modal)modal.style.display='flex';
+}
+
+function handleChatControlPress(e){
+  const target=e.target;
+  if(target.closest?.('#model-picker .mp-star'))return false;
+  const clickable=target.closest?.('.ai-top-chip,.model-picker-chip,[data-open-model-picker],.ai-chat-top-actions .ai-top-btn[title="Ayarlar"],.mobile-settings-action,[data-action="settings"],.ai-chat-top-actions .ai-top-btn[title="Dışa aktar"],[data-action="export-chat"],#model-picker .mp-item[data-model-id]');
+  if(!clickable)return false;
+  if(e.type==='click'&&window.__froxyLastControlPointer&&Date.now()-window.__froxyLastControlPointer<450){
+    e.preventDefault?.();
+    e.stopPropagation?.();
+    e.stopImmediatePropagation?.();
+    return true;
+  }
+  if(e.type==='pointerdown')window.__froxyLastControlPointer=Date.now();
+  const modelTrigger=target.closest?.('.ai-top-chip,.model-picker-chip,[data-open-model-picker]');
+  if(modelTrigger&&!modelTrigger.closest?.('#model-picker')){
+    openModelPicker(e);
+    return true;
+  }
+  const settingsTrigger=target.closest?.('.ai-chat-top-actions .ai-top-btn[title="Ayarlar"],.mobile-settings-action,[data-action="settings"]');
+  if(settingsTrigger){
+    e.preventDefault?.();
+    e.stopPropagation?.();
+    e.stopImmediatePropagation?.();
+    openSettingsModal();
+    return true;
+  }
+  const exportTrigger=target.closest?.('.ai-chat-top-actions .ai-top-btn[title="Dışa aktar"],[data-action="export-chat"]');
+  if(exportTrigger){
+    e.preventDefault?.();
+    e.stopPropagation?.();
+    e.stopImmediatePropagation?.();
+    if(typeof exportChat==='function')exportChat();
+    return true;
+  }
+  const item=target.closest?.('#model-picker .mp-item[data-model-id]');
+  if(item&&!target.closest?.('.mp-star')){
+    e.preventDefault?.();
+    e.stopPropagation?.();
+    e.stopImmediatePropagation?.();
+    selectModel(item.dataset.modelId);
+    return true;
+  }
+  return false;
+}
+
+// v228: use pointerdown and click capture so top/dock controls keep working
+// even when late theme/mobile layers create a visual overlay above them.
+document.addEventListener('pointerdown',handleChatControlPress,true);
+document.addEventListener('click',handleChatControlPress,true);
 
 function renderModelPicker(filter){
   if(!modelCatalogLoaded && ALL_MODELS.length<200)loadRemoteModelCatalog().catch(()=>{});
@@ -2938,7 +3008,7 @@ function renderModelPicker(filter){
     const badge='<span class="mp-badge '+badgeClass+'">'+cost+' kredi</span>';
     const sel2=m.id===currentModel;
     const fav=isModelFavorite(m.id);
-    return '<div class="mp-item '+(sel2?'selected':'')+'" onclick="selectModel(\''+jsStr(m.id)+'\')" style="animation:fadeSlideUp .2s '+(i*0.015)+'s both"><button type="button" class="mp-star '+(fav?'on':'')+'" onclick="toggleModelFavorite(\''+jsStr(m.id)+'\',event)" aria-label="'+(fav?'Favoriden çıkar':'Favoriye ekle')+'" title="Favori"><span class="mp-star-dot" aria-hidden="true"></span></button><div class="mp-item-icon">'+figIcon(ci.icon)+'</div><div class="mp-item-info"><div class="mp-item-name">'+esc(m.name)+'</div><div class="mp-item-meta">'+badge+'<span>'+esc(providerLabel(m.provider||'openai'))+'</span></div></div>'+(sel2?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>';
+    return '<div class="mp-item '+(sel2?'selected':'')+'" data-model-id="'+esc(m.id)+'" role="button" tabindex="0" onclick="selectModel(\''+jsStr(m.id)+'\')" style="animation:fadeSlideUp .2s '+(i*0.015)+'s both"><button type="button" class="mp-star '+(fav?'on':'')+'" onclick="toggleModelFavorite(\''+jsStr(m.id)+'\',event)" aria-label="'+(fav?'Favoriden çıkar':'Favoriye ekle')+'" title="Favori"><span class="mp-star-dot" aria-hidden="true"></span></button><div class="mp-item-icon">'+figIcon(ci.icon)+'</div><div class="mp-item-info"><div class="mp-item-name">'+esc(m.name)+'</div><div class="mp-item-meta">'+badge+'<span>'+esc(providerLabel(m.provider||'openai'))+'</span></div></div>'+(sel2?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>';
   }).join('');
 }
 function filterModels(q){renderModelPicker(q)}
