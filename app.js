@@ -3,9 +3,15 @@ let authToken = localStorage.getItem('saas_token') || null;
 let authUser = JSON.parse(localStorage.getItem('saas_user') || 'null');
 const GOOGLE_OAUTH_CLIENT_ID = '580593981475-6pk360d9pn1mmhtdteo4h1vc3f3u1673.apps.googleusercontent.com';
 const DEFAULT_REMOTE_API_ORIGIN = 'https://froxyai-production.up.railway.app';
-const API_ORIGIN = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname)
-  ? ''
-  : (localStorage.getItem('ap_api_origin') || DEFAULT_REMOTE_API_ORIGIN);
+const DEFAULT_LOCAL_API_ORIGIN = 'http://127.0.0.1:3000';
+const LOCAL_NODE_PORTS = new Set(['3000','3001','8188']);
+const IS_LOCAL_PREVIEW = /^(localhost|127\.0\.0\.1)$/i.test(location.hostname) && !LOCAL_NODE_PORTS.has(String(location.port||''));
+const API_ORIGIN = IS_LOCAL_PREVIEW
+  ? (localStorage.getItem('ap_api_origin') || DEFAULT_LOCAL_API_ORIGIN)
+  : (/^(localhost|127\.0\.0\.1)$/i.test(location.hostname) ? '' : (localStorage.getItem('ap_api_origin') || DEFAULT_REMOTE_API_ORIGIN));
+const OAUTH_ORIGIN = IS_LOCAL_PREVIEW
+  ? (localStorage.getItem('ap_oauth_origin') || DEFAULT_REMOTE_API_ORIGIN)
+  : (API_ORIGIN || '');
 
 function apiUrl(input){
   if(!input || typeof input !== 'string')return input;
@@ -275,6 +281,31 @@ async function postJsonApi(endpoint, payload, timeoutMs=90000){
     }
     throw err;
   }
+}
+function isBrokenStoredAssistantContent(content){
+  const s=String(content||'').trim();
+  if(!s)return false;
+  if(s==='__TYPING__'||s.startsWith('__IMG__')||s.startsWith('__VIDEO__'))return false;
+  if(/419 model|AiPaketim Q1|IMPORTANT NOTICE|Pollinations legacy text API|enter\.pollinations\.ai|Hata:.*500|API hatas\S*:?\s*500/i.test(s))return true;
+  if(/^(?:\u26a0\ufe0f?|\u274c)?\s*[*_`#>\-]{0,16}\s*$/i.test(s))return true;
+  return false;
+}
+function cleanLegacyStoredContentV236(){
+  if(LS.get('ap_legacy_content_cleaned_v236',false))return;
+  try{
+    Object.keys(localStorage).filter(k=>k==='ap_chats'||k.startsWith('ap_chats_')).forEach(k=>{
+      const rows=LS.get(k,[]);
+      if(!Array.isArray(rows))return;
+      let changed=false;
+      rows.forEach(chat=>{
+        if(!Array.isArray(chat.messages))return;
+        const next=chat.messages.filter(m=>!(m.role==='assistant' && isBrokenStoredAssistantContent(m.content)));
+        if(next.length!==chat.messages.length){chat.messages=next;changed=true}
+      });
+      if(changed)LS.set(k,rows);
+    });
+    LS.set('ap_legacy_content_cleaned_v236',true);
+  }catch(e){console.warn('[cleanup] legacy chat cleanup skipped',e.message)}
 }
 function normalizeNetworkError(err){
   const raw=String(err?.message||err||'').trim();
@@ -1343,6 +1374,7 @@ async function loadRemoteModelCatalog(){
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded',()=>{
+  cleanLegacyStoredContentV236();
   normalizeCreditBalances();
   LS.del('ap_models');
   if(LS.get('ap_admin_pass',null)==='admin123')LS.del('ap_admin_pass');
@@ -1358,6 +1390,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     loginUI();
   }
   if(startupView==='admin' && (admin || authUser?.is_admin || user?.isAdmin)) go('admin');
+  else if(startupView==='home') go('home');
   else if(startupView==='dash'){ go('chat'); panelTab('dash'); }
   else{go('chat');if(startupTab!=='chat')panelTab(startupTab)}
   // Giriş yapılmamışsa login/register modal'ı otomatik aç (AiPark tarzı).
@@ -1371,7 +1404,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       try { var u = new URL(location.href); u.searchParams.delete('logged_out'); history.replaceState({}, '', u.toString()); } catch(e) {}
       return;
     }
-    if (!isLoggedIn && typeof modal === 'function') {
+    if (startupView !== 'home' && !isLoggedIn && typeof modal === 'function') {
       modal('login');
     }
   }, 350);
@@ -1856,22 +1889,13 @@ function genRefCode(name){
 function socialLogin(provider){
   const names={github:'GitHub',google:'Google'};
   const pName=names[provider]||provider;
-  const authUrl=(API_ORIGIN||'')+'/auth/'+provider+'?return_to='+encodeURIComponent(location.origin);
+  const authUrl=(OAUTH_ORIGIN||'')+'/auth/'+provider+'?return_to='+encodeURIComponent(location.origin);
   if(provider==='google'){
-    startGoogleLogin();
+    msg('Google giriş sayfasına yönlendiriliyorsunuz...','info');
+    window.location.href=authUrl;
     return;
   }
-  // Check if configured before redirecting
-  fetch(authUrl,{redirect:'manual'}).then(r=>{
-    const loc=r.headers.get('location')||'';
-    if(loc.includes('auth_error=')){
-      msg(pName+' girişi henüz aktif değil. Domain alındığında aktif edilecek! 🔜','err');
-    }else{
-      window.location.href=authUrl;
-    }
-  }).catch(()=>{
-    window.location.href=authUrl;
-  });
+  window.location.href=authUrl;
 }
 
 function startGoogleLogin(){
@@ -1892,8 +1916,8 @@ function startGoogleLogin(){
       prompt:'select_account',
       error_callback:err=>{
         console.warn('Google OAuth error',err);
-        const backend=(API_ORIGIN||'')+'/auth/google?return_to='+encodeURIComponent(location.origin);
-        msg('Google popup izni bu domain icin acik degil; yonlendirme ile deneniyor...','info');
+        const backend=(OAUTH_ORIGIN||'')+'/auth/google?return_to='+encodeURIComponent(location.origin);
+        msg('Google popup izni bu domain için açık değil; yönlendirme ile deneniyor...','info');
         setTimeout(()=>{window.location.href=backend},450);
       },
       callback:async tokenRes=>{
@@ -1922,7 +1946,7 @@ function startGoogleLogin(){
           renderModelSelect();
           closeM();
           go((authUser.is_admin||authUser.isAdmin)?'admin':'chat');
-          msg('Google ile giris tamamlandi.','ok');
+          msg('Google ile giriş tamamlandı.','ok');
         }catch(e){
           msg('Google profil bilgisi alınamadı: '+e.message,'err');
         }
@@ -2034,7 +2058,8 @@ function handleOAuthCallback(){
             localStorage.setItem('saas_user',JSON.stringify(authUser));
           }catch(_){}
         }
-        const res=await fetch('/api/me',{headers:{'Authorization':'Bearer '+authToken}});
+        const meUrl=(IS_LOCAL_PREVIEW && OAUTH_ORIGIN) ? (OAUTH_ORIGIN + '/api/me') : '/api/me';
+        const res=await fetch(meUrl,{headers:{'Authorization':'Bearer '+authToken}});
         const data=await readApiJson(res);
         if(!res.ok||!data.user)throw new Error((data&&data.error)||'Backend oturumu dogrulanamadi');
         authUser=data.user;
@@ -2535,10 +2560,14 @@ async function chargeSuccessfulUse(model,provider,kind,forcedCost){
 function getStartupView(){
   try{
     const params=new URLSearchParams(location.search);
+    if(!params.get('view')&&!params.get('screen')&&!location.hash)return 'home';
+  }catch(e){}
+  try{
+    const params=new URLSearchParams(location.search);
     const view=(params.get('view')||params.get('screen')||'').toLowerCase();
-    if(['chat','dash','dashboard','admin'].includes(view))return view==='dashboard'?'dash':view;
+    if(['home','chat','dash','dashboard','admin'].includes(view))return view==='dashboard'?'dash':view;
     const hash=(location.hash||'').replace('#','').toLowerCase();
-    if(['chat','dash','dashboard','admin'].includes(hash))return hash==='dashboard'?'dash':hash;
+    if(['home','chat','dash','dashboard','admin'].includes(hash))return hash==='dashboard'?'dash':hash;
   }catch(e){}
   return 'chat'; // Landing kaldırıldı — her zaman chat açılır.
 }
@@ -2553,8 +2582,22 @@ function getStartupTab(){
 }
 
 function go(v){
+  if(v==='home'){
+    document.documentElement.classList.add('home-mode');
+    document.body.classList.add('home-mode');
+    document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));
+    const home=document.getElementById('v-home');
+    if(home)home.classList.add('on');
+    const nav=document.getElementById('nav');
+    if(nav)nav.style.display='none';
+    window.scrollTo(0,0);
+    try { history.replaceState({}, '', location.pathname); } catch(e){}
+    return;
+  }
   if(v==='dash'){go('chat');panelTab('dash');return}
   if(v==='admin'){
+    document.documentElement.classList.remove('home-mode');
+    document.body.classList.remove('home-mode');
     if(!admin && !authUser?.is_admin && !user?.isAdmin){modal('login');msg('Admin paneli için giriş yapın.','err');return}
     if(typeof ensureAdminShell==='function')ensureAdminShell();
     document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));
@@ -2566,6 +2609,8 @@ function go(v){
     try { history.replaceState({}, '', location.pathname); } catch(e){}
     return;
   }
+  document.documentElement.classList.remove('home-mode');
+  document.body.classList.remove('home-mode');
   document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   window.scrollTo(0,0);
@@ -3182,9 +3227,8 @@ function renderMsgs(opts={}){
     }
     return;
   }
-  const badStoredAssistant=/419 model|AiPaketim Q1|IMPORTANT NOTICE|Pollinations legacy text API|enter\.pollinations\.ai|Hata:.*500|API hatas\S*:?\s*500/i;
   const beforeCleanupCount=c.messages.length;
-  c.messages=c.messages.filter(m=>!(m.role==='assistant' && m.content && m.content !== '__TYPING__' && badStoredAssistant.test(String(m.content))));
+  c.messages=c.messages.filter(m=>!(m.role==='assistant' && isBrokenStoredAssistantContent(m.content)));
   if(c.messages.length!==beforeCleanupCount)saveChats();
   c.messages.forEach((m,idx)=>{
     if(m.role==='assistant' && m.content && m.content !== '__TYPING__' && looksLikeReplyLeak(m.content)){
@@ -9601,7 +9645,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v214';
+  const VERSION='v242';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }

@@ -55,7 +55,7 @@ app.use(compression({
 
 // CORS whitelisting: varsayılan olarak prod domain + localhost.
 // İhtiyaç halinde env ile genişletilebilir: CORS_ORIGINS="https://a.com,https://b.com"
-const DEFAULT_ORIGINS = ['https://froxyai.com', 'https://www.froxyai.com', 'http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
+const DEFAULT_ORIGINS = ['https://froxyai.com', 'https://www.froxyai.com', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:4177', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:4177'];
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
   : DEFAULT_ORIGINS);
@@ -1494,10 +1494,10 @@ app.get('/auth/github/callback', async (req, res) => {
     const tokenRes = await httpsRequest('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ client_id: GITHUB_CLIENT_ID, client_secret: GITHUB_CLIENT_SECRET, code })
+      body: JSON.stringify({ client_id: GITHUB_CLIENT_ID, client_secret: GITHUB_CLIENT_SECRET, code, redirect_uri: publicBaseUrl(req) + '/auth/github/callback' })
     });
     const token = tokenRes.access_token;
-    if (!token) return res.redirect('/?auth_error=token_failed');
+    if (!token) return res.redirect(`${returnTo}/?auth_error=token_failed`);
     
     // Fetch user profile
     const profile = await httpsRequest('https://api.github.com/user', {
@@ -1553,7 +1553,7 @@ app.get('/auth/google/callback', async (req, res) => {
       body: `code=${code}&client_id=${GOOGLE_CLIENT_ID}&client_secret=${GOOGLE_CLIENT_SECRET}&redirect_uri=${encodeURIComponent(baseUrl + '/auth/google/callback')}&grant_type=authorization_code`
     });
     const token = tokenRes.access_token;
-    if (!token) return res.redirect('/?auth_error=token_failed');
+    if (!token) return res.redirect(`${returnTo}/?auth_error=token_failed`);
     
     // Fetch user profile
     const profile = await httpsRequest('https://www.googleapis.com/oauth2/v2/userinfo', {

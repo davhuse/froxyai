@@ -47,7 +47,7 @@
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
-  <link rel="stylesheet" href="style.min.css?v=v228">
+  <link rel="stylesheet" href="style.min.css?v=v242">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="logo-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
@@ -174,6 +174,101 @@
       <button class="btn btn-ghost btn-sm" onclick="logout()">Çıkış</button>
     </div>
   </nav>
+
+  <main id="v-home" class="v froxy-home-v236 home-premium-v237" aria-label="Froxy AI ana sayfa">
+    <header class="home-topbar">
+      <a class="home-brand" href="?view=home" aria-label="Froxy AI ana sayfa">
+        <img src="logo-192.png" alt="Froxy AI" width="34" height="34" decoding="async">
+        <span>Froxy AI</span>
+      </a>
+      <nav class="home-links" aria-label="Ana navigasyon">
+        <a href="#home-tools">Ara&ccedil;lar</a>
+        <a href="#home-pricing">Paketler</a>
+        <a href="#home-trust">G&uuml;ven</a>
+        <a href="#home-legal">Yasal</a>
+      </nav>
+      <div class="home-actions">
+        <button type="button" onclick="modal('login')">Giri&scedil; Yap</button>
+        <button type="button" class="primary" onclick="go('chat')">Panele Gir</button>
+      </div>
+    </header>
+
+    <section class="home-hero">
+      <div class="home-hero-copy">
+        <span class="home-kicker"><i></i> Premium AI &ccedil;al&inodot;&scedil;ma alan&inodot;</span>
+        <h1>Tek hesaptan sohbet, g&ouml;rsel ve ajan operasyonu.</h1>
+        <p>Froxy AI; 440+ modeli, g&ouml;rsel &uuml;retimi, dosya analizi, haz&inodot;r i&scedil; ak&inodot;&scedil;lar&inodot;n&inodot; ve destek s&uuml;recini sade bir SaaS panelinde birle&scedil;tirir.</p>
+        <div class="home-hero-actions">
+          <button type="button" class="primary" onclick="go('chat')">Hemen Ba&scedil;la</button>
+          <button type="button" onclick="document.getElementById('home-pricing')?.scrollIntoView({behavior:'smooth'})">Paketleri G&ouml;r</button>
+        </div>
+        <div class="home-trust-row" aria-label="Platform &ouml;zeti">
+          <span>448 model</span>
+          <span>G&ouml;rsel ve sohbet</span>
+          <span>KVKK / yasal sayfalar</span>
+          <span>Shopier sat&inodot;n alma</span>
+        </div>
+      </div>
+      <div class="home-visual" aria-hidden="true">
+        <div class="home-orbit">
+          <img src="logo-192.png" alt="" width="82" height="82" decoding="async">
+          <span class="n n1">GPT</span><span class="n n2">IMG</span><span class="n n3">RAG</span><span class="n n4">API</span>
+        </div>
+        <div class="home-status-card">
+          <strong>Canl&inodot; model trafi&gbreve;i</strong>
+          <div class="home-bars"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="home-tools" class="home-section">
+      <div class="home-section-head">
+        <span>Mod&uuml;ller</span>
+        <h2>Kullan&inodot;c&inodot;n&inodot;n ilk ekranda anlayaca&gbreve;&inodot; net ak&inodot;&scedil;.</h2>
+      </div>
+      <div class="home-tool-grid">
+        <button type="button" onclick="go('chat')"><b>Sohbet</b><small>Metin, kod, web ve dosya destekli ana panel.</small><em>Ba&scedil;lat</em></button>
+        <button type="button" onclick="go('chat');panelTab('img')"><b>G&ouml;rsel &Uuml;ret</b><small>Prompt, stil, boyut ve galeri ak&inodot;&scedil;&inodot;.</small><em>A&ccedil;</em></button>
+        <button type="button" onclick="go('chat');panelTab('agents')"><b>AI Ajanlar</b><small>SEO, hukuk, kod ve sat&inodot;&scedil; uzmanlar&inodot;.</small><em>Se&ccedil;</em></button>
+        <button type="button" onclick="go('chat');panelTab('tools')"><b>AI Ara&ccedil;lar&inodot;</b><small>Haz&inodot;r i&scedil; ak&inodot;&scedil;lar&inodot;n&inodot; sohbete aktar.</small><em>&Ccedil;al&inodot;&scedil;t&inodot;r</em></button>
+        <button type="button" onclick="go('chat');panelTab('store')"><b>AI Market</b><small>Kredi ve paketleri tek yerde y&ouml;net.</small><em>Bak</em></button>
+        <button type="button" onclick="go('chat');panelTab('support')"><b>Destek</b><small>Bilet a&ccedil;, yan&inodot;tlar&inodot; takip et.</small><em>Yard&inodot;m al</em></button>
+      </div>
+    </section>
+
+    <section class="home-section home-compliance">
+      <article><b>KVKK</b><span>Ayd&inodot;nlatma metni ve veri i&scedil;leme bilgilendirmesi.</span></article>
+      <article><b>Gizlilik</b><span>Kullan&inodot;c&inodot;, hesap ve destek ak&inodot;&scedil;&inodot; i&ccedil;in net politika.</span></article>
+      <article><b>&Ouml;deme</b><span>Shopier linkleriyle paket sat&inodot;n alma ak&inodot;&scedil;&inodot;.</span></article>
+      <article><b>Destek</b><span>Bilet ge&ccedil;mi&scedil;i, cevap ve takip s&uuml;reci.</span></article>
+    </section>
+
+    <section id="home-pricing" class="home-section home-pricing">
+      <div class="home-section-head">
+        <span>Paketler</span>
+        <h2>Kredi mant&inodot;&gbreve;&inodot; sade, sat&inodot;n alma ak&inodot;&scedil;&inodot; net.</h2>
+      </div>
+      <div class="home-price-grid">
+        <article><span>Ba&scedil;lang&inodot;&ccedil;</span><strong>79.99 TL</strong><p>Hafif kullan&inodot;m ve deneme i&ccedil;in.</p><button onclick="buyTokensById('starter')">Sat&inodot;n Al</button></article>
+        <article class="featured"><span>Pop&uuml;ler</span><strong>149.99 TL</strong><p>Chat ve g&ouml;rsel kullan&inodot;m&inodot; i&ccedil;in dengeli paket.</p><button onclick="buyTokensById('popular')">Sat&inodot;n Al</button></article>
+        <article><span>Profesyonel</span><strong>299.99 TL</strong><p>Daha yo&gbreve;un i&scedil; ak&inodot;&scedil;lar&inodot; i&ccedil;in.</p><button onclick="buyTokensById('pro')">Sat&inodot;n Al</button></article>
+      </div>
+    </section>
+
+    <section id="home-trust" class="home-section home-trust">
+      <div><span>G&uuml;ven</span><h2>&Ouml;deme kurulu&scedil;lar&inodot;na haz&inodot;r, temiz bilgilendirme yap&inodot;s&inodot;.</h2></div>
+      <p>KVKK, gizlilik, kullan&inodot;m &scedil;artlar&inodot;, sorumluluk reddi, destek ve ileti&scedil;im alanlar&inodot; kullan&inodot;c&inodot;ya a&ccedil;&inodot;k tutulur.</p>
+    </section>
+
+    <footer id="home-legal" class="home-footer">
+      <span>&copy; 2026 Froxy AI</span>
+      <a onclick="showLegal('privacy')">Gizlilik Politikası</a>
+      <a onclick="showLegal('terms')">Kullanım Şartları</a>
+      <a onclick="showLegal('kvkk')">KVKK</a>
+      <a onclick="showLegal('disclaimer')">Sorumluluk Reddi</a>
+      <a onclick="go('chat');panelTab('support')">Destek</a>
+    </footer>
+  </main>
 
   <!-- Auth Modal (centered card + floating particles) -->
   <div id="auth-modal" class="modal auth-modal-v2" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -766,7 +861,7 @@ echo curl_exec($ch);</pre>
 
 
   <!-- Panel (Sohbet / Kontrol Paneli / Anahtarlar / Görsel / Admin) -->
-  <div class="v on" id="v-chat">
+  <div class="v" id="v-chat">
     <div class="panel-layout ai-chat-app">
       <aside class="panel-sidebar ai-chat-sidebar" id="panel-sidebar">
         <button type="button" class="mobile-sidebar-close" onclick="return __mobileMenuClose(event)" aria-label="Menüyü kapat">&times;</button>
@@ -2104,7 +2199,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       return false;
     };
   </script>
-  <script src="app.min.js?v=v228" defer></script>
+  <script src="app.min.js?v=v242" defer></script>
 
 <!-- NEW TABS: Görevler, AI Hafıza, Video -->
 <script>
