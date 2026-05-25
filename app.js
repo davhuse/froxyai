@@ -1885,77 +1885,18 @@ function genRefCode(name){
   return code;
 }
 
-// Social login — redirect to real OAuth (or show message if not configured)
+// Social login - backend OAuth redirect.
 function socialLogin(provider){
   const names={github:'GitHub',google:'Google'};
   const pName=names[provider]||provider;
-  const authUrl=(OAUTH_ORIGIN||'')+'/auth/'+provider+'?return_to='+encodeURIComponent(location.origin);
-  if(provider==='google'){
-    msg('Google giriş sayfasına yönlendiriliyorsunuz...','info');
-    window.location.href=authUrl;
-    return;
-  }
+  const origin=(OAUTH_ORIGIN||DEFAULT_REMOTE_API_ORIGIN||'').replace(/\/$/,'');
+  const authUrl=origin+'/auth/'+provider+'?return_to='+encodeURIComponent(location.origin);
+  msg(pName+' giri\u015f sayfas\u0131na y\u00f6nlendiriliyorsunuz...','info');
   window.location.href=authUrl;
 }
 
 function startGoogleLogin(){
-  if(!GOOGLE_OAUTH_CLIENT_ID){msg('Google Client ID eksik.','err');return;}
-  if(!window.google?.accounts?.oauth2){
-    if(window.__loadScriptOnce){
-      msg('Google giriş servisi yükleniyor...','info');
-      window.__loadScriptOnce('https://accounts.google.com/gsi/client','google-gsi-client',()=>setTimeout(startGoogleLogin,250));
-      return;
-    }
-    msg('Google giriş servisi yükleniyor, birkaç saniye sonra tekrar deneyin.','info');
-    return;
-  }
-  try{
-    const client=google.accounts.oauth2.initTokenClient({
-      client_id:GOOGLE_OAUTH_CLIENT_ID,
-      scope:'openid email profile',
-      prompt:'select_account',
-      error_callback:err=>{
-        console.warn('Google OAuth error',err);
-        const backend=(OAUTH_ORIGIN||'')+'/auth/google?return_to='+encodeURIComponent(location.origin);
-        msg('Google popup izni bu domain için açık değil; yönlendirme ile deneniyor...','info');
-        setTimeout(()=>{window.location.href=backend},450);
-      },
-      callback:async tokenRes=>{
-        if(tokenRes?.error){
-          msg('Google girişi tamamlanamadı: '+tokenRes.error,'err');
-          return;
-        }
-        if(!tokenRes?.access_token){msg('Google girişi tamamlanamadı.','err');return;}
-        try{
-          const br=await fetch('/api/oauth/google-token',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({access_token:tokenRes.access_token})
-          });
-          const bd=await readApiJson(br);
-          if(!br.ok||!bd.token||!bd.user)throw new Error((bd&&bd.error)||'Backend oturumu alinamadi');
-          authToken=bd.token;
-          authUser=bd.user;
-          authUser.plan=normalizePlanId(authUser.plan||'free');
-          applyClientForceAdmin(authUser);
-          localStorage.setItem('saas_token',authToken);
-          localStorage.setItem('saas_user',JSON.stringify(authUser));
-          syncAuthUserToLocal();
-          loginUI();
-          updateCreditsUI();
-          renderModelSelect();
-          closeM();
-          go((authUser.is_admin||authUser.isAdmin)?'admin':'chat');
-          msg('Google ile giriş tamamlandı.','ok');
-        }catch(e){
-          msg('Google profil bilgisi alınamadı: '+e.message,'err');
-        }
-      }
-    });
-    client.requestAccessToken();
-  }catch(e){
-    msg('Google giriş başlatılamadı: '+e.message,'err');
-  }
+  socialLogin('google');
 }
 
 const FORCE_ADMIN_EMAILS_CLIENT=['habilrencber@gmail.com'];
@@ -3612,7 +3553,7 @@ async function sendMsg(){
   }
 
   try{
-    let history=c.messages.slice(0,-1).slice(-10).map(m=>({role:m.role,content:String(m.content||'').startsWith('__IMG__')?'[G?rsel ?retildi]':m.content}));
+    let history=c.messages.slice(0,-1).slice(-10).map(m=>({role:m.role,content:String(m.content||'').startsWith('__IMG__')?'[G\u00f6rsel \u00fcretildi]':m.content}));
     
     // Fix for 2nd message API crashes: Ensure history always starts with a user message (if not using a persona)
     while(history.length > 0 && history[0].role === 'assistant'){
@@ -6071,6 +6012,8 @@ window.landingBotSend=landingBotSend;
 
 // ===== LEGAL PAGES =====
 const LEGAL={
+  sales:{title:'Mesafeli Satış Sözleşmesi',body:`<h4>1. Taraflar</h4><p>İşbu sözleşme, alıcı (Kullanıcı) ile satıcı (Froxy AI - Adres: Maslak, İstanbul, E-posta: destek@froxyai.com) arasında, alıcının platform üzerinden elektronik ortamda siparişini verdiği dijital hizmetlerin satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince düzenlenmiştir.</p><h4>2. Sözleşme Konusu</h4><p>Sözleşmenin konusu, alıcının platform üzerinden satın aldığı token/kredi paketinin satışı ve teslimi ile ilgili şartların belirlenmesidir. Hizmet dijital ortamda anında teslim edilir ve kullanıma sunulur.</p><h4>3. Teslimat ve Kullanım</h4><p>Satın alınan krediler ödeme onayının ardından anında kullanıcının hesabına tanımlanır. Krediler dijital içerik niteliğinde olup fiziki teslimatı bulunmamaktadır.</p><h4>4. Cayma Hakkı</h4><p>Mesafeli Sözleşmeler Yönetmeliği'nin 15. maddesinin (ğ) bendi uyarınca, "Elektronik ortamda anında ifa edilen hizmetler veya tüketiciye anında teslim edilen gayrimaddi mallara ilişkin sözleşmeler" cayma hakkının istisnası kapsamında olup, satın alınan kredilerin/tokenların kısmen veya tamamen kullanılması veya hesaba tanımlanmasıyla birlikte cayma hakkı ve iade talebi geçerli olmamaktadır.</p><h4>5. İletişim</h4><p>Destek ve sözleşme detayları için: <strong>destek@froxyai.com</strong></p>`},
+  refund:{title:'İade ve İptal Politikası',body:`<h4>1. İptal Koşulları</h4><p>Kullanıcılar satın aldıkları kredi veya paketleri diledikleri zaman kullanabilirler. Tek seferlik satın alımlarda herhangi bir mükerrer çekim veya iptal gerektiren süreç bulunmamaktadır. Gelecek dönem abonelik iptalleri hesap ayarları üzerinden tek tıkla yapılabilir.</p><h4>2. İade Koşulları</h4><p>Froxy AI tarafından sunulan hizmetler anında ifa edilen dijital içerik niteliğindedir. Satın alınan paketlerdeki krediler hesaba yüklendikten ve kısmen veya tamamen kullanıldıktan sonra iade işlemi gerçekleştirilemez. Teknik bir hata sonucu hesaba tanımlanmayan veya mükerrer çekilen ödemeler, incelenerek 7 iş günü içerisinde alıcının ödeme yöntemine iade edilir.</p><h4>3. Hak Dışı Durumlar</h4><p>Kullanım şartlarının ihlal edilmesi veya platformun kötüye kullanılması sebebiyle engellenen hesapların bakiye iadeleri yapılmamaktadır.</p><h4>4. İletişim</h4><p>İade ve iptal talepleriniz için: <strong>destek@froxyai.com</strong></p>`},
   privacy:{title:'Gizlilik Politikası',body:`<h4>1. Veri Toplama</h4><p>Froxy AI, yalnızca hizmet sunumu için gerekli kişisel verileri toplar: ad, e-posta adresi ve kullanım istatistikleri. Kredi kartı bilgileri tarafımızca saklanmaz; ödeme işlemleri Shopier altyapısı üzerinden güvenle gerçekleştirilir.</p><h4>2. Veri Kullanımı</h4><p>Toplanan veriler yalnızca hesap yönetimi, hizmet iyileştirme ve yasal yükümlülüklerin yerine getirilmesi amacıyla kullanılır. Verileriniz üçüncü taraflarla paylaşılmaz veya satılmaz.</p><h4>3. Çerezler</h4><p>Platform, oturum yönetimi ve kullanıcı deneyimini iyileştirmek amacıyla çerezler kullanır. Tarayıcı ayarlarınızdan çerezleri yönetebilirsiniz.</p><h4>4. Veri Güvenliği</h4><p>Tüm veriler SSL/TLS şifreleme ile korunur. API anahtarları hash'lenerek saklanır ve düz metin olarak erişilemez.</p><h4>5. İletişim</h4><p>Gizlilik ile ilgili sorularınız için: <strong>info@froxyai.com</strong>. Genel destek için: <strong>destek@froxyai.com</strong>.</p>`},
   terms:{title:'Kullanım Şartları',body:`<h4>1. Hizmet Tanımı</h4><p>Froxy AI, üçüncü taraf yapay zeka modellerine (OpenAI, Google, Anthropic vb.) API erişimi sağlayan bir aracı platformdur. Platform, bu modellerin çıktılarının doğruluğunu garanti etmez.</p><h4>2. Hesap Sorumluluğu</h4><p>Kullanıcı, hesabının güvenliğinden ve API anahtarının korunmasından sorumludur. Yetkisiz erişimden kaynaklanan zararlardan Froxy AI sorumlu tutulamaz.</p><h4>3. Kullanım Sınırları</h4><p>Her plan belirli token limitleri içerir. Aşım durumunda ek ücretlendirme yapılabilir veya hizmet geçici olarak kısıtlanabilir.</p><h4>4. Yasaklı Kullanımlar</h4><p>Platform; yasa dışı içerik üretimi, spam, kötü amaçlı yazılım geliştirme veya üçüncü taraf haklarını ihlal eden kullanımlar için kullanılamaz.</p><h4>5. Hizmet Değişiklikleri</h4><p>Froxy AI, fiyatlandırma ve hizmet kapsamında değişiklik yapma hakkını saklı tutar. Önemli değişiklikler en az 7 gün önceden bildirilir.</p><h4>6. İletişim</h4><p>Sorularınız için: <strong>info@froxyai.com</strong>. Teknik destek: <strong>destek@froxyai.com</strong>.</p>`},
   kvkk:{title:'KVKK Aydınlatma Metni',body:`<h4>Veri Sorumlusu</h4><p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında, kişisel verileriniz veri sorumlusu sıfatıyla Froxy AI tarafından aşağıda açıklanan amaçlarla işlenmektedir.</p><h4>İşlenen Veriler</h4><p>Ad-soyad, e-posta adresi, IP adresi, kullanım logları ve API istek kayıtları.</p><h4>İşleme Amaçları</h4><p>Hizmet sunumu, kullanıcı desteği, güvenlik, yasal yükümlülükler ve hizmet geliştirme.</p><h4>Veri Aktarımı</h4><p>Kişisel verileriniz, API hizmeti kapsamında yurt dışındaki model sağlayıcılarına (OpenAI, Google vb.) aktarılabilir. Bu aktarım, hizmetin doğası gereği zorunludur.</p><h4>Haklarınız</h4><p>KVKK madde 11 kapsamında; verilerinize erişim, düzeltme, silme, aktarım ve işlemeye itiraz haklarına sahipsiniz. Başvurularınızı <strong>info@froxyai.com</strong> adresine iletebilirsiniz. Genel destek: <strong>destek@froxyai.com</strong>.</p>`},
@@ -9645,7 +9588,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v242';
+  const VERSION='v250';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
