@@ -1388,6 +1388,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     admin=!!user.isAdmin;
     loginUI();
   }
+  if(typeof updateHomeAuthActions==='function')updateHomeAuthActions();
   if(startupView==='admin' && (admin || authUser?.is_admin || user?.isAdmin)) go('admin');
   else if(startupView==='home') go('home');
   else if(startupView==='dash'){ go('chat'); panelTab('dash'); }
@@ -2240,6 +2241,21 @@ function updateSidebarAuthActions(){
   if(logoutIcon)logoutIcon.style.display=isGuest?'none':'flex';
   if(adminLink)adminLink.style.display=admin&&!isGuest?'flex':'none';
 }
+function updateHomeAuthActions(){
+  const logged=!!authToken || !!(authUser&&authUser.id) || !!(user&&!user.guest&&user.id!=='guest');
+  document.querySelectorAll('[data-home-actions="1"]').forEach(el=>{
+    el.innerHTML=logged
+      ? "<button type=\"button\" class=\"ah-btn ah-btn-primary\" onclick=\"go('chat')\">Panele Git</button><button type=\"button\" class=\"ah-btn ah-btn-ghost\" onclick=\"logout()\">Çıkış</button>"
+      : "<button type=\"button\" class=\"ah-btn ah-btn-ghost\" onclick=\"modal('login')\">Giriş Yap</button><button type=\"button\" class=\"ah-btn ah-btn-primary\" onclick=\"modal('reg')\">100 Krediyle Dene</button>";
+  });
+  document.querySelectorAll('.ah-hero-actions').forEach(el=>{
+    if(logged){
+      el.innerHTML="<button type=\"button\" class=\"ah-btn ah-btn-primary ah-btn-lg\" onclick=\"go('chat')\">Panele Git</button><button type=\"button\" class=\"ah-btn ah-btn-ghost ah-btn-lg\" onclick=\"go('chat')\">Sohbete Geç</button>";
+    }else{
+      el.innerHTML="<button type=\"button\" class=\"ah-btn ah-btn-primary ah-btn-lg\" onclick=\"modal('reg')\">100 Krediyle Ücretsiz Dene</button><button type=\"button\" class=\"ah-btn ah-btn-ghost ah-btn-lg\" onclick=\"go('chat')\">Paneli İncele</button>";
+    }
+  });
+}
 function loginUI(){
   document.getElementById('nr-auth').style.display='none';
   document.getElementById('nr-user').style.display='flex';
@@ -2259,6 +2275,7 @@ function loginUI(){
   if(psAva)psAva.textContent=uName.charAt(0).toUpperCase();
   if(psPlan){const planId=normalizePlanId(activeUser.plan||'free');psPlan.textContent=PLANS[planId].name}
   updateSidebarAuthActions();
+  updateHomeAuthActions();
   chats=LS.get('ap_chats_'+userKey(),[]);
   renderModelSelect();
 }
@@ -2606,6 +2623,7 @@ function go(v){
   if(v==='home'){
     document.documentElement.classList.add('home-mode');
     document.body.classList.add('home-mode');
+    if(typeof updateHomeAuthActions==='function')updateHomeAuthActions();
     document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));
     const home=document.getElementById('v-home');
     if(home)home.classList.add('on');
@@ -2615,6 +2633,7 @@ function go(v){
     setAppRoute(routeForView('home'));
     return;
   }
+  if(typeof window.__loadFullCss==='function')window.__loadFullCss();
   if(v==='dash'){go('chat');panelTab('dash');return}
   if(v==='admin'){
     document.documentElement.classList.remove('home-mode');
@@ -2962,6 +2981,10 @@ function openModelPicker(event){
   if(!p||!o)return;
   p.classList.add('open');
   o.classList.add('open');
+  p.style.display='flex';
+  o.style.display='block';
+  p.removeAttribute('aria-hidden');
+  o.removeAttribute('aria-hidden');
   document.body.classList.add('model-picker-open');
   renderModelPicker();
   const s=document.getElementById('mp-search');
@@ -2979,8 +3002,12 @@ function toggleModelPicker(event){
 }
 function closeModelPicker(){
   ensureFloatingPanelsRoot();
-  document.getElementById('model-picker')?.classList.remove('open');
-  document.getElementById('model-picker-overlay')?.classList.remove('open');
+  const p=document.getElementById('model-picker');
+  const o=document.getElementById('model-picker-overlay');
+  p?.classList.remove('open');
+  o?.classList.remove('open');
+  if(p){p.style.display='';p.setAttribute('aria-hidden','true')}
+  if(o){o.style.display='';o.setAttribute('aria-hidden','true')}
   document.body.classList.remove('model-picker-open');
 }
 
@@ -3038,6 +3065,9 @@ function handleChatControlPress(e){
 // even when late theme/mobile layers create a visual overlay above them.
 document.addEventListener('pointerdown',handleChatControlPress,true);
 document.addEventListener('click',handleChatControlPress,true);
+document.addEventListener('touchend',function(e){
+  if(handleChatControlPress(e))return;
+}, {capture:true, passive:false});
 
 function renderModelPicker(filter){
   const pickerOpen=document.body.classList.contains('model-picker-open')||document.getElementById('model-picker')?.classList.contains('open');
@@ -3243,7 +3273,7 @@ function renderMsgs(opts={}){
       msgsEl.innerHTML='<div class="quark-welcome"><div class="quark-orbit"><span>'+esc(initial)+'</span></div><p class="quark-kicker">'+esc(actP.name)+' modu aktif</p><h3>'+esc(actP.name)+' ile yeni sohbet</h3><p class="quark-sub">&quot;'+esc(actP.prompt)+'&quot;</p><div class="quark-prompt-grid">'+skillButtons+'<button onclick="clearPersona()">Rol\u00fc iptal et</button></div></div>';
     }else{
       const liveModelCount=(typeof getEnabledModelsForUser==='function'?getEnabledModelsForUser():ALL_MODELS).length||ALL_MODELS.length;
-      msgsEl.innerHTML=`<div class="quark-welcome"><div class="quark-orbit"><img src="froxy-logo-192-v259.png" alt="Froxy AI" width="76" height="76"></div><p class="quark-kicker">Froxy AI çalışma alanı</p><h3>Bugün ne üretelim?</h3><p class="quark-sub">${liveModelCount.toLocaleString('tr-TR')} güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.</p><div class="quark-prompt-grid"><button onclick="chatInsertHelper('Kendini kısaca tanıt ve nasıl yardımcı olabileceğini anlat. ')">Kendini tanıt</button><button onclick="chatInsertHelper('Bu fikri profesyonel bir plana çevir: ')">Plan çıkar</button><button onclick="chatInsertHelper('Webden araştır ve kaynaklı özetle: ')">İnternetten ara</button><button onclick="chatInsertHelper('Bu metni daha iyi Türkçe ile düzenle: ')">Türkçe düzelt</button></div></div>`;
+      msgsEl.innerHTML=`<div class="quark-welcome"><div class="quark-orbit"><img src="froxy-logo-192-v260.png" alt="Froxy AI" width="76" height="76"></div><p class="quark-kicker">Froxy AI çalışma alanı</p><h3>Bugün ne üretelim?</h3><p class="quark-sub">${liveModelCount.toLocaleString('tr-TR')} güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.</p><div class="quark-prompt-grid"><button onclick="chatInsertHelper('Kendini kısaca tanıt ve nasıl yardımcı olabileceğini anlat. ')">Kendini tanıt</button><button onclick="chatInsertHelper('Bu fikri profesyonel bir plana çevir: ')">Plan çıkar</button><button onclick="chatInsertHelper('Webden araştır ve kaynaklı özetle: ')">İnternetten ara</button><button onclick="chatInsertHelper('Bu metni daha iyi Türkçe ile düzenle: ')">Türkçe düzelt</button></div></div>`;
     }
     return;
   }
@@ -7644,6 +7674,8 @@ function proFeedbackSummary(){
 }
 
 function renderProfessionalDashboard(){
+  document.getElementById('pro-feature-hub')?.remove();
+  return;
   const page=document.querySelector('#ptab-dash .dashboard-pro');
   if(!page)return;
   const models=proModelPool();
@@ -8407,6 +8439,8 @@ async function refreshProHealthInline(){
 window.refreshProHealthInline=refreshProHealthInline;
 
 function renderProfessionalDashboard(){
+  document.getElementById('pro-feature-hub')?.remove();
+  return;
   const page=document.querySelector('#ptab-dash .dashboard-pro');
   if(!page)return;
   const models=proModelPool();
@@ -9679,7 +9713,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-const VERSION='v259';
+const VERSION='v260';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }

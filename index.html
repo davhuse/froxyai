@@ -11,14 +11,14 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Froxy AI - 400+ AI Modeli Tek Panelde">
   <meta property="og:description" content="ChatGPT, Claude, Gemini, gorsel uretim araclari ve AI ajanlarini tek hesapta kullan.">
-  <meta property="og:image" content="https://froxyai.com/froxy-logo-v259.png">
+  <meta property="og:image" content="https://froxyai.com/froxy-logo-v260.png">
   <meta property="og:url" content="https://froxyai.com">
   <meta property="og:site_name" content="Froxy AI">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Froxy AI - 400+ AI Modeli Tek Panelde">
   <meta name="twitter:description" content="ChatGPT, Claude, Gemini, gorsel uretim araclari ve AI ajanlarini tek hesapta kullan.">
-  <meta name="twitter:image" content="https://froxyai.com/froxy-logo-v259.png">
+  <meta name="twitter:image" content="https://froxyai.com/froxy-logo-v260.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://image.pollinations.ai">
@@ -46,16 +46,17 @@
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
-  <link rel="stylesheet" href="home-critical.min.css?v=v259">
-  <noscript><link rel="stylesheet" href="style.min.css?v=v259"></noscript>
+  <link rel="stylesheet" href="home-critical.min.css?v=v260">
+  <noscript><link rel="stylesheet" href="style.min.css?v=v260"></noscript>
   <script>
-  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v259';document.head.appendChild(l)};
+  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v260';document.head.appendChild(l)};
+  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel-uret|ai-araclar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view)window.__loadFullCss();}catch(e){}})();
   ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})});
   window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)});
   </script>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" sizes="192x192" href="froxy-logo-192-v259.png">
-  <link rel="apple-touch-icon" href="froxy-logo-192-v259.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="froxy-logo-192-v260.png">
+  <link rel="apple-touch-icon" href="froxy-logo-192-v260.png">
   <meta name="theme-color" content="#7c3aed">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <!-- Markdown Parsing -->
@@ -110,8 +111,15 @@
   <script>
   if('serviceWorker' in navigator){
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('/sw.js').catch(function(){});
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        regs.forEach(function(reg){reg.unregister();});
+      }).catch(function(){});
     });
+  }
+  if('caches' in window){
+    caches.keys().then(function(keys){
+      keys.forEach(function(key){if(/^froxy-/i.test(key))caches.delete(key);});
+    }).catch(function(){});
   }
   </script>
 </head>
@@ -123,7 +131,7 @@
         <span class="froxy-splash-orbit o2"></span>
         <span class="froxy-splash-dot d1"></span>
         <span class="froxy-splash-dot d2"></span>
-        <img src="froxy-logo-192-v259.png" alt="Froxy AI" width="78" height="78" decoding="async">
+        <img src="froxy-logo-192-v260.png" alt="Froxy AI" width="78" height="78" decoding="async">
       </div>
       <div class="froxy-splash-copy">
         <strong>Froxy AI</strong>
@@ -141,7 +149,7 @@
   </div>
   <!-- Navigation -->
   <nav class="nav" id="nav" style="display:none">
-    <a class="nav-logo" onclick="go('chat')"><img src="froxy-logo-192-v259.png" alt="Froxy AI" width="32" height="32" decoding="async"><span>Froxy AI</span></a>
+    <a class="nav-logo" onclick="go('chat')"><img src="froxy-logo-192-v260.png" alt="Froxy AI" width="32" height="32" decoding="async"><span>Froxy AI</span></a>
     <ul class="nav-links" id="nl-land">
       <li><a onclick="go('chat')">Sohbet</a></li>
       <li><a href="#features">Özellikler</a></li>
@@ -173,13 +181,14 @@
         <div class="nav-avatar" id="n-ava">U</div>
         <span id="n-name">User</span>
       </div>
+      <button class="btn btn-primary btn-sm" onclick="go('chat')">Panele Git</button>
       <button class="btn btn-ghost btn-sm" onclick="logout()">Çıkış</button>
     </div>
   </nav>
 
   <main id="v-home" class="v home-premium-v252 on" aria-label="Froxy AI ana sayfa">
     <div class="ah-bg" aria-hidden="true"><span></span><span></span><span></span></div>
-    <header class="ah-header"><div class="ah-container ah-header-inner"><a class="ah-brand" href="?view=home" aria-label="Froxy AI"><span class="ah-brand-logo"><img src="froxy-logo-192-v259.png" alt="Froxy AI" width="32" height="32" decoding="async"></span><strong>Froxy <span>AI</span></strong></a><nav class="ah-nav" aria-label="Ana men&uuml;"><a href="#home-tools-v252">&Ouml;zellikler</a><a href="#home-models-v252">Modeller</a><a href="#home-demo-v254">Demo</a><a href="#home-pricing-v252">Fiyatland&#305;rma</a><a href="#home-trust-v252">G&uuml;ven</a><a href="#home-faq-v252">SSS</a></nav><div class="ah-actions"><button type="button" class="ah-btn ah-btn-ghost" onclick="modal('login')">Giri&#351; Yap</button><button type="button" class="ah-btn ah-btn-primary" onclick="modal('reg')">100 Krediyle Dene</button></div></div></header>
+    <header class="ah-header"><div class="ah-container ah-header-inner"><a class="ah-brand" href="?view=home" aria-label="Froxy AI"><span class="ah-brand-logo"><img src="froxy-logo-192-v260.png" alt="Froxy AI" width="32" height="32" decoding="async"></span><strong>Froxy <span>AI</span></strong></a><nav class="ah-nav" aria-label="Ana men&uuml;"><a href="#home-tools-v252">&Ouml;zellikler</a><a href="#home-models-v252">Modeller</a><a href="#home-demo-v254">Demo</a><a href="#home-pricing-v252">Fiyatland&#305;rma</a><a href="#home-trust-v252">G&uuml;ven</a><a href="#home-faq-v252">SSS</a></nav><div class="ah-actions" data-home-actions="1"><button type="button" class="ah-btn ah-btn-ghost" onclick="modal('login')">Giri&#351; Yap</button><button type="button" class="ah-btn ah-btn-primary" onclick="modal('reg')">100 Krediyle Dene</button></div></div></header>
     <section class="ah-hero">
       <div class="ah-container ah-hero-grid">
         <div class="ah-hero-copy">
@@ -224,8 +233,9 @@
           <div class="ah-video-top"><span></span><span></span><span></span></div>
           <div class="ah-video-frame">
             <button type="button" class="ah-video-lite" aria-label="Froxy AI demo videosunu oynat" data-youtube-id="JW-E3MNOhX4" onclick="loadDemoVideo(this)">
+              <span class="ah-video-badge">2 dakikal&#305;k demo</span>
               <span class="ah-video-play" aria-hidden="true"></span>
-              <strong>Demo videoyu oynat</strong>
+              <span class="ah-video-copy"><strong>Froxy AI panelini izle</strong><small>Model se&ccedil;imi, sohbet, g&ouml;rsel &uuml;retim ve ara&ccedil; ak&#305;&#351;&#305;</small></span>
             </button>
           </div>
         </div>
@@ -289,7 +299,7 @@
 
       <div class="auth-panel">
         <div class="auth-brand">
-          <img src="froxy-logo-192-v259.png" alt="Froxy AI" width="36" height="36" loading="eager" decoding="async">
+          <img src="froxy-logo-192-v260.png" alt="Froxy AI" width="36" height="36" loading="eager" decoding="async">
           <span>Froxy AI</span>
         </div>
 
@@ -597,7 +607,7 @@
         <div class="card"><h3>🚀 Ultra Hızlı</h3><p>Milisaniyeler içinde yanıt alın.</p></div>
         <div class="card"><h3>🛡 Güvenli</h3><p>Uçtan uca şifreleme.</p></div>
         <div class="card"><h3>📉 %80 Daha Ucuz</h3><p>Aynı performans, daha düşük maliyet.</p></div>
-        <div class="card"><h3>🛠 Tek API</h3><p>Tüm modeller için tek anahtar.</p></div>
+        <div class="card"><h3>🛠 Tek Panel</h3><p>Sohbet, görsel üretim ve araçlar aynı hesapta.</p></div>
       </div>
     </section>
     
@@ -611,13 +621,13 @@
         </div>
         <div class="step-card">
           <div class="step-num">2</div>
-          <h3>API Anahtarı Alın</h3>
-          <p>Kullanıcı panelinizden API anahtarınızı (API Key) tek tıkla kopyalayın.</p>
+          <h3>Paneli Açın</h3>
+          <p>Sohbet, görsel üretim ve hazır araçları tek panelden kullanmaya başlayın.</p>
         </div>
         <div class="step-card">
           <div class="step-num">3</div>
-          <h3>Koda Ekleyin</h3>
-          <p>Mevcut OpenAI kodunuzda sadece "Base URL" ve "API Key" değerlerini değiştirin.</p>
+          <h3>Kredinizi Kullanın</h3>
+          <p>Kredi bakiyenizden düşerek farklı modeller arasında hızlıca geçiş yapın.</p>
         </div>
       </div>
     </section>
@@ -795,7 +805,7 @@ echo curl_exec($ch);</pre>
     <section id="faq" class="sec sec-alt">
       <div class="sec-head fu"><h2>Sıkça Sorulan <span class="grad-text">Sorular</span></h2></div>
       <div class="faq-list fu">
-        <div class="faq-item"><div class="faq-q">API anahtarını nasıl alırım? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">Kayıt olduktan sonra otomatik oluşturulur.</div></div>
+        <div class="faq-item"><div class="faq-q">100 ücretsiz kredi nasıl kullanılır? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">Kayıt olan yeni üyelerin hesabına başlangıç kredisi tanımlanır. Bu krediyle sohbet, görsel üretim ve hazır araçları deneyebilirler.</div></div>
         <div class="faq-item"><div class="faq-q">Hangi modelleri destekliyorsunuz? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">GPT‑5.5, GPT‑5.4, Gemini 3.1 Pro, Gemini 3 Flash ve daha fazlası.</div></div>
         <div class="faq-item"><div class="faq-q">Mevcut OpenAI kodum çalışır mı? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">Evet! Base URL sadece değiştirmeniz yeterli.</div></div>
         <div class="faq-item"><div class="faq-q">Ödeme yöntemleri nelerdir? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">Shopier üzerinden kredi kartı, Papara, havale, kripto.</div></div>
@@ -814,7 +824,7 @@ echo curl_exec($ch);</pre>
     <footer class="footer">
       <div class="footer-top">
         <div class="footer-brand">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><img src="froxy-logo-192-v259.png" alt="logo" width="32" height="32" loading="lazy" decoding="async"><span>Froxy AI</span></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><img src="froxy-logo-192-v260.png" alt="logo" width="32" height="32" loading="lazy" decoding="async"><span>Froxy AI</span></div>
           <p>Türkiye'nin en güvenilir AI API platformu. Tüm modellere tek API ile erişin.</p>
           <div class="footer-social">
             <a href="#" title="Discord"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></a>
@@ -832,7 +842,7 @@ echo curl_exec($ch);</pre>
         <div class="footer-col">
           <h4>Geliştirici</h4>
           <a href="#docs">API Dokümantasyonu</a>
-          <a onclick="modal('reg')">API Anahtarı Al</a>
+          <a onclick="modal('reg')">Ücretsiz Kayıt Ol</a>
           <a href="#faq">SSS</a>
           <a href="mailto:destek@froxyai.com">Destek</a>
         </div>
@@ -859,8 +869,8 @@ echo curl_exec($ch);</pre>
       <aside class="panel-sidebar ai-chat-sidebar" id="panel-sidebar">
         <button type="button" class="mobile-sidebar-close" onclick="return __mobileMenuClose(event)" aria-label="Menüyü kapat">&times;</button>
         <div class="ai-side-brand">
-          <button class="ai-brand-btn" onclick="panelTab('dash')" title="Kontrol paneli">
-            <img src="froxy-logo-192-v259.png" alt="Froxy AI" width="36" height="36" loading="lazy" decoding="async">
+          <button class="ai-brand-btn" onclick="go('home')" title="Ana sayfa">
+            <img src="froxy-logo-192-v260.png" alt="Froxy AI" width="36" height="36" loading="lazy" decoding="async">
             <span>Froxy AI</span>
           </button>
           <button class="ai-icon-btn" onclick="newChat()" title="Yeni sohbet">
@@ -911,7 +921,7 @@ echo curl_exec($ch);</pre>
           <div class="ps-actions-row">
             <button type="button" class="ps-icon-btn" onclick="toggleTheme()" title="Tema"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
             <button type="button" class="ps-icon-btn" onclick="toggleNotifPanel()" title="Bildirimler" style="position:relative"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
-            <button type="button" class="ps-icon-btn" onclick="go('chat');panelTab('chat')" title="Sohbet Ana Ekranı"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
+            <button type="button" class="ps-icon-btn" onclick="go('home')" title="Ana sayfa"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
             <button type="button" class="ps-icon-btn" id="ps-admin-link" style="display:none" onclick="panelTab('admin')" title="Admin"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"/></svg></button>
             <button type="button" class="ps-icon-btn" id="ps-login-link" onclick="modal('login')" title="Giriş Yap"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></button>
             <button type="button" class="ps-icon-btn" id="ps-logout-link" onclick="logout()" title="Çıkış"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
@@ -937,6 +947,7 @@ echo curl_exec($ch);</pre>
               </div>
             </div>
             <div class="ai-chat-top-actions">
+              <button type="button" class="ai-top-btn ai-home-btn" onclick="go('home')" title="Ana sayfa" aria-label="Ana sayfa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
               <button type="button" class="ai-top-chip" data-open-model-picker="top" onclick="toggleModelPicker(event)" title="Model seç">
                 <span class="mpb-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 4v10l-7 4-7-4V7z"/><path d="M12 12l7-4M12 12v9M12 12L5 8"/></svg></span>
                 <span class="mpb-copy"><strong id="mpb-name">GPT-5.5</strong><small id="model-count"></small></span>
@@ -959,7 +970,7 @@ echo curl_exec($ch);</pre>
             </div>
             <div class="chat-msgs ai-message-stream" id="chat-msgs">
               <div class="chat-welcome ai-empty-state">
-                <img src="froxy-logo-192-v259.png" alt="Froxy AI" width="76" height="76" loading="lazy" decoding="async">
+                <img src="froxy-logo-192-v260.png" alt="Froxy AI" width="76" height="76" loading="lazy" decoding="async">
                 <span>Bugün ne üretelim?</span>
                 <h3>Model seç, yaz ve devam et</h3>
                 <p>Sohbet, kod, görsel, dosya analizi ve web destekli cevaplar aynı temiz alanda.</p>
@@ -1240,11 +1251,6 @@ echo curl_exec($ch);</pre>
                     <div class="da-info"><strong>Mağaza</strong><span>Kredi & Paketler</span></div>
                     <svg class="da-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
-                  <div class="da-card" onclick="panelTab('keys')">
-                    <div class="da-icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="7.5" cy="14.5" r="4.5"/><path d="M11 11 21 1"/><path d="m16 6 2 2"/><path d="m19 3 2 2"/></svg></div>
-                    <div class="da-info"><strong>API Key</strong><span>Key'i kopyala</span></div>
-                    <svg class="da-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                  </div>
                   <div class="da-card" onclick="panelTab('support')">
                     <div class="da-icon" style="background:linear-gradient(135deg,#06b6d4,#38bdf8)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
                     <div class="da-info"><strong>Destek</strong><span>Bilet aç / Yardım</span></div>
@@ -1305,18 +1311,6 @@ echo curl_exec($ch);</pre>
               <div class="dash-models-grid" id="dash-models-list"></div>
             </div>
 
-          </div>
-        </div>
-
-        <!-- API Anahtarı Sekmesi -->
-        <div class="ptab" id="ptab-keys">
-          <div class="panel-page">
-            <div class="pp-head"><h2>🔑 API Anahtarı</h2><p>Anahtarınızı kopyalayıp projelerinizde kullanın</p></div>
-            <div class="dsec"><h3>Aktif API Anahtarı</h3><div class="key-box"><code id="d-key" aria-live="polite"><span class="inline-skeleton inline-skeleton-code" aria-label="API anahtarı hazırlanıyor"></span></code><button class="btn btn-primary btn-sm" onclick="copyKey()">📋 Kopyala</button></div></div>
-            <div class="dsec"><h3>Kullanım Örneği</h3><div class="code-block"><div class="code-head"><span class="code-lang">PYTHON</span></div><pre><span class="kw">from</span> openai <span class="kw">import</span> OpenAI
-client = OpenAI(<span class="fn">api_key</span>=<span class="st">"YOUR_KEY"</span>, <span class="fn">base_url</span>=<span class="st">"https://api.froxyai.com/v1"</span>)
-res = client.chat.completions.<span class="fn">create</span>(<span class="fn">model</span>=<span class="st">"gpt-5.5"</span>, <span class="fn">messages</span>=[{<span class="st">"role"</span>:<span class="st">"user"</span>, <span class="st">"content"</span>:<span class="st">"Hi"</span>}])
-<span class="fn">print</span>(res.choices[0].message.content)</pre></div></div>
           </div>
         </div>
 
@@ -2268,10 +2262,14 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
   <script>
   (function(){
     var appLoaded=false, appLoading=false, callbacks=[];
+    var domReady=document.readyState!=='loading';
+    if(!domReady)document.addEventListener('DOMContentLoaded',function(){domReady=true},{once:true});
     var appRoutes={
       '/sohbet':1,'/chat':1,'/panel':1,'/dashboard':1,'/kontrol-paneli':1,'/gorsel':1,'/gorsel-uret':1,'/araclar':1,'/ai-araclari':1,'/ajanlar':1,'/ai-ajanlar':1,'/magaza':1,'/fiyatlandirma':1,'/destek':1,'/galeri':1,'/analitik':1,'/promptlar':1,'/bilgi-bankasi':1,'/giris':1,'/kayit':1,'/admin':1
     };
     function currentPath(){try{return decodeURIComponent(location.pathname.replace(/\/+$/,'')||'/').toLowerCase()}catch(e){return '/'}}
+    function hasStoredSession(){try{return !!(localStorage.getItem('ap_user')||localStorage.getItem('saas_token')||localStorage.getItem('saas_user'))}catch(e){return false}}
+    function syncHomeSessionCta(){if(!hasStoredSession())return;document.querySelectorAll('[data-home-actions="1"]').forEach(function(el){el.innerHTML="<button type=\"button\" class=\"ah-btn ah-btn-primary\" onclick=\"go('chat')\">Panele Git</button><button type=\"button\" class=\"ah-btn ah-btn-ghost\" onclick=\"logout&&logout()\">Çıkış</button>"});document.querySelectorAll('.ah-hero-actions').forEach(function(el){el.innerHTML="<button type=\"button\" class=\"ah-btn ah-btn-primary ah-btn-lg\" onclick=\"go('chat')\">Panele Git</button><button type=\"button\" class=\"ah-btn ah-btn-ghost ah-btn-lg\" onclick=\"go('chat')\">Sohbete Geç</button>"})}
     window.__loadFroxyApp=function(cb){
       if(cb)callbacks.push(cb);
       if(appLoaded){while(callbacks.length){try{callbacks.shift()()}catch(e){}}return;}
@@ -2279,15 +2277,16 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       appLoading=true;
       if(window.__loadFullCss)window.__loadFullCss();
       var sc=document.createElement('script');
-      sc.src='app.min.js?v=v259';
+      sc.src='app.min.js?v=v260';
       sc.defer=true;
-      sc.onload=function(){appLoaded=true;if(document.readyState!=='loading'){try{document.dispatchEvent(new Event('DOMContentLoaded'))}catch(e){}}try{document.documentElement.classList.remove('app-route-prepaint')}catch(e){}setTimeout(function(){while(callbacks.length){try{callbacks.shift()()}catch(e){}}},0)};
+      sc.onload=function(){appLoaded=true;if(domReady){try{document.dispatchEvent(new Event('DOMContentLoaded'))}catch(e){}}try{document.documentElement.classList.remove('app-route-prepaint')}catch(e){}setTimeout(function(){while(callbacks.length){try{callbacks.shift()()}catch(e){}}},0)};
       document.body.appendChild(sc);
     };
     window.modal=function(t){window.__loadFroxyApp(function(){if(window.modal)window.modal(t)})};
     window.go=function(v){window.__loadFroxyApp(function(){if(window.go)window.go(v)})};
     window.buyTokensById=function(id){window.__loadFroxyApp(function(){if(window.buyTokensById)window.buyTokensById(id)})};
-    if(appRoutes[currentPath()])window.__loadFroxyApp();
+    syncHomeSessionCta();
+    if(appRoutes[currentPath()]||hasStoredSession())window.__loadFroxyApp();
   })();
   </script>
 
@@ -2334,40 +2333,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // VİDEO ÜRETİCİ SEKMESİ: 2026'da ücretsiz video API'leri güvenilir çalışmadığı için
   // kullanıcı deneyimini bozmamak adına tamamen kaldırıldı. Server tarafı endpoint'ler
   // (.env key'leri varsa) hala çalışır; UI ileride geri eklenebilir.
-
-  // TTS Ses Seçici Paneli (kontrol paneline eklenir)
-  var dashPanels = document.querySelectorAll('#ptab-dash .dash-panel');
-  if (dashPanels.length > 0) {
-    var voicePanel = document.createElement('div');
-    voicePanel.className = 'dash-panel';
-    voicePanel.style.marginTop = '16px';
-    voicePanel.innerHTML = `
-      <h3>Ses Motoru & Karakter Seç</h3>
-      <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Aktif: <strong id="current-voice-label" style="color:var(--accent2)">OpenAI Nova</strong></p>
-      <div style="margin-bottom:12px">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600">OpenAI TTS-1 HD</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('alloy','OpenAI Alloy','openai')">Alloy</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('echo','OpenAI Echo','openai')">Echo</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('fable','OpenAI Fable','openai')">Fable</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('onyx','OpenAI Onyx','openai')">Onyx</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('nova','OpenAI Nova','openai')">Nova</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('shimmer','OpenAI Shimmer','openai')">Shimmer</button>
-        </div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600">Microsoft Edge Neural (Ücretsiz)</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('tr-TR-EmelNeural','Edge Emel (TR Kadın)','edge')">TR Emel</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('tr-TR-AhmetNeural','Edge Ahmet (TR Erkek)','edge')">TR Ahmet</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('en-US-JennyNeural','Edge Jenny (EN)','edge')">EN Jenny</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('en-US-GuyNeural','Edge Guy (EN)','edge')">EN Guy</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('en-GB-SoniaNeural','Edge Sonia (UK)','edge')">UK Sonia</button>
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('de-DE-KatjaNeural','Edge Katja (DE)','edge')">DE Katja</button>
-        </div>
-      </div>`;
-    dashPanels[dashPanels.length - 1].after(voicePanel);
-  }
 
   if (typeof initTasks === 'function') initTasks();
   if (typeof initMemory === 'function') initMemory();
@@ -2447,15 +2412,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
 
-      <!-- API Keys Section -->
-      <div class="settings-section premium-api-section">
-        <div class="settings-section-label">
-          <span class="settings-section-icon theme-icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M10 13l8-8M15 5h4v4M14 9l3 3"/></svg></span>
-          <span>API anahtarlar&#305;</span>
-        </div>
-        <div id="api-keys-panel"></div>
-        <p class="settings-note">API anahtarlar&#305;n&#305;z sadece taray&#305;c&#305;n&#305;zda saklan&#305;r.</p>
-      </div>
     </div>
   </div>
 </div>
