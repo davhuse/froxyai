@@ -219,7 +219,7 @@ window.fetch = function(input, init){
   function repairTree(root){
     if(observer)observer.disconnect();
     try{repairNode(root || document.body);}
-    finally{if(observer && document.body)observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['title','aria-label','placeholder','alt','value']});}
+    finally{if(observer && document.body && window.__froxyTextRepairLive)observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['title','aria-label','placeholder','alt','value']});}
   }
   window.fixTurkishUiText = repairTree;
   document.addEventListener('DOMContentLoaded', function(){
@@ -230,9 +230,8 @@ window.fetch = function(input, init){
         else m.addedNodes && m.addedNodes.forEach(repairNode);
       }
     });
-    repairTree(document.body);
-    setTimeout(()=>repairTree(document.body), 250);
-    setTimeout(()=>repairTree(document.body), 1200);
+    repairTree(document.querySelector('#v-chat') || document.body);
+    setTimeout(()=>{window.__froxyTextRepairLive=true;repairTree(document.body);}, 8000);
   });
 })();
 
@@ -1413,12 +1412,16 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   }, 350);
   initFX();
-  renderModelsAdmin();
   renderModelSelect();
-  renderImageHistory();
-  renderPersonaSkillPicker();
-  upgradeEmojiFigures();
-  loadRemoteModelCatalog();
+  const runStartupIdle = window.requestIdleCallback
+    ? (cb)=>window.requestIdleCallback(cb,{timeout:3200})
+    : (cb)=>setTimeout(cb,900);
+  runStartupIdle(()=>{
+    if(startupView==='admin')renderModelsAdmin();
+    renderImageHistory();
+    renderPersonaSkillPicker();
+    upgradeEmojiFigures();
+  });
   // Auto-fill referral code from URL ?ref=
   const urlRef=new URLSearchParams(location.search).get('ref');
   if(urlRef){const refInp=document.getElementById('r-ref');if(refInp)refInp.value=urlRef;if(!user)modal('reg')}
@@ -2805,7 +2808,7 @@ document.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){
     updateQuota();
     updateImageCreditSurface();
-    if(typeof renderAIToolsHub==='function'&&document.getElementById('ai-tools-page'))renderAIToolsHub();
+    if(typeof renderAIToolsHub==='function'&&document.querySelector('#ptab-tools.on'))renderAIToolsHub();
   },500);
 });
 
@@ -3037,7 +3040,8 @@ document.addEventListener('pointerdown',handleChatControlPress,true);
 document.addEventListener('click',handleChatControlPress,true);
 
 function renderModelPicker(filter){
-  if(!modelCatalogLoaded && ALL_MODELS.length<200)loadRemoteModelCatalog().catch(()=>{});
+  const pickerOpen=document.body.classList.contains('model-picker-open')||document.getElementById('model-picker')?.classList.contains('open');
+  if(pickerOpen&&!modelCatalogLoaded && ALL_MODELS.length<200)loadRemoteModelCatalog().catch(()=>{});
   filter=filter||'';
   const models=getEnabledModelsForUser();
   const catsEl=document.getElementById('mp-cats');
@@ -3239,7 +3243,7 @@ function renderMsgs(opts={}){
       msgsEl.innerHTML='<div class="quark-welcome"><div class="quark-orbit"><span>'+esc(initial)+'</span></div><p class="quark-kicker">'+esc(actP.name)+' modu aktif</p><h3>'+esc(actP.name)+' ile yeni sohbet</h3><p class="quark-sub">&quot;'+esc(actP.prompt)+'&quot;</p><div class="quark-prompt-grid">'+skillButtons+'<button onclick="clearPersona()">Rol\u00fc iptal et</button></div></div>';
     }else{
       const liveModelCount=(typeof getEnabledModelsForUser==='function'?getEnabledModelsForUser():ALL_MODELS).length||ALL_MODELS.length;
-      msgsEl.innerHTML=`<div class="quark-welcome"><div class="quark-orbit"><img src="logo-192.png" alt="Froxy AI" width="76" height="76"></div><p class="quark-kicker">Froxy AI çalışma alanı</p><h3>Bugün ne üretelim?</h3><p class="quark-sub">${liveModelCount.toLocaleString('tr-TR')} güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.</p><div class="quark-prompt-grid"><button onclick="chatInsertHelper('Kendini kısaca tanıt ve nasıl yardımcı olabileceğini anlat. ')">Kendini tanıt</button><button onclick="chatInsertHelper('Bu fikri profesyonel bir plana çevir: ')">Plan çıkar</button><button onclick="chatInsertHelper('Webden araştır ve kaynaklı özetle: ')">İnternetten ara</button><button onclick="chatInsertHelper('Bu metni daha iyi Türkçe ile düzenle: ')">Türkçe düzelt</button></div></div>`;
+      msgsEl.innerHTML=`<div class="quark-welcome"><div class="quark-orbit"><img src="froxy-logo-192-v259.png" alt="Froxy AI" width="76" height="76"></div><p class="quark-kicker">Froxy AI çalışma alanı</p><h3>Bugün ne üretelim?</h3><p class="quark-sub">${liveModelCount.toLocaleString('tr-TR')} güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.</p><div class="quark-prompt-grid"><button onclick="chatInsertHelper('Kendini kısaca tanıt ve nasıl yardımcı olabileceğini anlat. ')">Kendini tanıt</button><button onclick="chatInsertHelper('Bu fikri profesyonel bir plana çevir: ')">Plan çıkar</button><button onclick="chatInsertHelper('Webden araştır ve kaynaklı özetle: ')">İnternetten ara</button><button onclick="chatInsertHelper('Bu metni daha iyi Türkçe ile düzenle: ')">Türkçe düzelt</button></div></div>`;
     }
     return;
   }
@@ -7383,7 +7387,9 @@ window.renderAIToolsHub=renderAIToolsHub;
 window.useAITool=useAITool;
 window.copyAIToolPrompt=copyAIToolPrompt;
 window.openProviderRadar=openProviderRadar;
-document.addEventListener('DOMContentLoaded',()=>setTimeout(renderAIToolsHub,700));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{
+  if(document.querySelector('#ptab-tools.on'))renderAIToolsHub();
+},2500));
 
 // v113: make AI tools an actual runnable workflow center
 const AI_TOOL_PACKS_V113=[
@@ -7992,7 +7998,9 @@ if(typeof renderProfessionalFeatureLayer==='function'&&!window.__imageStudioWrap
     renderImageStudioEnhancements();
   };
 }
-document.addEventListener('DOMContentLoaded',()=>setTimeout(renderImageStudioEnhancements,1000));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{
+  if(document.querySelector('#ptab-img.on'))renderImageStudioEnhancements();
+},2500));
 
 function refineAssistantMessage(idx,mode){
   const c=chats.find(x=>x.id===activeChat);
@@ -8050,7 +8058,12 @@ if(typeof renderMsgs==='function'&&!window.__renderMsgsFeatureWrapped){
     setTimeout(addAdvancedChatRefineButtons,0);
   };
 }
-document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{renderProfessionalFeatureLayer();renderImageHistory();},900));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{
+  if(document.querySelector('#ptab-img.on,#ptab-dash.on,#v-admin.on')){
+    renderProfessionalFeatureLayer();
+    renderImageHistory();
+  }
+},4200));
 
 // v106: clean AI agents catalog and redesign renderer
 const AGENT_CATALOG_V106=[
@@ -8189,7 +8202,9 @@ function refreshAgentsHeroV108(){
       </div>`;
   }
 }
-document.addEventListener('DOMContentLoaded',()=>setTimeout(refreshAgentsHeroV108,250));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{
+  if(document.querySelector('#ptab-agents.on'))refreshAgentsHeroV108();
+},2500));
 const prevRenderAgentsV108=renderAgents;
 renderAgents=function(){
   prevRenderAgentsV108();
@@ -8286,6 +8301,7 @@ function renderAdminControlPro(){
 }
 
 function renderProfessionalFeatureLayer(){
+  if(!document.querySelector('#ptab-dash.on,#ptab-prompts.on,#ptab-agents.on,#ptab-gallery.on,#ptab-img.on,#v-admin.on'))return;
   renderProfessionalDashboard();
   renderPromptMarketPro();
   renderAgentsMarketplacePro();
@@ -9260,7 +9276,7 @@ window.fetchUrlContent = async function(url) {
 
   document.addEventListener('DOMContentLoaded', function() {
     hookTabSwitch();
-    setTimeout(annotateImgSelect, 3000);
+    setTimeout(function(){ if(document.querySelector('#ptab-img.on'))annotateImgSelect(); }, 3000);
   });
 })();
 
@@ -9663,7 +9679,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-const VERSION='v258';
+const VERSION='v259';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }
@@ -9917,14 +9933,14 @@ window.downloadEditorCanvas=downloadEditorCanvas;
     renderMobileOnboarding();
   }
   const oldUpdateModelBadge=window.updateModelBadge || (typeof updateModelBadge==='function'?updateModelBadge:null);
-  window.updateModelBadge=function(){ if(oldUpdateModelBadge)oldUpdateModelBadge.apply(this,arguments); setTimeout(renderGrowthLayer,20); };
+  window.updateModelBadge=function(){ if(oldUpdateModelBadge)oldUpdateModelBadge.apply(this,arguments); setTimeout(renderGrowthLayer,2200); };
   try{updateModelBadge=window.updateModelBadge}catch(e){}
   if(typeof panelTab==='function'&&!window.__growthPanelWrappedV202){
     window.__growthPanelWrappedV202=true;
     const prev=panelTab;
     panelTab=function(tab){ prev(tab); setTimeout(renderGrowthLayer,80); if(tab==='gallery'&&typeof renderGallery==='function')setTimeout(renderGallery,90); };
   }
-document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,900));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,8000));
 })();
 
 /* v209: Shopier + admin authority layer. Keeps backend as the single source
@@ -10394,6 +10410,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
   ];
   function fixAllText(){
     if(!document.body)return;
+    if(document.body.textContent && document.body.textContent.indexOf('g\u011fY')===-1)return;
     var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     var node;
     while(node = walker.nextNode()){
@@ -10410,15 +10427,16 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,90
     }
   }
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(fixAllText, 100); setTimeout(fixAllText, 500); setTimeout(fixAllText, 1500); });
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(fixAllText, 8000); });
   } else {
-    setTimeout(fixAllText, 100); setTimeout(fixAllText, 500); setTimeout(fixAllText, 1500);
+    setTimeout(fixAllText, 8000);
   }
   if(typeof MutationObserver !== 'undefined'){
     var to = null;
     var obs = new MutationObserver(function(){ if(to)clearTimeout(to); to = setTimeout(fixAllText, 200); });
-    if(document.body) obs.observe(document.body, { childList: true, subtree: true, characterData: true });
-    else document.addEventListener('DOMContentLoaded', function(){ obs.observe(document.body, { childList: true, subtree: true, characterData: true }); });
+    var startObserver=function(){ if(document.body) obs.observe(document.body, { childList: true, subtree: true, characterData: true }); };
+    if(document.body) setTimeout(startObserver, 9000);
+    else document.addEventListener('DOMContentLoaded', function(){ setTimeout(startObserver, 9000); });
   }
 })();
 

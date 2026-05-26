@@ -44,7 +44,7 @@ function buildJs() {
 function minifyCss(raw) {
   let s = raw.replace(/\/\*[\s\S]*?\*\//g, '');
   s = s.replace(/^\s+|\s+$/gm, '');
-  s = s.replace(/\s*([{};,:>~+])\s*/g, '$1');
+  s = s.replace(/\s*([{};,:>~])\s*/g, '$1');
   s = s.replace(/;}/g, '}');
   s = s.replace(/\n/g, '');
   return s;
