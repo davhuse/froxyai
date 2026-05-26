@@ -44,7 +44,7 @@
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
-  <link rel="stylesheet" href="style.min.css?v=v250">
+  <link rel="stylesheet" href="style.min.css?v=v251">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="logo-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
@@ -172,448 +172,162 @@
     </div>
   </nav>
 
-  <main id="v-home" class="v froxy-home-v236 home-premium-v237" aria-label="Froxy AI ana sayfa">
-    <header class="home-topbar">
-      <a class="home-brand" href="?view=home" aria-label="Froxy AI ana sayfa">
-        <img src="logo-192.png" alt="Froxy AI" width="34" height="34" decoding="async">
-        <span>Froxy AI</span>
-      </a>
-      <nav class="home-links" aria-label="Ana navigasyon">
-        <a href="#home-tools">Araçlar</a>
-        <a href="#home-models">Modeller</a>
-        <a href="#home-pricing">Paketler</a>
-        <a href="#home-trust">Güven</a>
-        <a href="#home-legal">Yasal</a>
-      </nav>
-      <div class="home-actions">
-        <button type="button" class="btn-login-home" onclick="modal('login')">Giriş Yap</button>
-        <button type="button" class="primary" onclick="go('chat')">AI Panelini Gör</button>
-      </div>
-    </header>
+  <main id="v-home" class="v froxy-home-v236 home-premium-v237 home-premium-v251" aria-label="Froxy AI ana sayfa">
+  <div class="fx-home-bg" aria-hidden="true"><span></span><span></span><span></span></div>
+  <header class="fx-home-nav">
+    <a class="fx-home-brand" href="?view=home" aria-label="Froxy AI ana sayfa">
+      <img src="logo-192.png" alt="Froxy AI" width="38" height="38" decoding="async">
+      <strong>Froxy AI</strong>
+    </a>
+    <nav class="fx-home-links" aria-label="Ana menü">
+      <a href="#home-tools">Araçlar</a>
+      <a href="#home-models">Modeller</a>
+      <a href="#home-pricing">Paketler</a>
+      <a href="#home-trust">Güven</a>
+      <a href="#home-faq">SSS</a>
+    </nav>
+    <div class="fx-home-actions">
+      <button type="button" class="fx-btn ghost" onclick="modal('login')">Giriş Yap</button>
+      <button type="button" class="fx-btn primary" onclick="modal('reg')">Ücretsiz Başla</button>
+    </div>
+  </header>
 
-    <!-- HERO SECTION -->
-    <section class="home-hero">
-      <div class="home-hero-copy">
-        <span class="home-kicker"><i></i> Premium AI Çalışma Alanı</span>
-        <h1>Tüm AI modelleri, görsel üretim ve ajanlar tek panelde.</h1>
-        <p>Froxy AI; 400+'den fazla lider yapay zeka modelini, yaratıcı görsel üretimini, detaylı dosya analizini ve gelişmiş AI ajanlarını tek bir premium SaaS platformunda birleştirir.</p>
-        <div class="home-hero-actions">
-          <button type="button" class="primary" onclick="modal('reg')">Ücretsiz Başla</button>
-          <button type="button" onclick="go('chat')">AI Panelini Gör</button>
-        </div>
-        <div class="home-trust-row" aria-label="Platform özeti">
-          <span>🛡️ Güvenli Altyapı</span>
-          <span>⚡ Milisaniyelik Hız</span>
-          <span>💡 400+ AI Modeli</span>
-          <span>💳 PayTR / Iyzico / Shopier Hazır</span>
-        </div>
+  <section class="fx-hero" aria-label="Froxy AI tanıtım">
+    <div class="fx-hero-copy">
+      <span class="fx-kicker"><i></i> Türkiye'den global pazara hazır AI platformu</span>
+      <h1>Chat, görsel üretim ve AI ajanlarını tek premium panelde yönetin.</h1>
+      <p>Froxy AI; sohbet modelleri, görsel üretim, dosya analizi, web arama, hazır iş akışları ve destek sistemini tek hesapta birleştiren modern yapay zeka çalışma alanıdır.</p>
+      <div class="fx-hero-cta">
+        <button type="button" class="fx-btn primary large" onclick="go('chat')">AI panelini aç</button>
+        <button type="button" class="fx-btn soft large" onclick="document.getElementById('home-pricing')?.scrollIntoView({behavior:'smooth'})">Paketleri incele</button>
       </div>
-      
-      <!-- Refined highly-professional SaaS Workspace Mockup -->
-      <div class="home-visual" aria-hidden="true">
-        <div class="saas-mockup-window">
-          <div class="saas-mockup-header">
-            <div class="saas-dots"><span></span><span></span><span></span></div>
-            <div class="saas-title-chip">Froxy AI Workspace</div>
-            <div class="saas-status-led"><i></i> Online</div>
-          </div>
-          <div class="saas-mockup-body">
-            <div class="saas-mockup-sidebar">
-              <div class="sidebar-mock-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Sohbet</div>
-              <div class="sidebar-mock-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg> Görsel Üretim</div>
-              <div class="sidebar-mock-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M16 14H8a4 4 0 0 0-4 4v2h16v-2a4 4 0 0 0-4-4z"/></svg> Ajanlar</div>
-              <div class="sidebar-mock-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m13 2-3 7h7l-9 13 3-9H4l9-11Z"/></svg> Hazır Araçlar</div>
-            </div>
-            <div class="saas-mockup-chat">
-              <div class="chat-mock-msg user">
-                <span class="avatar">U</span>
-                <div class="bubble">Yeni nesil AI entegrasyonu için en hızlı model hangisidir?</div>
-              </div>
-              <div class="chat-mock-msg system">
-                <span class="avatar ai">F</span>
-                <div class="bubble">
-                  <div class="model-badge-row">
-                    <span class="active-badge deepseek">DeepSeek R1</span>
-                    <span class="active-badge gpt">GPT-5.5</span>
-                    <span class="active-badge claude">Claude 3.5</span>
-                  </div>
-                  Groq LPU altyapısı sayesinde ortalama gecikme süremiz <strong>38ms</strong>'dir. Tek tıkla dilediğiniz modele geçebilirsiniz.
-                  <div class="mockup-typing"><span></span><span></span><span></span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="fx-hero-metrics">
+        <span><b>450+</b><small>Model ve araç</small></span>
+        <span><b>7/24</b><small>Panel erişimi</small></span>
+        <span><b>KVKK</b><small>Yasal metinler hazır</small></span>
       </div>
-    </section>
+    </div>
 
-    <!-- FEATURES SECTION -->
-    <section id="home-tools" class="home-section">
-      <div class="home-section-head center">
-        <span>GELİŞMİŞ MODÜLLER</span>
-        <h2>İhtiyacınız olan tüm yapay zeka araçları tek bir elinizin altında.</h2>
+    <div class="fx-hero-stage" aria-label="Froxy AI arayüz önizlemesi">
+      <div class="fx-orbit" aria-hidden="true">
+        <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+        <span class="node n1">GPT</span><span class="node n2">Gemini</span><span class="node n3">Görsel</span><span class="node n4">Ajan</span>
+        <div class="core"><img src="logo-192.png" alt="" width="74" height="74" decoding="async"><strong>Froxy</strong></div>
       </div>
-      <div class="home-tool-grid">
-        <div class="home-feature-card" onclick="go('chat')">
-          <div class="card-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
-          </div>
-          <h3>Chat Modelleri</h3>
-          <p>GPT-5.5, Claude, Gemini, DeepSeek ve 400+ gelişmiş modeli tek bir akıllı sohbette kullanın.</p>
-          <em class="card-cta">Hemen Sohbet Et <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg></em>
-        </div>
-        <div class="home-feature-card" onclick="go('chat');panelTab('img')">
-          <div class="card-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-          </div>
-          <h3>Görsel Üretim</h3>
-          <p>Flux, SDXL ve ultra gelişmiş görsel modelleri ile kelimelerinizi büyüleyici sanat eserlerine dönüştürün.</p>
-          <em class="card-cta">Görsel Üret <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg></em>
-        </div>
-        <div class="home-feature-card" onclick="go('chat');panelTab('agents')">
-          <div class="card-icon" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M16 14H8a4 4 0 0 0-4 4v2h16v-2a4 4 0 0 0-4-4z"/><circle cx="19" cy="5" r="2"/><path d="M19 3v4M17 5h4"/></svg>
-          </div>
-          <h3>AI Ajanlar</h3>
-          <p>SEO, hukuk, yazılım, tasarım ve pazarlama uzmanı yapay zeka ajanlarıyla işinizi otomatikleştirin.</p>
-          <em class="card-cta">Ajanları Seç <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg></em>
-        </div>
-        <div class="home-feature-card" onclick="go('chat');panelTab('tools')">
-          <div class="card-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-3 7h7l-9 13 3-9H4l9-11Z"/></svg>
-          </div>
-          <h3>AI Araçları</h3>
-          <p>Makale yazımı, kod analizi ve hazır iş akışlarını saniyeler içinde tetikleyip sohbete aktarın.</p>
-          <em class="card-cta">Araçları Keşfet <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg></em>
-        </div>
-        <div class="home-feature-card" onclick="go('chat');panelTab('rag')">
-          <div class="card-icon" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
-          </div>
-          <h3>Web Arama &amp; RAG</h3>
-          <p>İnternette canlı arama yapın, PDF, Excel veya kaynak dosyalarınızı yükleyerek anında derinlemesine analiz edin.</p>
-          <em class="card-cta">Analize Başla <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg></em>
-        </div>
-        <div class="home-feature-card" onclick="go('chat');panelTab('store')">
-          <div class="card-icon" style="background:linear-gradient(135deg,#ec4899,#f43f5e)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          </div>
-          <h3>Kredi Sistemi</h3>
-          <p>Kullandığın kadar öde mantığı ile şeffaf, adil ve tüketim geçmişinizi detaylı yönetebileceğiniz akıllı bakiye sistemi.</p>
-          <em class="card-cta">Kredileri Yönet <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg></em>
-        </div>
+      <div class="fx-console">
+        <div class="fx-console-top"><i></i><i></i><i></i><span>Canlı model akışı</span></div>
+        <div class="fx-message user">Bir ürün için kampanya görseli ve satış metni hazırla.</div>
+        <div class="fx-message ai"><b>Froxy AI</b><span>Görsel promptu, sosyal medya metni ve kısa reklam akışı hazırlandı.</span><em></em></div>
+        <div class="fx-bars"><span></span><span></span><span></span><span></span><span></span></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- MODEL SHOWCASE SECTION -->
-    <section id="home-models" class="home-section home-models-section">
-      <div class="home-section-head center">
-        <span>PREMIUM MODEL AĞI</span>
-        <h2>Dünyanın en iyi yapay zeka sağlayıcıları tek bir yerde.</h2>
-        <p class="section-desc">Modeller arasında tek tıkla geçiş yapın, projelerinize en uygun zekayı seçin.</p>
-      </div>
-      <div class="home-model-showcase-grid">
-        <div class="model-provider-card" data-provider="openai">
-          <div class="provider-glow"></div>
-          <div class="provider-badge openai">OpenAI</div>
-          <h3>GPT-5.5 / GPT-4o</h3>
-          <p>Üstün akıl yürütme, yazılım geliştirme ve yaratıcı problem çözme yeteneği.</p>
-          <div class="provider-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="m13 2-3 7h7l-9 13 3-9H4l9-11Z"/></svg> <span>Ultra Performans</span></div>
-        </div>
-        <div class="model-provider-card" data-provider="anthropic">
-          <div class="provider-glow"></div>
-          <div class="provider-badge anthropic">Anthropic</div>
-          <h3>Claude 3.5 / 4.7</h3>
-          <p>Hassas analiz, derinlemesine okuma, edebi yazarlık ve mükemmel kodlama.</p>
-          <div class="provider-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg> <span>Güvenilir Çıktı</span></div>
-        </div>
-        <div class="model-provider-card" data-provider="google">
-          <div class="provider-glow"></div>
-          <div class="provider-badge google">Google</div>
-          <h3>Gemini 3.1 / Pro</h3>
-          <p>Milyonluk bağlam penceresi, çoklu ortam desteği ve yüksek hızlı analiz.</p>
-          <div class="provider-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><circle cx="12" cy="12" r="10"/></svg> <span>1M+ Bağlam</span></div>
-        </div>
-        <div class="model-provider-card" data-provider="deepseek">
-          <div class="provider-glow"></div>
-          <div class="provider-badge deepseek">DeepSeek</div>
-          <h3>DeepSeek R1 / V3</h3>
-          <p>Akıl almaz matematik, mantık ve kodlama gücü, inanılmaz fiyat avantajıyla.</p>
-          <div class="provider-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> <span>Derin Akıl Yürütme</span></div>
-        </div>
-        <div class="model-provider-card" data-provider="mistral">
-          <div class="provider-glow"></div>
-          <div class="provider-badge mistral">Mistral AI</div>
-          <h3>Mistral Large 3</h3>
-          <p>Avrupa merkezli, yüksek performanslı ve çok dilli profesyonel zeka.</p>
-          <div class="provider-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><circle cx="12" cy="12" r="10"/></svg> <span>Çok Dilli</span></div>
-        </div>
-        <div class="model-provider-card" data-provider="meta">
-          <div class="provider-glow"></div>
-          <div class="provider-badge meta">Meta</div>
-          <h3>Llama 3.3 / 4</h3>
-          <p>Açık kaynak dünyasının en güçlü ve esnek dil modeli ekosistemi.</p>
-          <div class="provider-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span>Açık Kaynak</span></div>
-        </div>
-        <div class="model-provider-card" data-provider="groq">
-          <div class="provider-glow"></div>
-          <div class="provider-badge groq">Groq</div>
-          <h3>LPU Altyapısı</h3>
-          <p>Dünyanın en hızlı yapay zeka donanımıyla milisaniyeler içinde yanıt süresi.</p>
-          <div class="provider-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg> <span>38ms Gecikme</span></div>
-        </div>
-        <div class="model-provider-card" data-provider="openrouter">
-          <div class="provider-glow"></div>
-          <div class="provider-badge openrouter">OpenRouter</div>
-          <h3>400+ Entegrasyon</h3>
-          <p>Farklı sağlayıcıların tüm modellerine tek bir API anahtarı ve krediyle erişim.</p>
-          <div class="provider-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> <span>Unified API</span></div>
-        </div>
-      </div>
-    </section>
+  <section class="fx-trust-strip" aria-label="Güven ve ödeme altyapısı">
+    <span>SSL güvenli bağlantı</span>
+    <span>KVKK aydınlatma metni</span>
+    <span>Mesafeli satış sözleşmesi</span>
+    <span>İptal ve iade politikası</span>
+    <span>PayTR / iyzico uyumlu sayfa yapısı</span>
+  </section>
 
-    <!-- HOW IT WORKS SECTION -->
-    <section class="home-section home-workflow-section">
-      <div class="home-section-head center">
-        <span>NASIL ÇALIŞIR?</span>
-        <h2>Sadece birkaç adımda AI gücünü kullanmaya başlayın.</h2>
-      </div>
-      <div class="home-workflow-grid">
-        <div class="workflow-card">
-          <div class="step-badge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="20" height="20"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <span class="step-number">01</span>
-          <h3>Hızlıca Kayıt Ol</h3>
-          <p>E-posta veya Google/GitHub hesabınla saniyeler içinde üye ol, 100 hediye krediyle anında başla.</p>
-        </div>
-        <div class="workflow-connector"><svg viewBox="0 0 40 12" fill="none" stroke="rgba(124,58,237,0.4)" stroke-width="2" stroke-dasharray="4 4"><path d="M0 6h40"/></svg></div>
-        <div class="workflow-card">
-          <div class="step-badge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="20" height="20"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
-          <span class="step-number">02</span>
-          <h3>Modelini Seç</h3>
-          <p>Sohbet ekranından dilediğin yapay zeka modelini veya hazır ajanını seç, anında filtrele.</p>
-        </div>
-        <div class="workflow-connector"><svg viewBox="0 0 40 12" fill="none" stroke="rgba(124,58,237,0.4)" stroke-width="2" stroke-dasharray="4 4"><path d="M0 6h40"/></svg></div>
-        <div class="workflow-card">
-          <div class="step-badge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="20" height="20"><path d="m13 2-3 7h7l-9 13 3-9H4l9-11Z"/></svg></div>
-          <span class="step-number">03</span>
-          <h3>Üret &amp; Sohbet Et</h3>
-          <p>İster kod yazdır, ister görsel üret, istersen de yüklediğin büyük dokümanları analiz ettir.</p>
-        </div>
-        <div class="workflow-connector"><svg viewBox="0 0 40 12" fill="none" stroke="rgba(124,58,237,0.4)" stroke-width="2" stroke-dasharray="4 4"><path d="M0 6h40"/></svg></div>
-        <div class="workflow-card">
-          <div class="step-badge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="20" height="20"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
-          <span class="step-number">04</span>
-          <h3>Kredini Kolayca Yönet</h3>
-          <p>Kullandığın kadar öde sistemiyle bakiye harcamalarını takip et, Shopier üzerinden güvenle bakiye yükle.</p>
-        </div>
-      </div>
-    </section>
+  <section id="home-tools" class="fx-section">
+    <div class="fx-section-head">
+      <span>AI çalışma alanı</span>
+      <h2>Kullanıcının beklediği ana araçlar ilk ekranda hazır.</h2>
+      <p>Sohbet, görsel üretim, ajanlar ve market modülleri ayrı ayrı kaybolmadan, tek profesyonel akışta sunulur.</p>
+    </div>
+    <div class="fx-tool-grid">
+      <button type="button" class="fx-tool-card cyan" onclick="go('chat');panelTab('chat')"><i>AI</i><b>Sohbet</b><small>Metin, kod, dosya ve web destekli cevaplar.</small><em>Başlat</em></button>
+      <button type="button" class="fx-tool-card pink" onclick="go('chat');panelTab('img')"><i>IMG</i><b>Görsel Üret</b><small>Prompt, stil, boyut ve galeri akışı.</small><em>Üret</em></button>
+      <button type="button" class="fx-tool-card violet" onclick="go('chat');panelTab('agents')"><i>BOT</i><b>AI Ajanlar</b><small>SEO, hukuk, kod ve satış uzmanları.</small><em>Seç</em></button>
+      <button type="button" class="fx-tool-card blue" onclick="go('chat');panelTab('tools')"><i>FX</i><b>AI Araçları</b><small>Hazır iş akışlarını sohbete aktar.</small><em>Çalıştır</em></button>
+      <button type="button" class="fx-tool-card green" onclick="go('chat');panelTab('store')"><i>TL</i><b>AI Market</b><small>Kredi, paket ve yükseltme seçenekleri.</small><em>İncele</em></button>
+      <button type="button" class="fx-tool-card amber" onclick="go('chat');panelTab('support')"><i>24</i><b>Destek</b><small>Bilet aç, yanıtları takip et.</small><em>Yardım al</em></button>
+    </div>
+  </section>
 
-    <!-- PRICING SECTION -->
-    <section id="home-pricing" class="home-section home-pricing-section">
-      <div class="home-section-head center">
-        <span>ESNEK PAKETLER</span>
-        <h2>Kredi mantığı son derece sade, satın alma akışı hızlı.</h2>
-        <p class="section-desc">Kullanımınıza en uygun krediyi seçin, kalan bakiyeniz hiçbir zaman silinmesin.</p>
-      </div>
-      <div class="home-price-premium-grid">
-        <div class="pricing-premium-card">
-          <div class="pricing-header">
-            <span class="plan-name">Başlangıç</span>
-            <div class="plan-price">129.99 <span>TL</span></div>
-            <p class="plan-desc">Hafif kullanım ve yapay zeka dünyasını denemek için ideal giriş paketi.</p>
-          </div>
-          <ul class="plan-features">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> 5.000 Kredi</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Tüm lider modellere erişim</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Sohbet, görsel ve ajanlar</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Güvenli KVKK veri işleme</li>
-          </ul>
-          <button type="button" class="btn-buy-plan" onclick="buyTokensById('starter')">Hemen Satın Al</button>
-        </div>
-        
-        <div class="pricing-premium-card featured">
-          <div class="featured-badge">EN POPÜLER</div>
-          <div class="pricing-header">
-            <span class="plan-name">Popüler</span>
-            <div class="plan-price">249.99 <span>TL</span></div>
-            <p class="plan-desc">Yoğun chat, görsel üretimi ve veri analizi işleri için en dengeli bakiye paketi.</p>
-          </div>
-          <ul class="plan-features">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> 15.000 Kredi</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Öncelikli yüksek yanıt hızı</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Tüm lider modellere erişim</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Sohbet, görsel ve ajanlar</li>
-          </ul>
-          <button type="button" class="btn-buy-plan primary" onclick="buyTokensById('popular')">Hemen Satın Al</button>
-        </div>
-        
-        <div class="pricing-premium-card">
-          <div class="pricing-header">
-            <span class="plan-name">Profesyonel</span>
-            <div class="plan-price">449.99 <span>TL</span></div>
-            <p class="plan-desc">Yoğun iş akışları, kodlama ve kurumsal düzeydeki AI otomasyon ihtiyaçları için.</p>
-          </div>
-          <ul class="plan-features">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> 50.000 Kredi</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> En üst seviye kota limitleri</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> 7/24 VIP Destek hattı</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" width="16" height="16" style="flex-shrink:0"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Tüm lider modellere erişim</li>
-          </ul>
-          <button type="button" class="btn-buy-plan" onclick="buyTokensById('pro')">Hemen Satın Al</button>
-        </div>
-      </div>
-    </section>
+  <section id="home-models" class="fx-section fx-models">
+    <div class="fx-section-head narrow">
+      <span>Model katmanı</span>
+      <h2>Popüler sağlayıcılar tek seçicide.</h2>
+    </div>
+    <div class="fx-model-rail" aria-label="Popüler AI modelleri">
+      <article><small>OpenAI</small><b>GPT serisi</b><span>Kodlama ve yarat?c? Üretim</span></article>
+      <article><small>Anthropic</small><b>Claude</b><span>Uzun metin ve analiz</span></article>
+      <article><small>Google</small><b>Gemini</b><span>Çok modlu çalışma</span></article>
+      <article><small>DeepSeek</small><b>DeepSeek</b><span>Akıl yürütme ve kod</span></article>
+      <article><small>Meta</small><b>Llama</b><span>Açık model ekosistemi</span></article>
+      <article><small>Groq</small><b>Hızlı LLM</b><span>Düşük gecikme</span></article>
+      <article><small>OpenRouter</small><b>Çoklu rota</b><span>Fallback ve çeşitlilik</span></article>
+      <article><small>Görsel</small><b>Flux / SDXL</b><span>Ürün ve reklam görseli</span></article>
+    </div>
+  </section>
 
-    <!-- TRUST & REGULATORY COMPLIANCE SECTION -->
-    <section id="home-trust" class="home-section home-trust-premium">
-      <div class="trust-container">
-        <div class="trust-info">
-          <div class="trust-shield-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
-          <span>GÜVENİLİR ALTYAPI &amp; BİLGİLENDİRME</span>
-          <h2>PayTR, Iyzico ve BDDK standartlarına tam uyumlu altyapı.</h2>
-          <p>Froxy AI, yasal düzenlemeler kapsamında kullanıcı güvenliğini en üst sırada tutar. Ödeme işlemleri SSL korumalı sistemler ve PCI-DSS uyumlu lisanslı ödeme kuruluşları altyapısıyla güvenle gerçekleştirilir. KVKK aydınlatma metinleri, mesafeli satış sözleşmesi ve iptal/iade prosedürleri şeffaf bir şekilde sunulmaktadır.</p>
-        </div>
-      </div>
-      
-      <div class="home-compliance-premium">
-        <div class="compliance-row">
-          <div class="compliance-item" onclick="showLegal('kvkk')">
-            <div class="compliance-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-            <strong>KVKK Aydınlatma Metni</strong>
-            <span>Kişisel verilerinizin korunması ve işlenme ilkeleri.</span>
-          </div>
-          <div class="compliance-item" onclick="showLegal('privacy')">
-            <div class="compliance-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-            <strong>Gizlilik Politikası</strong>
-            <span>Üye bilgileri güvenlik ve veri saklama standartları.</span>
-          </div>
-          <div class="compliance-item" onclick="showLegal('terms')">
-            <div class="compliance-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg></div>
-            <strong>Kullanıcı Sözleşmesi</strong>
-            <span>Hizmet kuralları ve platform lisans şartları.</span>
-          </div>
-          <div class="compliance-item" onclick="showLegal('sales')">
-            <div class="compliance-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
-            <strong>Mesafeli Satış Sözleşmesi</strong>
-            <span>Dijital ürün satışı hak ve yükümlülükler sözleşmesi.</span>
-          </div>
-          <div class="compliance-item" onclick="showLegal('refund')">
-            <div class="compliance-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></div>
-            <strong>İade ve İptal Politikası</strong>
-            <span>Kredi paketleri iade şartları ve iptal prosedürleri.</span>
-          </div>
-          <div class="compliance-item" onclick="showLegal('disclaimer')">
-            <div class="compliance-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
-            <strong>Sorumluluk Reddi</strong>
-            <span>Yapay zeka modellerinin ürettiği içerik sınırlamaları.</span>
-          </div>
-        </div>
-      </div>
-    </section>
+  <section class="fx-section fx-flow">
+    <div class="fx-flow-copy">
+      <span>Nasıl çalışır?</span>
+      <h2>Model seç, prompt yaz, çıktıyı tek panelden yönet.</h2>
+      <p>Froxy AI kullan?c?y? ayr? ayr? servisler aras?nda gezdirmek yerine, Üretimden galeriye ve destek talebine kadar t?m ak??? ayn? aray?zde tutar.</p>
+    </div>
+    <div class="fx-flow-steps">
+      <article><b>1</b><strong>İhtiyacı seç</strong><small>Sohbet, görsel, ajan veya hazır araç.</small></article>
+      <article><b>2</b><strong>Modeli Çalıştır</strong><small>Kredi maliyeti seçicide net görünür.</small></article>
+      <article><b>3</b><strong>Kaydet ve devam et</strong><small>Galeri, hafıza ve destek akışı hazırdır.</small></article>
+    </div>
+  </section>
 
-    <!-- FOOTER -->
-    <footer id="home-legal" class="home-footer">
-      <div class="footer-container">
-        <div class="footer-brand">
-          <div class="footer-logo">
-            <img src="logo-192.png" alt="Froxy AI" width="30" height="30" decoding="async">
-            <span>Froxy AI</span>
-          </div>
-          <p class="footer-tagline">Tüm lider yapay zeka modellerine tek platformdan erişin.</p>
-          
-          <!-- Payment gateway and security badges (Critical for Iyzico/PayTR approval) -->
-          <div class="footer-payment-badges">
-            <span class="pay-badge visa"></span>
-            <span class="pay-badge mastercard"></span>
-            <span class="pay-badge troy"></span>
-            <span class="pay-badge ssl"></span>
-          </div>
-        </div>
-        
-        <div class="footer-links-group">
-          <strong>Platform</strong>
-          <a href="javascript:void(0)" onclick="go('chat')">Sohbet</a>
-          <a href="javascript:void(0)" onclick="go('chat');panelTab('img')">Görsel Üretim</a>
-          <a href="javascript:void(0)" onclick="go('chat');panelTab('agents')">AI Ajanlar</a>
-          <a href="javascript:void(0)" onclick="go('chat');panelTab('store')">Kredi Mağazası</a>
-        </div>
-        
-        <div class="footer-links-group">
-          <strong>Destek & İletişim</strong>
-          <a href="javascript:void(0)" onclick="go('chat');panelTab('support')">Bilet Aç / Yardım</a>
-          <span>E-posta: destek@froxyai.com</span>
-          <span>Telefon: +90 (212) 999 88 77</span>
-        </div>
-        
-        <div class="footer-links-group">
-          <strong>Yasal & Güven</strong>
-          <a href="javascript:void(0)" onclick="showLegal('kvkk')">KVKK Aydınlatma</a>
-          <a href="javascript:void(0)" onclick="showLegal('privacy')">Gizlilik Politikası</a>
-          <a href="javascript:void(0)" onclick="showLegal('terms')">Kullanıcı Sözleşmesi</a>
-          <a href="javascript:void(0)" onclick="showLegal('sales')">Mesafeli Satış Sözleşmesi</a>
-          <a href="javascript:void(0)" onclick="showLegal('refund')">İptal ve İade Koşulları</a>
-          <a href="javascript:void(0)" onclick="showLegal('disclaimer')">Sorumluluk Reddi</a>
-        </div>
-      </div>
-      
-      <!-- Corporate Information Row (PayTR/Iyzico mandatory audit compliance) -->
-      <div class="footer-corporate-info">
-        <div class="corp-column">
-          <strong>Froxy AI Teknolojileri Ticaret Limited Şirketi</strong>
-          <span>Adres: Maslak, Dereboyu Cd. No:34, 34485 Sarıyer/İstanbul</span>
-        </div>
-        <div class="corp-column">
-          <span>Vergi Dairesi: Maslak V.D. | Vergi No: 3840829104</span>
-          <span>Mersis No: 0384082910400001 | Kep: froxyai@hs01.kep.tr</span>
-        </div>
-      </div>
-      
-      <div class="footer-bottom">
-        <span>&copy; 2026 Froxy AI. Tüm hakları saklıdır.</span>
-      </div>
-    </footer>
-    <script>
-    /* v249 scroll-reveal + stagger animations */
-    (function(){
-      if(!('IntersectionObserver' in window))return;
-      function initReveal(){
-        var sections=document.querySelectorAll('.home-premium-v237 .home-section');
-        if(!sections.length)return;
-        var delay=0;
-        sections.forEach(function(s){
-          var r=s.getBoundingClientRect();
-          if(r.top>window.innerHeight*0.7){
-            s.classList.add('will-reveal');
-            s.style.transitionDelay=(delay*0.1)+'s';
-            delay++;
-          }else{
-            s.classList.add('in-view');
-          }
-        });
-        var obs=new IntersectionObserver(function(entries){
-          entries.forEach(function(e){
-            if(e.isIntersecting){
-              e.target.classList.add('in-view');
-              obs.unobserve(e.target);
-            }
-          });
-        },{threshold:0.08,rootMargin:'0px 0px -20px 0px'});
-        sections.forEach(function(s){
-          if(s.classList.contains('will-reveal'))obs.observe(s);
-        });
-      }
-      /* Wait for splash to dismiss and layout to stabilize */
-      if(document.readyState==='complete'){
-        requestAnimationFrame(function(){requestAnimationFrame(initReveal)});
-      }else{
-        window.addEventListener('load',function(){
-          requestAnimationFrame(function(){requestAnimationFrame(initReveal)});
-        });
-      }
-    })();
-    </script>
-  </main>
+  <section id="home-pricing" class="fx-section fx-pricing">
+    <div class="fx-section-head">
+      <span>Paketler</span>
+      <h2>Shopier ödeme sayfalarına doğrudan yönlenen net paketler.</h2>
+    </div>
+    <div class="fx-price-grid">
+      <article><small>Başlangıç</small><h3>₺129.99</h3><p>5.000 kredi, tüm modellere erişim ve topluluk desteği.</p><button type="button" onclick="buyTokensById('starter')">Satın Al</button></article>
+      <article class="popular"><em>Popüler</em><small>Popüler</small><h3>₺249.99</h3><p>15.000 kredi, g?rsel Üretim dahil ve daha y?ksek g?nl?k limit.</p><button type="button" onclick="buyTokensById('popular')">Satın Al</button></article>
+      <article><small>Profesyonel</small><h3>₺449.99</h3><p>50.000 kredi, Öncelikli destek ve yoğun kullanım için uygun.</p><button type="button" onclick="buyTokensById('pro')">Satın Al</button></article>
+    </div>
+  </section>
+
+  <section id="home-trust" class="fx-section fx-compliance">
+    <div class="fx-compliance-copy">
+      <span>Ödeme ve yasal uyum</span>
+      <h2>PayTR ve iyzico incelemeleri için gerekli güven sinyalleri görünür.</h2>
+      <p>Kullanıcı; şirket bilgisi, iletişim, iade koşulları, KVKK, mesafeli satış sözleşmesi ve sorumluluk reddi metinlerine ana sayfadan ulaşabilir.</p>
+    </div>
+    <div class="fx-compliance-grid">
+      <button type="button" onclick="showLegal('kvkk')"><b>KVKK</b><small>Aydınlatma metni</small></button>
+      <button type="button" onclick="showLegal('privacy')"><b>Gizlilik</b><small>Veri işleme politikası</small></button>
+      <button type="button" onclick="showLegal('terms')"><b>Kullanım</b><small>Platform şartları</small></button>
+      <button type="button" onclick="showLegal('sales')"><b>Mesafeli satış</b><small>Dijital hizmet sözleşmesi</small></button>
+      <button type="button" onclick="showLegal('refund')"><b>İptal / iade</b><small>Ödeme sonrası süreç</small></button>
+      <button type="button" onclick="showLegal('disclaimer')"><b>Sorumluluk</b><small>AI çıktı bilgilendirmesi</small></button>
+    </div>
+  </section>
+
+  <section id="home-faq" class="fx-section fx-faq">
+    <div class="fx-section-head narrow"><span>SSS</span><h2>Sık sorulan kritik sorular.</h2></div>
+    <div class="fx-faq-list">
+      <details open><summary>Ücretsiz başlayabilir miyim?</summary><p>Evet. Misafir kullanım ve ücretsiz hesap kredileriyle paneli deneyebilirsiniz.</p></details>
+      <details><summary>Ödeme sonrası kredi otomatik mi yüklenir?</summary><p>Shopier ödeme bağlantıları ilgili paket sayfasına gider. Otomatik yükleme için ödeme entegrasyonu/webhook adımı ayrıca bağlanabilir.</p></details>
+      <details><summary>Hangi modeller var?</summary><p>OpenAI, Gemini, Claude, DeepSeek, Llama, Mistral, Groq, OpenRouter ve görsel sağlayıcılar seçici üzerinden yönetilir.</p></details>
+      <details><summary>Yasal metinler nerede?</summary><p>KVKK, gizlilik, kullanım şartları, mesafeli satış, iptal/iade ve sorumluluk reddi ana sayfadan açılır.</p></details>
+    </div>
+  </section>
+
+  <footer id="home-legal" class="fx-footer">
+    <div><img src="logo-192.png" alt="Froxy AI" width="34" height="34" decoding="async"><strong>Froxy AI</strong><p>Çoklu AI model platformu. Sohbet, görsel, ajan ve market modülleri tek panelde.</p></div>
+    <nav aria-label="Yasal bağlantılar">
+      <button type="button" onclick="showLegal('kvkk')">KVKK Aydınlatma</button>
+      <button type="button" onclick="showLegal('privacy')">Gizlilik Politikası</button>
+      <button type="button" onclick="showLegal('terms')">Kullanım ?artlar?</button>
+      <button type="button" onclick="showLegal('sales')">Mesafeli Satış</button>
+      <button type="button" onclick="showLegal('refund')">İptal ve İade</button>
+      <button type="button" onclick="showLegal('disclaimer')">Sorumluluk Reddi</button>
+    </nav>
+    <div class="fx-footer-company"><strong>Froxy AI Teknolojileri</strong><span>E-posta: destek@froxyai.com</span><span>Ödeme: Shopier, PayTR ve iyzico uyumlu sayfa yapısı</span><span>© 2026 Froxy AI. Tüm hakları saklıdır.</span></div>
+  </footer>
+</main>
 
   <!-- Auth Modal (centered card + floating particles) -->
   <div id="auth-modal" class="modal auth-modal-v2" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -2598,7 +2312,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       return false;
     };
   </script>
-  <script src="app.min.js?v=v250" defer></script>
+  <script src="app.min.js?v=v251" defer></script>
 
 <!-- NEW TABS: Görevler, AI Hafıza, Video -->
 <script>
