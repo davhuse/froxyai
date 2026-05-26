@@ -1,5 +1,5 @@
-// Service Worker v256 - network-first, safe clone
-const CACHE = 'froxy-v256';
+// Service Worker v258 - network-first, safe clone
+const CACHE = 'froxy-v258';
 
 
 self.addEventListener('install', e => {

@@ -1393,6 +1393,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   else if(startupView==='home') go('home');
   else if(startupView==='dash'){ go('chat'); panelTab('dash'); }
   else{go('chat');if(startupTab!=='chat')panelTab(startupTab)}
+  const routeTarget=getRouteTarget();
+  if((routeTarget==='login'||routeTarget==='reg')&&typeof modal==='function'){
+    setTimeout(()=>modal(routeTarget),120);
+  }
   // Giriş yapılmamışsa login/register modal'ı otomatik aç (AiPark tarzı).
   setTimeout(function(){
     var isLoggedIn = (typeof authUser !== 'undefined' && authUser) || (typeof user !== 'undefined' && user);
@@ -2305,8 +2309,7 @@ function panelTab(tab){
   if(tab==='gallery'){if(typeof renderGallery==='function')renderGallery()}
   if(tab==='analytics'){if(typeof renderAnalytics==='function')renderAnalytics();if(typeof renderBadges==='function')renderBadges();if(typeof renderApiKeyPanel==='function')renderApiKeyPanel()}
   if(typeof upgradeEmojiFigures==='function')upgradeEmojiFigures(el);
-  // v138: URL kirliligi onlendi - sade path
-  try { history.replaceState({}, '', location.pathname); } catch(e){}
+  setAppRoute(routeForTab(tab));
   if(window.innerWidth<=1040)toggleChatSidebar(false);
 }
 function toggleChatSidebar(force){
@@ -2498,7 +2501,78 @@ async function chargeSuccessfulUse(model,provider,kind,forcedCost){
 }
 
 // ===== VIEWS =====
+const ROUTE_MAP={
+  '/':'home',
+  '/anasayfa':'home',
+  '/home':'home',
+  '/sohbet':'chat',
+  '/chat':'chat',
+  '/panel':'chat',
+  '/dashboard':'dash',
+  '/kontrol-paneli':'dash',
+  '/gorsel':'img',
+  '/gorsel-uret':'img',
+  '/araclar':'tools',
+  '/ai-araclari':'tools',
+  '/ajanlar':'agents',
+  '/ai-ajanlar':'agents',
+  '/magaza':'store',
+  '/fiyatlandirma':'store',
+  '/destek':'support',
+  '/galeri':'gallery',
+  '/analitik':'analytics',
+  '/promptlar':'prompts',
+  '/bilgi-bankasi':'rag',
+  '/giris':'login',
+  '/kayit':'reg',
+  '/admin':'admin'
+};
+const TAB_ROUTES={
+  chat:'/sohbet',
+  dash:'/dashboard',
+  img:'/gorsel',
+  tools:'/araclar',
+  agents:'/ajanlar',
+  store:'/magaza',
+  support:'/destek',
+  gallery:'/galeri',
+  analytics:'/analitik',
+  prompts:'/promptlar',
+  rag:'/bilgi-bankasi',
+  personas:'/sohbet',
+  codeeditor:'/sohbet'
+};
+function normalizeRoutePath(){
+  try{
+    let path=(location.pathname||'/').replace(/\/+$/,'')||'/';
+    return decodeURIComponent(path).toLowerCase();
+  }catch(e){return '/'}
+}
+function getRouteTarget(){
+  return ROUTE_MAP[normalizeRoutePath()]||'';
+}
+function setAppRoute(route,replace){
+  try{
+    if(!route||route===location.pathname)return;
+    (replace?history.replaceState:history.pushState).call(history,{froxyRoute:true},'',route);
+  }catch(e){}
+}
+function routeForView(v){
+  if(v==='home')return '/';
+  if(v==='admin')return '/admin';
+  if(v==='dash')return '/dashboard';
+  if(v==='chat')return '/sohbet';
+  return '/sohbet';
+}
+function routeForTab(tab){
+  return TAB_ROUTES[tab]||'/sohbet';
+}
+
 function getStartupView(){
+  const routeTarget=getRouteTarget();
+  if(routeTarget==='login'||routeTarget==='reg')return 'home';
+  if(['img','tools','agents','store','support','gallery','analytics','prompts','rag'].includes(routeTarget))return 'chat';
+  if(routeTarget)return routeTarget;
   try{
     const params=new URLSearchParams(location.search);
     if(!params.get('view')&&!params.get('screen')&&!location.hash)return 'home';
@@ -2514,6 +2588,9 @@ function getStartupView(){
 }
 
 function getStartupTab(){
+  const routeTarget=getRouteTarget();
+  if(['img','tools','agents','store','support','gallery','analytics','prompts','rag'].includes(routeTarget))return routeTarget;
+  if(routeTarget==='dash')return 'dash';
   try{
     const params=new URLSearchParams(location.search);
     const tab=(params.get('tab')||'').toLowerCase();
@@ -2532,7 +2609,7 @@ function go(v){
     const nav=document.getElementById('nav');
     if(nav)nav.style.display='none';
     window.scrollTo(0,0);
-    try { history.replaceState({}, '', location.pathname); } catch(e){}
+    setAppRoute(routeForView('home'));
     return;
   }
   if(v==='dash'){go('chat');panelTab('dash');return}
@@ -2546,8 +2623,7 @@ function go(v){
     document.getElementById('nav').style.display='none';
     window.scrollTo(0,0);
     if(typeof adminTab==='function')adminTab('dashboard');
-    // v138: URL kirliligi onlendi
-    try { history.replaceState({}, '', location.pathname); } catch(e){}
+    setAppRoute(routeForView('admin'));
     return;
   }
   document.documentElement.classList.remove('home-mode');
@@ -2557,8 +2633,7 @@ function go(v){
   window.scrollTo(0,0);
   if(v==='chat'){ensureGuestChatSession();preferGuestFreeModel();renderChatList();if(!activeChat&&chats.length)loadChat(chats[0].id);else if(!activeChat)newChat();updateQuota();panelTab('chat')}
   document.getElementById('nav').style.display=v==='chat'?'none':'flex';
-  // v138: URL kirliligi onlendi
-  try { history.replaceState({}, '', location.pathname); } catch(e){}
+  setAppRoute(routeForView(v));
 }
 
 // ===== DASHBOARD =====
@@ -9588,7 +9663,7 @@ window.trackImageGen=trackImageGen;
 /* v192: mobile shell authority. Keeps mobile drawer, cache, active bottom nav,
    model sheet and scroll padding deterministic without changing model/API logic. */
 (function(){
-  const VERSION='v256';
+const VERSION='v258';
   function isMobile(){
     return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
   }

@@ -1365,12 +1365,15 @@ app.use((req, res, next) => {
   next();
 });
 
-const staticRoot = path.join(__dirname);
+const staticRoot = path.resolve(__dirname);
 const compressedTypes = new Set(['.js', '.css', '.html', '.json', '.svg', '.txt']);
 // "/" -> index.html esdegerligi
 app.get('/', (req, res, next) => {
   req.url = '/index.html';
   next();
+});
+app.get(/^\/(?:anasayfa|home|sohbet|chat|panel|dashboard|kontrol-paneli|gorsel|gorsel-uret|araclar|ai-araclari|ajanlar|ai-ajanlar|magaza|fiyatlandirma|destek|galeri|analitik|promptlar|bilgi-bankasi|giris|kayit|admin)\/?$/i, (req, res) => {
+  res.sendFile('index.html', { root: staticRoot });
 });
 app.get(/\.(js|css|html|json|svg|txt)$/i, (req, res, next) => {
   if (process.env.NO_COMPRESS === '1') return next();
@@ -1414,6 +1417,17 @@ app.use(express.static(staticRoot, {
     }
   }
 }));
+
+const appRoutes = new Set([
+  '/anasayfa', '/home', '/sohbet', '/chat', '/panel', '/dashboard',
+  '/kontrol-paneli', '/gorsel', '/gorsel-uret', '/araclar', '/ai-araclari',
+  '/ajanlar', '/ai-ajanlar', '/magaza', '/fiyatlandirma', '/destek',
+  '/galeri', '/analitik', '/promptlar', '/bilgi-bankasi', '/giris',
+  '/kayit', '/admin'
+]);
+app.get(Array.from(appRoutes), (req, res) => {
+  res.sendFile('index.html', { root: staticRoot });
+});
 
 // ===== OAUTH CONFIG =====
 // GitHub OAuth app settings.
