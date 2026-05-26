@@ -82,13 +82,14 @@
     .app-route-skeleton-card strong{display:block;font-size:22px;line-height:1.08;font-weight:900}
     .app-route-skeleton-card p{margin:7px 0 0;color:#94a3b8;font-size:15px;line-height:1.48;font-weight:700}
     .app-route-skeleton-card button{grid-column:1/-1;height:42px;border:0;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#7c3aed);color:#fff;font:800 13px/1 var(--font);cursor:pointer;box-shadow:0 14px 34px rgba(59,130,246,.28)}
+    @media (min-width:761px){html.app-route-prepaint #app-route-skeleton{display:none!important}}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
   <link rel="stylesheet" href="home-critical.min.css?v=v260">
-  <noscript><link rel="stylesheet" href="style.min.css?v=v266"></noscript>
+  <noscript><link rel="stylesheet" href="style.min.css?v=v267"></noscript>
   <script>
-  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v266';document.head.appendChild(l)};
-  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel-uret|ai-araclar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v266';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
+  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v267';document.head.appendChild(l)};
+  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel-uret|ai-araclar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v267';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
   ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})});
   window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)});
   </script>
@@ -2359,7 +2360,7 @@ echo curl_exec($ch);</pre>
       if(window.__loadFullCss)window.__loadFullCss();
       var sc=document.createElement('script');
       sc.fetchPriority='high';
-      sc.src='app.min.js?v=v266';
+      sc.src='app.min.js?v=v267';
       sc.defer=true;
       sc.onload=function(){appLoaded=true;if(domReady){try{document.dispatchEvent(new Event('DOMContentLoaded'))}catch(e){}}try{document.documentElement.classList.remove('app-route-prepaint')}catch(e){}setTimeout(function(){while(callbacks.length){try{callbacks.shift()()}catch(e){}}},0)};
       document.body.appendChild(sc);
