@@ -2533,6 +2533,7 @@ const ROUTE_MAP={
   '/gorsel':'img',
   '/gorsel-uret':'img',
   '/araclar':'tools',
+  '/ai-araclar':'tools',
   '/ai-araclari':'tools',
   '/ajanlar':'agents',
   '/ai-ajanlar':'agents',
@@ -2551,7 +2552,7 @@ const TAB_ROUTES={
   chat:'/sohbet',
   dash:'/dashboard',
   img:'/gorsel',
-  tools:'/araclar',
+  tools:'/ai-araclar',
   agents:'/ajanlar',
   store:'/magaza',
   support:'/destek',
@@ -2620,6 +2621,8 @@ function getStartupTab(){
 }
 
 function go(v){
+  const panelAliases={image:'img',visual:'img',araclar:'tools',agent:'agents',ajanlar:'agents',magaza:'store',fiyatlandirma:'store',destek:'support',galeri:'gallery',analitik:'analytics',promptlar:'prompts',bilgi:'rag','bilgi-bankasi':'rag'};
+  v=panelAliases[v]||v;
   if(v==='home'){
     document.documentElement.classList.add('home-mode');
     document.body.classList.add('home-mode');
@@ -2634,6 +2637,11 @@ function go(v){
     return;
   }
   if(typeof window.__loadFullCss==='function')window.__loadFullCss();
+  if(['img','tools','agents','store','support','gallery','analytics','prompts','rag','codeeditor','personas'].includes(v)){
+    go('chat');
+    panelTab(v);
+    return;
+  }
   if(v==='dash'){go('chat');panelTab('dash');return}
   if(v==='admin'){
     document.documentElement.classList.remove('home-mode');
@@ -3865,15 +3873,63 @@ let recognition = null;
 // ===== TEXT-TO-SPEECH (OpenAI + Edge TTS) =====
 const TTS_API_KEY = "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";
 let currentAudio = null;
-let currentVoice = 'nova';
-let currentEngine = 'edge'; // 'openai' or 'edge'
+const VOICE_PREF_KEY = 'ap_voice_selection';
+const DEFAULT_VOICE_SELECTION = { voiceId: 'tr-TR-EmelNeural', voiceName: 'Edge Emel (TR Kadın)', engine: 'edge' };
+function readVoiceSelection(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(VOICE_PREF_KEY) || 'null');
+    if(saved && saved.voiceId && saved.voiceName){
+      return {
+        voiceId: String(saved.voiceId),
+        voiceName: String(saved.voiceName),
+        engine: saved.engine === 'openai' ? 'openai' : 'edge'
+      };
+    }
+  }catch(e){}
+  return DEFAULT_VOICE_SELECTION;
+}
+function saveVoiceSelection(selection){
+  try{ localStorage.setItem(VOICE_PREF_KEY, JSON.stringify(selection)); }catch(e){}
+}
+let initialVoiceSelection = readVoiceSelection();
+let currentVoice = initialVoiceSelection.voiceId;
+let currentVoiceName = initialVoiceSelection.voiceName;
+let currentEngine = initialVoiceSelection.engine; // 'openai' or 'edge'
+function ensureSingleVoicePanel(){
+  const panels = Array.from(document.querySelectorAll('.voice-selection-panel, #voice-panel'));
+  if(panels.length <= 1) return;
+  panels.forEach((panel, index) => {
+    if(index === 0){
+      panel.id = 'voice-panel';
+      panel.classList.add('voice-selection-panel');
+    }else{
+      panel.remove();
+    }
+  });
+}
+function syncVoiceSelectorUI(selection){
+  const selected = selection || { voiceId: currentVoice, voiceName: currentVoiceName, engine: currentEngine };
+  ensureSingleVoicePanel();
+  document.querySelectorAll('#current-voice-label').forEach(label => {
+    label.textContent = selected.voiceName;
+  });
+  document.querySelectorAll('[data-voice-option]').forEach(btn => {
+    const active = btn.dataset.voiceId === selected.voiceId && btn.dataset.voiceEngine === selected.engine;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+}
+window.syncVoiceSelectorUI = syncVoiceSelectorUI;
 window.setVoice = function(voiceId, voiceName, engine) {
   currentVoice = voiceId;
-  currentEngine = engine || 'edge';
-  const label = document.getElementById('current-voice-label');
-  if (label) label.textContent = voiceName;
-  if (typeof msg === 'function') msg('Ses de\u011fi\u015ftirildi: ' + voiceName + ' (' + (engine==='edge'?'Edge Neural':'OpenAI') + ')', 'ok');
+  currentVoiceName = voiceName || voiceId;
+  currentEngine = engine === 'openai' ? 'openai' : 'edge';
+  const selection = { voiceId: currentVoice, voiceName: currentVoiceName, engine: currentEngine };
+  saveVoiceSelection(selection);
+  syncVoiceSelectorUI(selection);
+  if (typeof msg === 'function') msg('Ses de\u011fi\u015ftirildi: ' + currentVoiceName + ' (' + (currentEngine==='edge'?'Edge Neural':'OpenAI') + ')', 'ok');
 };
+document.addEventListener('DOMContentLoaded', () => setTimeout(() => syncVoiceSelectorUI(), 0));
 function cleanSpeechText(text){
   return String(text||'')
     .replace(/__IMG__.*?__PROMPT__/g,'Görsel üretildi: ')

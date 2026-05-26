@@ -636,6 +636,31 @@ a{cursor:pointer;text-decoration:none;color:inherit}
 .dash-panel{background:linear-gradient(135deg,rgba(17,24,39,.9),rgba(26,32,53,.8));border:1px solid var(--border);border-radius:18px;padding:24px;margin-bottom:16px;backdrop-filter:blur(6px);transition:all .3s}
 .dash-panel:hover{border-color:rgba(124,58,237,.15);box-shadow:0 4px 24px rgba(0,0,0,.15)}
 .dash-panel h3{font-size:15px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.voice-selection-panel{position:relative;overflow:hidden}
+.voice-selection-panel::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 8% 0%,rgba(34,211,238,.13),transparent 34%),radial-gradient(circle at 88% 14%,rgba(168,85,247,.14),transparent 36%);pointer-events:none}
+.voice-selection-panel>*{position:relative;z-index:1}
+.voice-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
+.voice-panel-head h3{margin-bottom:6px}
+.voice-panel-head p{margin:0;color:var(--text3);font-size:13px;line-height:1.5}
+#current-voice-label{color:var(--accent2)}
+.voice-panel-badge{flex:0 0 auto;border:1px solid rgba(96,165,250,.24);background:rgba(59,130,246,.1);color:#bfdbfe;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:800;letter-spacing:.02em}
+.voice-engine-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.voice-engine-group{border:1px solid rgba(148,163,184,.14);background:rgba(2,6,23,.28);border-radius:14px;padding:14px}
+.voice-engine-label{display:block;color:var(--text2);font-size:12px;font-weight:800;margin-bottom:10px}
+.voice-option-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.voice-option{min-height:36px;border:1px solid rgba(148,163,184,.18);background:rgba(15,23,42,.74);color:var(--text);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}
+.voice-option:hover{transform:translateY(-1px);border-color:rgba(96,165,250,.45);background:rgba(37,99,235,.18)}
+.voice-option.active{border-color:rgba(34,211,238,.72);background:linear-gradient(135deg,rgba(37,99,235,.72),rgba(124,58,237,.76));box-shadow:0 10px 28px rgba(37,99,235,.22);color:#fff}
+body.theme-light .voice-engine-group{background:rgba(248,250,252,.82);border-color:rgba(15,23,42,.08)}
+body.theme-light .voice-option{background:#fff;color:#0f172a;border-color:rgba(15,23,42,.1)}
+body.theme-light .voice-option.active{color:#fff}
+#ptab-dash .dash-row,
+#ptab-dash .dash-panel,
+#ptab-dash .ref-panel,
+#ptab-dash .daily-panel{content-visibility:auto;contain-intrinsic-size:260px}
+#ptab-dash .dash-pro-hero,
+#ptab-dash .dash-header,
+#ptab-dash .dash-stats{content-visibility:visible;contain-intrinsic-size:auto}
 
 /* Usage Ring */
 .usage-ring-wrap{display:flex;align-items:center;gap:32px}
@@ -977,6 +1002,12 @@ body.theme-dark .chat-head{background:rgba(17,24,39,.6)!important}
 .panel-main{padding:0}
 .dash-row{grid-template-columns:1fr}
 .dash-stats{grid-template-columns:repeat(2,1fr)}
+.voice-panel-head{display:block}
+.voice-panel-badge{display:inline-flex;margin-top:10px}
+.voice-engine-grid{grid-template-columns:1fr}
+.voice-option-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#ptab-dash .dash-pro-visual{display:none!important}
+#ptab-dash .dash-pro-copy p{display:-webkit-box;font-size:13px;line-height:1.45;max-height:58px;overflow:hidden;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 }
 
 
@@ -26232,6 +26263,15 @@ body:not(.home-mode) .home-premium-v237:not(.on) {
   body.mobile-shell-v192 #ptab-chat .ai-empty-state p {
     font-size: 14px !important;
     line-height: 1.55 !important;
+  }
+
+  body.mobile-shell-v192 #ptab-chat .quark-welcome h3,
+  body.mobile-shell-v192 #ptab-chat .chat-welcome h3,
+  body.mobile-shell-v192 #ptab-chat .ai-empty-state h3 {
+    max-width: 260px !important;
+    font-size: 28px !important;
+    line-height: 1.08 !important;
+    margin-top: 8px !important;
   }
 
   body.mobile-shell-v192 #ptab-chat .chat-input-area.ai-composer-zone,

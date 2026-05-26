@@ -1372,7 +1372,7 @@ app.get('/', (req, res, next) => {
   req.url = '/index.html';
   next();
 });
-app.get(/^\/(?:anasayfa|home|sohbet|chat|panel|dashboard|kontrol-paneli|gorsel|gorsel-uret|araclar|ai-araclari|ajanlar|ai-ajanlar|magaza|fiyatlandirma|destek|galeri|analitik|promptlar|bilgi-bankasi|giris|kayit|admin)\/?$/i, (req, res) => {
+app.get(/^\/(?:anasayfa|home|sohbet|chat|panel|dashboard|kontrol-paneli|gorsel|gorsel-uret|araclar|ai-araclar|ai-araclari|ajanlar|ai-ajanlar|magaza|fiyatlandirma|destek|galeri|analitik|promptlar|bilgi-bankasi|giris|kayit|admin)\/?$/i, (req, res) => {
   res.sendFile('index.html', { root: staticRoot });
 });
 app.get(/\.(js|css|html|json|svg|txt)$/i, (req, res, next) => {
@@ -1420,7 +1420,7 @@ app.use(express.static(staticRoot, {
 
 const appRoutes = new Set([
   '/anasayfa', '/home', '/sohbet', '/chat', '/panel', '/dashboard',
-  '/kontrol-paneli', '/gorsel', '/gorsel-uret', '/araclar', '/ai-araclari',
+  '/kontrol-paneli', '/gorsel', '/gorsel-uret', '/araclar', '/ai-araclar', '/ai-araclari',
   '/ajanlar', '/ai-ajanlar', '/magaza', '/fiyatlandirma', '/destek',
   '/galeri', '/analitik', '/promptlar', '/bilgi-bankasi', '/giris',
   '/kayit', '/admin'

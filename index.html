@@ -47,9 +47,9 @@
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
   <link rel="stylesheet" href="home-critical.min.css?v=v260">
-  <noscript><link rel="stylesheet" href="style.min.css?v=v260"></noscript>
+  <noscript><link rel="stylesheet" href="style.min.css?v=v261"></noscript>
   <script>
-  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v260';document.head.appendChild(l)};
+  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v261';document.head.appendChild(l)};
   (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel-uret|ai-araclar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view)window.__loadFullCss();}catch(e){}})();
   ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})});
   window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)});
@@ -1311,6 +1311,42 @@ echo curl_exec($ch);</pre>
               <div class="dash-models-grid" id="dash-models-list"></div>
             </div>
 
+            <div class="dash-panel voice-selection-panel" id="voice-panel" aria-labelledby="voice-panel-title">
+              <div class="voice-panel-head">
+                <div>
+                  <h3 id="voice-panel-title"><span class="dash-title-icon">♪</span> Ses Motoru &amp; Karakter Seç</h3>
+                  <p>Aktif: <strong id="current-voice-label">Edge Emel (TR Kadın)</strong></p>
+                </div>
+                <span class="voice-panel-badge">Tek panel</span>
+              </div>
+
+              <div class="voice-engine-grid">
+                <div class="voice-engine-group">
+                  <span class="voice-engine-label">Microsoft Edge Neural</span>
+                  <div class="voice-option-grid">
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="tr-TR-EmelNeural" data-voice-name="Edge Emel (TR Kadın)" data-voice-engine="edge" onclick="setVoice('tr-TR-EmelNeural','Edge Emel (TR Kadın)','edge')">TR Emel</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="tr-TR-AhmetNeural" data-voice-name="Edge Ahmet (TR Erkek)" data-voice-engine="edge" onclick="setVoice('tr-TR-AhmetNeural','Edge Ahmet (TR Erkek)','edge')">TR Ahmet</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="en-US-JennyNeural" data-voice-name="Edge Jenny (EN)" data-voice-engine="edge" onclick="setVoice('en-US-JennyNeural','Edge Jenny (EN)','edge')">EN Jenny</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="en-US-GuyNeural" data-voice-name="Edge Guy (EN)" data-voice-engine="edge" onclick="setVoice('en-US-GuyNeural','Edge Guy (EN)','edge')">EN Guy</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="en-GB-SoniaNeural" data-voice-name="Edge Sonia (UK)" data-voice-engine="edge" onclick="setVoice('en-GB-SoniaNeural','Edge Sonia (UK)','edge')">UK Sonia</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="de-DE-KatjaNeural" data-voice-name="Edge Katja (DE)" data-voice-engine="edge" onclick="setVoice('de-DE-KatjaNeural','Edge Katja (DE)','edge')">DE Katja</button>
+                  </div>
+                </div>
+
+                <div class="voice-engine-group">
+                  <span class="voice-engine-label">OpenAI TTS</span>
+                  <div class="voice-option-grid">
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="alloy" data-voice-name="OpenAI Alloy" data-voice-engine="openai" onclick="setVoice('alloy','OpenAI Alloy','openai')">Alloy</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="echo" data-voice-name="OpenAI Echo" data-voice-engine="openai" onclick="setVoice('echo','OpenAI Echo','openai')">Echo</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="fable" data-voice-name="OpenAI Fable" data-voice-engine="openai" onclick="setVoice('fable','OpenAI Fable','openai')">Fable</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="onyx" data-voice-name="OpenAI Onyx" data-voice-engine="openai" onclick="setVoice('onyx','OpenAI Onyx','openai')">Onyx</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="nova" data-voice-name="OpenAI Nova" data-voice-engine="openai" onclick="setVoice('nova','OpenAI Nova','openai')">Nova</button>
+                    <button type="button" class="voice-option" data-voice-option data-voice-id="shimmer" data-voice-name="OpenAI Shimmer" data-voice-engine="openai" onclick="setVoice('shimmer','OpenAI Shimmer','openai')">Shimmer</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -2265,7 +2301,7 @@ echo curl_exec($ch);</pre>
     var domReady=document.readyState!=='loading';
     if(!domReady)document.addEventListener('DOMContentLoaded',function(){domReady=true},{once:true});
     var appRoutes={
-      '/sohbet':1,'/chat':1,'/panel':1,'/dashboard':1,'/kontrol-paneli':1,'/gorsel':1,'/gorsel-uret':1,'/araclar':1,'/ai-araclari':1,'/ajanlar':1,'/ai-ajanlar':1,'/magaza':1,'/fiyatlandirma':1,'/destek':1,'/galeri':1,'/analitik':1,'/promptlar':1,'/bilgi-bankasi':1,'/giris':1,'/kayit':1,'/admin':1
+      '/sohbet':1,'/chat':1,'/panel':1,'/dashboard':1,'/kontrol-paneli':1,'/gorsel':1,'/gorsel-uret':1,'/araclar':1,'/ai-araclar':1,'/ai-araclari':1,'/ajanlar':1,'/ai-ajanlar':1,'/magaza':1,'/fiyatlandirma':1,'/destek':1,'/galeri':1,'/analitik':1,'/promptlar':1,'/bilgi-bankasi':1,'/giris':1,'/kayit':1,'/admin':1
     };
     function currentPath(){try{return decodeURIComponent(location.pathname.replace(/\/+$/,'')||'/').toLowerCase()}catch(e){return '/'}}
     function hasStoredSession(){try{return !!(localStorage.getItem('ap_user')||localStorage.getItem('saas_token')||localStorage.getItem('saas_user'))}catch(e){return false}}
@@ -2277,7 +2313,7 @@ echo curl_exec($ch);</pre>
       appLoading=true;
       if(window.__loadFullCss)window.__loadFullCss();
       var sc=document.createElement('script');
-      sc.src='app.min.js?v=v260';
+      sc.src='app.min.js?v=v261';
       sc.defer=true;
       sc.onload=function(){appLoaded=true;if(domReady){try{document.dispatchEvent(new Event('DOMContentLoaded'))}catch(e){}}try{document.documentElement.classList.remove('app-route-prepaint')}catch(e){}setTimeout(function(){while(callbacks.length){try{callbacks.shift()()}catch(e){}}},0)};
       document.body.appendChild(sc);
