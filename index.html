@@ -47,7 +47,7 @@
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
-  <link rel="stylesheet" href="style.min.css?v=v252">
+  <link rel="stylesheet" href="style.min.css?v=v253">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="logo-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
@@ -114,7 +114,7 @@
   </script>
 </head>
 <body>
-  <div id="froxy-splash" class="froxy-splash" aria-label="Froxy AI yÃ¼kleniyor">
+  <div id="froxy-splash" class="froxy-splash" aria-label="Froxy AI yükleniyor">
     <div class="froxy-splash-card">
       <div class="froxy-splash-logo">
         <span class="froxy-splash-orbit o1"></span>
@@ -125,10 +125,10 @@
       </div>
       <div class="froxy-splash-copy">
         <strong>Froxy AI</strong>
-        <span>Model aÄŸÄ± hazÄ±rlanÄ±yor</span>
+        <span>Model ağı hazırlanıyor</span>
       </div>
       <div class="froxy-splash-steps" aria-hidden="true">
-        <em>ArayÃ¼z</em><em>Modeller</em><em>HazÄ±r</em>
+        <em>Arayüz</em><em>Modeller</em><em>Hazır</em>
       </div>
       <div class="froxy-splash-progress" aria-hidden="true">
         <span class="froxy-splash-side-dot"></span>
@@ -142,7 +142,7 @@
     <a class="nav-logo" onclick="go('chat')"><img src="logo-192.png" alt="Froxy AI" width="32" height="32" decoding="async"><span>Froxy AI</span></a>
     <ul class="nav-links" id="nl-land">
       <li><a onclick="go('chat')">Sohbet</a></li>
-      <li><a href="#features">Ã–zellikler</a></li>
+      <li><a href="#features">Özellikler</a></li>
       <li><a href="#pricing">Fiyatlar</a></li>
       <li><a href="#docs">Entegrasyon</a></li>
       <li><a href="#faq">SSS</a></li>
@@ -157,21 +157,21 @@
       <li><a onclick="go('dash')">Kontrol Paneli</a></li>
     </ul>
     <div class="nav-right" id="nr-auth">
-      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Tema deÄŸiÅŸtir" type="button" title="Tema">
-        <span class="theme-toggle-icon" aria-hidden="true">ğŸŒ™</span>
+      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Tema değiştir" type="button" title="Tema">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
       </button>
-      <button class="btn btn-ghost" onclick="modal('login')">GiriÅŸ Yap</button>
-      <button class="btn btn-primary" onclick="modal('reg')">Ãœcretsiz BaÅŸla</button>
+      <button class="btn btn-ghost" onclick="modal('login')">Giriş Yap</button>
+      <button class="btn btn-primary" onclick="modal('reg')">Ücretsiz Başla</button>
     </div>
     <div class="nav-right" id="nr-user" style="display:none">
-      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Tema deÄŸiÅŸtir" type="button" title="Tema">
-        <span class="theme-toggle-icon" aria-hidden="true">ğŸŒ™</span>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Tema değiştir" type="button" title="Tema">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
       </button>
       <div class="nav-user-info">
         <div class="nav-avatar" id="n-ava">U</div>
         <span id="n-name">User</span>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="logout()">Ã‡Ä±kÄ±ÅŸ</button>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Çıkış</button>
     </div>
   </nav>
 
@@ -213,25 +213,25 @@
         </div>
 
         <div class="auth-tabs auth-tabs-v2 tab-login">
-          <button id="t-login" class="on" onclick="tab('login')" type="button">GiriÅŸ Yap</button>
-          <button id="t-reg" onclick="tab('reg')" type="button">KayÄ±t Ol</button>
+          <button id="t-login" class="on" onclick="tab('login')" type="button">Giriş Yap</button>
+          <button id="t-reg" onclick="tab('reg')" type="button">Kayıt Ol</button>
           <span class="auth-tab-indicator" aria-hidden="true"></span>
         </div>
 
         <!-- LOGIN -->
         <div id="f-login" class="auth-form">
-          <h2 id="auth-modal-title" class="auth-title">Tekrar hoÅŸ geldiniz</h2>
-          <p class="auth-sub">HesabÄ±na giriÅŸ yap, kaldÄ±ÄŸÄ±n yerden devam et.</p>
+          <h2 id="auth-modal-title" class="auth-title">Tekrar hoş geldiniz</h2>
+          <p class="auth-sub">Hesabına giriş yap, kaldığın yerden devam et.</p>
 
           <div class="fg"><label for="l-email">E-posta</label><input type="email" id="l-email" placeholder="ornek@mail.com" autocomplete="email"></div>
-          <div class="fg"><label for="l-pass">Åifre</label><input type="password" id="l-pass" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth('login')"></div>
+          <div class="fg"><label for="l-pass">Şifre</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth('login')"></div>
 
           <div class="auth-row-between">
-            <a href="#" onclick="tab('forgot');return false;" class="auth-link">Åifremi unuttum</a>
+            <a href="#" onclick="tab('forgot');return false;" class="auth-link">Şifremi unuttum</a>
           </div>
 
           <button class="btn btn-primary btn-block auth-primary-btn" onclick="doAuth('login')" type="button">
-            <span>GiriÅŸ Yap</span>
+            <span>Giriş Yap</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </button>
 
@@ -248,54 +248,54 @@
             </button>
           </div>
 
-          <p class="auth-footer-text">HesabÄ±n yok mu? <a href="#" onclick="tab('reg');return false;" class="auth-link">KayÄ±t ol</a></p>
+          <p class="auth-footer-text">Hesabın yok mu? <a href="#" onclick="tab('reg');return false;" class="auth-link">Kayıt ol</a></p>
         </div>
 
         <!-- REGISTER -->
         <div id="f-reg" class="auth-form" style="display:none">
-          <h2 class="auth-title">Ãœcretsiz hesap oluÅŸtur</h2>
-          <p class="auth-sub">Saniyeler iÃ§inde kayÄ±t ol, 100 krediyle hemen baÅŸla.</p>
+          <h2 class="auth-title">Ücretsiz hesap oluştur</h2>
+          <p class="auth-sub">Saniyeler içinde kayıt ol, 100 krediyle hemen başla.</p>
 
-          <div class="fg"><label for="r-user">KullanÄ±cÄ± AdÄ±</label><input type="text" id="r-user" placeholder="KullanÄ±cÄ± adÄ±n" autocomplete="username"></div>
+          <div class="fg"><label for="r-user">Kullanıcı Adı</label><input type="text" id="r-user" placeholder="Kullanıcı adın" autocomplete="username"></div>
           <div class="fg"><label for="r-email">E-posta</label><input type="email" id="r-email" placeholder="ornek@mail.com" autocomplete="email"></div>
-          <div class="fg"><label for="r-pass">Åifre</label><input type="password" id="r-pass" placeholder="En az 6 karakter" autocomplete="new-password"></div>
+          <div class="fg"><label for="r-pass">Şifre</label><input type="password" id="r-pass" placeholder="En az 6 karakter" autocomplete="new-password"></div>
           <div class="fg"><label for="r-ref">Davet Kodu <span class="auth-optional">(opsiyonel)</span></label><input type="text" id="r-ref" placeholder="Davet kodunuz varsa girin"></div>
           <input type="hidden" id="r-plan" value="free">
 
           <div class="first-time-banner" id="first-time-banner" style="display:none">
-            <span>ğŸ‰</span> Ä°lk kayÄ±t indirimi! Pro plana <strong>%50 indirim</strong>
+            <span>🎉</span> İlk kayıt indirimi! Pro plana <strong>%50 indirim</strong>
           </div>
 
           <button class="btn btn-primary btn-block auth-primary-btn" onclick="doAuth('register')" type="button">
-            <span>Ãœcretsiz KayÄ±t Ol</span>
+            <span>Ücretsiz Kayıt Ol</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </button>
 
-          <p class="auth-footer-text">Zaten hesabÄ±n var mÄ±? <a href="#" onclick="tab('login');return false;" class="auth-link">GiriÅŸ yap</a></p>
+          <p class="auth-footer-text">Zaten hesabın var mı? <a href="#" onclick="tab('login');return false;" class="auth-link">Giriş yap</a></p>
         </div>
 
         <!-- FORGOT -->
         <div id="f-forgot" class="auth-form" style="display:none">
-          <h2 class="auth-title">Åifreni mi unuttun?</h2>
-          <p class="auth-sub">E-posta adresini gir, sÄ±fÄ±rlama baÄŸlantÄ±sÄ± gÃ¶nderelim.</p>
+          <h2 class="auth-title">Şifreni mi unuttun?</h2>
+          <p class="auth-sub">E-posta adresini gir, sıfırlama bağlantısı gönderelim.</p>
 
           <div class="fg"><label for="fp-email">E-posta</label><input type="email" id="fp-email" placeholder="ornek@mail.com" autocomplete="email"></div>
 
           <button class="btn btn-primary btn-block auth-primary-btn" onclick="doForgotPassword()" type="button">
-            <span>SÄ±fÄ±rlama BaÄŸlantÄ±sÄ± GÃ¶nder</span>
+            <span>Sıfırlama Bağlantısı Gönder</span>
           </button>
 
           <div id="fp-msg" class="auth-fp-msg" style="display:none"></div>
-          <p class="auth-footer-text"><a href="#" onclick="tab('login');return false;" class="auth-link">â† GiriÅŸe dÃ¶n</a></p>
+          <p class="auth-footer-text"><a href="#" onclick="tab('login');return false;" class="auth-link">← Girişe dön</a></p>
         </div>
 
         <div id="auth-error" class="auth-error" style="display:none"></div>
       </div>
 
-      <!-- SAÄ: Robot figÃ¼rler (mouse'a bakan gÃ¶zler) -->
+      <!-- SAĞ: Robot figürler (mouse'a bakan gözler) -->
       <aside class="auth-hero" aria-hidden="true">
         <div class="auth-robots">
-          <!-- Robot 1: BÃ¼yÃ¼k, ortada -->
+          <!-- Robot 1: Büyük, ortada -->
           <div class="auth-robot r1">
             <div class="robot-body">
               <div class="robot-head">
@@ -316,7 +316,7 @@
               </div>
             </div>
           </div>
-          <!-- Robot 2: KÃ¼Ã§Ã¼k, sol alt -->
+          <!-- Robot 2: Küçük, sol alt -->
           <div class="auth-robot r2">
             <div class="robot-body">
               <div class="robot-head">
@@ -335,7 +335,7 @@
               </div>
             </div>
           </div>
-          <!-- Robot 3: KÃ¼Ã§Ã¼k, saÄŸ Ã¼st -->
+          <!-- Robot 3: Küçük, sağ üst -->
           <div class="auth-robot r3">
             <div class="robot-body">
               <div class="robot-head">
@@ -356,7 +356,7 @@
         </div>
         <div class="auth-hero-strap">
           <span class="auth-hero-pill"><i></i><strong>300+</strong><span>model</span></span>
-          <span class="auth-hero-copy">Tek hesapta Ã§oklu saÄŸlayÄ±cÄ±, tek panelde akÄ±cÄ± kullanÄ±m.</span>
+          <span class="auth-hero-copy">Tek hesapta çoklu sağlayıcı, tek panelde akıcı kullanım.</span>
         </div>
       </aside>
     </div>
@@ -366,7 +366,7 @@
   <!-- Ambient Particle Background -->
   <div class="particle-field" aria-hidden="true"></div>
 
-  <!-- âŒ˜K Komut Paleti -->
+  <!-- Komut Paleti -->
   <div id="cmd-palette" class="cmd-palette-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Komut paleti" onclick="if(event.target===this)closeCmdPalette()">
     <div class="cmd-palette-box">
       <div class="cmd-palette-search">
@@ -376,8 +376,8 @@
       </div>
       <div class="cmd-palette-list" id="cmd-list"></div>
       <div class="cmd-palette-footer">
-        <span><kbd>â†‘â†“</kbd> Gezin</span>
-        <span><kbd>â†µ</kbd> SeÃ§</span>
+        <span><kbd>↑↓</kbd> Gezin</span>
+        <span><kbd>↵</kbd> Seç</span>
         <span><kbd>ESC</kbd> Kapat</span>
       </div>
     </div>
@@ -389,22 +389,22 @@
       <div class="hero-bg"><div class="orb-3"></div></div>
       <div class="hero-grid fu">
         <div class="hero-copy">
-          <div class="hero-badge"><span>AI</span> TÃ¼rkiye'nin gÃ¼Ã§lÃ¼ API platformu</div>
-          <h1>Yapay zeka modellerini <span class="grad-text">tek panelden yÃ¶netin</span></h1>
-          <p>GPT, Claude, Gemini, DeepSeek ve gÃ¶rsel modeller iÃ§in hÄ±zlÄ±, Ã¶lÃ§Ã¼lebilir ve tek anahtarlÄ± kullanÄ±m deneyimi.</p>
+          <div class="hero-badge"><span>AI</span> Türkiye'nin güçlü API platformu</div>
+          <h1>Yapay zeka modellerini <span class="grad-text">tek panelden yönetin</span></h1>
+          <p>GPT, Claude, Gemini, DeepSeek ve görsel modeller için hızlı, ölçülebilir ve tek anahtarlı kullanım deneyimi.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary btn-lg" onclick="modal('reg')">Ãœcretsiz BaÅŸla</button>
-            <button class="btn btn-ghost btn-lg" onclick="document.querySelector('#pricing').scrollIntoView({behavior:'smooth'})">Paketleri GÃ¶r</button>
+            <button class="btn btn-primary btn-lg" onclick="modal('reg')">Ücretsiz Başla</button>
+            <button class="btn btn-ghost btn-lg" onclick="document.querySelector('#pricing').scrollIntoView({behavior:'smooth'})">Paketleri Gör</button>
           </div>
           <div class="hero-stats">
             <div class="stat"><strong>300+</strong><span>Sohbet modeli</span></div>
-            <div class="stat"><strong>20+</strong><span>GÃ¶rsel/video aracÄ±</span></div>
+            <div class="stat"><strong>20+</strong><span>Görsel/video aracı</span></div>
             <div class="stat"><strong>99.9%</strong><span>Hedef uptime</span></div>
           </div>
         </div>
         <div class="hero-visual" aria-hidden="true">
           <div class="hero-visual-head">
-            <span>CanlÄ± model trafiÄŸi</span>
+            <span>Canlı model trafiği</span>
             <strong>+42%</strong>
           </div>
           <div class="hero-chart">
@@ -420,7 +420,7 @@
             </div>
           </div>
           <div class="hero-ops">
-            <div><b>12.8M</b><span>aylÄ±k istek</span></div>
+            <div><b>12.8M</b><span>aylık istek</span></div>
             <div><b>38ms</b><span>ortalama gecikme</span></div>
           </div>
         </div>
@@ -428,13 +428,13 @@
     </section>
 
     <!-- Hero Pipeline Section -->
-    <section class="hero-pipeline-sec sec" aria-label="CanlÄ± model trafiÄŸi">
+    <section class="hero-pipeline-sec sec" aria-label="Canlı model trafiği">
       <div class="fu">
-        <div class="pipeline-label">CanlÄ± Ä°stek AkÄ±ÅŸÄ±</div>
+        <div class="pipeline-label">Canlı İstek Akışı</div>
         <div class="pipeline-track" aria-hidden="true">
           <div class="pipe-node pipe-user">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>KullanÄ±cÄ±</span>
+            <span>Kullanıcı</span>
           </div>
           <div class="pipe-arrow"><span></span><span></span><span></span></div>
           <div class="pipe-node pipe-api">
@@ -457,13 +457,13 @@
           <div class="pipe-arrow"><span></span><span></span><span></span></div>
           <div class="pipe-node pipe-resp">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>YanÄ±t</span>
+            <span>Yanıt</span>
           </div>
         </div>
         <div class="pipeline-stats">
-          <div class="ps-item"><span class="ps-dot green"></span>TÃ¼m sistemler aktif</div>
+          <div class="ps-item"><span class="ps-dot green"></span>Tüm sistemler aktif</div>
           <div class="ps-item"><span class="ps-dot blue"></span>Ortalama 38ms</div>
-          <div class="ps-item"><span class="ps-dot purple"></span>300+ model hazÄ±r</div>
+          <div class="ps-item"><span class="ps-dot purple"></span>300+ model hazır</div>
         </div>
       </div>
     </section>
@@ -471,162 +471,162 @@
     <section class="landing-chatbot sec">
       <div class="bot-demo-grid fu">
         <div class="bot-demo-copy">
-          <span class="section-kicker">CanlÄ± Ã‡alÄ±ÅŸma AlanÄ±</span>
-          <h2>Sohbet, ajan ve Ã¼retim araÃ§larÄ± <span class="grad-text">tek kÄ±sa panelde</span></h2>
-          <p>Backup'taki sohbet deneyimini landing'e daha kompakt taÅŸÄ±dÄ±k: kullanÄ±cÄ± modeli seÃ§er, ajanÄ± deÄŸiÅŸtirir, dosya ekler ve aynÄ± yerden gÃ¶rsel/video araÃ§larÄ±na geÃ§er.</p>
+          <span class="section-kicker">Canlı Çalışma Alanı</span>
+          <h2>Sohbet, ajan ve üretim araçları <span class="grad-text">tek kısa panelde</span></h2>
+          <p>Backup'taki sohbet deneyimini landing'e daha kompakt taşıdık: kullanıcı modeli seçer, ajanı değiştirir, dosya ekler ve aynı yerden görsel/video araçlarına geçer.</p>
           <div class="bot-demo-actions">
-            <button class="btn btn-primary" onclick="go('chat')">Sohbeti AÃ§</button>
+            <button class="btn btn-primary" onclick="go('chat')">Sohbeti Aç</button>
             <button class="btn btn-ghost" onclick="go('chat');panelTab('agents')">Ajanlara Bak</button>
           </div>
-          <div class="bot-mini-stack" aria-label="Aktif Ã¶zellikler">
+          <div class="bot-mini-stack" aria-label="Aktif özellikler">
             <span>300+ sohbet modeli</span>
             <span>AI ajanlar</span>
-            <span>Dosya ve gÃ¶rsel okuma</span>
+            <span>Dosya ve görsel okuma</span>
           </div>
         </div>
-        <div class="bot-demo-window" aria-label="Chatbot Ã¶nizleme">
+        <div class="bot-demo-window" aria-label="Chatbot önizleme">
           <div class="bot-demo-head">
             <div>
               <b>Froxy AI Sohbet</b>
-              <span>GPT-5.5 Turbo seÃ§ili</span>
+              <span>GPT-5.5 Turbo seçili</span>
             </div>
-            <div class="bot-demo-status">CanlÄ±</div>
+            <div class="bot-demo-status">Canlı</div>
           </div>
           <div class="bot-agent-strip">
             <button type="button" class="active">Kanka AI</button>
-            <button type="button">Kod AjanÄ±</button>
-            <button type="button">GÃ¶rsel UzmanÄ±</button>
+            <button type="button">Kod Ajanı</button>
+            <button type="button">Görsel Uzmanı</button>
           </div>
           <div class="bot-demo-msgs">
-            <div class="bot-msg user">Sitem iÃ§in Ã¼rÃ¼n aÃ§Ä±klamasÄ± ve gÃ¶rsel fikri Ã§Ä±kar.</div>
-            <div class="bot-msg ai">Tabii. Ã–nce hedef kitleyi netleÅŸtirip kÄ±sa aÃ§Ä±klama, CTA ve gÃ¶rsel promptunu birlikte hazÄ±rlÄ±yorum.</div>
-            <div class="bot-msg user short">TÃ¼rkÃ§e karakterlere dikkat et.</div>
+            <div class="bot-msg user">Sitem için ürün açıklaması ve görsel fikri çıkar.</div>
+            <div class="bot-msg ai">Tabii. Önce hedef kitleyi netleştirip kısa açıklama, CTA ve görsel promptunu birlikte hazırlıyorum.</div>
+            <div class="bot-msg user short">Türkçe karakterlere dikkat et.</div>
             <div class="typing-indicator compact"><span></span><span></span><span></span></div>
           </div>
           <div class="bot-demo-input">
-            <input id="landing-bot-input" type="text" placeholder="MesajÄ±nÄ±zÄ± yazÄ±n..." onkeydown="if(event.key==='Enter')landingBotSend()">
-            <button type="button" onclick="landingBotSend()">GÃ¶nder</button>
+            <input id="landing-bot-input" type="text" placeholder="Mesajınızı yazın..." onkeydown="if(event.key==='Enter')landingBotSend()">
+            <button type="button" onclick="landingBotSend()">Gönder</button>
           </div>
         </div>
       </div>
     </section>
     <section id="features" class="sec">
-      <div class="sec-head fu"><h2>Neden <span class="grad-text">Froxy AI?</span></h2><p>GeliÅŸmiÅŸ Ã¶zelliklerle projenizi bir adÄ±m Ã¶ne taÅŸÄ±yÄ±n.</p></div>
+      <div class="sec-head fu"><h2>Neden <span class="grad-text">Froxy AI?</span></h2><p>Gelişmiş özelliklerle projenizi bir adım öne taşıyın.</p></div>
       <div class="grid fu">
-        <div class="card"><h3>ğŸš€ Ultra HÄ±zlÄ±</h3><p>Milisaniyeler iÃ§inde yanÄ±t alÄ±n.</p></div>
-        <div class="card"><h3>ğŸ›¡ GÃ¼venli</h3><p>UÃ§tan uca ÅŸifreleme.</p></div>
-        <div class="card"><h3>ğŸ“‰ %80 Daha Ucuz</h3><p>AynÄ± performans, daha dÃ¼ÅŸÃ¼k maliyet.</p></div>
-        <div class="card"><h3>ğŸ›  Tek API</h3><p>TÃ¼m modeller iÃ§in tek anahtar.</p></div>
+        <div class="card"><h3>🚀 Ultra Hızlı</h3><p>Milisaniyeler içinde yanıt alın.</p></div>
+        <div class="card"><h3>🛡 Güvenli</h3><p>Uçtan uca şifreleme.</p></div>
+        <div class="card"><h3>📉 %80 Daha Ucuz</h3><p>Aynı performans, daha düşük maliyet.</p></div>
+        <div class="card"><h3>🛠 Tek API</h3><p>Tüm modeller için tek anahtar.</p></div>
       </div>
     </section>
     
     <section id="how-it-works" class="sec sec-alt">
-      <div class="sec-head fu"><h2>NasÄ±l <span class="grad-text">Ã‡alÄ±ÅŸÄ±r?</span></h2><p>Sadece 3 adÄ±mda yapay zeka entegrasyonunu tamamlayÄ±n.</p></div>
+      <div class="sec-head fu"><h2>Nasıl <span class="grad-text">Çalışır?</span></h2><p>Sadece 3 adımda yapay zeka entegrasyonunu tamamlayın.</p></div>
       <div class="steps-grid fu">
         <div class="step-card">
           <div class="step-num">1</div>
-          <h3>Hesap OluÅŸturun</h3>
-          <p>Ãœcretsiz hesabÄ±nÄ±zÄ± saniyeler iÃ§inde oluÅŸturun ve 100 krediyle hemen baÅŸlayÄ±n.</p>
+          <h3>Hesap Oluşturun</h3>
+          <p>Ücretsiz hesabınızı saniyeler içinde oluşturun ve 100 krediyle hemen başlayın.</p>
         </div>
         <div class="step-card">
           <div class="step-num">2</div>
-          <h3>API AnahtarÄ± AlÄ±n</h3>
-          <p>KullanÄ±cÄ± panelinizden API anahtarÄ±nÄ±zÄ± (API Key) tek tÄ±kla kopyalayÄ±n.</p>
+          <h3>API Anahtarı Alın</h3>
+          <p>Kullanıcı panelinizden API anahtarınızı (API Key) tek tıkla kopyalayın.</p>
         </div>
         <div class="step-card">
           <div class="step-num">3</div>
           <h3>Koda Ekleyin</h3>
-          <p>Mevcut OpenAI kodunuzda sadece "Base URL" ve "API Key" deÄŸerlerini deÄŸiÅŸtirin.</p>
+          <p>Mevcut OpenAI kodunuzda sadece "Base URL" ve "API Key" değerlerini değiştirin.</p>
         </div>
       </div>
     </section>
 
     <section id="models-showcase" class="sec models-sec">
-      <div class="sec-head fu"><h2>PopÃ¼ler <span class="grad-text">Modeller</span></h2><p>TÃ¼m lider yapay zeka modelleri tek Ã§atÄ± altÄ±nda.</p></div>
+      <div class="sec-head fu"><h2>Popüler <span class="grad-text">Modeller</span></h2><p>Tüm lider yapay zeka modelleri tek çatı altında.</p></div>
       <div class="model-filter-bar fu" role="tablist" aria-label="Model kategorileri">
-        <button class="model-filter-btn active" data-model-filter="all" onclick="setShowcaseFilter('all')" type="button">TÃ¼mÃ¼</button>
+        <button class="model-filter-btn active" data-model-filter="all" onclick="setShowcaseFilter('all')" type="button">Tümü</button>
         <button class="model-filter-btn" data-model-filter="chat" onclick="setShowcaseFilter('chat')" type="button">Sohbet</button>
         <button class="model-filter-btn" data-model-filter="code" onclick="setShowcaseFilter('code')" type="button">Kod</button>
-        <button class="model-filter-btn" data-model-filter="visual" onclick="setShowcaseFilter('visual')" type="button">GÃ¶rsel/Video</button>
-        <button class="model-filter-btn" data-model-filter="research" onclick="setShowcaseFilter('research')" type="button">AraÅŸtÄ±rma</button>
-        <button class="model-filter-btn" data-model-filter="free" onclick="setShowcaseFilter('free')" type="button">Ãœcretsiz</button>
+        <button class="model-filter-btn" data-model-filter="visual" onclick="setShowcaseFilter('visual')" type="button">Görsel/Video</button>
+        <button class="model-filter-btn" data-model-filter="research" onclick="setShowcaseFilter('research')" type="button">Araştırma</button>
+        <button class="model-filter-btn" data-model-filter="free" onclick="setShowcaseFilter('free')" type="button">Ücretsiz</button>
       </div>
-      <div class="model-marquee fu" aria-label="PopÃ¼ler AI modelleri">
+      <div class="model-marquee fu" aria-label="Popüler AI modelleri">
         <div class="model-track">
-          <div class="m-card"><div class="m-logo openai">AI</div><div class="m-kicker">OpenAI</div><h3>GPT-5.5 Turbo</h3><p>En gÃ¼Ã§lÃ¼ akÄ±l yÃ¼rÃ¼tme, kodlama ve Ã¼retim iÅŸleri.</p><div class="m-tags"><span class="m-tag">128K</span><span class="m-tag">Kodlama</span></div></div>
-          <div class="m-card"><div class="m-logo anthropic">CL</div><div class="m-kicker">Anthropic</div><h3>Claude Opus 4.7</h3><p>Uzun analiz, yazarlÄ±k ve hassas iÅŸ akÄ±ÅŸlarÄ±.</p><div class="m-tags"><span class="m-tag">200K</span><span class="m-tag">Analiz</span></div></div>
-          <div class="m-card"><div class="m-logo gemini">G</div><div class="m-kicker">Google</div><h3>Gemini 3.1 Pro</h3><p>Multimodal iÃ§erik, hÄ±zlÄ± araÅŸtÄ±rma ve geniÅŸ baÄŸlam.</p><div class="m-tags"><span class="m-tag">1M</span><span class="m-tag">Multimodal</span></div></div>
-          <div class="m-card"><div class="m-logo deepseek">DS</div><div class="m-kicker">DeepSeek</div><h3>DeepSeek V4</h3><p>Uygun maliyetli kod, matematik ve mantÄ±k modeli.</p><div class="m-tags"><span class="m-tag">Coder</span><span class="m-tag">HÄ±zlÄ±</span></div></div>
-          <div class="m-card"><div class="m-logo grok">GX</div><div class="m-kicker">xAI</div><h3>Grok 4</h3><p>GÃ¼ncel bilgi, esnek sohbet ve yaratÄ±cÄ± cevaplar.</p><div class="m-tags"><span class="m-tag">CanlÄ±</span><span class="m-tag">Sohbet</span></div></div>
-          <div class="m-card"><div class="m-logo qwen">QW</div><div class="m-kicker">Alibaba</div><h3>Qwen 3 Max</h3><p>TÃ¼rkÃ§e dahil Ã§ok dilli Ã¼retim ve ajans iÅŸleri.</p><div class="m-tags"><span class="m-tag">Ã‡ok Dil</span><span class="m-tag">RAG</span></div></div>
-          <div class="m-card"><div class="m-logo llama">L4</div><div class="m-kicker">Meta</div><h3>Llama 4 Maverick</h3><p>AÃ§Ä±k model ekosistemi ve Ã¶lÃ§eklenebilir entegrasyon.</p><div class="m-tags"><span class="m-tag">Open</span><span class="m-tag">API</span></div></div>
-          <div class="m-card"><div class="m-logo mistral">MX</div><div class="m-kicker">Mistral</div><h3>Mistral Large 3</h3><p>Avrupa merkezli hÄ±zlÄ±, ekonomik ve gÃ¼Ã§lÃ¼ Ã¼retim.</p><div class="m-tags"><span class="m-tag">HÄ±z</span><span class="m-tag">Pro</span></div></div>
-          <div class="m-card"><div class="m-logo sonar">SP</div><div class="m-kicker">Perplexity</div><h3>Sonar Pro</h3><p>KaynaklÄ± arama, Ã¶zetleme ve pazar araÅŸtÄ±rmasÄ±.</p><div class="m-tags"><span class="m-tag">Web</span><span class="m-tag">Kaynak</span></div></div>
-          <div class="m-card"><div class="m-logo openai">AI</div><div class="m-kicker">OpenAI</div><h3>GPT-5.5 Turbo</h3><p>En gÃ¼Ã§lÃ¼ akÄ±l yÃ¼rÃ¼tme, kodlama ve Ã¼retim iÅŸleri.</p><div class="m-tags"><span class="m-tag">128K</span><span class="m-tag">Kodlama</span></div></div>
-          <div class="m-card"><div class="m-logo anthropic">CL</div><div class="m-kicker">Anthropic</div><h3>Claude Opus 4.7</h3><p>Uzun analiz, yazarlÄ±k ve hassas iÅŸ akÄ±ÅŸlarÄ±.</p><div class="m-tags"><span class="m-tag">200K</span><span class="m-tag">Analiz</span></div></div>
-          <div class="m-card"><div class="m-logo gemini">G</div><div class="m-kicker">Google</div><h3>Gemini 3.1 Pro</h3><p>Multimodal iÃ§erik, hÄ±zlÄ± araÅŸtÄ±rma ve geniÅŸ baÄŸlam.</p><div class="m-tags"><span class="m-tag">1M</span><span class="m-tag">Multimodal</span></div></div>
-          <div class="m-card"><div class="m-logo deepseek">DS</div><div class="m-kicker">DeepSeek</div><h3>DeepSeek V4</h3><p>Uygun maliyetli kod, matematik ve mantÄ±k modeli.</p><div class="m-tags"><span class="m-tag">Coder</span><span class="m-tag">HÄ±zlÄ±</span></div></div>
-          <div class="m-card"><div class="m-logo grok">GX</div><div class="m-kicker">xAI</div><h3>Grok 4</h3><p>GÃ¼ncel bilgi, esnek sohbet ve yaratÄ±cÄ± cevaplar.</p><div class="m-tags"><span class="m-tag">CanlÄ±</span><span class="m-tag">Sohbet</span></div></div>
-          <div class="m-card"><div class="m-logo qwen">QW</div><div class="m-kicker">Alibaba</div><h3>Qwen 3 Max</h3><p>TÃ¼rkÃ§e dahil Ã§ok dilli Ã¼retim ve ajans iÅŸleri.</p><div class="m-tags"><span class="m-tag">Ã‡ok Dil</span><span class="m-tag">RAG</span></div></div>
-          <div class="m-card"><div class="m-logo llama">L4</div><div class="m-kicker">Meta</div><h3>Llama 4 Maverick</h3><p>AÃ§Ä±k model ekosistemi ve Ã¶lÃ§eklenebilir entegrasyon.</p><div class="m-tags"><span class="m-tag">Open</span><span class="m-tag">API</span></div></div>
-          <div class="m-card"><div class="m-logo mistral">MX</div><div class="m-kicker">Mistral</div><h3>Mistral Large 3</h3><p>Avrupa merkezli hÄ±zlÄ±, ekonomik ve gÃ¼Ã§lÃ¼ Ã¼retim.</p><div class="m-tags"><span class="m-tag">HÄ±z</span><span class="m-tag">Pro</span></div></div>
-          <div class="m-card"><div class="m-logo sonar">SP</div><div class="m-kicker">Perplexity</div><h3>Sonar Pro</h3><p>KaynaklÄ± arama, Ã¶zetleme ve pazar araÅŸtÄ±rmasÄ±.</p><div class="m-tags"><span class="m-tag">Web</span><span class="m-tag">Kaynak</span></div></div>
+          <div class="m-card"><div class="m-logo openai">AI</div><div class="m-kicker">OpenAI</div><h3>GPT-5.5 Turbo</h3><p>En güçlü akıl yürütme, kodlama ve üretim işleri.</p><div class="m-tags"><span class="m-tag">128K</span><span class="m-tag">Kodlama</span></div></div>
+          <div class="m-card"><div class="m-logo anthropic">CL</div><div class="m-kicker">Anthropic</div><h3>Claude Opus 4.7</h3><p>Uzun analiz, yazarlık ve hassas iş akışları.</p><div class="m-tags"><span class="m-tag">200K</span><span class="m-tag">Analiz</span></div></div>
+          <div class="m-card"><div class="m-logo gemini">G</div><div class="m-kicker">Google</div><h3>Gemini 3.1 Pro</h3><p>Multimodal içerik, hızlı araştırma ve geniş bağlam.</p><div class="m-tags"><span class="m-tag">1M</span><span class="m-tag">Multimodal</span></div></div>
+          <div class="m-card"><div class="m-logo deepseek">DS</div><div class="m-kicker">DeepSeek</div><h3>DeepSeek V4</h3><p>Uygun maliyetli kod, matematik ve mantık modeli.</p><div class="m-tags"><span class="m-tag">Coder</span><span class="m-tag">Hızlı</span></div></div>
+          <div class="m-card"><div class="m-logo grok">GX</div><div class="m-kicker">xAI</div><h3>Grok 4</h3><p>Güncel bilgi, esnek sohbet ve yaratıcı cevaplar.</p><div class="m-tags"><span class="m-tag">Canlı</span><span class="m-tag">Sohbet</span></div></div>
+          <div class="m-card"><div class="m-logo qwen">QW</div><div class="m-kicker">Alibaba</div><h3>Qwen 3 Max</h3><p>Türkçe dahil çok dilli üretim ve ajans işleri.</p><div class="m-tags"><span class="m-tag">Çok Dil</span><span class="m-tag">RAG</span></div></div>
+          <div class="m-card"><div class="m-logo llama">L4</div><div class="m-kicker">Meta</div><h3>Llama 4 Maverick</h3><p>Açık model ekosistemi ve ölçeklenebilir entegrasyon.</p><div class="m-tags"><span class="m-tag">Open</span><span class="m-tag">API</span></div></div>
+          <div class="m-card"><div class="m-logo mistral">MX</div><div class="m-kicker">Mistral</div><h3>Mistral Large 3</h3><p>Avrupa merkezli hızlı, ekonomik ve güçlü üretim.</p><div class="m-tags"><span class="m-tag">Hız</span><span class="m-tag">Pro</span></div></div>
+          <div class="m-card"><div class="m-logo sonar">SP</div><div class="m-kicker">Perplexity</div><h3>Sonar Pro</h3><p>Kaynaklı arama, özetleme ve pazar araştırması.</p><div class="m-tags"><span class="m-tag">Web</span><span class="m-tag">Kaynak</span></div></div>
+          <div class="m-card"><div class="m-logo openai">AI</div><div class="m-kicker">OpenAI</div><h3>GPT-5.5 Turbo</h3><p>En güçlü akıl yürütme, kodlama ve üretim işleri.</p><div class="m-tags"><span class="m-tag">128K</span><span class="m-tag">Kodlama</span></div></div>
+          <div class="m-card"><div class="m-logo anthropic">CL</div><div class="m-kicker">Anthropic</div><h3>Claude Opus 4.7</h3><p>Uzun analiz, yazarlık ve hassas iş akışları.</p><div class="m-tags"><span class="m-tag">200K</span><span class="m-tag">Analiz</span></div></div>
+          <div class="m-card"><div class="m-logo gemini">G</div><div class="m-kicker">Google</div><h3>Gemini 3.1 Pro</h3><p>Multimodal içerik, hızlı araştırma ve geniş bağlam.</p><div class="m-tags"><span class="m-tag">1M</span><span class="m-tag">Multimodal</span></div></div>
+          <div class="m-card"><div class="m-logo deepseek">DS</div><div class="m-kicker">DeepSeek</div><h3>DeepSeek V4</h3><p>Uygun maliyetli kod, matematik ve mantık modeli.</p><div class="m-tags"><span class="m-tag">Coder</span><span class="m-tag">Hızlı</span></div></div>
+          <div class="m-card"><div class="m-logo grok">GX</div><div class="m-kicker">xAI</div><h3>Grok 4</h3><p>Güncel bilgi, esnek sohbet ve yaratıcı cevaplar.</p><div class="m-tags"><span class="m-tag">Canlı</span><span class="m-tag">Sohbet</span></div></div>
+          <div class="m-card"><div class="m-logo qwen">QW</div><div class="m-kicker">Alibaba</div><h3>Qwen 3 Max</h3><p>Türkçe dahil çok dilli üretim ve ajans işleri.</p><div class="m-tags"><span class="m-tag">Çok Dil</span><span class="m-tag">RAG</span></div></div>
+          <div class="m-card"><div class="m-logo llama">L4</div><div class="m-kicker">Meta</div><h3>Llama 4 Maverick</h3><p>Açık model ekosistemi ve ölçeklenebilir entegrasyon.</p><div class="m-tags"><span class="m-tag">Open</span><span class="m-tag">API</span></div></div>
+          <div class="m-card"><div class="m-logo mistral">MX</div><div class="m-kicker">Mistral</div><h3>Mistral Large 3</h3><p>Avrupa merkezli hızlı, ekonomik ve güçlü üretim.</p><div class="m-tags"><span class="m-tag">Hız</span><span class="m-tag">Pro</span></div></div>
+          <div class="m-card"><div class="m-logo sonar">SP</div><div class="m-kicker">Perplexity</div><h3>Sonar Pro</h3><p>Kaynaklı arama, özetleme ve pazar araştırması.</p><div class="m-tags"><span class="m-tag">Web</span><span class="m-tag">Kaynak</span></div></div>
         </div>
       </div>
     </section>
     <section id="pricing" class="sec sec-alt">
-      <div class="sec-head fu"><h2>Esnek <span class="grad-text">Paketler</span></h2><p>Bireysel kullanÄ±cÄ±lardan dev ÅŸirketlere kadar herkese uygun 9 farklÄ± paket.</p></div>
+      <div class="sec-head fu"><h2>Esnek <span class="grad-text">Paketler</span></h2><p>Bireysel kullanıcılardan dev şirketlere kadar herkese uygun 9 farklı paket.</p></div>
       <div class="pricing-tabs fu" role="tablist" aria-label="Paket kategorileri">
-        <button class="pricing-tab active" data-pricing-tab="personal" onclick="showPricingCategory('personal')" type="button"><strong>Bireysel ve GiriÅŸ</strong><span>BaÅŸlangÄ±Ã§, PopÃ¼ler, Profesyonel</span></button>
-        <button class="pricing-tab" data-pricing-tab="creator" onclick="showPricingCategory('creator')" type="button"><strong>Ãœretici ve GeliÅŸtirici</strong><span>Ä°Ã§erik Ã¼reticisi, geliÅŸtirici, yoÄŸun kullanÄ±cÄ±</span></button>
-        <button class="pricing-tab" data-pricing-tab="agency" onclick="showPricingCategory('agency')" type="button"><strong>Kurumsal ve Ajans</strong><span>Ajans, iÅŸletme, kurumsal</span></button>
+        <button class="pricing-tab active" data-pricing-tab="personal" onclick="showPricingCategory('personal')" type="button"><strong>Bireysel ve Giriş</strong><span>Başlangıç, Popüler, Profesyonel</span></button>
+        <button class="pricing-tab" data-pricing-tab="creator" onclick="showPricingCategory('creator')" type="button"><strong>Üretici ve Geliştirici</strong><span>İçerik üreticisi, geliştirici, yoğun kullanıcı</span></button>
+        <button class="pricing-tab" data-pricing-tab="agency" onclick="showPricingCategory('agency')" type="button"><strong>Kurumsal ve Ajans</strong><span>Ajans, işletme, kurumsal</span></button>
       </div>
-      <div class="usage-calculator fu" aria-label="Paket hesaplayÄ±cÄ±">
+      <div class="usage-calculator fu" aria-label="Paket hesaplayıcı">
         <div class="calc-copy">
-          <span class="calc-kicker">AkÄ±llÄ± SeÃ§im</span>
-          <strong>Paket hesaplayÄ±cÄ±</strong>
-          <p>AylÄ±k kullanÄ±m tahminini gir, sana uygun paketi hÄ±zlÄ±ca gÃ¶sterelim.</p>
+          <span class="calc-kicker">Akıllı Seçim</span>
+          <strong>Paket hesaplayıcı</strong>
+          <p>Aylık kullanım tahminini gir, sana uygun paketi hızlıca gösterelim.</p>
         </div>
         <div class="calc-controls">
           <label class="calc-row" for="calc-chat">
-            <span>Sohbet isteÄŸi</span>
+            <span>Sohbet isteği</span>
             <input id="calc-chat" type="range" min="1000" max="50000" step="1000" value="8000" oninput="updatePackageCalculator()">
             <b id="calc-chat-val">8.000</b>
           </label>
           <label class="calc-row" for="calc-image">
-            <span>GÃ¶rsel Ã¼retimi</span>
+            <span>Görsel üretimi</span>
             <input id="calc-image" type="range" min="0" max="2500" step="50" value="300" oninput="updatePackageCalculator()">
             <b id="calc-image-val">300</b>
           </label>
 
         </div>
         <div class="calc-result">
-          <span>Ã–nerilen paket</span>
-          <strong id="calc-plan">PopÃ¼ler</strong>
-          <small id="calc-credit">YaklaÅŸÄ±k 100.000 kredi</small>
-          <button class="btn btn-primary btn-sm" id="calc-plan-btn" type="button" onclick="showRecommendedPlan()">Paketi gÃ¶ster</button>
+          <span>Önerilen paket</span>
+          <strong id="calc-plan">Popüler</strong>
+          <small id="calc-credit">Yaklaşık 100.000 kredi</small>
+          <button class="btn btn-primary btn-sm" id="calc-plan-btn" type="button" onclick="showRecommendedPlan()">Paketi göster</button>
         </div>
       </div>
       <div class="pricing-panels fu">
         <div class="pricing-panel active" data-pricing-panel="personal">
           <div class="price-grid">
-            <div class="pc"><h3>BaÅŸlangÄ±Ã§</h3><div class="pr">129.99 <span>â‚º/ay</span></div><ul><li><span class="ck">âœ“</span> 5.000 Kredi</li><li><span class="ck">âœ“</span> TÃ¼m modellere eriÅŸim</li><li><span class="ck">âœ“</span> 200 istek/gÃ¼n limiti</li><li><span class="ck">âœ“</span> Topluluk DesteÄŸi</li></ul><button class="btn btn-ghost" onclick="buyTokensById('starter')">Hemen BaÅŸla</button></div>
-            <div class="pc pop"><div class="pop-b">EN POPÃœLER</div><h3>PopÃ¼ler</h3><div class="pr">249.99 <span>â‚º/ay</span></div><ul><li><span class="ck">âœ“</span> 15.000 Kredi</li><li><span class="ck">âœ“</span> TÃ¼m modellere eriÅŸim</li><li><span class="ck">âœ“</span> 500 istek/gÃ¼n limiti</li><li><span class="ck">âœ“</span> GÃ¶rsel Ã¼retim dahil</li></ul><button class="btn btn-primary" onclick="buyTokensById('popular')">Hemen BaÅŸla</button></div>
-            <div class="pc"><h3>Profesyonel</h3><div class="pr">449.99 <span>â‚º/ay</span></div><ul><li><span class="ck">âœ“</span> 50.000 Kredi</li><li><span class="ck">âœ“</span> TÃ¼m modellere eriÅŸim</li><li><span class="ck">âœ“</span> 1.500 istek/gÃ¼n limiti</li><li><span class="ck">âœ“</span> Ã–ncelikli destek</li></ul><button class="btn btn-ghost" onclick="buyTokensById('pro')">Hemen BaÅŸla</button></div>
+            <div class="pc"><h3>Başlangıç</h3><div class="pr">129.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 5.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 200 istek/gün limiti</li><li><span class="ck">✓</span> Topluluk Desteği</li></ul><button class="btn btn-ghost" onclick="buyTokensById('starter')">Hemen Başla</button></div>
+            <div class="pc pop"><div class="pop-b">EN POPÜLER</div><h3>Popüler</h3><div class="pr">249.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 15.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 500 istek/gün limiti</li><li><span class="ck">✓</span> Görsel üretim dahil</li></ul><button class="btn btn-primary" onclick="buyTokensById('popular')">Hemen Başla</button></div>
+            <div class="pc"><h3>Profesyonel</h3><div class="pr">449.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 50.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 1.500 istek/gün limiti</li><li><span class="ck">✓</span> Öncelikli destek</li></ul><button class="btn btn-ghost" onclick="buyTokensById('pro')">Hemen Başla</button></div>
           </div>
         </div>
         <div class="pricing-panel" data-pricing-panel="creator">
           <div class="price-grid">
-            <div class="pc"><h3>GeliÅŸtirici</h3><div class="pr">599.99 <span>â‚º/ay</span></div><ul><li><span class="ck">âœ“</span> 100.000 Kredi</li><li><span class="ck">âœ“</span> TÃ¼m modellere eriÅŸim</li><li><span class="ck">âœ“</span> 2.000 istek/gÃ¼n + RAG</li><li><span class="ck">âœ“</span> Kod ve otomasyon araÃ§larÄ±</li></ul><button class="btn btn-primary" onclick="buyTokensById('developer')">SatÄ±n Al</button></div>
-            <div class="pc pop"><div class="pop-b">KURUMSAL</div><h3>Ä°ÅŸletme</h3><div class="pr">799.99 <span>â‚º/ay</span></div><ul><li><span class="ck">âœ“</span> 150.000 Kredi</li><li><span class="ck">âœ“</span> TÃ¼m modellere eriÅŸim</li><li><span class="ck">âœ“</span> 5.000 istek/gÃ¼n limiti</li><li><span class="ck">âœ“</span> Ã–ncelikli eriÅŸim + RAG</li></ul><button class="btn btn-primary" style="background:linear-gradient(135deg,#0ea5e9,#3b82f6)" onclick="buyTokensById('business')">SatÄ±n Al</button></div>
-            <div class="pc pop" style="background:linear-gradient(180deg, var(--bg2) 0%, rgba(139,92,246,0.1) 100%);border-color:var(--primary)"><div class="pop-b">EN ÃœST</div><h3>Kurumsal</h3><div class="pr">1.499.99 <span>â‚º/ay</span></div><ul><li><span class="ck">âœ“</span> 500.000 Kredi</li><li><span class="ck">âœ“</span> TÃ¼m modellere eriÅŸim</li><li><span class="ck">âœ“</span> SÄ±nÄ±rsÄ±z istek</li><li><span class="ck">âœ“</span> Beyaz etiket + Ã–zel destek</li></ul><button class="btn btn-primary" onclick="buyTokensById('enterprise')">Bize UlaÅŸÄ±n</button></div>
+            <div class="pc"><h3>Geliştirici</h3><div class="pr">599.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 100.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 2.000 istek/gün + RAG</li><li><span class="ck">✓</span> Kod ve otomasyon araçları</li></ul><button class="btn btn-primary" onclick="buyTokensById('developer')">Satın Al</button></div>
+            <div class="pc pop"><div class="pop-b">KURUMSAL</div><h3>İşletme</h3><div class="pr">799.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 150.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> 5.000 istek/gün limiti</li><li><span class="ck">✓</span> Öncelikli erişim + RAG</li></ul><button class="btn btn-primary" style="background:linear-gradient(135deg,#0ea5e9,#3b82f6)" onclick="buyTokensById('business')">Satın Al</button></div>
+            <div class="pc pop" style="background:linear-gradient(180deg, var(--bg2) 0%, rgba(139,92,246,0.1) 100%);border-color:var(--primary)"><div class="pop-b">EN ÜST</div><h3>Kurumsal</h3><div class="pr">1.499.99 <span>₺/ay</span></div><ul><li><span class="ck">✓</span> 500.000 Kredi</li><li><span class="ck">✓</span> Tüm modellere erişim</li><li><span class="ck">✓</span> Sınırsız istek</li><li><span class="ck">✓</span> Beyaz etiket + Özel destek</li></ul><button class="btn btn-primary" onclick="buyTokensById('enterprise')">Bize Ulaşın</button></div>
           </div>
         </div>
       </div>
     </section>
     <section id="docs" class="sec">
-      <div class="sec-head fu"><h2>Kolay <span class="grad-text">Entegrasyon</span></h2><p>3 satÄ±r kodla API'yi projenize ekleyin.</p></div>
-      <div class="docs-tabs fu" role="tablist" aria-label="Kod Ã¶rneÄŸi dilleri">
+      <div class="sec-head fu"><h2>Kolay <span class="grad-text">Entegrasyon</span></h2><p>3 satır kodla API'yi projenize ekleyin.</p></div>
+      <div class="docs-tabs fu" role="tablist" aria-label="Kod örneği dilleri">
         <button class="doc-tab active" data-code-tab="python" onclick="showCodeSample('python')" type="button">Python</button>
         <button class="doc-tab" data-code-tab="javascript" onclick="showCodeSample('javascript')" type="button">JavaScript</button>
         <button class="doc-tab" data-code-tab="curl" onclick="showCodeSample('curl')" type="button">cURL</button>
@@ -685,48 +685,48 @@ echo curl_exec($ch);</pre>
     </section>
 
     <section id="testimonials" class="sec sec-alt testimonials-sec">
-      <div class="sec-head fu"><h2>MÃ¼ÅŸteri <span class="grad-text">YorumlarÄ±</span></h2><p>GeliÅŸtiricilerin Froxy AI deneyimleri.</p></div>
-      <div class="testim-marquee fu" aria-label="MÃ¼ÅŸteri yorumlarÄ±">
+      <div class="sec-head fu"><h2>Müşteri <span class="grad-text">Yorumları</span></h2><p>Geliştiricilerin Froxy AI deneyimleri.</p></div>
+      <div class="testim-marquee fu" aria-label="Müşteri yorumları">
         <div class="testim-track">
-          <div class="testim-card"><div class="t-stars">?</div><p>"TÃ¼m modelleri tek API Ã¼zerinden kullanmak harika. Fiyatlar Ã§ok uygun, hÄ±z mÃ¼kemmel."</p><div class="t-user"><div class="t-av">A</div><div class="t-info"><strong>Ahmet Y.</strong><span>YazÄ±lÄ±m GeliÅŸtirici</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Claude, GPT ve Gemini modellerini projeme entegre etmek sadece birkaÃ§ dakika sÃ¼rdÃ¼."</p><div class="t-user"><div class="t-av">E</div><div class="t-info"><strong>Elif K.</strong><span>AI AraÅŸtÄ±rmacÄ±sÄ±</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Froxy AI'a geÃ§tikten sonra gecikme sÃ¼relerimiz ciddi ÅŸekilde azaldÄ±."</p><div class="t-user"><div class="t-av">C</div><div class="t-info"><strong>Can T.</strong><span>Startup CEO</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Her proje iÃ§in ayrÄ± ayrÄ± API kovalamÄ±yoruz. Tek key ile her ÅŸey daha dÃ¼zenli."</p><div class="t-user"><div class="t-av">M</div><div class="t-info"><strong>Murat S.</strong><span>Full Stack</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"GÃ¶rsel Ã¼retim ve sohbet modellerini aynÄ± panelden yÃ¶netmek ekibi rahatlattÄ±."</p><div class="t-user"><div class="t-av">D</div><div class="t-info"><strong>Deniz A.</strong><span>Ajans Kurucusu</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"TÃ¼rkÃ§e cevap kalitesi beklediÄŸimden iyi. MÃ¼ÅŸteri destek botunda kullanÄ±yoruz."</p><div class="t-user"><div class="t-av">S</div><div class="t-info"><strong>Seda B.</strong><span>Operasyon MÃ¼dÃ¼rÃ¼</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Kod tarafÄ±nda DeepSeek ve GPT arasÄ±nda hÄ±zlÄ± geÃ§iÅŸ yapmak Ã§ok iyi dÃ¼ÅŸÃ¼nÃ¼lmÃ¼ÅŸ."</p><div class="t-user"><div class="t-av">O</div><div class="t-info"><strong>Onur P.</strong><span>Backend Developer</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Paketler net, kredi takibi anlaÅŸÄ±lÄ±r. KÃ¼Ã§Ã¼k ekip iÃ§in maliyeti kontrol etmek kolay."</p><div class="testim-card"><div class="t-user"><div class="t-av">Ä°</div><div class="t-info"><strong>Ä°rem G.</strong><span>ÃœrÃ¼n YÃ¶neticisi</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Rapor Ã¶zetleme iÅŸlerinde zaman kazandÄ±rdÄ±. Ã–zellikle uzun dokÃ¼manlarda baÅŸarÄ±lÄ±."</p><div class="t-user"><div class="t-av">B</div><div class="t-info"><strong>Berk N.</strong><span>Veri Analisti</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Tek panelde model seÃ§mek ve geÃ§miÅŸi gÃ¶rmek gÃ¼nlÃ¼k akÄ±ÅŸÄ± hÄ±zlandÄ±rÄ±yor."</p><div class="t-user"><div class="t-av">Y</div><div class="t-info"><strong>YaÄŸmur L.</strong><span>Ä°Ã§erik Ekibi</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"TÃ¼m modelleri tek API Ã¼zerinden kullanmak harika. Fiyatlar Ã§ok uygun, hÄ±z mÃ¼kemmel."</p><div class="t-user"><div class="t-av">A</div><div class="t-info"><strong>Ahmet Y.</strong><span>YazÄ±lÄ±m GeliÅŸtirici</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Claude, GPT ve Gemini modellerini projeme entegre etmek sadece birkaÃ§ dakika sÃ¼rdÃ¼."</p><div class="t-user"><div class="t-av">E</div><div class="t-info"><strong>Elif K.</strong><span>AI AraÅŸtÄ±rmacÄ±sÄ±</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Froxy AI'a geÃ§tikten sonra gecikme sÃ¼relerimiz ciddi ÅŸekilde azaldÄ±."</p><div class="t-user"><div class="t-av">C</div><div class="t-info"><strong>Can T.</strong><span>Startup CEO</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Her proje iÃ§in ayrÄ± ayrÄ± API kovalamÄ±yoruz. Tek key ile her ÅŸey daha dÃ¼zenli."</p><div class="t-user"><div class="t-av">M</div><div class="t-info"><strong>Murat S.</strong><span>Full Stack</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"GÃ¶rsel Ã¼retim ve sohbet modellerini aynÄ± panelden yÃ¶netmek ekibi rahatlattÄ±."</p><div class="t-user"><div class="t-av">D</div><div class="t-info"><strong>Deniz A.</strong><span>Ajans Kurucusu</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"TÃ¼rkÃ§e cevap kalitesi beklediÄŸimden iyi. MÃ¼ÅŸteri destek botunda kullanÄ±yoruz."</p><div class="t-user"><div class="t-av">S</div><div class="t-info"><strong>Seda B.</strong><span>Operasyon MÃ¼dÃ¼rÃ¼</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Kod tarafÄ±nda DeepSeek ve GPT arasÄ±nda hÄ±zlÄ± geÃ§iÅŸ yapmak Ã§ok iyi dÃ¼ÅŸÃ¼nÃ¼lmÃ¼ÅŸ."</p><div class="t-user"><div class="t-av">O</div><div class="t-info"><strong>Onur P.</strong><span>Backend Developer</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Paketler net, kredi takibi anlaÅŸÄ±lÄ±r. KÃ¼Ã§Ã¼k ekip iÃ§in maliyeti kontrol etmek kolay."</p><div class="t-user"><div class="t-av">Ä°</div><div class="t-info"><strong>Ä°rem G.</strong><span>ÃœrÃ¼n YÃ¶neticisi</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Rapor Ã¶zetleme iÅŸlerinde zaman kazandÄ±rdÄ±. Ã–zellikle uzun dokÃ¼manlarda baÅŸarÄ±lÄ±."</p><div class="t-user"><div class="t-av">B</div><div class="t-info"><strong>Berk N.</strong><span>Veri Analisti</span></div></div></div>
-          <div class="testim-card"><div class="t-stars">?</div><p>"Tek panelde model seÃ§mek ve geÃ§miÅŸi gÃ¶rmek gÃ¼nlÃ¼k akÄ±ÅŸÄ± hÄ±zlandÄ±rÄ±yor."</p><div class="t-user"><div class="t-av">Y</div><div class="t-info"><strong>YaÄŸmur L.</strong><span>Ä°Ã§erik Ekibi</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Tüm modelleri tek API üzerinden kullanmak harika. Fiyatlar çok uygun, hız mükemmel."</p><div class="t-user"><div class="t-av">A</div><div class="t-info"><strong>Ahmet Y.</strong><span>Yazılım Geliştirici</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Claude, GPT ve Gemini modellerini projeme entegre etmek sadece birkaç dakika sürdü."</p><div class="t-user"><div class="t-av">E</div><div class="t-info"><strong>Elif K.</strong><span>AI Araştırmacısı</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Froxy AI'a geçtikten sonra gecikme sürelerimiz ciddi şekilde azaldı."</p><div class="t-user"><div class="t-av">C</div><div class="t-info"><strong>Can T.</strong><span>Startup CEO</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Her proje için ayrı ayrı API kovalamıyoruz. Tek key ile her şey daha düzenli."</p><div class="t-user"><div class="t-av">M</div><div class="t-info"><strong>Murat S.</strong><span>Full Stack</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Görsel üretim ve sohbet modellerini aynı panelden yönetmek ekibi rahatlattı."</p><div class="t-user"><div class="t-av">D</div><div class="t-info"><strong>Deniz A.</strong><span>Ajans Kurucusu</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Türkçe cevap kalitesi beklediğimden iyi. Müşteri destek botunda kullanıyoruz."</p><div class="t-user"><div class="t-av">S</div><div class="t-info"><strong>Seda B.</strong><span>Operasyon Müdürü</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Kod tarafında DeepSeek ve GPT arasında hızlı geçiş yapmak çok iyi düşünülmüş."</p><div class="t-user"><div class="t-av">O</div><div class="t-info"><strong>Onur P.</strong><span>Backend Developer</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Paketler net, kredi takibi anlaşılır. Küçük ekip için maliyeti kontrol etmek kolay."</p><div class="testim-card"><div class="t-user"><div class="t-av">İ</div><div class="t-info"><strong>İrem G.</strong><span>Ürün Yöneticisi</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Rapor özetleme işlerinde zaman kazandırdı. Özellikle uzun dokümanlarda başarılı."</p><div class="t-user"><div class="t-av">B</div><div class="t-info"><strong>Berk N.</strong><span>Veri Analisti</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Tek panelde model seçmek ve geçmişi görmek günlük akışı hızlandırıyor."</p><div class="t-user"><div class="t-av">Y</div><div class="t-info"><strong>Yağmur L.</strong><span>İçerik Ekibi</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Tüm modelleri tek API üzerinden kullanmak harika. Fiyatlar çok uygun, hız mükemmel."</p><div class="t-user"><div class="t-av">A</div><div class="t-info"><strong>Ahmet Y.</strong><span>Yazılım Geliştirici</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Claude, GPT ve Gemini modellerini projeme entegre etmek sadece birkaç dakika sürdü."</p><div class="t-user"><div class="t-av">E</div><div class="t-info"><strong>Elif K.</strong><span>AI Araştırmacısı</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Froxy AI'a geçtikten sonra gecikme sürelerimiz ciddi şekilde azaldı."</p><div class="t-user"><div class="t-av">C</div><div class="t-info"><strong>Can T.</strong><span>Startup CEO</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Her proje için ayrı ayrı API kovalamıyoruz. Tek key ile her şey daha düzenli."</p><div class="t-user"><div class="t-av">M</div><div class="t-info"><strong>Murat S.</strong><span>Full Stack</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Görsel üretim ve sohbet modellerini aynı panelden yönetmek ekibi rahatlattı."</p><div class="t-user"><div class="t-av">D</div><div class="t-info"><strong>Deniz A.</strong><span>Ajans Kurucusu</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Türkçe cevap kalitesi beklediğimden iyi. Müşteri destek botunda kullanıyoruz."</p><div class="t-user"><div class="t-av">S</div><div class="t-info"><strong>Seda B.</strong><span>Operasyon Müdürü</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Kod tarafında DeepSeek ve GPT arasında hızlı geçiş yapmak çok iyi düşünülmüş."</p><div class="t-user"><div class="t-av">O</div><div class="t-info"><strong>Onur P.</strong><span>Backend Developer</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Paketler net, kredi takibi anlaşılır. Küçük ekip için maliyeti kontrol etmek kolay."</p><div class="t-user"><div class="t-av">İ</div><div class="t-info"><strong>İrem G.</strong><span>Ürün Yöneticisi</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Rapor özetleme işlerinde zaman kazandırdı. Özellikle uzun dokümanlarda başarılı."</p><div class="t-user"><div class="t-av">B</div><div class="t-info"><strong>Berk N.</strong><span>Veri Analisti</span></div></div></div>
+          <div class="testim-card"><div class="t-stars">?</div><p>"Tek panelde model seçmek ve geçmişi görmek günlük akışı hızlandırıyor."</p><div class="t-user"><div class="t-av">Y</div><div class="t-info"><strong>Yağmur L.</strong><span>İçerik Ekibi</span></div></div></div>
         </div>
       </div>
     </section>
     <section id="faq" class="sec sec-alt">
-      <div class="sec-head fu"><h2>SÄ±kÃ§a Sorulan <span class="grad-text">Sorular</span></h2></div>
+      <div class="sec-head fu"><h2>Sıkça Sorulan <span class="grad-text">Sorular</span></h2></div>
       <div class="faq-list fu">
-        <div class="faq-item"><div class="faq-q">API anahtarÄ±nÄ± nasÄ±l alÄ±rÄ±m? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">KayÄ±t olduktan sonra otomatik oluÅŸturulur.</div></div>
-        <div class="faq-item"><div class="faq-q">Hangi modelleri destekliyorsunuz? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">GPTâ€‘5.5, GPTâ€‘5.4, Gemini 3.1 Pro, Gemini 3 Flash ve daha fazlasÄ±.</div></div>
-        <div class="faq-item"><div class="faq-q">Mevcut OpenAI kodum Ã§alÄ±ÅŸÄ±r mÄ±? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">Evet! Base URL sadece deÄŸiÅŸtirmeniz yeterli.</div></div>
-        <div class="faq-item"><div class="faq-q">Ã–deme yÃ¶ntemleri nelerdir? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">Shopier Ã¼zerinden kredi kartÄ±, Papara, havale, kripto.</div></div>
+        <div class="faq-item"><div class="faq-q">API anahtarını nasıl alırım? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">Kayıt olduktan sonra otomatik oluşturulur.</div></div>
+        <div class="faq-item"><div class="faq-q">Hangi modelleri destekliyorsunuz? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">GPT‑5.5, GPT‑5.4, Gemini 3.1 Pro, Gemini 3 Flash ve daha fazlası.</div></div>
+        <div class="faq-item"><div class="faq-q">Mevcut OpenAI kodum çalışır mı? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">Evet! Base URL sadece değiştirmeniz yeterli.</div></div>
+        <div class="faq-item"><div class="faq-q">Ödeme yöntemleri nelerdir? <span class="faq-arr" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="M5 7.5 10 12.5l5-5"/></svg></span></div><div class="faq-a">Shopier üzerinden kredi kartı, Papara, havale, kripto.</div></div>
       </div>
     </section>
     <section class="sec cta-sec">
       <div class="cta-box fu">
-        <h2>Hemen <span class="grad-text">BaÅŸlayÄ±n</span></h2>
-        <p>Ãœcretsiz hesap oluÅŸturun ve AI gÃ¼cÃ¼nÃ¼ keÅŸfedin.</p>
+        <h2>Hemen <span class="grad-text">Başlayın</span></h2>
+        <p>Ücretsiz hesap oluşturun ve AI gücünü keşfedin.</p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-                  <button class="btn btn-primary btn-lg" onclick="modal('reg')">Ãœcretsiz BaÅŸla</button>
-          <button class="btn btn-ghost btn-lg" onclick="modal('login')">GiriÅŸ Yap</button>
+                  <button class="btn btn-primary btn-lg" onclick="modal('reg')">Ücretsiz Başla</button>
+          <button class="btn btn-ghost btn-lg" onclick="modal('login')">Giriş Yap</button>
         </div>
       </div>
     </section>
@@ -734,7 +734,7 @@ echo curl_exec($ch);</pre>
       <div class="footer-top">
         <div class="footer-brand">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><img src="logo-192.png" alt="logo" width="32" height="32" loading="lazy" decoding="async"><span>Froxy AI</span></div>
-          <p>TÃ¼rkiye'nin en gÃ¼venilir AI API platformu. TÃ¼m modellere tek API ile eriÅŸin.</p>
+          <p>Türkiye'nin en güvenilir AI API platformu. Tüm modellere tek API ile erişin.</p>
           <div class="footer-social">
             <a href="#" title="Discord"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></a>
             <a href="#" title="X / Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
@@ -743,28 +743,28 @@ echo curl_exec($ch);</pre>
         </div>
         <div class="footer-col">
           <h4>Platform</h4>
-          <a onclick="modal('reg')">KayÄ±t Ol</a>
-          <a onclick="modal('login')">GiriÅŸ Yap</a>
+          <a onclick="modal('reg')">Kayıt Ol</a>
+          <a onclick="modal('login')">Giriş Yap</a>
           <a href="#pricing">Paketler</a>
           <a href="#docs">Entegrasyon</a>
         </div>
         <div class="footer-col">
-          <h4>GeliÅŸtirici</h4>
-          <a href="#docs">API DokÃ¼mantasyonu</a>
-          <a onclick="modal('reg')">API AnahtarÄ± Al</a>
+          <h4>Geliştirici</h4>
+          <a href="#docs">API Dokümantasyonu</a>
+          <a onclick="modal('reg')">API Anahtarı Al</a>
           <a href="#faq">SSS</a>
           <a href="mailto:destek@froxyai.com">Destek</a>
         </div>
         <div class="footer-col">
           <h4>Yasal</h4>
-          <button type="button" class="footer-link" data-legal="kvkk" onclick="showLegal('kvkk')">KVKK AydÄ±nlatma Metni</button>
-          <button type="button" class="footer-link" data-legal="privacy" onclick="showLegal('privacy')">Gizlilik PolitikasÄ±</button>
-          <button type="button" class="footer-link" data-legal="terms" onclick="showLegal('terms')">KullanÄ±m ÅartlarÄ±</button>
+          <button type="button" class="footer-link" data-legal="kvkk" onclick="showLegal('kvkk')">KVKK Aydınlatma Metni</button>
+          <button type="button" class="footer-link" data-legal="privacy" onclick="showLegal('privacy')">Gizlilik Politikası</button>
+          <button type="button" class="footer-link" data-legal="terms" onclick="showLegal('terms')">Kullanım Şartları</button>
           <button type="button" class="footer-link" data-legal="disclaimer" onclick="showLegal('disclaimer')">Sorumluluk Reddi</button>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>Â© 2026 Froxy AI. TÃ¼m haklarÄ± saklÄ±dÄ±r. Platform, Ã¼Ã§Ã¼ncÃ¼ taraf yapay zeka modellerine eriÅŸim saÄŸlar.</p>
+        <p>© 2026 Froxy AI. Tüm hakları saklıdır. Platform, üçüncü taraf yapay zeka modellerine erişim sağlar.</p>
       </div>
     </footer>
 
@@ -772,11 +772,11 @@ echo curl_exec($ch);</pre>
   </div><!-- end v-landing -->
 
 
-  <!-- Panel (Sohbet / Kontrol Paneli / Anahtarlar / GÃ¶rsel / Admin) -->
+  <!-- Panel (Sohbet / Kontrol Paneli / Anahtarlar / Görsel / Admin) -->
   <div class="v" id="v-chat">
     <div class="panel-layout ai-chat-app">
       <aside class="panel-sidebar ai-chat-sidebar" id="panel-sidebar">
-        <button type="button" class="mobile-sidebar-close" onclick="return __mobileMenuClose(event)" aria-label="MenÃ¼yÃ¼ kapat">&times;</button>
+        <button type="button" class="mobile-sidebar-close" onclick="return __mobileMenuClose(event)" aria-label="Menüyü kapat">&times;</button>
         <div class="ai-side-brand">
           <button class="ai-brand-btn" onclick="panelTab('dash')" title="Kontrol paneli">
             <img src="logo-192.png" alt="Froxy AI" width="36" height="36" loading="lazy" decoding="async">
@@ -801,19 +801,19 @@ echo curl_exec($ch);</pre>
         <nav class="ps-nav ai-side-section ai-side-nav">
           <button class="ps-link active" onclick="panelTab('chat')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="ps-txt">Sohbet</span></button>
           <button class="ps-link" onclick="panelTab('dash')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="ps-txt">Kontrol Paneli</span></button>
-          <button class="ps-link" onclick="panelTab('img')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span class="ps-txt">GÃ¶rsel Ãœret</span></button>
+          <button class="ps-link" onclick="panelTab('img')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span class="ps-txt">Görsel Üret</span></button>
           <button class="ps-link" onclick="panelTab('agents')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M7 14h.01M17 14h.01"/></svg><span class="ps-txt">AI ajanlar</span></button>
           <button class="ps-link" onclick="panelTab('prompts')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="ps-txt">Promptlar</span></button>
           <button class="ps-link" onclick="panelTab('tools')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.7 4.6L18 9.3l-4.3 1.7L12 16l-1.7-5L6 9.3l4.3-1.7z"/><path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8z"/></svg><span class="ps-txt">AI Ara&ccedil;lar&#305;</span></button>
-          <button class="ps-link" onclick="panelTab('codeeditor')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span class="ps-txt">Kod editÃ¶rÃ¼</span></button>
-          <button class="ps-link" onclick="panelTab('rag')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M8 7h8M8 11h6"/></svg><span class="ps-txt">Bilgi bankasÄ±</span></button>
-          <button class="ps-link" onclick="panelTab('store')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="ps-txt">MaÄŸaza</span></button>
+          <button class="ps-link" onclick="panelTab('codeeditor')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span class="ps-txt">Kod editörü</span></button>
+          <button class="ps-link" onclick="panelTab('rag')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M8 7h8M8 11h6"/></svg><span class="ps-txt">Bilgi bankası</span></button>
+          <button class="ps-link" onclick="panelTab('store')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="ps-txt">Mağaza</span></button>
           <button class="ps-link" onclick="panelTab('support')"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span class="ps-txt">Destek</span><span class="ps-badge" id="ps-ticket-badge" style="display:none">0</span></button>
         </nav>
 
         <section class="ai-side-section ai-thread-panel">
           <div class="ai-thread-head">
-            <span>Sohbet geÃ§miÅŸi</span>
+            <span>Sohbet geçmişi</span>
             <button class="btn-new-chat" onclick="newChat()" title="Yeni sohbet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg></button>
           </div>
           <div class="chat-list" id="chat-list"></div>
@@ -830,12 +830,12 @@ echo curl_exec($ch);</pre>
           <div class="ps-actions-row">
             <button type="button" class="ps-icon-btn" onclick="toggleTheme()" title="Tema"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
             <button type="button" class="ps-icon-btn" onclick="toggleNotifPanel()" title="Bildirimler" style="position:relative"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
-            <button type="button" class="ps-icon-btn" onclick="go('chat');panelTab('chat')" title="Sohbet Ana EkranÄ±"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
+            <button type="button" class="ps-icon-btn" onclick="go('chat');panelTab('chat')" title="Sohbet Ana Ekranı"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
             <button type="button" class="ps-icon-btn" id="ps-admin-link" style="display:none" onclick="panelTab('admin')" title="Admin"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"/></svg></button>
-            <button type="button" class="ps-icon-btn" id="ps-login-link" onclick="modal('login')" title="GiriÅŸ Yap"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></button>
-            <button type="button" class="ps-icon-btn" id="ps-logout-link" onclick="logout()" title="Ã‡Ä±kÄ±ÅŸ"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+            <button type="button" class="ps-icon-btn" id="ps-login-link" onclick="modal('login')" title="Giriş Yap"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></button>
+            <button type="button" class="ps-icon-btn" id="ps-logout-link" onclick="logout()" title="Çıkış"><svg class="si-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
           </div>
-          <button type="button" class="ps-auth-cta" id="ps-auth-cta" onclick="modal('login')" style="display:none">GiriÅŸ Yap</button>
+          <button type="button" class="ps-auth-cta" id="ps-auth-cta" onclick="modal('login')" style="display:none">Giriş Yap</button>
         </footer>
       </aside>
 
@@ -846,22 +846,22 @@ echo curl_exec($ch);</pre>
         <div class="ptab on ai-chat-workspace" id="ptab-chat">
           <header class="ai-chat-topbar">
             <div class="ai-chat-titleblock">
-              <button type="button" class="ai-top-btn chat-sidebar-toggle" onclick="return __mobileMenuToggle(event)" title="MenÃ¼" aria-label="MenÃ¼">
+              <button type="button" class="ai-top-btn chat-sidebar-toggle" onclick="return __mobileMenuToggle(event)" title="Menü" aria-label="Menü">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
               </button>
               <span class="ai-live-dot"></span>
               <div>
-                <span class="ai-chat-eyebrow">AI Ã§alÄ±ÅŸma alanÄ±</span>
+                <span class="ai-chat-eyebrow">AI çalışma alanı</span>
                 <strong id="chat-title">Yeni Sohbet</strong>
               </div>
             </div>
             <div class="ai-chat-top-actions">
-              <button type="button" class="ai-top-chip" data-open-model-picker="top" onclick="toggleModelPicker(event)" title="Model seÃ§">
+              <button type="button" class="ai-top-chip" data-open-model-picker="top" onclick="toggleModelPicker(event)" title="Model seç">
                 <span class="mpb-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 4v10l-7 4-7-4V7z"/><path d="M12 12l7-4M12 12v9M12 12L5 8"/></svg></span>
                 <span class="mpb-copy"><strong id="mpb-name">GPT-5.5</strong><small id="model-count"></small></span>
               </button>
               <button type="button" class="ai-top-btn" data-action="settings" onclick="document.getElementById('settings-modal').style.display='flex'" title="Ayarlar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"/></svg></button>
-              <button type="button" class="ai-top-btn" data-action="export-chat" onclick="exportChat()" title="DÄ±ÅŸa aktar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+              <button type="button" class="ai-top-btn" data-action="export-chat" onclick="exportChat()" title="Dışa aktar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
             </div>
           </header>
 
@@ -879,16 +879,16 @@ echo curl_exec($ch);</pre>
             <div class="chat-msgs ai-message-stream" id="chat-msgs">
               <div class="chat-welcome ai-empty-state">
                 <img src="logo-192.png" alt="Froxy AI" width="76" height="76" loading="lazy" decoding="async">
-                <span>BugÃ¼n ne Ã¼retelim?</span>
-                <h3>Model seÃ§, yaz ve devam et</h3>
-                <p>Sohbet, kod, gÃ¶rsel, dosya analizi ve web destekli cevaplar aynÄ± temiz alanda.</p>
-                <div class="prompt-chips" id="prompt-chips" aria-label="HÄ±zlÄ± baÅŸlangÄ±Ã§ Ã¶nerileri">
-                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Bir iÅŸ fikri Ã¶ner ve pazar analizi yap</button>
-                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Bu kodu incele ve hatalarÄ± bul</button>
+                <span>Bugün ne üretelim?</span>
+                <h3>Model seç, yaz ve devam et</h3>
+                <p>Sohbet, kod, görsel, dosya analizi ve web destekli cevaplar aynı temiz alanda.</p>
+                <div class="prompt-chips" id="prompt-chips" aria-label="Hızlı başlangıç önerileri">
+                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Bir iş fikri öner ve pazar analizi yap</button>
+                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Bu kodu incele ve hataları bul</button>
                   <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Profesyonel bir e-posta yaz</button>
-                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Web sitemi SEO iÃ§in optimize et</button>
-                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Veri analizi iÃ§in Python kodu yaz</button>
-                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">ÃœrÃ¼n iÃ§in gÃ¶rsel prompt oluÅŸtur</button>
+                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Web sitemi SEO için optimize et</button>
+                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Veri analizi için Python kodu yaz</button>
+                  <button class="prompt-chip" onclick="usePromptChip(this)" type="button">Ürün için görsel prompt oluştur</button>
                 </div>
               </div>
             </div>
@@ -897,24 +897,24 @@ echo curl_exec($ch);</pre>
 
           <section class="chat-input-area ai-composer-zone">
             <div id="chat-smartbar" class="chat-smartbar ai-smartbar">
-              <button class="chat-action-pill" onclick="chatInsertHelper('KÄ±sa ve net cevap ver. ')">KÄ±sa cevap</button>
-              <button class="chat-action-pill" onclick="chatInsertHelper('TÃ¼rkÃ§e karakterleri ve anlatÄ±mÄ± dÃ¼zelt: ')">TÃ¼rkÃ§e dÃ¼zelt</button>
-              <button class="chat-action-pill" onclick="chatInsertHelper('Bu kodu adÄ±m adÄ±m aÃ§Ä±kla:\n')">Kod aÃ§Ä±kla</button>
-              <button class="chat-action-pill primary" onclick="compareModels()">Modellerle karÅŸÄ±laÅŸtÄ±r</button>
+              <button class="chat-action-pill" onclick="chatInsertHelper('Kısa ve net cevap ver. ')">Kısa cevap</button>
+              <button class="chat-action-pill" onclick="chatInsertHelper('Türkçe karakterleri ve anlatımı düzelt: ')">Türkçe düzelt</button>
+              <button class="chat-action-pill" onclick="chatInsertHelper('Bu kodu adım adım açıkla:\n')">Kod açıkla</button>
+              <button class="chat-action-pill primary" onclick="compareModels()">Modellerle karşılaştır</button>
             </div>
 
             <div id="chat-file-preview" class="ai-file-preview" style="display:none">
               <span id="chat-file-icon">PDF</span>
               <span id="chat-file-name">dosya.pdf</span>
-              <button onclick="clearFile()" title="DosyayÄ± kaldÄ±r">x</button>
+              <button onclick="clearFile()" title="Dosyayı kaldır">x</button>
             </div>
 
             <div class="chat-input-wrap ai-composer">
               <input type="file" id="chat-file" accept="image/*,.pdf,.txt" style="display:none" onchange="handleFileSelect(event)">
-              <button class="attach-btn ai-composer-btn" onclick="document.getElementById('chat-file').click()" title="Dosya yÃ¼kle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
-              <button class="mic-btn ai-composer-btn" id="mic-btn" onclick="toggleVoice()" title="Sesli yazdÄ±r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></button>
+              <button class="attach-btn ai-composer-btn" onclick="document.getElementById('chat-file').click()" title="Dosya yükle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+              <button class="mic-btn ai-composer-btn" id="mic-btn" onclick="toggleVoice()" title="Sesli yazdır"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></button>
               <textarea id="chat-in" rows="1" placeholder="Froxy AI'a mesaj yaz..." onkeydown="chatKey(event)"></textarea>
-              <button class="btn btn-primary ai-send-btn" id="chat-send" onclick="sendMsg()" title="GÃ¶nder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg></button>
+              <button class="btn btn-primary ai-send-btn" id="chat-send" onclick="sendMsg()" title="Gönder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg></button>
             </div>
 
             <div class="chat-toolbar ai-composer-tools">
@@ -933,7 +933,7 @@ echo curl_exec($ch);</pre>
                     <a class="tool-item" onclick="toolAction('analyze')"><span class="tool-icon analyze"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 16v-5M12 16V8M16 16v-7"/></svg></span>Analiz et</a>
                   </div>
                 </div>
-                <button type="button" class="tool-chip model-picker-chip dock-button" data-open-model-picker="dock" onclick="toggleModelPicker(event)" title="Model seÃ§" aria-label="Model seÃ§"><span class="dock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 4v10l-7 4-7-4V7z"/><path d="M12 12l7-4M12 12v9M12 12L5 8"/></svg></span><span class="dock-label">Modeller</span></button>
+                <button type="button" class="tool-chip model-picker-chip dock-button" data-open-model-picker="dock" onclick="toggleModelPicker(event)" title="Model seç" aria-label="Model seç"><span class="dock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 4v10l-7 4-7-4V7z"/><path d="M12 12l7-4M12 12v9M12 12L5 8"/></svg></span><span class="dock-label">Modeller</span></button>
                 <button class="tool-chip dock-button" onclick="panelTab('img')"><span class="dock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5L5 19"/></svg></span><span>G&ouml;rsel</span></button>
                 <button class="tool-chip dock-button" id="web-search-btn" onclick="toggleWebSearch()"><span class="dock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M4 11h14M11 4c2 2.2 2 11.8 0 14M11 4c-2 2.2-2 11.8 0 14"/></svg></span><span>Web ara</span></button>
                 <button class="tool-chip dock-button" id="auto-voice-btn" onclick="toggleAutoVoice()"><span class="dock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v3"/></svg></span><span>Sesli</span></button>
@@ -944,10 +944,10 @@ echo curl_exec($ch);</pre>
 
         <aside id="artifact-panel" class="ai-artifact-panel" style="display:none">
           <div class="artifact-head ai-artifact-head">
-            <strong>CanlÄ± Ã¶nizleme</strong>
+            <strong>Canlı önizleme</strong>
               <div>
-                <button onclick="openArtifactNewTab()" title="Yeni sekmede aÃ§">â†—</button>
-                <button onclick="toggleArtifactFullscreen()" title="GeniÅŸlet">[]</button>
+                <button onclick="openArtifactNewTab()" title="Yeni sekmede aç">↗</button>
+                <button onclick="toggleArtifactFullscreen()" title="Genişlet">[]</button>
                 <button onclick="closeArtifact()" title="Kapat">x</button>
               </div>
           </div>
@@ -955,7 +955,7 @@ echo curl_exec($ch);</pre>
         </aside>
       </div>
 
-      <nav class="mobile-app-nav" aria-label="HÄ±zlÄ± geÃ§iÅŸ">
+      <nav class="mobile-app-nav" aria-label="Hızlı geçiş">
         <button type="button" class="mobile-app-nav-btn" onclick="panelTab('chat')" title="Sohbet">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
           <span>Sohbet</span>
@@ -964,11 +964,11 @@ echo curl_exec($ch);</pre>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
           <span>Panel</span>
         </button>
-        <button type="button" class="mobile-app-nav-btn" onclick="panelTab('img')" title="GÃ¶rsel">
+        <button type="button" class="mobile-app-nav-btn" onclick="panelTab('img')" title="Görsel">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5L5 19"/></svg>
-          <span>GÃ¶rsel</span>
+          <span>Görsel</span>
         </button>
-        <button type="button" class="mobile-app-nav-btn" onclick="panelTab('rag')" title="Bilgi BankasÄ±">
+        <button type="button" class="mobile-app-nav-btn" onclick="panelTab('rag')" title="Bilgi Bankası">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 3H20v18H6.5A2.5 2.5 0 0 1 4 18.5v-13A2.5 2.5 0 0 1 6.5 3Z"/></svg>
           <span>Bilgi</span>
         </button>
@@ -976,27 +976,27 @@ echo curl_exec($ch);</pre>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
           <span>Destek</span>
         </button>
-        <button type="button" class="mobile-app-nav-btn mobile-app-nav-menu" onclick="return __mobileMenuToggle(event)" title="MenÃ¼">
+        <button type="button" class="mobile-app-nav-btn mobile-app-nav-menu" onclick="return __mobileMenuToggle(event)" title="Menü">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-          <span>MenÃ¼</span>
+          <span>Menü</span>
         </button>
       </nav>
 
         <!-- Kontrol Paneli Sekmesi -->
-        <!-- RAG (Bilgi BankasÄ±) Tab -->
+        <!-- RAG (Bilgi Bankası) Tab -->
         <div class="ptab" id="ptab-rag">
           <div class="kb-page">
             <section class="kb-hero">
               <div>
-                <span class="kb-kicker">Bilgi BankasÄ±</span>
-                <h2>AI'Ä±n kullanacaÄŸÄ± Ã¶zel kaynaklarÄ± tek yerde yÃ¶net</h2>
-                <p>DokÃ¼man yÃ¼kle, kalÄ±cÄ± hafÄ±za notlarÄ± ekle ve sohbetlerde daha tutarlÄ± cevap al.</p>
+                <span class="kb-kicker">Bilgi Bankası</span>
+                <h2>AI'ın kullanacağı özel kaynakları tek yerde yönet</h2>
+                <p>Doküman yükle, kalıcı hafıza notları ekle ve sohbetlerde daha tutarlı cevap al.</p>
               </div>
               <div class="kb-flow-visual" aria-hidden="true">
                 <div class="kb-flow-card source"><span></span><b>PDF</b><small>kaynak</small></div>
-                <div class="kb-flow-card memory"><span></span><b>Not</b><small>hafÄ±za</small></div>
+                <div class="kb-flow-card memory"><span></span><b>Not</b><small>hafıza</small></div>
                 <div class="kb-flow-core">
-                  <i></i><strong>RAG</strong><small>canlÄ± baÄŸlam</small>
+                  <i></i><strong>RAG</strong><small>canlı bağlam</small>
                 </div>
                 <div class="kb-flow-line l1"></div>
                 <div class="kb-flow-line l2"></div>
@@ -1006,15 +1006,15 @@ echo curl_exec($ch);</pre>
             </section>
 
             <section class="kb-stats">
-              <div class="kb-stat"><span id="rag-doc-count">0</span><small>DokÃ¼man</small></div>
+              <div class="kb-stat"><span id="rag-doc-count">0</span><small>Doküman</small></div>
               <div class="kb-stat"><span id="rag-total-size">0 KB</span><small>Toplam boyut</small></div>
-              <div class="kb-stat"><span id="mem-count">0</span><small>HafÄ±za notu</small></div>
+              <div class="kb-stat"><span id="mem-count">0</span><small>Hafıza notu</small></div>
             </section>
 
             <section class="kb-layout">
               <div class="kb-card kb-upload-card">
                 <div class="kb-card-head">
-                  <div><strong>Kaynak YÃ¼kle</strong><small>TXT dosyalarÄ± doÄŸrudan okunur, PDF iÃ§in metin Ã§Ä±karma geliÅŸtirilebilir.</small></div>
+                  <div><strong>Kaynak Yükle</strong><small>TXT dosyaları doğrudan okunur, PDF için metin çıkarma geliştirilebilir.</small></div>
                   <span class="kb-badge">RAG</span>
                 </div>
                 <label class="kb-drop" for="rag-file">
@@ -1022,23 +1022,23 @@ echo curl_exec($ch);</pre>
                   <span class="kb-drop-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M20 16.5V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2.5"/></svg>
                   </span>
-                  <strong id="rag-file-label">Dosya seÃ§ veya buraya bÄ±rak</strong>
-                  <small>TXT, PDF - bilgi bankasÄ±na eklendikten sonra sohbet cevaplarÄ±na baÄŸlanÄ±r.</small>
+                  <strong id="rag-file-label">Dosya seç veya buraya bırak</strong>
+                  <small>TXT, PDF - bilgi bankasına eklendikten sonra sohbet cevaplarına bağlanır.</small>
                 </label>
                 <button class="kb-primary-btn" onclick="uploadRAG()">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-                  Bilgi bankasÄ±na ekle
+                  Bilgi bankasına ekle
                 </button>
-                <div class="kb-upload-state" id="rag-upload-state">HazÄ±r</div>
+                <div class="kb-upload-state" id="rag-upload-state">Hazır</div>
               </div>
 
               <div class="kb-card kb-memory-card">
                 <div class="kb-card-head">
-                  <div><strong>AI HafÄ±zasÄ±</strong><small>KÄ±sa, kalÄ±cÄ± kullanÄ±cÄ± veya proje notlarÄ±.</small></div>
+                  <div><strong>AI Hafızası</strong><small>Kısa, kalıcı kullanıcı veya proje notları.</small></div>
                   <button class="kb-ghost-btn" onclick="clearAllMemory()">Temizle</button>
                 </div>
                 <div class="kb-memory-input">
-                  <textarea id="mem-input" rows="3" placeholder="Ã–rn: Marka tonu samimi, kÄ±sa ve net olsun."></textarea>
+                  <textarea id="mem-input" rows="3" placeholder="Örn: Marka tonu samimi, kısa ve net olsun."></textarea>
                   <button onclick="addMemory()">Ekle</button>
                 </div>
                 <div class="kb-memory-list" id="mem-list"></div>
@@ -1047,7 +1047,7 @@ echo curl_exec($ch);</pre>
 
             <section class="kb-card kb-docs-card">
               <div class="kb-card-head">
-                <div><strong>YÃ¼klÃ¼ DokÃ¼manlar</strong><small>Sohbetlerde otomatik baÄŸlam olarak kullanÄ±labilir.</small></div>
+                <div><strong>Yüklü Dokümanlar</strong><small>Sohbetlerde otomatik bağlam olarak kullanılabilir.</small></div>
                 <button class="kb-ghost-btn" onclick="loadRAG()">Yenile</button>
               </div>
               <div id="rag-docs-list" class="kb-doc-list"></div>
@@ -1060,12 +1060,12 @@ echo curl_exec($ch);</pre>
             <section class="dash-pro-hero">
               <div class="dash-pro-copy">
                 <span class="dash-kicker"><i></i> Kontrol merkezi</span>
-                <h2>Froxy AI Ã§alÄ±ÅŸma alanÄ±</h2>
-                <p>Model kullanÄ±mÄ±, kredi akÄ±ÅŸÄ±, hÄ±zlÄ± araÃ§lar ve aktif servislerin tek ekranda toplandÄ±ÄŸÄ± profesyonel panel.</p>
+                <h2>Froxy AI çalışma alanı</h2>
+                <p>Model kullanımı, kredi akışı, hızlı araçlar ve aktif servislerin tek ekranda toplandığı profesyonel panel.</p>
               </div>
               <div class="dash-pro-visual" aria-hidden="true">
                 <div class="dash-traffic-card">
-                  <div class="dt-head"><span>CanlÄ± kullanÄ±m</span><strong>+42%</strong></div>
+                  <div class="dt-head"><span>Canlı kullanım</span><strong>+42%</strong></div>
                   <div class="dt-bars">
                     <i style="--h:48%"></i><i style="--h:70%"></i><i style="--h:58%"></i><i style="--h:84%"></i><i style="--h:62%"></i><i style="--h:92%"></i><i style="--h:76%"></i>
                   </div>
@@ -1073,11 +1073,11 @@ echo curl_exec($ch);</pre>
                 </div>
               </div>
             </section>
-            <!-- Kontrol Paneli BaÅŸlÄ±ÄŸÄ± -->
+            <!-- Kontrol Paneli Başlığı -->
             <div class="dash-header">
               <div class="dash-greeting">
-                <h2>HoÅŸ geldin, <span class="grad-text" id="d-name">User</span></h2>
-                <p>Ä°ÅŸte hesabÄ±nÄ±n gÃ¼ncel durumu</p>
+                <h2>Hoş geldin, <span class="grad-text" id="d-name">User</span></h2>
+                <p>İşte hesabının güncel durumu</p>
               </div>
               <div class="dash-plan-badge" id="d-plan-badge">
                 <span class="dpb-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3z"/></svg></span>
@@ -1099,10 +1099,10 @@ echo curl_exec($ch);</pre>
               <div class="ds-card ds-blue">
                 <div class="ds-top">
                   <div class="ds-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-                  <span class="ds-trend">â†— %<span id="d-pct">0</span></span>
+                  <span class="ds-trend">↗ %<span id="d-pct">0</span></span>
                 </div>
                 <div class="ds-value" id="d-used">0</div>
-                <div class="ds-label">KullanÄ±lan Kredi</div>
+                <div class="ds-label">Kullanılan Kredi</div>
                 <div class="ds-bar"><div class="ds-bar-fill ds-bar-blue" style="width:20%"></div></div>
               </div>
               <div class="ds-card ds-green">
@@ -1110,7 +1110,7 @@ echo curl_exec($ch);</pre>
                   <div class="ds-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
                 </div>
                 <div class="ds-value" id="d-reqs">0</div>
-                <div class="ds-label">API Ä°steÄŸi</div>
+                <div class="ds-label">API İsteği</div>
                 <div class="ds-bar"><div class="ds-bar-fill ds-bar-green" style="width:45%"></div></div>
               </div>
             </div>
@@ -1119,7 +1119,7 @@ echo curl_exec($ch);</pre>
             <div class="dash-row">
               <!-- Usage Ring -->
               <div class="dash-panel dash-usage">
-                <h3><span class="dash-title-icon">â†—</span> Kredi KullanÄ±mÄ±</h3>
+                <h3><span class="dash-title-icon">↗</span> Kredi Kullanımı</h3>
                 <div class="usage-ring-wrap">
                   <div class="usage-ring">
                     <svg viewBox="0 0 120 120">
@@ -1129,12 +1129,12 @@ echo curl_exec($ch);</pre>
                     </svg>
                     <div class="usage-ring-text">
                       <span class="ring-pct" id="d-ring-pct">0%</span>
-                      <span class="ring-label">kullanÄ±ldÄ±</span>
+                      <span class="ring-label">kullanıldı</span>
                     </div>
                   </div>
                   <div class="usage-details">
                     <div class="ud-item"><span class="ud-dot purple"></span><span>Kalan</span><strong id="d-left">0</strong></div>
-                    <div class="ud-item"><span class="ud-dot blue"></span><span>KullanÄ±lan</span><strong id="d-used2">0</strong></div>
+                    <div class="ud-item"><span class="ud-dot blue"></span><span>Kullanılan</span><strong id="d-used2">0</strong></div>
                     <div class="ud-item"><span class="ud-dot gray"></span><span>Toplam</span><strong id="d-total">0</strong></div>
                   </div>
                 </div>
@@ -1142,21 +1142,21 @@ echo curl_exec($ch);</pre>
 
               <!-- Quick Actions -->
               <div class="dash-panel dash-actions">
-                <h3><span class="dash-title-icon">âŒ</span> HÄ±zlÄ± EriÅŸim</h3>
+                <h3><span class="dash-title-icon">⌁</span> Hızlı Erişim</h3>
                 <div class="da-grid">
                   <div class="da-card" onclick="panelTab('chat')">
                     <div class="da-icon" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg></div>
-                    <div class="da-info"><strong>Sohbet</strong><span>AI ile konuÅŸ</span></div>
+                    <div class="da-info"><strong>Sohbet</strong><span>AI ile konuş</span></div>
                     <svg class="da-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                   <div class="da-card" onclick="panelTab('img')">
                     <div class="da-icon" style="background:linear-gradient(135deg,#ec4899,#f472b6)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
-                    <div class="da-info"><strong>GÃ¶rsel Ãœret</strong><span>Imagen & Flux ile</span></div>
+                    <div class="da-info"><strong>Görsel Üret</strong><span>Imagen & Flux ile</span></div>
                     <svg class="da-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                   <div class="da-card" onclick="panelTab('store')">
                     <div class="da-icon" style="background:linear-gradient(135deg,#10b981,#34d399)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m3 9 1-5h16l1 5"/><path d="M4 9h16v11H4z"/><path d="M9 20v-6h6v6"/></svg></div>
-                    <div class="da-info"><strong>MaÄŸaza</strong><span>Kredi & Paketler</span></div>
+                    <div class="da-info"><strong>Mağaza</strong><span>Kredi & Paketler</span></div>
                     <svg class="da-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                   <div class="da-card" onclick="panelTab('keys')">
@@ -1166,7 +1166,7 @@ echo curl_exec($ch);</pre>
                   </div>
                   <div class="da-card" onclick="panelTab('support')">
                     <div class="da-icon" style="background:linear-gradient(135deg,#06b6d4,#38bdf8)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
-                    <div class="da-info"><strong>Destek</strong><span>Bilet aÃ§ / YardÄ±m</span></div>
+                    <div class="da-info"><strong>Destek</strong><span>Bilet aç / Yardım</span></div>
                     <svg class="da-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </div>
@@ -1177,11 +1177,11 @@ echo curl_exec($ch);</pre>
             <div class="dash-row">
               <!-- Referral Panel -->
               <div class="ref-panel">
-                <h3><span class="dash-title-icon">%</span> ArkadaÅŸÄ±nÄ± Davet Et</h3>
-                <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Her baÅŸarÄ±lÄ± davette <strong style="color:var(--accent2)">%10 Bonus kredi</strong> kazan! (Maks. 10 davet)</p>
+                <h3><span class="dash-title-icon">%</span> Arkadaşını Davet Et</h3>
+                <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Her başarılı davette <strong style="color:var(--accent2)">%10 Bonus kredi</strong> kazan! (Maks. 10 davet)</p>
                 <div class="ref-code-box">
-                  <code id="ref-code" aria-live="polite"><span class="inline-skeleton inline-skeleton-code" aria-label="Davet kodu hazÄ±rlanÄ±yor"></span></code>
-                  <button class="btn btn-primary btn-sm" onclick="copyRefCode()">ğŸ“‹ Kopyala</button>
+                  <code id="ref-code" aria-live="polite"><span class="inline-skeleton inline-skeleton-code" aria-label="Davet kodu hazırlanıyor"></span></code>
+                  <button class="btn btn-primary btn-sm" onclick="copyRefCode()">📋 Kopyala</button>
                 </div>
                 <div class="ref-stats">
                   <div class="ref-stat"><span class="rs-val" id="ref-count">0</span><span class="rs-lbl">Davet</span></div>
@@ -1189,15 +1189,15 @@ echo curl_exec($ch);</pre>
                   <div class="ref-stat"><span class="rs-val" id="ref-remaining">10</span><span class="rs-lbl">Kalan Hak</span></div>
                 </div>
                 <div class="ref-link-box">
-                  <input type="text" id="ref-link" readonly value="" placeholder="Davet linki hazÄ±rlanÄ±yor">
+                  <input type="text" id="ref-link" readonly value="" placeholder="Davet linki hazırlanıyor">
                   <button class="btn btn-primary btn-sm" onclick="copyRefLink()">Link Kopyala</button>
                 </div>
               </div>
 
               <!-- Daily Login Bonus -->
               <div class="daily-panel">
-                <h3><span class="dash-title-icon">7</span> GÃ¼nlÃ¼k GiriÅŸ Bonusu</h3>
-                <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Her gÃ¼n giriÅŸ yap, <strong style="color:#fbbf24">10 bonus kredi</strong> kazan! 7 gÃ¼n seri = <strong style="color:#fbbf24">100 kredi</strong></p>
+                <h3><span class="dash-title-icon">7</span> Günlük Giriş Bonusu</h3>
+                <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Her gün giriş yap, <strong style="color:#fbbf24">10 bonus kredi</strong> kazan! 7 gün seri = <strong style="color:#fbbf24">100 kredi</strong></p>
                 <div class="streak-dots" id="streak-dots">
                   <div class="streak-dot">1</div>
                   <div class="streak-dot">2</div>
@@ -1208,14 +1208,14 @@ echo curl_exec($ch);</pre>
                   <div class="streak-dot">7</div>
                 </div>
                 <div class="streak-info">
-                  ğŸ”¥ Seri: <strong id="streak-count">0 gÃ¼n</strong> &nbsp;|&nbsp; Toplam kazanÄ±lan: <strong id="streak-total">0 kredi</strong>
+                  🔥 Seri: <strong id="streak-count">0 gün</strong> &nbsp;|&nbsp; Toplam kazanılan: <strong id="streak-total">0 kredi</strong>
                 </div>
               </div>
             </div>
 
             <!-- Coupon Banner (if applicable) -->
             <div class="first-time-banner" id="dash-coupon" style="display:none;margin-bottom:16px">
-              <span>Yeni</span> Ä°lk kayÄ±t kuponunuz: <code style="background:rgba(124,58,237,.15);padding:2px 10px;border-radius:6px;color:var(--accent2);font-weight:700" id="dash-coupon-code">HOSGELDIN50</code> â€” Pro plana <strong>%50 indirim!</strong>
+              <span>Yeni</span> İlk kayıt kuponunuz: <code style="background:rgba(124,58,237,.15);padding:2px 10px;border-radius:6px;color:var(--accent2);font-weight:700" id="dash-coupon-code">HOSGELDIN50</code> — Pro plana <strong>%50 indirim!</strong>
             </div>
 
             <!-- Models Available -->
@@ -1227,12 +1227,12 @@ echo curl_exec($ch);</pre>
           </div>
         </div>
 
-        <!-- API AnahtarÄ± Sekmesi -->
+        <!-- API Anahtarı Sekmesi -->
         <div class="ptab" id="ptab-keys">
           <div class="panel-page">
-            <div class="pp-head"><h2>ğŸ”‘ API AnahtarÄ±</h2><p>AnahtarÄ±nÄ±zÄ± kopyalayÄ±p projelerinizde kullanÄ±n</p></div>
-            <div class="dsec"><h3>Aktif API AnahtarÄ±</h3><div class="key-box"><code id="d-key" aria-live="polite"><span class="inline-skeleton inline-skeleton-code" aria-label="API anahtarÄ± hazÄ±rlanÄ±yor"></span></code><button class="btn btn-primary btn-sm" onclick="copyKey()">ğŸ“‹ Kopyala</button></div></div>
-            <div class="dsec"><h3>KullanÄ±m Ã–rneÄŸi</h3><div class="code-block"><div class="code-head"><span class="code-lang">PYTHON</span></div><pre><span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+            <div class="pp-head"><h2>🔑 API Anahtarı</h2><p>Anahtarınızı kopyalayıp projelerinizde kullanın</p></div>
+            <div class="dsec"><h3>Aktif API Anahtarı</h3><div class="key-box"><code id="d-key" aria-live="polite"><span class="inline-skeleton inline-skeleton-code" aria-label="API anahtarı hazırlanıyor"></span></code><button class="btn btn-primary btn-sm" onclick="copyKey()">📋 Kopyala</button></div></div>
+            <div class="dsec"><h3>Kullanım Örneği</h3><div class="code-block"><div class="code-head"><span class="code-lang">PYTHON</span></div><pre><span class="kw">from</span> openai <span class="kw">import</span> OpenAI
 client = OpenAI(<span class="fn">api_key</span>=<span class="st">"YOUR_KEY"</span>, <span class="fn">base_url</span>=<span class="st">"https://api.froxyai.com/v1"</span>)
 res = client.chat.completions.<span class="fn">create</span>(<span class="fn">model</span>=<span class="st">"gpt-5.5"</span>, <span class="fn">messages</span>=[{<span class="st">"role"</span>:<span class="st">"user"</span>, <span class="st">"content"</span>:<span class="st">"Hi"</span>}])
 <span class="fn">print</span>(res.choices[0].message.content)</pre></div></div>
@@ -1252,8 +1252,8 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                   </svg>
                 </div>
                 <div>
-                  <h2 style="margin:0;font-size:22px;font-weight:800;background:linear-gradient(135deg,#ec4899,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">GÃ¶rsel Ãœretici</h2>
-                  <p style="margin:4px 0 0;font-size:13px;color:var(--text3)">AI ile profesyonel gÃ¶rseller oluÅŸturun</p>
+                  <h2 style="margin:0;font-size:22px;font-weight:800;background:linear-gradient(135deg,#ec4899,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Görsel Üretici</h2>
+                  <p style="margin:4px 0 0;font-size:13px;color:var(--text3)">AI ile profesyonel görseller oluşturun</p>
                 </div>
               </div>
             </div>
@@ -1261,16 +1261,16 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
             <div class="img-gen-workspace">
               <div class="img-gen-form">
                 <div class="img-gen-field">
-                  <label class="img-gen-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg> Model SeÃ§imi</label>
+                  <label class="img-gen-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg> Model Seçimi</label>
                   <div class="img-gen-select-wrap">
                     <select id="img-model" class="img-gen-select">
-                      <optgroup label="HÄ±zlÄ± Ãœretim">
-                        <option value="cf-sdxl" selected>Cloudflare SDXL â€” Ã–nerilen</option>
+                      <optgroup label="Hızlı Üretim">
+                        <option value="cf-sdxl" selected>Cloudflare SDXL — Önerilen</option>
                         <option value="flux">Flux AI</option>
-                        <option value="together-flux">Together Flux â€” HÄ±zlÄ±</option>
-                        <option value="sana">Sana AI â€” Ã‡ok HÄ±zlÄ±</option>
+                        <option value="together-flux">Together Flux — Hızlı</option>
+                        <option value="sana">Sana AI — Çok Hızlı</option>
                       </optgroup>
-                      <optgroup label="Stiller (Flux tabanlÄ±)">
+                      <optgroup label="Stiller (Flux tabanlı)">
                         <option value="style-midjourney">Midjourney V6</option>
                         <option value="style-dalle3">DALL-E 3</option>
                         <option value="style-anime">Anime Diffusion</option>
@@ -1295,7 +1295,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
 
                 <div class="img-gen-field">
                   <label class="img-gen-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 21h8M12 19v2"/></svg> Boyut</label>
-                  <div class="img-size-grid" id="img-size-grid" role="radiogroup" aria-label="GÃ¶rsel boyutu">
+                  <div class="img-size-grid" id="img-size-grid" role="radiogroup" aria-label="Görsel boyutu">
                     <button type="button" class="img-size-pill active" data-img-size="square" onclick="setImageSize('square')" aria-pressed="true"><b>1:1</b><span>Kare</span></button>
                     <button type="button" class="img-size-pill" data-img-size="portrait" onclick="setImageSize('portrait')" aria-pressed="false"><b>9:16</b><span>Story</span></button>
                     <button type="button" class="img-size-pill" data-img-size="landscape" onclick="setImageSize('landscape')" aria-pressed="false"><b>16:9</b><span>Yatay</span></button>
@@ -1306,7 +1306,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                 <div class="img-gen-field">
                   <label class="img-gen-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Prompt</label>
                   <div class="img-gen-textarea-wrap">
-                    <textarea id="img-prompt" rows="3" placeholder="Hayal ettiÄŸiniz gÃ¶rseli tarif edin..." class="img-gen-textarea"></textarea>
+                    <textarea id="img-prompt" rows="3" placeholder="Hayal ettiğiniz görseli tarif edin..." class="img-gen-textarea"></textarea>
                     <div class="img-gen-textarea-glow"></div>
                   </div>
                 </div>
@@ -1314,11 +1314,11 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                 <button class="img-gen-btn" onclick="genImage()" id="btn-gen-img">
                   <span class="img-gen-btn-bg"></span>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 1.7 4.6L18 9.3l-4.3 1.7L12 16l-1.7-5L6 9.3l4.3-1.7Z"/></svg>
-                  <span>GÃ¶rsel Ãœret</span>
+                  <span>Görsel Üret</span>
                 </button>
 
                 <div class="img-mode-cards">
-                  <button type="button" class="img-mode-card" onclick="compareImageModels()" title="AynÄ± promptu 2 farklÄ± modelle karÅŸÄ±laÅŸtÄ±r">
+                  <button type="button" class="img-mode-card" onclick="compareImageModels()" title="Aynı promptu 2 farklı modelle karşılaştır">
                     <div class="img-mode-card-icon" style="background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(168,85,247,.1));border-color:rgba(99,102,241,.3)">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#cmpGrad)" stroke-width="2" stroke-linecap="round">
                         <defs><linearGradient id="cmpGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
@@ -1326,15 +1326,15 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                       </svg>
                     </div>
                     <div class="img-mode-card-body">
-                      <strong>Modelleri KarÅŸÄ±laÅŸtÄ±r</strong>
-                      <span>AynÄ± prompt, 2 farklÄ± AI modeli</span>
+                      <strong>Modelleri Karşılaştır</strong>
+                      <span>Aynı prompt, 2 farklı AI modeli</span>
                     </div>
                     <div class="img-mode-card-arrow">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </div>
                   </button>
 
-                  <button type="button" class="img-mode-card" onclick="showBatchPanel()" title="Birden fazla promptla toplu Ã¼retim">
+                  <button type="button" class="img-mode-card" onclick="showBatchPanel()" title="Birden fazla promptla toplu üretim">
                     <div class="img-mode-card-icon" style="background:linear-gradient(135deg,rgba(236,72,153,.12),rgba(239,68,68,.08));border-color:rgba(236,72,153,.3)">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#batchGrad)" stroke-width="2" stroke-linecap="round">
                         <defs><linearGradient id="batchGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#fb923c"/></linearGradient></defs>
@@ -1342,8 +1342,8 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                       </svg>
                     </div>
                     <div class="img-mode-card-body">
-                      <strong>Toplu Ãœretim</strong>
-                      <span>5'e kadar prompt aynÄ± anda</span>
+                      <strong>Toplu Üretim</strong>
+                      <span>5'e kadar prompt aynı anda</span>
                     </div>
                     <div class="img-mode-card-arrow">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -1353,7 +1353,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
 
                 <div class="img-gen-credits-info">
                   <span>Flux, SDXL ve stiller: <strong>8</strong> kredi</span>
-                  <span>Imagen 4 / GPT-Image: <strong>25</strong> kredi Â· Ultra: <strong>40</strong> kredi</span>
+                  <span>Imagen 4 / GPT-Image: <strong>25</strong> kredi · Ultra: <strong>40</strong> kredi</span>
                 </div>
               </div>
 
@@ -1363,8 +1363,8 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
             <div class="img-history-panel" style="margin-top:24px">
               <div class="mini-panel-head">
                 <div>
-                  <h3 style="font-size:15px;font-weight:700">GÃ¶rsel GeÃ§miÅŸi <span id="img-history-count" style="color:var(--accent2);font-size:13px">0</span></h3>
-                  <p style="font-size:12px;color:var(--text3);margin:2px 0 0">Son Ã¼retilen gÃ¶rseller burada tutulur</p>
+                  <h3 style="font-size:15px;font-weight:700">Görsel Geçmişi <span id="img-history-count" style="color:var(--accent2);font-size:13px">0</span></h3>
+                  <p style="font-size:12px;color:var(--text3);margin:2px 0 0">Son üretilen görseller burada tutulur</p>
                 </div>
                 <button class="btn btn-ghost btn-sm" onclick="clearImageHistory()">Temizle</button>
               </div>
@@ -1373,7 +1373,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
           </div>
         </div>
 
-        <!-- Video tab dinamik olarak JS tarafÄ±ndan oluÅŸturuluyor (NEW TABS bloÄŸu) -->
+        <!-- Video tab dinamik olarak JS tarafından oluşturuluyor (NEW TABS bloğu) -->
 
         <!-- Admin Tab -->
         <div class="ptab" id="ptab-admin">
@@ -1382,11 +1382,11 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
             <!-- Admin Header -->
             <div class="dash-header">
               <div class="dash-greeting">
-                <h2>âš™ï¸ Admin Panel</h2>
-                <p>Platform yÃ¶netimi & kullanÄ±cÄ± kontrolÃ¼</p>
+                <h2>⚙️ Admin Panel</h2>
+                <p>Platform yönetimi & kullanıcı kontrolü</p>
               </div>
               <div class="dash-plan-badge" style="background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.05));border-color:rgba(239,68,68,.3)">
-                <span class="dpb-icon">ğŸ›¡ï¸</span>
+                <span class="dpb-icon">🛡️</span>
                 <div><strong style="color:#f87171">Admin</strong><span>Tam Yetki</span></div>
               </div>
             </div>
@@ -1396,22 +1396,22 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
               <div class="ds-card ds-purple">
                 <div class="ds-top"><div class="ds-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div></div>
                 <div class="ds-value" id="a-users">0</div>
-                <div class="ds-label">Toplam KullanÄ±cÄ±</div>
+                <div class="ds-label">Toplam Kullanıcı</div>
               </div>
               <div class="ds-card ds-green">
                 <div class="ds-top"><div class="ds-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
                 <div class="ds-value" id="a-rev" style="color:var(--green)">$0</div>
-                <div class="ds-label">AylÄ±k Gelir</div>
+                <div class="ds-label">Aylık Gelir</div>
               </div>
               <div class="ds-card ds-blue">
                 <div class="ds-top"><div class="ds-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div></div>
                 <div class="ds-value" id="a-reqs">0</div>
-                <div class="ds-label">Toplam Ä°stek</div>
+                <div class="ds-label">Toplam İstek</div>
               </div>
               <div class="ds-card" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.05));border-color:rgba(245,158,11,.2)">
                 <div class="ds-top"><div class="ds-icon-wrap" style="background:rgba(245,158,11,.2);color:#fbbf24"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div></div>
                 <div class="ds-value" id="a-tok">0</div>
-                <div class="ds-label">KullanÄ±lan Kredi</div>
+                <div class="ds-label">Kullanılan Kredi</div>
               </div>
             </div>
 
@@ -1420,33 +1420,33 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
               <div class="mini-panel-head">
                 <div>
                   <h3>Model Check-up</h3>
-                  <p>Aktif model sayÄ±sÄ±, katalog durumu ve saÄŸlayÄ±cÄ± key kontrolÃ¼.</p>
+                  <p>Aktif model sayısı, katalog durumu ve sağlayıcı key kontrolü.</p>
                 </div>
                 <button class="btn btn-primary btn-sm" onclick="runModelHealthCheck()">Check-up Yap</button>
               </div>
               <div class="health-stats">
                 <div><strong id="mh-total">0</strong><span>Toplam model</span></div>
                 <div><strong id="mh-enabled">0</strong><span>Aktif model</span></div>
-                <div><strong id="mh-free">0</strong><span>Ãœcretsiz model</span></div>
-                <div><strong id="mh-catalog">0</strong><span>CanlÄ± katalog</span></div>
-                <div><strong id="mh-ok">0</strong><span>HazÄ±r saÄŸlayÄ±cÄ±</span></div>
+                <div><strong id="mh-free">0</strong><span>Ücretsiz model</span></div>
+                <div><strong id="mh-catalog">0</strong><span>Canlı katalog</span></div>
+                <div><strong id="mh-ok">0</strong><span>Hazır sağlayıcı</span></div>
                 <div><strong id="mh-warn">0</strong><span>Key bekleyen</span></div>
               </div>
-              <div id="model-health-stamp" class="health-stamp">HenÃ¼z kontrol yapÄ±lmadÄ±</div>
+              <div id="model-health-stamp" class="health-stamp">Henüz kontrol yapılmadı</div>
               <div id="model-health-list" class="health-list"></div>
             </div>
 
             <!-- User Management -->
             <div class="dash-panel" style="margin-bottom:16px">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-                <h3 style="margin:0">ğŸ‘¥ KullanÄ±cÄ± YÃ¶netimi</h3>
+                <h3 style="margin:0">👥 Kullanıcı Yönetimi</h3>
                 <div style="display:flex;gap:8px;align-items:center">
-                  <input type="text" id="admin-search" placeholder="ğŸ” KullanÄ±cÄ± ara..." oninput="updAdmin()" style="padding:8px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font);width:200px">
+                  <input type="text" id="admin-search" placeholder="🔍 Kullanıcı ara..." oninput="updAdmin()" style="padding:8px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font);width:200px">
                   <select id="admin-filter" onchange="updAdmin()" style="padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font)">
-                    <option value="all">TÃ¼mÃ¼</option>
+                    <option value="all">Tümü</option>
                     <option value="active">Aktif</option>
                     <option value="blocked">Engelli</option>
-                    <option value="tempbanned">SÃ¼reli YasaklÄ±</option>
+                    <option value="tempbanned">Süreli Yasaklı</option>
                     <option value="starter">Starter</option>
                     <option value="pro">Pro</option>
                     <option value="enterprise">Enterprise</option>
@@ -1457,13 +1457,13 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                 <table class="at">
                   <thead>
                     <tr>
-                      <th>KullanÄ±cÄ±</th>
+                      <th>Kullanıcı</th>
                       <th>Plan</th>
                       <th>Kredi</th>
-                      <th>Ä°stek</th>
+                      <th>İstek</th>
                       <th>Davet</th>
                       <th>Durum</th>
-                      <th style="min-width:280px">Ä°ÅŸlemler</th>
+                      <th style="min-width:280px">İşlemler</th>
                     </tr>
                   </thead>
                   <tbody id="a-tbody"></tbody>
@@ -1476,19 +1476,19 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
             <div class="dash-row">
               <!-- Models Management -->
               <div class="dash-panel">
-                <h3>ğŸ¤– Model YÃ¶netimi</h3>
-                <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Modelleri tÄ±klayarak aktif/deaktif edin</p>
+                <h3>🤖 Model Yönetimi</h3>
+                <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Modelleri tıklayarak aktif/deaktif edin</p>
                 <div class="admin-models" id="a-models"></div>
               </div>
 
               <!-- Bulk Actions -->
               <div class="dash-panel">
-                <h3><svg class="heading-inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 2-3 7h7l-9 13 3-9H4l9-11Z"/></svg> Toplu Ä°ÅŸlemler</h3>
+                <h3><svg class="heading-inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 2-3 7h7l-9 13 3-9H4l9-11Z"/></svg> Toplu İşlemler</h3>
                 <div style="display:flex;flex-direction:column;gap:8px">
-                  <button class="btn btn-primary btn-sm" onclick="bulkGrantTokens()" style="text-align:left;padding:10px 14px">ğŸ TÃ¼m kullanÄ±cÄ±lara token ver</button>
-                  <button class="btn btn-primary btn-sm" onclick="bulkResetRequests()" style="text-align:left;padding:10px 14px;background:var(--blue)">ğŸ”„ Ä°stek sayaÃ§larÄ±nÄ± sÄ±fÄ±rla</button>
-                  <button class="btn btn-primary btn-sm" onclick="exportUsers()" style="text-align:left;padding:10px 14px;background:#10b981">ğŸ“¥ KullanÄ±cÄ±larÄ± dÄ±ÅŸa aktar (JSON)</button>
-                  <button class="btn btn-primary btn-sm" onclick="unbanAll()" style="text-align:left;padding:10px 14px;background:#f59e0b">ğŸ”“ TÃ¼m yasaklarÄ± kaldÄ±r</button>
+                  <button class="btn btn-primary btn-sm" onclick="bulkGrantTokens()" style="text-align:left;padding:10px 14px">🎁 Tüm kullanıcılara token ver</button>
+                  <button class="btn btn-primary btn-sm" onclick="bulkResetRequests()" style="text-align:left;padding:10px 14px;background:var(--blue)">🔄 İstek sayaçlarını sıfırla</button>
+                  <button class="btn btn-primary btn-sm" onclick="exportUsers()" style="text-align:left;padding:10px 14px;background:#10b981">📥 Kullanıcıları dışa aktar (JSON)</button>
+                  <button class="btn btn-primary btn-sm" onclick="unbanAll()" style="text-align:left;padding:10px 14px;background:#f59e0b">🔓 Tüm yasakları kaldır</button>
                 </div>
               </div>
             </div>
@@ -1497,30 +1497,30 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
             <div class="dash-row">
               <!-- Announcements -->
               <div class="dash-panel">
-                <h3>ğŸ“¢ Duyuru YÃ¶netimi</h3>
-                <div class="fg"><label>BaÅŸlÄ±k</label><input type="text" id="legacy-ann-title" placeholder="Duyuru baÅŸlÄ±ÄŸÄ±"></div>
-                <div class="fg"><label>Ä°Ã§erik</label><textarea id="legacy-ann-content" rows="3" placeholder="Duyuru iÃ§eriÄŸi..." style="width:100%;padding:12px;border-radius:10px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:inherit;resize:vertical"></textarea></div>
-                <div class="fg"><label>TÃ¼r</label>
+                <h3>📢 Duyuru Yönetimi</h3>
+                <div class="fg"><label>Başlık</label><input type="text" id="legacy-ann-title" placeholder="Duyuru başlığı"></div>
+                <div class="fg"><label>İçerik</label><textarea id="legacy-ann-content" rows="3" placeholder="Duyuru içeriği..." style="width:100%;padding:12px;border-radius:10px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:inherit;resize:vertical"></textarea></div>
+                <div class="fg"><label>Tür</label>
                   <select id="legacy-ann-type" style="width:100%;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font)">
-                    <option value="info">â„¹ï¸ Bilgi</option>
-                    <option value="update">ğŸ†• GÃ¼ncelleme</option>
-                    <option value="warning">âš ï¸ UyarÄ±</option>
-                    <option value="promo">ğŸ‰ Kampanya</option>
+                    <option value="info">ℹ️ Bilgi</option>
+                    <option value="update">🆕 Güncelleme</option>
+                    <option value="warning">⚠️ Uyarı</option>
+                    <option value="promo">🎉 Kampanya</option>
                   </select>
                 </div>
-                <button class="btn btn-primary btn-sm" onclick="createAnnouncement()">ğŸ“¢ Duyuru YayÄ±nla</button>
+                <button class="btn btn-primary btn-sm" onclick="createAnnouncement()">📢 Duyuru Yayınla</button>
                 <div id="admin-ann-list" style="margin-top:16px"></div>
               </div>
 
               <!-- Tickets -->
               <div class="dash-panel">
-                <h3>ğŸ« Destek Biletleri <span id="admin-ticket-count" style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:6px">0</span></h3>
+                <h3>🎫 Destek Biletleri <span id="admin-ticket-count" style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:6px">0</span></h3>
                 <div style="display:flex;gap:8px;margin-bottom:12px">
                   <select id="ticket-filter" onchange="renderAdminTickets()" style="flex:1;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:var(--font)">
-                    <option value="all">TÃ¼mÃ¼</option>
-                    <option value="open">AÃ§Ä±k</option>
-                    <option value="answered">YanÄ±tlandÄ±</option>
-                    <option value="closed">KapalÄ±</option>
+                    <option value="all">Tümü</option>
+                    <option value="open">Açık</option>
+                    <option value="answered">Yanıtlandı</option>
+                    <option value="closed">Kapalı</option>
                   </select>
                 </div>
                 <div id="admin-tickets-list" style="max-height:400px;overflow-y:auto"></div>
@@ -1529,16 +1529,16 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
 
             <!-- Settings -->
             <div class="dash-panel">
-              <h3>ğŸ”§ Platform AyarlarÄ±</h3>
+              <h3>🔧 Platform Ayarları</h3>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
                 <div class="fg"><label>API Key</label><input type="password" id="a-apikey" placeholder="sk-..."></div>
                 <div class="fg"><label>Base URL</label><input type="text" id="a-baseurl" placeholder="https://api.shenfengwl.fun/v1"></div>
-                <div class="fg"><label>Admin Åifresi</label><input type="password" id="a-pass" placeholder="Yeni ÅŸifre"></div>
-                <div class="fg"><label>Platform Durumu</label><input type="text" value="Aktif âœ“" disabled style="color:var(--green)"></div>
+                <div class="fg"><label>Admin Şifresi</label><input type="password" id="a-pass" placeholder="Yeni şifre"></div>
+                <div class="fg"><label>Platform Durumu</label><input type="text" value="Aktif ✓" disabled style="color:var(--green)"></div>
               </div>
               <div style="margin-top:16px;display:flex;gap:10px">
-                <button class="btn btn-primary" onclick="saveSettings()">ğŸ’¾ AyarlarÄ± Kaydet</button>
-                <button class="btn" onclick="clearData()" style="background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.3)">ğŸ—‘ï¸ TÃ¼m Verileri Sil</button>
+                <button class="btn btn-primary" onclick="saveSettings()">💾 Ayarları Kaydet</button>
+                <button class="btn" onclick="clearData()" style="background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.3)">🗑️ Tüm Verileri Sil</button>
               </div>
             </div>
 
@@ -1550,25 +1550,25 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
             
             <section class="sup-pro-hero">
               <div class="sup-pro-copy">
-                <span class="sup-kicker"><i></i> CanlÄ± destek aktif</span>
-                <h1>NasÄ±l <span class="sup-grad">yardÄ±mcÄ± olabiliriz?</span></h1>
-                <p>SorunlarÄ±nÄ±zÄ± anÄ±nda Ã§Ã¶zÃ¼me yaklaÅŸtÄ±rÄ±n. API, fatura, gÃ¶rsel Ã¼retim ve model akÄ±ÅŸlarÄ± iÃ§in destek taleplerinizi tek merkezden yÃ¶netin.</p>
+                <span class="sup-kicker"><i></i> Canlı destek aktif</span>
+                <h1>Nasıl <span class="sup-grad">yardımcı olabiliriz?</span></h1>
+                <p>Sorunlarınızı anında çözüme yaklaştırın. API, fatura, görsel üretim ve model akışları için destek taleplerinizi tek merkezden yönetin.</p>
                 
                 <div class="sup-cta-row">
                   <button class="sup-cta-primary" onclick="document.getElementById('ticket-title')?.focus()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-                    Yeni Bilet OluÅŸtur
+                    Yeni Bilet Oluştur
                   </button>
                   <button class="sup-cta-ghost" onclick="document.getElementById('my-tickets-list')?.scrollIntoView({behavior:'smooth',block:'center'})">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-                    Taleplerimi GÃ¶r
+                    Taleplerimi Gör
                   </button>
                 </div>
                 
                 <div class="sup-stats">
-                  <div class="sup-stat"><strong>&lt;15dk</strong><span>Ä°lk yanÄ±t</span></div>
-                  <div class="sup-stat"><strong>7/24</strong><span>Ä°zleme</span></div>
-                  <div class="sup-stat"><strong>%98</strong><span>Ã‡Ã¶zÃ¼m oranÄ±</span></div>
+                  <div class="sup-stat"><strong>&lt;15dk</strong><span>İlk yanıt</span></div>
+                  <div class="sup-stat"><strong>7/24</strong><span>İzleme</span></div>
+                  <div class="sup-stat"><strong>%98</strong><span>Çözüm oranı</span></div>
                 </div>
               </div>
 
@@ -1599,14 +1599,14 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
               <div class="sp4-main">
                 <div class="sp4-card" id="user-announcements" style="display:none;margin-bottom:24px">
                   <div class="sp4-card-header">
-                    <div class="sp4-card-title"><div class="sp4-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/></svg></div> Sistem DuyurularÄ±</div>
+                    <div class="sp4-card-title"><div class="sp4-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/></svg></div> Sistem Duyuruları</div>
                   </div>
                   <div id="announcements-list"></div>
                 </div>
 
                 <section class="sp4-card support-ticket-widget" aria-labelledby="support-ticket-title">
                   <div class="sp4-card-header">
-                    <div class="sp4-card-title" id="support-ticket-title"><div class="sp4-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div> Destek Bileti OluÅŸtur</div>
+                    <div class="sp4-card-title" id="support-ticket-title"><div class="sp4-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div> Destek Bileti Oluştur</div>
                   </div>
                   
                   <div class="sp4-form-row">
@@ -1615,28 +1615,28 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                       <select id="ticket-category" class="sp4-select">
                         <option value="genel">Genel Soru</option>
                         <option value="teknik">Teknik Sorun</option>
-                        <option value="odeme">Ã–deme & Fatura</option>
-                        <option value="api">API HatasÄ±</option>
-                        <option value="oneri">Ã–neri & Ä°stek</option>
+                        <option value="odeme">Ödeme & Fatura</option>
+                        <option value="api">API Hatası</option>
+                        <option value="oneri">Öneri & İstek</option>
                       </select>
                     </div>
                     <div class="sp4-field">
-                      <span class="sp4-label">BaÅŸlÄ±k</span>
-                      <input type="text" id="ticket-title" class="sp4-input" placeholder="Ã–rn: GÃ¶rsel modeli 429 hatasÄ±">
+                      <span class="sp4-label">Başlık</span>
+                      <input type="text" id="ticket-title" class="sp4-input" placeholder="Örn: Görsel modeli 429 hatası">
                     </div>
                   </div>
 
                   <div class="sp4-field" style="margin-bottom:20px">
-                    <span class="sp4-label">AÃ§Ä±klama DetayÄ±</span>
-                    <textarea id="ticket-desc" class="sp4-textarea" placeholder="LÃ¼tfen karÅŸÄ±laÅŸtÄ±ÄŸÄ±nÄ±z durumu detaylÄ±ca aÃ§Ä±klayÄ±n..."></textarea>
+                    <span class="sp4-label">Açıklama Detayı</span>
+                    <textarea id="ticket-desc" class="sp4-textarea" placeholder="Lütfen karşılaştığınız durumu detaylıca açıklayın..."></textarea>
                   </div>
 
                   <div class="sp4-field">
-                    <span class="sp4-label">Ã–ncelik Seviyesi</span>
+                    <span class="sp4-label">Öncelik Seviyesi</span>
                     <div class="sp4-priority">
                       <label>
                         <input type="radio" name="ticket-priority" value="low" checked>
-                        <div class="sp4-p-btn sp4-p-low"><div class="sp4-p-dot"></div>DÃ¼ÅŸÃ¼k</div>
+                        <div class="sp4-p-btn sp4-p-low"><div class="sp4-p-dot"></div>Düşük</div>
                       </label>
                       <label>
                         <input type="radio" name="ticket-priority" value="medium">
@@ -1644,14 +1644,14 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                       </label>
                       <label>
                         <input type="radio" name="ticket-priority" value="high">
-                        <div class="sp4-p-btn sp4-p-high"><div class="sp4-p-dot"></div>YÃ¼ksek</div>
+                        <div class="sp4-p-btn sp4-p-high"><div class="sp4-p-dot"></div>Yüksek</div>
                       </label>
                     </div>
                   </div>
 
                   <button class="sp4-submit" onclick="submitTicket()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                    Destek Talebini GÃ¶nder
+                    Destek Talebini Gönder
                   </button>
                 </section>
               </div>
@@ -1659,36 +1659,36 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
               <div class="sp4-sidebar">
                 <div class="sp4-card" style="margin-bottom:24px">
                   <div class="sp4-card-header">
-                    <div class="sp4-card-title"><div class="sp4-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div> AÃ§Ä±k Taleplerim</div>
+                    <div class="sp4-card-title"><div class="sp4-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div> Açık Taleplerim</div>
                   </div>
                   <div id="my-tickets-list">
                     <div class="sp4-empty">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-                      <p>HenÃ¼z oluÅŸturulmuÅŸ bir bilet yok.</p>
+                      <p>Henüz oluşturulmuş bir bilet yok.</p>
                     </div>
                   </div>
                 </div>
 
                 <div class="sp4-card" id="support-faq-card">
                   <div class="sp4-card-header">
-                    <div class="sp4-card-title"><div class="sp4-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div> HÄ±zlÄ± SSS</div>
+                    <div class="sp4-card-title"><div class="sp4-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div> Hızlı SSS</div>
                   </div>
                   <div class="sp4-faq-list">
                     <div class="sp4-faq-item">
-                      <h4>Model neden deÄŸiÅŸiyor?</h4>
-                      <p>SeÃ§ilen model hata verirse sistem en yakÄ±n Ã§alÄ±ÅŸan modele geÃ§er.</p>
+                      <h4>Model neden değişiyor?</h4>
+                      <p>Seçilen model hata verirse sistem en yakın çalışan modele geçer.</p>
                     </div>
                     <div class="sp4-faq-item">
-                      <h4>GÃ¶rsel neden bekliyor?</h4>
-                      <p>SaÄŸlayÄ±cÄ± yoÄŸunluÄŸu veya 429 limiti varsa iÅŸlem sÄ±raya alÄ±nÄ±r.</p>
+                      <h4>Görsel neden bekliyor?</h4>
+                      <p>Sağlayıcı yoğunluğu veya 429 limiti varsa işlem sıraya alınır.</p>
                     </div>
                     <div class="sp4-faq-item">
-                      <h4>API hatasÄ±nda ne yazmalÄ±yÄ±m?</h4>
-                      <p>Model adÄ±, hata mesajÄ± ve denediÄŸin prompt sÃ¼reci hÄ±zlandÄ±rÄ±r.</p>
+                      <h4>API hatasında ne yazmalıyım?</h4>
+                      <p>Model adı, hata mesajı ve denediğin prompt süreci hızlandırır.</p>
                     </div>
                     <div class="sp4-faq-item">
-                      <h4>Cevaplar nerede kalÄ±r?</h4>
-                      <p>Bilet cevaplarÄ± aynÄ± kartÄ±n altÄ±nda geÃ§miÅŸ olarak saklanÄ±r.</p>
+                      <h4>Cevaplar nerede kalır?</h4>
+                      <p>Bilet cevapları aynı kartın altında geçmiş olarak saklanır.</p>
                     </div>
                   </div>
                 </div>
@@ -1701,7 +1701,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
         <!-- Prompt Library Tab -->
         <div class="ptab" id="ptab-prompts">
           <div class="panel-page" style="max-width:900px">
-            <div class="dash-header"><div class="dash-greeting"><h2>Prompt KÃ¼tÃ¼phanesi</h2><p>HazÄ±r ÅŸablonlarla hemen baÅŸla</p></div></div>
+            <div class="dash-header"><div class="dash-greeting"><h2>Prompt Kütüphanesi</h2><p>Hazır şablonlarla hemen başla</p></div></div>
             <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap" id="prompt-cats"></div>
             <div class="grid" id="prompt-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))"></div>
           </div>
@@ -1710,18 +1710,18 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
         <!-- Personas Tab -->
         <div class="ptab" id="ptab-personas">
           <div class="panel-page" style="max-width:900px">
-            <div class="dash-header"><div class="dash-greeting"><h2>AI Personalar</h2><p>FarklÄ± roller ile sohbet baÅŸlat</p></div></div>
+            <div class="dash-header"><div class="dash-greeting"><h2>AI Personalar</h2><p>Farklı roller ile sohbet başlat</p></div></div>
             <div class="dash-panel" style="margin-bottom:20px">
-              <h3>Yeni Persona OluÅŸtur</h3>
+              <h3>Yeni Persona Oluştur</h3>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div class="fg"><label>Ä°sim</label><input type="text" id="persona-name" placeholder="Avukat AI"></div>
-                <div class="fg"><label>Ä°kon</label><input type="text" id="persona-icon" placeholder="âš–ï¸" maxlength="2" style="font-size:24px;text-align:center"></div>
+                <div class="fg"><label>İsim</label><input type="text" id="persona-name" placeholder="Avukat AI"></div>
+                <div class="fg"><label>İkon</label><input type="text" id="persona-icon" placeholder="⚖️" maxlength="2" style="font-size:24px;text-align:center"></div>
               </div>
-              <div class="fg"><label>System Prompt</label><textarea id="persona-prompt" rows="3" placeholder="Sen deneyimli bir avukatsÄ±n..." style="width:100%;padding:12px;border-radius:10px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:inherit;resize:vertical"></textarea></div>
+              <div class="fg"><label>System Prompt</label><textarea id="persona-prompt" rows="3" placeholder="Sen deneyimli bir avukatsın..." style="width:100%;padding:12px;border-radius:10px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:inherit;resize:vertical"></textarea></div>
               <div class="fg"><label>Aktif Skilller</label><div id="persona-skill-picker" class="skill-picker"></div></div>
-              <button class="btn btn-primary btn-sm" onclick="createPersona()">âœ¨ OluÅŸtur</button>
+              <button class="btn btn-primary btn-sm" onclick="createPersona()">✨ Oluştur</button>
             </div>
-            <h3 style="margin-bottom:16px">ğŸ­ PersonalarÄ±m</h3>
+            <h3 style="margin-bottom:16px">🎭 Personalarım</h3>
             <div class="grid" id="persona-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))"></div>
           </div>
         </div>
@@ -1729,14 +1729,14 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
         <!-- Kredi Store Tab -->
         <div class="ptab" id="ptab-store">
           <div class="panel-page" style="max-width:1200px">
-            <div class="dash-header"><div class="dash-greeting"><h2>Paket YÃ¼kselt (MaÄŸaza)</h2><p>HesabÄ±nÄ±zÄ± yÃ¼kseltin veya yeni paket alÄ±n.</p></div></div>
+            <div class="dash-header"><div class="dash-greeting"><h2>Paket Yükselt (Mağaza)</h2><p>Hesabınızı yükseltin veya yeni paket alın.</p></div></div>
             <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center">
               <div class="fg" style="flex:1;margin:0"><input type="text" id="coupon-input" placeholder="Kupon kodu girin..."></div>
               <button class="btn btn-primary btn-sm" onclick="applyCoupon()">Uygula</button>
             </div>
             <div class="price-grid" id="store-grid"></div>
             <div class="dash-panel" style="margin-top:24px">
-              <h3>SÄ±ralama â€” Top KullanÄ±cÄ±lar</h3>
+              <h3>Sıralama — Top Kullanıcılar</h3>
               <div id="leaderboard-list"></div>
             </div>
           </div>
@@ -1751,8 +1751,8 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                 </span>
                 <div>
-                  <h2>AI Kod EditÃ¶rÃ¼</h2>
-                  <p>Kod yaz, AI aÃ§Ä±klasÄ±n Â· dÃ¼zeltsin Â· optimize etsin</p>
+                  <h2>AI Kod Editörü</h2>
+                  <p>Kod yaz, AI açıklasın · düzeltsin · optimize etsin</p>
                 </div>
               </div>
               <select id="code-lang" class="code-lang-select">
@@ -1765,18 +1765,18 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                 <option value="java">Java</option>
                 <option value="go">Go</option>
                 <option value="rust">Rust</option>
-                <option value="other">DiÄŸer</option>
+                <option value="other">Diğer</option>
               </select>
             </div>
 
             <div class="code-editor-actions">
               <button class="code-action-btn code-action-explain" onclick="codeAI('explain')">
                 <span class="code-action-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-                <span>AI ile AÃ§Ä±kla</span>
+                <span>AI ile Açıkla</span>
               </button>
               <button class="code-action-btn code-action-fix" onclick="codeAI('fix')">
                 <span class="code-action-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-                <span>AI ile DÃ¼zelt</span>
+                <span>AI ile Düzelt</span>
               </button>
               <button class="code-action-btn code-action-optimize" onclick="codeAI('optimize')">
                 <span class="code-action-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m13 2-3 7h7l-9 13 3-9H4l9-11Z"/></svg></span>
@@ -1791,7 +1791,7 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                 <span class="code-dot code-dot-g"></span>
                 <span class="code-editor-filename" id="code-editor-filename">main.js</span>
               </div>
-              <textarea id="code-editor" rows="16" placeholder="// Kodunuzu buraya yazÄ±n..." spellcheck="false"></textarea>
+              <textarea id="code-editor" rows="16" placeholder="// Kodunuzu buraya yazın..." spellcheck="false"></textarea>
             </div>
             <div id="code-result"></div>
           </div>
@@ -1803,12 +1803,12 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
             <section class="agents-hero">
               <div class="agents-copy">
                 <span class="agents-kicker"><i></i> Ajan merkezi</span>
-                <h2>Uzman AI ajanlarÄ±nÄ± tek dokunuÅŸla Ã§alÄ±ÅŸtÄ±r</h2>
-                <p>YazÄ±, kod, hukuk, sosyal medya ve analiz iÅŸleri iÃ§in hazÄ±rlanmÄ±ÅŸ ajanlar. Birini seÃ§, yeni sohbet o uzman modunda aÃ§Ä±lsÄ±n.</p>
+                <h2>Uzman AI ajanlarını tek dokunuşla çalıştır</h2>
+                <p>Yazı, kod, hukuk, sosyal medya ve analiz işleri için hazırlanmış ajanlar. Birini seç, yeni sohbet o uzman modunda açılsın.</p>
                 <div class="agents-stats">
-                  <div><strong>10</strong><span>hazÄ±r ajan</span></div>
-                  <div><strong>8</strong><span>uzmanlÄ±k alanÄ±</span></div>
-                  <div><strong>1 tÄ±k</strong><span>aktifleÅŸme</span></div>
+                  <div><strong>10</strong><span>hazır ajan</span></div>
+                  <div><strong>8</strong><span>uzmanlık alanı</span></div>
+                  <div><strong>1 tık</strong><span>aktifleşme</span></div>
                 </div>
               </div>
               <div class="agents-network" aria-hidden="true">
@@ -1833,12 +1833,12 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
 
             <section class="agents-toolbar">
               <div>
-                <strong>HazÄ±r uzmanlar</strong>
-                <span>Ä°htiyacÄ±na gÃ¶re ajan seÃ§imi</span>
+                <strong>Hazır uzmanlar</strong>
+                <span>İhtiyacına göre ajan seçimi</span>
               </div>
               <div class="agents-toolbar-actions">
-                <button class="btn btn-ghost btn-sm agent-fav-filter" id="agent-fav-filter" onclick="toggleAgentFavoritesOnly()" type="button">â˜… Favoriler <span>0</span></button>
-                <button class="btn btn-primary btn-sm" onclick="panelTab('chat')" type="button">Sohbete dÃ¶n</button>
+                <button class="btn btn-ghost btn-sm agent-fav-filter" id="agent-fav-filter" onclick="toggleAgentFavoritesOnly()" type="button">? Favoriler <span>0</span></button>
+                <button class="btn btn-primary btn-sm" onclick="panelTab('chat')" type="button">Sohbete dön</button>
               </div>
             </section>
 
@@ -1852,19 +1852,19 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
 
         <div class="ptab" id="ptab-gallery">
           <div class="panel-page" style="max-width:900px">
-            <div class="dash-header"><div class="dash-greeting"><h2>ğŸ–¼ï¸ GÃ¶rsel Galeri</h2><p>ÃœrettiÄŸiniz gÃ¶rseller burada</p></div></div>
+            <div class="dash-header"><div class="dash-greeting"><h2>🖼️ Görsel Galeri</h2><p>Ürettiğiniz görseller burada</p></div></div>
             <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;padding:0 4px"></div>
           </div>
         </div>
 
         <div class="ptab" id="ptab-analytics">
           <div class="panel-page" style="max-width:900px">
-            <div class="dash-header"><div class="dash-greeting"><h2>ğŸ“Š Analitik & Ayarlar</h2><p>KullanÄ±m istatistikleri, rozetler, tema ve dil</p></div></div>
+            <div class="dash-header"><div class="dash-greeting"><h2>📊 Analitik & Ayarlar</h2><p>Kullanım istatistikleri, rozetler, tema ve dil</p></div></div>
 
             <div id="analytics-panel"></div>
 
             <div class="dash-panel" style="margin-top:16px;padding:20px">
-              <h3 style="margin-bottom:14px">ğŸ† BaÅŸarÄ±m Rozetleri</h3>
+              <h3 style="margin-bottom:14px">🏆 Başarım Rozetleri</h3>
               <div id="badges-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px"></div>
             </div>
 
@@ -1893,31 +1893,31 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
             <span class="admin-brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-3 7h7l-9 13 3-9H4l9-11Z"/></svg></span>
             <div>
               <div class="admin-brand-title">Admin Paneli</div>
-              <div class="admin-brand-sub">Froxy AI YÃ¶netim</div>
+              <div class="admin-brand-sub">Froxy AI Yönetim</div>
             </div>
           </div>
         </div>
         <nav class="admin-nav">
           <button class="admin-nav-item active" onclick="adminTab('dashboard')" id="an-dashboard">
-            <span class="admin-nav-icon">ğŸ“Š</span><span>Kontrol Paneli</span>
+            <span class="admin-nav-icon">📊</span><span>Kontrol Paneli</span>
           </button>
           <button class="admin-nav-item" onclick="adminTab('users')" id="an-users">
-            <span class="admin-nav-icon">ğŸ‘¥</span><span>KullanÄ±cÄ±lar</span>
+            <span class="admin-nav-icon">👥</span><span>Kullanıcılar</span>
             <span class="admin-nav-badge" id="an-user-count">0</span>
           </button>
           <button class="admin-nav-item" onclick="adminTab('announce')" id="an-announce">
-            <span class="admin-nav-icon">ğŸ“¢</span><span>Duyurular</span>
+            <span class="admin-nav-icon">📢</span><span>Duyurular</span>
           </button>
           <button class="admin-nav-item" onclick="adminTab('logs')" id="an-logs">
-            <span class="admin-nav-icon">ğŸ“‹</span><span>Aktivite LoglarÄ±</span>
+            <span class="admin-nav-icon">📋</span><span>Aktivite Logları</span>
           </button>
           <button class="admin-nav-item" onclick="adminTab('settings')" id="an-settings">
-            <span class="admin-nav-icon">âš™ï¸</span><span>Ayarlar</span>
+            <span class="admin-nav-icon">⚙️</span><span>Ayarlar</span>
           </button>
         </nav>
         <div class="admin-sidebar-footer">
           <button class="admin-exit-btn" onclick="go('chat')">
-            <span>ğŸ’¬</span> Sohbete DÃ¶n
+            <span>💬</span> Sohbete Dön
           </button>
         </div>
       </aside>
@@ -1925,43 +1925,43 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       <!-- ADMIN MAIN CONTENT -->
       <main class="admin-main">
 
-        <!-- KONTROL PANELÄ° SEKME -->
+        <!-- KONTROL PANELİ SEKME -->
         <div class="admin-tab active" id="at-dashboard">
           <div class="admin-page-header">
-            <h1 class="admin-page-title">ğŸ“Š Kontrol Paneli</h1>
-            <button class="admin-refresh-btn" onclick="loadAdminStats()" title="Yenile">ğŸ”„ Yenile</button>
+            <h1 class="admin-page-title">📊 Kontrol Paneli</h1>
+            <button class="admin-refresh-btn" onclick="loadAdminStats()" title="Yenile">🔄 Yenile</button>
           </div>
 
           <div class="admin-stats-grid">
             <div class="admin-stat-card">
-              <div class="admin-stat-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">ğŸ‘¥</div>
+              <div class="admin-stat-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">👥</div>
               <div class="admin-stat-body">
-                <div class="admin-stat-value" id="as-users">â€”</div>
-                <div class="admin-stat-label">Toplam KullanÄ±cÄ±</div>
-                <div class="admin-stat-sub" id="as-users-today">+0 bugÃ¼n</div>
+                <div class="admin-stat-value" id="as-users">—</div>
+                <div class="admin-stat-label">Toplam Kullanıcı</div>
+                <div class="admin-stat-sub" id="as-users-today">+0 bugün</div>
               </div>
             </div>
             <div class="admin-stat-card">
-              <div class="admin-stat-icon" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">ğŸ’°</div>
+              <div class="admin-stat-icon" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">💰</div>
               <div class="admin-stat-body">
-                <div class="admin-stat-value" id="as-credits">â€”</div>
+                <div class="admin-stat-value" id="as-credits">—</div>
                 <div class="admin-stat-label">Toplam Kredi (Sistemde)</div>
-                <div class="admin-stat-sub">TÃ¼m kullanÄ±cÄ±lar</div>
+                <div class="admin-stat-sub">Tüm kullanıcılar</div>
               </div>
             </div>
             <div class="admin-stat-card">
-              <div class="admin-stat-icon" style="background:linear-gradient(135deg,#10b981,#34d399)">ğŸ’¬</div>
+              <div class="admin-stat-icon" style="background:linear-gradient(135deg,#10b981,#34d399)">💬</div>
               <div class="admin-stat-body">
-                <div class="admin-stat-value" id="as-chats">â€”</div>
+                <div class="admin-stat-value" id="as-chats">—</div>
                 <div class="admin-stat-label">Toplam Sohbet</div>
                 <div class="admin-stat-sub" id="as-docs">0 belge</div>
               </div>
             </div>
             <div class="admin-stat-card">
-              <div class="admin-stat-icon" style="background:linear-gradient(135deg,#ef4444,#f87171)">ğŸš«</div>
+              <div class="admin-stat-icon" style="background:linear-gradient(135deg,#ef4444,#f87171)">🚫</div>
               <div class="admin-stat-body">
-                <div class="admin-stat-value" id="as-blocked">â€”</div>
-                <div class="admin-stat-label">Bloklu KullanÄ±cÄ±</div>
+                <div class="admin-stat-value" id="as-blocked">—</div>
+                <div class="admin-stat-label">Bloklu Kullanıcı</div>
                 <div class="admin-stat-sub" id="as-admins">0 admin</div>
               </div>
             </div>
@@ -1969,11 +1969,11 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
 
           <div class="admin-card">
             <div class="admin-card-header">
-              <h3>ğŸ†• Son KayÄ±t Olanlar</h3>
+              <h3>🆕 Son Kayıt Olanlar</h3>
             </div>
             <div class="admin-card-body">
               <table class="admin-table" id="at-recent-users">
-                <thead><tr><th>KullanÄ±cÄ±</th><th>E-posta</th><th>Kredi</th><th>KayÄ±t</th><th>Ä°ÅŸlem</th></tr></thead>
+                <thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Kredi</th><th>Kayıt</th><th>İşlem</th></tr></thead>
                 <tbody id="at-recent-tbody">
                   <tr class="admin-skeleton-row" aria-hidden="true"><td><span class="admin-skeleton-line w3"></span></td><td><span class="admin-skeleton-line w4"></span></td><td><span class="admin-skeleton-line w1"></span></td><td><span class="admin-skeleton-line w2"></span></td><td><span class="admin-skeleton-line w1"></span></td></tr>
                   <tr class="admin-skeleton-row" aria-hidden="true"><td><span class="admin-skeleton-line w2"></span></td><td><span class="admin-skeleton-line w3"></span></td><td><span class="admin-skeleton-line w1"></span></td><td><span class="admin-skeleton-line w2"></span></td><td><span class="admin-skeleton-line w1"></span></td></tr>
@@ -1987,17 +1987,17 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
         <!-- USERS TAB -->
         <div class="admin-tab" id="at-users">
           <div class="admin-page-header">
-            <h1 class="admin-page-title">ğŸ‘¥ KullanÄ±cÄ± YÃ¶netimi</h1>
-            <span class="admin-count-badge" id="au-total-badge">0 kullanÄ±cÄ±</span>
+            <h1 class="admin-page-title">👥 Kullanıcı Yönetimi</h1>
+            <span class="admin-count-badge" id="au-total-badge">0 kullanıcı</span>
           </div>
 
           <div class="admin-toolbar">
             <div class="admin-search-wrap">
-              <span class="admin-search-icon">ğŸ”</span>
+              <span class="admin-search-icon">🔍</span>
               <input type="text" id="au-search" class="admin-search-input" placeholder="Ad veya e-posta ara..." oninput="loadAdminUsers()">
             </div>
             <select id="au-filter" class="admin-filter-sel" onchange="loadAdminUsers()">
-              <option value="all">TÃ¼mÃ¼</option>
+              <option value="all">Tümü</option>
               <option value="active">Aktif</option>
               <option value="blocked">Bloklu</option>
               <option value="admin">Admin</option>
@@ -2008,13 +2008,13 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
             <table class="admin-table" id="au-table">
               <thead>
                 <tr>
-                  <th>KullanÄ±cÄ±</th>
+                  <th>Kullanıcı</th>
                   <th>E-posta</th>
                   <th>Kredi</th>
                   <th>Durum</th>
-                  <th>KayÄ±t Tarihi</th>
-                  <th>Son GiriÅŸ</th>
-                  <th>Ä°ÅŸlemler</th>
+                  <th>Kayıt Tarihi</th>
+                  <th>Son Giriş</th>
+                  <th>İşlemler</th>
                 </tr>
               </thead>
               <tbody id="au-tbody">
@@ -2030,34 +2030,34 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
         <!-- ANNOUNCE TAB -->
         <div class="admin-tab" id="at-announce">
           <div class="admin-page-header">
-            <h1 class="admin-page-title">ğŸ“¢ Duyurular</h1>
+            <h1 class="admin-page-title">📢 Duyurular</h1>
           </div>
           <div class="admin-two-col">
             <div class="admin-card">
-              <div class="admin-card-header"><h3>â• Yeni Duyuru</h3></div>
+              <div class="admin-card-header"><h3>➕ Yeni Duyuru</h3></div>
               <div class="admin-card-body">
                 <div class="admin-form-group">
-                  <label>BaÅŸlÄ±k</label>
-                  <input type="text" id="ann-title" class="admin-input" placeholder="Duyuru baÅŸlÄ±ÄŸÄ±...">
+                  <label>Başlık</label>
+                  <input type="text" id="ann-title" class="admin-input" placeholder="Duyuru başlığı...">
                 </div>
                 <div class="admin-form-group">
-                  <label>TÃ¼r</label>
+                  <label>Tür</label>
                   <select id="ann-type" class="admin-input">
-                    <option value="info">â„¹ï¸ Bilgi</option>
-                    <option value="success">âœ… BaÅŸarÄ±</option>
-                    <option value="warning">âš ï¸ UyarÄ±</option>
-                    <option value="danger">ğŸš¨ Tehlike</option>
+                    <option value="info">ℹ️ Bilgi</option>
+                    <option value="success">✅ Başarı</option>
+                    <option value="warning">⚠️ Uyarı</option>
+                    <option value="danger">🚨 Tehlike</option>
                   </select>
                 </div>
                 <div class="admin-form-group">
-                  <label>Ä°Ã§erik</label>
+                  <label>İçerik</label>
                   <textarea id="ann-body" class="admin-input admin-textarea" placeholder="Duyuru metni..." rows="4"></textarea>
                 </div>
-                <button class="admin-btn-primary" onclick="publishAnnouncement()">ğŸ“¢ YayÄ±nla</button>
+                <button class="admin-btn-primary" onclick="publishAnnouncement()">📢 Yayınla</button>
               </div>
             </div>
             <div class="admin-card">
-              <div class="admin-card-header"><h3>ğŸ“‹ Mevcut Duyurular</h3></div>
+              <div class="admin-card-header"><h3>📋 Mevcut Duyurular</h3></div>
               <div class="admin-card-body" id="ann-list">
                 <div class="admin-skeleton-block" aria-hidden="true"><span></span><span></span><span></span></div>
               </div>
@@ -2068,12 +2068,12 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
         <!-- LOGS TAB -->
         <div class="admin-tab" id="at-logs">
           <div class="admin-page-header">
-            <h1 class="admin-page-title">ğŸ“‹ Aktivite LoglarÄ±</h1>
-            <button class="admin-refresh-btn" onclick="loadAdminLogs()">ğŸ”„ Yenile</button>
+            <h1 class="admin-page-title">📋 Aktivite Logları</h1>
+            <button class="admin-refresh-btn" onclick="loadAdminLogs()">🔄 Yenile</button>
           </div>
           <div class="admin-card">
             <table class="admin-table">
-              <thead><tr><th>Zaman</th><th>Admin</th><th>Ä°ÅŸlem</th><th>Detay</th></tr></thead>
+              <thead><tr><th>Zaman</th><th>Admin</th><th>İşlem</th><th>Detay</th></tr></thead>
               <tbody id="logs-tbody">
                 <tr class="admin-skeleton-row" aria-hidden="true"><td><span class="admin-skeleton-line w2"></span></td><td><span class="admin-skeleton-line w2"></span></td><td><span class="admin-skeleton-line w3"></span></td><td><span class="admin-skeleton-line w4"></span></td></tr>
                 <tr class="admin-skeleton-row" aria-hidden="true"><td><span class="admin-skeleton-line w2"></span></td><td><span class="admin-skeleton-line w3"></span></td><td><span class="admin-skeleton-line w2"></span></td><td><span class="admin-skeleton-line w4"></span></td></tr>
@@ -2086,13 +2086,13 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
         <!-- SETTINGS TAB -->
         <div class="admin-tab" id="at-settings">
           <div class="admin-page-header">
-            <h1 class="admin-page-title">âš™ï¸ Sistem AyarlarÄ±</h1>
+            <h1 class="admin-page-title">⚙️ Sistem Ayarları</h1>
           </div>
           <div class="admin-two-col">
             <div class="admin-card">
-              <div class="admin-card-header"><h3>ğŸ”‘ Admin Yetkilendirme</h3></div>
+              <div class="admin-card-header"><h3>🔑 Admin Yetkilendirme</h3></div>
               <div class="admin-card-body">
-                <p style="color:var(--text2);font-size:13px;margin-bottom:16px">Herhangi bir kullanÄ±cÄ±ya e-posta adresiyle admin yetkisi ver.</p>
+                <p style="color:var(--text2);font-size:13px;margin-bottom:16px">Herhangi bir kullanıcıya e-posta adresiyle admin yetkisi ver.</p>
                 <div class="admin-form-group">
                   <label>E-posta</label>
                   <input type="email" id="st-admin-email" class="admin-input" placeholder="kullanici@mail.com">
@@ -2101,18 +2101,18 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
                   <label>Bootstrap Secret</label>
                   <input type="password" id="st-admin-secret" class="admin-input" placeholder="aipaketim_admin_2026">
                 </div>
-                <button class="admin-btn-primary" onclick="makeAdminByEmail()">ğŸ‘‘ Admin Yap</button>
+                <button class="admin-btn-primary" onclick="makeAdminByEmail()">👑 Admin Yap</button>
                 <div id="st-admin-msg" style="margin-top:12px;font-size:13px;display:none"></div>
               </div>
             </div>
             <div class="admin-card">
-              <div class="admin-card-header"><h3>ğŸ“Š Sistem Bilgisi</h3></div>
+              <div class="admin-card-header"><h3>📊 Sistem Bilgisi</h3></div>
               <div class="admin-card-body">
                 <div class="admin-info-row"><span>Platform</span><strong>AiPaketim v2.0</strong></div>
-                <div class="admin-info-row"><span>VeritabanÄ±</span><strong>SQLite (better-sqlite3)</strong></div>
-                <div class="admin-info-row"><span>Auth</span><strong>JWT (30 gÃ¼n)</strong></div>
+                <div class="admin-info-row"><span>Veritabanı</span><strong>SQLite (better-sqlite3)</strong></div>
+                <div class="admin-info-row"><span>Auth</span><strong>JWT (30 gün)</strong></div>
                 <div class="admin-info-row"><span>Rate Limit</span><strong>60 req/dak genel</strong></div>
-                <div class="admin-info-row"><span>Ortam</span><strong id="st-env">Ãœretim</strong></div>
+                <div class="admin-info-row"><span>Ortam</span><strong id="st-env">Üretim</strong></div>
               </div>
             </div>
           </div>
@@ -2124,16 +2124,16 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
     <!-- CREDIT MODAL -->
     <div id="credit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(6px)">
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;width:340px;max-width:95vw">
-        <h3 style="margin:0 0 16px">ğŸ’° Kredi DÃ¼zenle</h3>
+        <h3 style="margin:0 0 16px">💰 Kredi Düzenle</h3>
         <p id="cm-user-name" style="color:var(--text2);margin:0 0 16px;font-size:13px"></p>
         <input type="hidden" id="cm-user-id">
         <div class="admin-form-group">
-          <label>Miktar (+ ekle, - Ã§Ä±kar)</label>
-          <input type="number" id="cm-amount" class="admin-input" placeholder="Ã–rn: 500 veya -100" value="500">
+          <label>Miktar (+ ekle, - çıkar)</label>
+          <input type="number" id="cm-amount" class="admin-input" placeholder="Örn: 500 veya -100" value="500">
         </div>
         <div style="display:flex;gap:10px;margin-top:16px">
           <button class="admin-btn-primary" style="flex:1" onclick="applyCredit()">Uygula</button>
-          <button style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text);cursor:pointer" onclick="document.getElementById('credit-modal').style.display='none'">Ä°ptal</button>
+          <button style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text);cursor:pointer" onclick="document.getElementById('credit-modal').style.display='none'">İptal</button>
         </div>
       </div>
     </div>
@@ -2171,15 +2171,15 @@ res = client.chat.completions.<span class="fn">create</span>(<span class="fn">mo
       return false;
     };
   </script>
-  <script src="app.min.js?v=v252" defer></script>
+  <script src="app.min.js?v=v253" defer></script>
 
-<!-- NEW TABS: GÃ¶revler, AI HafÄ±za, Video -->
+<!-- NEW TABS: Görevler, AI Hafıza, Video -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var pm = document.querySelector('.panel-main');
   if (!pm) return;
 
-  // GÃ–REVLER SEKMESI
+  // GÖREVLER SEKMESI
   var tasksTab = document.createElement('div');
   tasksTab.className = 'ptab';
   tasksTab.id = 'ptab-tasks';
@@ -2187,13 +2187,13 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="panel-page" style="max-width:700px">
       <div class="dash-header">
         <div class="dash-greeting">
-          <h2>ğŸ¯ GÃ¼nlÃ¼k GÃ¶revler</h2>
-          <p>GÃ¶revleri tamamla, kredi kazan! Her gece 00:00'da sÄ±fÄ±rlanÄ±r.</p>
+          <h2>🎯 Günlük Görevler</h2>
+          <p>Görevleri tamamla, kredi kazan! Her gece 00:00'da sıfırlanır.</p>
         </div>
       </div>
       <div class="dash-panel" style="margin-bottom:16px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <span style="font-size:13px;color:var(--text2)">BugÃ¼nkÃ¼ ilerleme</span>
+          <span style="font-size:13px;color:var(--text2)">Bugünkü ilerleme</span>
           <span style="font-size:13px;font-weight:700;color:var(--accent2)" id="tasks-earned-today">0 / 550 kredi</span>
         </div>
         <div style="background:var(--bg);border-radius:8px;height:8px;overflow:hidden">
@@ -2202,28 +2202,28 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div id="tasks-list" style="display:flex;flex-direction:column;gap:12px"></div>
       <div class="dash-panel" style="margin-top:20px">
-        <h3>ğŸ”¥ GiriÅŸ Serisi</h3>
+        <h3>🔥 Giriş Serisi</h3>
         <div id="tasks-streak-dots" style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"></div>
-        <div id="tasks-streak-info" style="font-size:13px;color:var(--text2)"><span class="inline-skeleton inline-skeleton-short" aria-label="GÃ¶rev serisi hazÄ±rlanÄ±yor"></span></div>
+        <div id="tasks-streak-info" style="font-size:13px;color:var(--text2)"><span class="inline-skeleton inline-skeleton-short" aria-label="Görev serisi hazırlanıyor"></span></div>
       </div>
     </div>`;
   pm.appendChild(tasksTab);
 
-  // AI HAFIZA SEKMESI: statik bilgi bankasÄ± sekmesinde (ptab-rag) zaten tanÄ±mlÄ±,
-  // dinamik sÃ¼rÃ¼m aynÄ± ID'leri (mem-input/mem-list/mem-count) duplike ettiÄŸi iÃ§in kaldÄ±rÄ±ldÄ±.
+  // AI HAFIZA SEKMESI: statik bilgi bankası sekmesinde (ptab-rag) zaten tanımlı,
+  // dinamik sürüm aynı ID'leri (mem-input/mem-list/mem-count) duplike ettiği için kaldırıldı.
 
-  // VÄ°DEO ÃœRETÄ°CÄ° SEKMESÄ°: 2026'da Ã¼cretsiz video API'leri gÃ¼venilir Ã§alÄ±ÅŸmadÄ±ÄŸÄ± iÃ§in
-  // kullanÄ±cÄ± deneyimini bozmamak adÄ±na tamamen kaldÄ±rÄ±ldÄ±. Server tarafÄ± endpoint'ler
-  // (.env key'leri varsa) hala Ã§alÄ±ÅŸÄ±r; UI ileride geri eklenebilir.
+  // VİDEO ÜRETİCİ SEKMESİ: 2026'da ücretsiz video API'leri güvenilir çalışmadığı için
+  // kullanıcı deneyimini bozmamak adına tamamen kaldırıldı. Server tarafı endpoint'ler
+  // (.env key'leri varsa) hala çalışır; UI ileride geri eklenebilir.
 
-  // TTS Ses SeÃ§ici Paneli (kontrol paneline eklenir)
+  // TTS Ses Seçici Paneli (kontrol paneline eklenir)
   var dashPanels = document.querySelectorAll('#ptab-dash .dash-panel');
   if (dashPanels.length > 0) {
     var voicePanel = document.createElement('div');
     voicePanel.className = 'dash-panel';
     voicePanel.style.marginTop = '16px';
     voicePanel.innerHTML = `
-      <h3>Ses Motoru & Karakter SeÃ§</h3>
+      <h3>Ses Motoru & Karakter Seç</h3>
       <p style="font-size:12px;color:var(--text3);margin-bottom:12px">Aktif: <strong id="current-voice-label" style="color:var(--accent2)">OpenAI Nova</strong></p>
       <div style="margin-bottom:12px">
         <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600">OpenAI TTS-1 HD</div>
@@ -2237,9 +2237,9 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600">Microsoft Edge Neural (Ãœcretsiz)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600">Microsoft Edge Neural (Ücretsiz)</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('tr-TR-EmelNeural','Edge Emel (TR KadÄ±n)','edge')">TR Emel</button>
+          <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('tr-TR-EmelNeural','Edge Emel (TR Kadın)','edge')">TR Emel</button>
           <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('tr-TR-AhmetNeural','Edge Ahmet (TR Erkek)','edge')">TR Ahmet</button>
           <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('en-US-JennyNeural','Edge Jenny (EN)','edge')">EN Jenny</button>
           <button class="btn btn-sm" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:12px" onclick="setVoice('en-US-GuyNeural','Edge Guy (EN)','edge')">EN Guy</button>
@@ -2260,7 +2260,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchBox = document.createElement('input');
     searchBox.id = 'chat-search';
     searchBox.type = 'text';
-    searchBox.placeholder = 'ğŸ” Sohbet ara...';
+    searchBox.placeholder = '🔍 Sohbet ara...';
     searchBox.style.cssText = 'width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:12px;margin-top:8px;font-family:var(--font)';
     searchBox.oninput = function() { if(typeof searchChats==='function') searchChats(this.value) };
     chatListHeader.appendChild(searchBox);
@@ -2344,9 +2344,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="model-picker-overlay" onclick="closeModelPicker()"></div>
 <div id="model-picker">
   <div class="mp-header">
-    <h3>ğŸ¤– Model SeÃ§in</h3>
+    <h3>🤖 Model Seçin</h3>
     <span id="mp-count" style="font-size:12px;color:var(--text3)"></span>
-    <button onclick="closeModelPicker()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;margin-left:auto">âœ•</button>
+    <button onclick="closeModelPicker()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;margin-left:auto">✕</button>
   </div>
   <input type="text" id="mp-search" placeholder="Model ara..." oninput="filterModels(this.value)" style="width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:13px;box-sizing:border-box;margin-bottom:12px">
   <div class="mp-body">
@@ -2360,7 +2360,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="legal-container">
     <div class="legal-head">
       <h3 id="legal-title">Yasal</h3>
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('legal-modal').classList.remove('open')">âœ•</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('legal-modal').classList.remove('open')">✕</button>
     </div>
     <div class="legal-body" id="legal-body"></div>
   </div>
