@@ -1408,9 +1408,6 @@ document.addEventListener('DOMContentLoaded',()=>{
       try { var u = new URL(location.href); u.searchParams.delete('logged_out'); history.replaceState({}, '', u.toString()); } catch(e) {}
       return;
     }
-    if (startupView !== 'home' && !isLoggedIn && typeof modal === 'function') {
-      modal('login');
-    }
   }, 350);
   initFX();
   renderModelSelect();
