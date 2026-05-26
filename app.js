@@ -1409,17 +1409,20 @@ document.addEventListener('DOMContentLoaded',()=>{
       return;
     }
   }, 350);
-  initFX();
+  const isHomeStartup=startupView==='home';
+  const runDeferredStartup = window.requestIdleCallback
+    ? (cb,timeout=5200)=>window.requestIdleCallback(cb,{timeout})
+    : (cb,timeout=1800)=>setTimeout(cb,Math.min(timeout,2600));
+  window.__froxyAppRouteStartup=!isHomeStartup;
+  if(isHomeStartup) initFX();
+  else runDeferredStartup(()=>{try{initFX()}catch(e){}},6500);
   renderModelSelect();
-  const runStartupIdle = window.requestIdleCallback
-    ? (cb)=>window.requestIdleCallback(cb,{timeout:3200})
-    : (cb)=>setTimeout(cb,900);
-  runStartupIdle(()=>{
+  runDeferredStartup(()=>{
     if(startupView==='admin')renderModelsAdmin();
     renderImageHistory();
     renderPersonaSkillPicker();
     upgradeEmojiFigures();
-  });
+  },4200);
   // Auto-fill referral code from URL ?ref=
   const urlRef=new URLSearchParams(location.search).get('ref');
   if(urlRef){const refInp=document.getElementById('r-ref');if(refInp)refInp.value=urlRef;if(!user)modal('reg')}
@@ -2325,7 +2328,11 @@ function panelTab(tab){
   if(tab==='agents'){if(typeof renderAgents==='function')renderAgents()}
   if(tab==='gallery'){if(typeof renderGallery==='function')renderGallery()}
   if(tab==='analytics'){if(typeof renderAnalytics==='function')renderAnalytics();if(typeof renderBadges==='function')renderBadges();if(typeof renderApiKeyPanel==='function')renderApiKeyPanel()}
-  if(typeof upgradeEmojiFigures==='function')upgradeEmojiFigures(el);
+  if(typeof upgradeEmojiFigures==='function'){
+    const runEmojiUpgrade=()=>upgradeEmojiFigures(el);
+    if(window.__froxyAppRouteStartup&&window.matchMedia&&window.matchMedia('(max-width: 760px)').matches)setTimeout(runEmojiUpgrade,1200);
+    else runEmojiUpgrade();
+  }
   setAppRoute(routeForTab(tab));
   if(window.innerWidth<=1040)toggleChatSidebar(false);
 }
@@ -2873,7 +2880,8 @@ function renderModelSelect(){
   const countEl=document.getElementById('model-count');
   if(countEl)countEl.textContent=modelCountLabel();
   if(typeof updateModelBadge==='function')updateModelBadge();
-  renderModelPicker();
+  const pickerOpen=document.body.classList.contains('model-picker-open')||document.getElementById('model-picker')?.classList.contains('open');
+  if(pickerOpen)renderModelPicker();
   renderModelHealthSummary();
 }
 
@@ -7352,10 +7360,18 @@ document.addEventListener("click", e => {
   }
 
   // === INIT ALL ===
+  function runPremiumInit(){
+    const isAppRoute=/^\/(?:sohbet|dashboard|panel|gorsel-uret|ai-araclar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(location.pathname.replace(/\/+$/,'')||'/');
+    if(isAppRoute){
+      (window.requestIdleCallback||function(cb){setTimeout(cb,4200)})(init,{timeout:6200});
+      return;
+    }
+    setTimeout(init,100);
+  }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', runPremiumInit);
   } else {
-    setTimeout(init, 100);
+    runPremiumInit();
   }
 
   function init() {
@@ -8399,12 +8415,17 @@ if(typeof panelTab==='function'&&!window.__proFeaturePanelWrapped){
   const prevPanelTab=panelTab;
   panelTab=function(tab){
     prevPanelTab(tab);
-    setTimeout(renderProfessionalFeatureLayer,60);
+    const mobileStartup=window.__froxyAppRouteStartup&&window.matchMedia&&window.matchMedia('(max-width: 760px)').matches;
+    setTimeout(renderProfessionalFeatureLayer,mobileStartup?1800:60);
   };
 }
 
-document.addEventListener('DOMContentLoaded',()=>setTimeout(renderProfessionalFeatureLayer,350));
-setTimeout(renderProfessionalFeatureLayer,700);
+function professionalLayerStartupDelay(){
+  const mobile=window.matchMedia&&window.matchMedia('(max-width: 760px)').matches;
+  return (window.__froxyAppRouteStartup&&mobile)?2200:350;
+}
+document.addEventListener('DOMContentLoaded',()=>setTimeout(renderProfessionalFeatureLayer,professionalLayerStartupDelay()));
+setTimeout(renderProfessionalFeatureLayer,professionalLayerStartupDelay()+500);
 
 // ===== SMART ROUTER FIX v95 =====
 function recommendSmartModel(text){
