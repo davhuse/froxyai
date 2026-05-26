@@ -35,6 +35,35 @@
     }catch(e){}
   })();
   </script>
+  <script>
+  (function(){
+    try{
+      var path=(location.pathname||'/').replace(/\/+$/,'')||'/';
+      var routeMap={
+        '/sohbet':'chat',
+        '/dashboard':'dash',
+        '/panel':'dash',
+        '/gorsel-uret':'img',
+        '/ai-araclar':'tools',
+        '/ai-ajanlar':'agents',
+        '/magaza':'store',
+        '/destek':'support',
+        '/galeri':'gallery',
+        '/analitik':'analytics',
+        '/promptlar':'prompts',
+        '/bilgi-bankasi':'rag',
+        '/admin':'admin'
+      };
+      var target=routeMap[path]||'';
+      var match=(location.search||'').match(/[?&](?:view|screen)=([^&]+)/i);
+      if(match)target=decodeURIComponent(match[1]).toLowerCase();
+      if(target==='dashboard')target='dash';
+      if(target&&target!=='home'&&target!=='login'&&target!=='reg'){
+        document.documentElement.classList.add('app-route-prepaint','prepaint-'+target);
+      }
+    }catch(e){}
+  })();
+  </script>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
   <style>
@@ -44,13 +73,21 @@
     #v-chat.on{display:block;min-height:100vh;background:linear-gradient(135deg,#0b0f1a,#111827)}
     .ai-panel-layout{min-height:100vh}.panel-sidebar{background:#0f172a;color:var(--text)}
     .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto}
+    #app-route-skeleton{display:none}
+    html.app-route-prepaint body{min-height:100vh;overflow:hidden}
+    html.app-route-prepaint #v-home,html.app-route-prepaint #nav{display:none!important}
+    html.app-route-prepaint #app-route-skeleton{position:fixed;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 24%,rgba(124,58,237,.22),transparent 34%),linear-gradient(135deg,#070b16,#0b1020 52%,#070b16);color:#f8fafc}
+    .app-route-skeleton-card{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid rgba(148,163,184,.18);border-radius:18px;background:rgba(15,23,42,.58);box-shadow:0 24px 70px rgba(0,0,0,.34)}
+    .app-route-skeleton-card img{width:52px;height:52px;border-radius:14px;box-shadow:0 0 28px rgba(59,130,246,.34)}
+    .app-route-skeleton-card strong{display:block;font-size:16px;font-weight:900}
+    .app-route-skeleton-card span{display:block;margin-top:3px;color:#94a3b8;font-size:12px;font-weight:700}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
   <link rel="stylesheet" href="home-critical.min.css?v=v260">
-  <noscript><link rel="stylesheet" href="style.min.css?v=v262"></noscript>
+  <noscript><link rel="stylesheet" href="style.min.css?v=v263"></noscript>
   <script>
-  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v262';document.head.appendChild(l)};
-  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel-uret|ai-araclar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view)window.__loadFullCss();}catch(e){}})();
+  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v263';document.head.appendChild(l)};
+  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel-uret|ai-araclar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v263';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
   ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})});
   window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)});
   </script>
@@ -124,6 +161,12 @@
   </script>
 </head>
 <body>
+  <div id="app-route-skeleton" aria-hidden="true">
+    <div class="app-route-skeleton-card">
+      <img src="froxy-logo-192-v260.png" alt="" width="52" height="52" decoding="async">
+      <div><strong>Froxy AI</strong><span>Panel hazırlanıyor</span></div>
+    </div>
+  </div>
   <div id="froxy-splash" class="froxy-splash is-hidden" style="display:none" aria-label="Froxy AI yükleniyor">
     <div class="froxy-splash-card">
       <div class="froxy-splash-logo">
@@ -280,7 +323,7 @@
   </main>
 
   <!-- Auth Modal (centered card + floating particles) -->
-  <div id="auth-modal" class="modal auth-modal-v2" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+  <div id="auth-modal" class="modal auth-modal-v2" style="display:none" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
     <div class="auth-backdrop" onclick="closeM()" aria-hidden="true">
       <!-- Floating particles (pure CSS) -->
       <div class="auth-particle p1"></div>
@@ -2313,7 +2356,8 @@ echo curl_exec($ch);</pre>
       appLoading=true;
       if(window.__loadFullCss)window.__loadFullCss();
       var sc=document.createElement('script');
-      sc.src='app.min.js?v=v262';
+      sc.fetchPriority='high';
+      sc.src='app.min.js?v=v263';
       sc.defer=true;
       sc.onload=function(){appLoaded=true;if(domReady){try{document.dispatchEvent(new Event('DOMContentLoaded'))}catch(e){}}try{document.documentElement.classList.remove('app-route-prepaint')}catch(e){}setTimeout(function(){while(callbacks.length){try{callbacks.shift()()}catch(e){}}},0)};
       document.body.appendChild(sc);
