@@ -40,6 +40,7 @@ try {
 }
 
 const app = express();
+app.set('trust proxy', 1);
 
 // ===== PERFORMANS & GÜVENLİK =====
 // gzip/br ile metin (JS/CSS/HTML/JSON) yanıtları 3-5× küçülür; LCP ve FCP skoru yükselir.
@@ -878,7 +879,10 @@ async function sendLoginOtpEmail({ to, subject, html, text }) {
     const transporter = nodemailer.createTransport({
       host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
       port: Number(process.env.BREVO_SMTP_PORT || 587),
-      secure: false,
+      secure: Number(process.env.BREVO_SMTP_PORT || 587) === 465,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
       auth: {
         user: process.env.BREVO_SMTP_LOGIN,
         pass: process.env.BREVO_SMTP_KEY || process.env.BREVO_API_KEY
