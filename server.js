@@ -810,7 +810,8 @@ function extractShopierOrders(apiData) {
 }
 
 const LOGIN_OTP_TTL_MINUTES = Math.max(2, Math.min(30, Number(process.env.LOGIN_OTP_TTL_MINUTES || 10)));
-const LOGIN_OTP_ENABLED = String(process.env.LOGIN_OTP_ENABLED || '').toLowerCase() === 'true';
+const LOGIN_OTP_FLAG = String(process.env.LOGIN_OTP_ENABLED || '').trim().toLowerCase();
+const LOGIN_OTP_ENABLED = LOGIN_OTP_FLAG === 'true' || (!!process.env.BREVO_API_KEY && LOGIN_OTP_FLAG !== 'false' && LOGIN_OTP_FLAG !== '0');
 const LOGIN_OTP_FROM = process.env.MAIL_FROM || process.env.BREVO_FROM || 'Froxy AI <destek@froxyai.com>';
 
 function maskEmail(email) {
