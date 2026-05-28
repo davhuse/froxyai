@@ -799,6 +799,62 @@ async function checkAuth() {
   }
 }
 
+let pendingLoginOtpChallenge = null;
+
+function showLoginOtpForm(data){
+  pendingLoginOtpChallenge = data || null;
+  tab('otp');
+  const hint = document.getElementById('otp-hint');
+  const code = document.getElementById('otp-code');
+  const err = document.getElementById('otp-error');
+  if(hint)hint.textContent = (data?.email || 'e-posta adresinize') + ' gönderilen 6 haneli kodu girin.';
+  if(code){code.value='';setTimeout(()=>code.focus(),80)}
+  if(err){err.style.display='none';err.textContent=''}
+}
+
+function finishBackendAuth(data, successText){
+  authToken = data.token;
+  authUser = data.user;
+  authUser.plan = normalizePlanId(authUser.plan || 'free');
+  syncAuthUserToLocal();
+  localStorage.setItem('saas_token', authToken);
+  localStorage.setItem('saas_user', JSON.stringify(authUser));
+  if(typeof msg==='function') msg(successText || 'Başarıyla giriş yapıldı!', 'ok');
+  completeAuthTransition('chat');
+}
+
+async function verifyLoginCode(){
+  const code=(document.getElementById('otp-code')?.value||'').replace(/\D/g,'');
+  const err=document.getElementById('otp-error');
+  if(err){err.style.display='none';err.textContent=''}
+  if(!pendingLoginOtpChallenge?.challengeId){if(err){err.textContent='Kod oturumu bulunamadı. Tekrar giriş yapın.';err.style.display='block'}return}
+  if(code.length!==6){if(err){err.textContent='6 haneli kodu girin.';err.style.display='block'}return}
+  try{
+    const res=await fetch('/api/login/verify-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challengeId:pendingLoginOtpChallenge.challengeId,code})});
+    const data=await readApiJson(res);
+    if(!res.ok){if(err){err.textContent=data.error||'Kod doğrulanamadı.';err.style.display='block'}return}
+    pendingLoginOtpChallenge=null;
+    finishBackendAuth(data,'Giriş doğrulandı!');
+  }catch(e){
+    if(err){err.textContent='Bağlantı hatası: '+e.message;err.style.display='block'}
+  }
+}
+
+async function resendLoginCode(){
+  const err=document.getElementById('otp-error');
+  if(err){err.style.display='none';err.textContent=''}
+  if(!pendingLoginOtpChallenge?.challengeId){if(err){err.textContent='Tekrar giriş yapın.';err.style.display='block'}return}
+  try{
+    const res=await fetch('/api/login/resend-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challengeId:pendingLoginOtpChallenge.challengeId})});
+    const data=await readApiJson(res);
+    if(!res.ok){if(err){err.textContent=data.error||'Kod tekrar gönderilemedi.';err.style.display='block'}return}
+    showLoginOtpForm(data);
+    if(typeof msg==='function')msg('Yeni kod gönderildi.','ok');
+  }catch(e){
+    if(err){err.textContent='Bağlantı hatası: '+e.message;err.style.display='block'}
+  }
+}
+
 async function doAuth(type) {
   const email = document.getElementById(type === 'login' ? 'l-email' : 'r-email').value.trim();
   const password = document.getElementById(type === 'login' ? 'l-pass' : 'r-pass').value;
@@ -814,14 +870,12 @@ async function doAuth(type) {
     });
     const data = await readApiJson(res);
     if (res.ok) {
-      authToken = data.token;
-      authUser = data.user;
-      authUser.plan = normalizePlanId(authUser.plan || 'free');
-      syncAuthUserToLocal();
-      localStorage.setItem('saas_token', authToken);
-      localStorage.setItem('saas_user', JSON.stringify(authUser));
-      if(typeof msg==='function') msg(type==='login' ? 'Ba\u015far\u0131yla giri\u015f yap\u0131ld\u0131!' : 'Hesap olu\u015fturuldu! 100 kredi haz\u0131r.', 'ok');
-      completeAuthTransition('chat');
+      if(type==='login'&&data.requiresOtp){
+        showLoginOtpForm(data);
+        if(typeof msg==='function')msg('Giriş kodu e-postana gönderildi.','ok');
+        return;
+      }
+      finishBackendAuth(data,type==='login' ? 'Başarıyla giriş yapıldı!' : 'Hesap oluşturuldu! 100 kredi hazır.');
     } else {
       const localUsers=LS.get('ap_users',[]);
       const localMatch=type==='login'&&localUsers.some(u=>u.email===email&&u.pass===password);
@@ -1800,6 +1854,8 @@ function tab(t){
   document.getElementById('f-reg').style.display=t==='reg'?'block':'none';
   const fForgot = document.getElementById('f-forgot');
   if(fForgot) fForgot.style.display=t==='forgot'?'block':'none';
+  const fOtp = document.getElementById('f-otp');
+  if(fOtp) fOtp.style.display=t==='otp'?'block':'none';
   document.getElementById('t-login').className=t==='login'?'on':'';
   document.getElementById('t-reg').className=t==='reg'?'on':'';
   // v119: Tab indicator kayması için parent'a class ekle
@@ -1808,6 +1864,7 @@ function tab(t){
     tabsEl.classList.toggle('tab-reg', t === 'reg');
     tabsEl.classList.toggle('tab-login', t === 'login');
     tabsEl.classList.toggle('tab-forgot', t === 'forgot');
+    tabsEl.classList.toggle('tab-otp', t === 'otp');
   }
 }
 

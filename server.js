@@ -139,6 +139,18 @@ db.exec(`
     used INTEGER DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES users(id)
   );
+  CREATE TABLE IF NOT EXISTS login_otps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    email TEXT,
+    challenge_id TEXT UNIQUE,
+    code_hash TEXT,
+    expires_at DATETIME,
+    attempts INTEGER DEFAULT 0,
+    used INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
   CREATE TABLE IF NOT EXISTS server_chats (
     id TEXT PRIMARY KEY,
     user_id INTEGER,
@@ -797,6 +809,98 @@ function extractShopierOrders(apiData) {
   return [];
 }
 
+const LOGIN_OTP_TTL_MINUTES = Math.max(2, Math.min(30, Number(process.env.LOGIN_OTP_TTL_MINUTES || 10)));
+const LOGIN_OTP_ENABLED = String(process.env.LOGIN_OTP_ENABLED || '').toLowerCase() === 'true';
+const LOGIN_OTP_FROM = process.env.MAIL_FROM || process.env.BREVO_FROM || 'Froxy AI <destek@froxyai.com>';
+
+function maskEmail(email) {
+  const clean = String(email || '');
+  const [name, domain] = clean.split('@');
+  if (!name || !domain) return clean;
+  const visible = name.length <= 2 ? name[0] || '*' : name.slice(0, 2);
+  return `${visible}${'*'.repeat(Math.max(2, name.length - visible.length))}@${domain}`;
+}
+
+function loginOtpHash(code, challengeId) {
+  return crypto
+    .createHmac('sha256', ACTIVE_JWT_SECRET || JWT_SECRET || 'froxy-login-otp')
+    .update(`${challengeId}:${code}`)
+    .digest('hex');
+}
+
+function parseMailFrom(value) {
+  const raw = String(value || '').trim();
+  const match = raw.match(/^(.*?)\s*<([^>]+)>$/);
+  if (match) return { name: match[1].trim() || 'Froxy AI', email: match[2].trim() };
+  return { name: 'Froxy AI', email: raw || 'destek@froxyai.com' };
+}
+
+function sendBrevoEmail({ to, subject, html, text }) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) return Promise.reject(new Error('BREVO_API_KEY tanimli degil'));
+  const sender = parseMailFrom(LOGIN_OTP_FROM);
+  const payload = JSON.stringify({
+    sender,
+    to: [{ email: to }],
+    subject,
+    htmlContent: html,
+    textContent: text
+  });
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'api.brevo.com',
+      path: '/v3/smtp/email',
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': apiKey,
+        'content-type': 'application/json',
+        'content-length': Buffer.byteLength(payload)
+      }
+    }, (resp) => {
+      let raw = '';
+      resp.on('data', chunk => raw += chunk);
+      resp.on('end', () => {
+        if (resp.statusCode >= 200 && resp.statusCode < 300) return resolve(raw);
+        reject(new Error(`Brevo mail hatasi: ${resp.statusCode}`));
+      });
+    });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
+async function issueLoginOtp(req, userRow) {
+  if (!LOGIN_OTP_ENABLED) return null;
+  const challengeId = crypto.randomBytes(24).toString('hex');
+  const code = String(crypto.randomInt(100000, 1000000));
+  const expires = new Date(Date.now() + LOGIN_OTP_TTL_MINUTES * 60 * 1000).toISOString();
+  db.prepare("DELETE FROM login_otps WHERE user_id = ? AND (used = 1 OR expires_at < datetime('now'))").run(userRow.id);
+  db.prepare('INSERT INTO login_otps (user_id, email, challenge_id, code_hash, expires_at) VALUES (?, ?, ?, ?, ?)')
+    .run(userRow.id, userRow.email, challengeId, loginOtpHash(code, challengeId), expires);
+  const subject = 'Froxy AI giris kodunuz';
+  const text = `Froxy AI giris kodunuz: ${code}\n\nBu kod ${LOGIN_OTP_TTL_MINUTES} dakika gecerlidir. Bu girisi siz baslatmadiysaniz bu e-postayi yok sayabilirsiniz.`;
+  const html = `
+    <div style="font-family:Inter,Arial,sans-serif;background:#070914;color:#f8fafc;padding:28px">
+      <div style="max-width:520px;margin:auto;background:#0f172a;border:1px solid #25324a;border-radius:16px;padding:24px">
+        <h2 style="margin:0 0 12px">Froxy AI giris kodunuz</h2>
+        <p style="color:#cbd5e1">Hesabiniza giris yapmak icin asagidaki kodu kullanin.</p>
+        <div style="font-size:32px;font-weight:800;letter-spacing:8px;background:#111c33;border-radius:12px;padding:18px 20px;text-align:center">${code}</div>
+        <p style="color:#94a3b8;font-size:13px;margin-top:18px">Bu kod ${LOGIN_OTP_TTL_MINUTES} dakika gecerlidir.</p>
+      </div>
+    </div>`;
+  await sendBrevoEmail({ to: userRow.email, subject, html, text });
+  recordFunnelEvent(req, 'login_otp_sent', { userId: userRow.id, metadata: { email_domain: String(userRow.email).split('@')[1] || '' } });
+  return { challengeId, expiresAt: expires, email: maskEmail(userRow.email) };
+}
+
+function loginPayloadForUser(userRow) {
+  const plan = userRow.plan || 'free';
+  const token = jwt.sign({ id: userRow.id, username: userRow.username, email: userRow.email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
+  return { token, user: userRow };
+}
+
 
 // ===== SAAS & AUTH ENDPOINTS =====
 app.post('/api/track', trackLimiter, optionalAuthMiddleware, (req, res) => {
@@ -854,7 +958,7 @@ app.post('/api/logout', (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/login', authLimiter, (req, res) => {
+app.post('/api/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
   if(!email || !password) return res.status(400).json({error: 'Eksik bilgi'});
   try {
@@ -869,11 +973,52 @@ app.post('/api/login', authLimiter, (req, res) => {
       }
     }
     if (isForceAdminEmail(email)) syncForceAdminEmail(email);
-    db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(user.id);
     const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(user.id);
-    const plan = fresh.plan || 'free';
-    const token = jwt.sign({ id: fresh.id, username: fresh.username, email: fresh.email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
-    res.json({ token, user: fresh });
+    const otp = await issueLoginOtp(req, fresh);
+    if (otp) return res.json({ requiresOtp: true, challengeId: otp.challengeId, email: otp.email, expiresAt: otp.expiresAt });
+    db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(user.id);
+    res.json(loginPayloadForUser(fresh));
+  } catch(e) {
+    res.status(500).json({error: e.message});
+  }
+});
+
+app.post('/api/login/resend-code', authLimiter, async (req, res) => {
+  const { challengeId } = req.body || {};
+  if(!challengeId) return res.status(400).json({error: 'Kod oturumu gerekli'});
+  try {
+    const row = db.prepare('SELECT o.*, u.username, u.credits, u.plan, u.is_admin FROM login_otps o JOIN users u ON u.id = o.user_id WHERE o.challenge_id = ? AND o.used = 0').get(challengeId);
+    if(!row) return res.status(400).json({error: 'Kod oturumu bulunamadi'});
+    const createdMs = new Date(row.created_at).getTime();
+    if(Number.isFinite(createdMs) && Date.now() - createdMs < 60000) return res.status(429).json({error: 'Yeni kod istemeden once biraz bekleyin'});
+    const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(row.user_id);
+    db.prepare('UPDATE login_otps SET used = 1 WHERE challenge_id = ?').run(challengeId);
+    const otp = await issueLoginOtp(req, fresh);
+    res.json({ requiresOtp: true, challengeId: otp.challengeId, email: otp.email, expiresAt: otp.expiresAt });
+  } catch(e) {
+    res.status(500).json({error: e.message});
+  }
+});
+
+app.post('/api/login/verify-code', authLimiter, (req, res) => {
+  const { challengeId, code } = req.body || {};
+  const cleanCode = String(code || '').replace(/\D/g, '');
+  if(!challengeId || cleanCode.length !== 6) return res.status(400).json({error: '6 haneli kod gerekli'});
+  try {
+    const row = db.prepare('SELECT * FROM login_otps WHERE challenge_id = ? AND used = 0').get(challengeId);
+    if(!row) return res.status(400).json({error: 'Kod oturumu bulunamadi'});
+    if(new Date(row.expires_at).getTime() < Date.now()) return res.status(400).json({error: 'Kod suresi doldu'});
+    if(Number(row.attempts || 0) >= 5) return res.status(429).json({error: 'Cok fazla hatali deneme'});
+    const expected = loginOtpHash(cleanCode, challengeId);
+    const ok = crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(row.code_hash || ''));
+    if(!ok) {
+      db.prepare('UPDATE login_otps SET attempts = attempts + 1 WHERE id = ?').run(row.id);
+      return res.status(401).json({error: 'Kod hatali'});
+    }
+    db.prepare('UPDATE login_otps SET used = 1 WHERE id = ?').run(row.id);
+    db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(row.user_id);
+    const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(row.user_id);
+    res.json(loginPayloadForUser(fresh));
   } catch(e) {
     res.status(500).json({error: e.message});
   }
