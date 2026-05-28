@@ -65,6 +65,10 @@ app.use(cors({
   origin: (origin, cb) => {
     // Same-origin / server-to-server isteklerde origin yoktur - geç
     if (!origin) return cb(null, true);
+    try {
+      const u = new URL(origin);
+      if (/^(localhost|127\.0\.0\.1)$/i.test(u.hostname)) return cb(null, true);
+    } catch(e) {}
     if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
     return cb(new Error('CORS reddedildi: ' + origin));
   },
@@ -2280,6 +2284,9 @@ function getOpenAIImageKey() {
   return key;
 }
 const OPENAI_IMAGE_MODEL = fromEnv('OPENAI_IMAGE_MODEL', 'gpt-image-2');
+const OPENAI_IMAGE_BASE_URL = fromEnv('OPENAI_IMAGE_BASE_URL', 'https://api.openai.com/v1').replace(/\/+$/, '');
+const OPENAI_CHAT_KEY = fromEnv('OPENAI_CHAT_KEY', '');
+const OPENAI_CHAT_BASE_URL = fromEnv('OPENAI_CHAT_BASE_URL', 'https://api.openai.com/v1').replace(/\/+$/, '');
 
 // ⚠️  Hardcoded fallback'ler sadece dev ortamı içindir.
 // Production'da .env içinde tanımlayın — bu değerler git'e giderse sızar.
@@ -2378,7 +2385,7 @@ let FREEMODEL_KEY = getFreemodelKey();
 
 const GUICORE_BASE = fromEnv('GUICORE_BASE_URL', 'https://api.guicore.com/v1');
 const PROVIDERS = {
-  openai:    { key: getFreemodelKey(), base: 'https://api.freemodel.dev/v1' },
+  openai:    { key: OPENAI_CHAT_KEY || getFreemodelKey(), base: OPENAI_CHAT_KEY ? OPENAI_CHAT_BASE_URL : 'https://api.freemodel.dev/v1' },
   gemini:    { key: 'sk-51c606f549e97ce4d2c5868b80065f754d07afaaf60028fe36937c77bf3e93d8', base: 'https://api.shenfengwl.fun/v1' },
   claude:    { key: fromEnv('GUICORE_CLAUDE_KEY', 'sk-zUXkEd7uhWFtzp4q0PsYcgrYHUWyiiShMdI9rdGyRZQCyhXw'), base: GUICORE_BASE },
   image:     { key: 'sk-8a111dafc866f3735f3878be1fb7056f46ee0568a2efbbfef73133d995695cf6', base: 'https://api.shenfengwl.fun/v1' },
@@ -2612,7 +2619,7 @@ async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverrid
     body.output_format = 'png';
     body.moderation = 'auto';
   }
-  const response = await fetch('https://api.openai.com/v1/images/generations', {
+  const response = await fetch(`${OPENAI_IMAGE_BASE_URL}/images/generations`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -129,10 +129,10 @@
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
   <link rel="stylesheet" href="home-critical.min.css?v=v260">
-  <noscript><link rel="stylesheet" href="style.min.css?v=v278"></noscript>
+  <noscript><link rel="stylesheet" href="style.min.css?v=v279"></noscript>
   <script>
-  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v278';document.head.appendChild(l)};
-  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v278';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
+  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v279';document.head.appendChild(l)};
+  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v279';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
   ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})});
   window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)});
   </script>
@@ -2424,7 +2424,7 @@ echo curl_exec($ch);</pre>
       if(window.__loadFullCss)window.__loadFullCss();
       var sc=document.createElement('script');
       sc.fetchPriority='high';
-      sc.src='app.min.js?v=v278';
+      sc.src='app.min.js?v=v279';
       sc.defer=true;
       sc.onload=function(){appLoaded=true;if(domReady){try{document.dispatchEvent(new Event('DOMContentLoaded'))}catch(e){}}try{document.documentElement.classList.remove('app-route-prepaint')}catch(e){}setTimeout(function(){while(callbacks.length){try{callbacks.shift()()}catch(e){}}},0)};
       document.body.appendChild(sc);
@@ -2435,11 +2435,7 @@ echo curl_exec($ch);</pre>
     syncHomeSessionCta();
     var pathNow=currentPath();
     var isAppRouteNow=!!appRoutes[pathNow];
-    var mobileDeferred=isAppRouteNow&&window.matchMedia&&window.matchMedia('(max-width: 760px)').matches;
-    if(mobileDeferred){
-      ['pointerdown','keydown','touchstart'].forEach(function(ev){window.addEventListener(ev,function(){window.__loadFroxyApp()},{once:true,passive:true,capture:true})});
-      window.addEventListener('load',function(){setTimeout(function(){if(!appLoaded&&!appLoading)window.__loadFroxyApp()},4800)});
-    }else if(isAppRouteNow||hasStoredSession()||hasOAuthCallback())window.__loadFroxyApp();
+    if(isAppRouteNow||hasStoredSession()||hasOAuthCallback())window.__loadFroxyApp();
   })();
   </script>
 
