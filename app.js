@@ -807,7 +807,8 @@ function showLoginOtpForm(data){
   const hint = document.getElementById('otp-hint');
   const code = document.getElementById('otp-code');
   const err = document.getElementById('otp-error');
-  if(hint)hint.textContent = (data?.email || 'e-posta adresinize') + ' gönderilen 6 haneli kodu girin.';
+  const action = data?.purpose === 'register' ? 'kaydı tamamlamak için' : 'giriş yapmak için';
+  if(hint)hint.textContent = (data?.email || 'e-posta adresinize') + ' gönderilen 6 haneli kodu ' + action + ' girin.';
   if(code){code.value='';setTimeout(()=>code.focus(),80)}
   if(err){err.style.display='none';err.textContent=''}
 }
@@ -830,11 +831,12 @@ async function verifyLoginCode(){
   if(!pendingLoginOtpChallenge?.challengeId){if(err){err.textContent='Kod oturumu bulunamadı. Tekrar giriş yapın.';err.style.display='block'}return}
   if(code.length!==6){if(err){err.textContent='6 haneli kodu girin.';err.style.display='block'}return}
   try{
-    const res=await fetch('/api/login/verify-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challengeId:pendingLoginOtpChallenge.challengeId,code})});
+    const purpose=pendingLoginOtpChallenge?.purpose === 'register' ? 'register' : 'login';
+    const res=await fetch('/api/'+purpose+'/verify-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challengeId:pendingLoginOtpChallenge.challengeId,code})});
     const data=await readApiJson(res);
     if(!res.ok){if(err){err.textContent=data.error||'Kod doğrulanamadı.';err.style.display='block'}return}
     pendingLoginOtpChallenge=null;
-    finishBackendAuth(data,'Giriş doğrulandı!');
+    finishBackendAuth(data,purpose==='register'?'Hesap doğrulandı! 100 kredi hazır.':'Giriş doğrulandı!');
   }catch(e){
     if(err){err.textContent='Bağlantı hatası: '+e.message;err.style.display='block'}
   }
@@ -845,7 +847,8 @@ async function resendLoginCode(){
   if(err){err.style.display='none';err.textContent=''}
   if(!pendingLoginOtpChallenge?.challengeId){if(err){err.textContent='Tekrar giriş yapın.';err.style.display='block'}return}
   try{
-    const res=await fetch('/api/login/resend-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challengeId:pendingLoginOtpChallenge.challengeId})});
+    const purpose=pendingLoginOtpChallenge?.purpose === 'register' ? 'register' : 'login';
+    const res=await fetch('/api/'+purpose+'/resend-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challengeId:pendingLoginOtpChallenge.challengeId})});
     const data=await readApiJson(res);
     if(!res.ok){if(err){err.textContent=data.error||'Kod tekrar gönderilemedi.';err.style.display='block'}return}
     showLoginOtpForm(data);
@@ -881,9 +884,9 @@ async function doAuth(type) {
     });
     const data = await readApiJson(res);
     if (res.ok) {
-      if(type==='login'&&data.requiresOtp){
+      if(data.requiresOtp){
         showLoginOtpForm(data);
-        if(typeof msg==='function')msg('Giriş kodu e-postana gönderildi.','ok');
+        if(typeof msg==='function')msg((type==='register'?'Kayıt':'Giriş')+' kodu e-postana gönderildi.','ok');
         return;
       }
       finishBackendAuth(data,type==='login' ? 'Başarıyla giriş yapıldı!' : 'Hesap oluşturuldu! 100 kredi hazır.');
