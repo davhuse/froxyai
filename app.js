@@ -1711,12 +1711,15 @@ function closeM(){
 // ===== GÖRSEL MODEL CUSTOM PICKER =====
 (function initImgModelPicker(){
   const NAME_MAP = {
+    'auto-quality': { brand: 'AI', desc: 'Akilli Kalite - En iyi uygun saglayici', cost: 25, costType: 'pro' },
+    'openai-gpt-image-2': { brand: 'G2', desc: 'GPT Image 2 - OpenAI', cost: 25, costType: 'pro' },
+    'openai-gpt-image-1': { brand: 'G1', desc: 'GPT Image 1 - OpenAI', cost: 25, costType: 'pro' },
     'cf-sdxl': { brand: 'CF', desc: 'Cloudflare SDXL — Önerilen', cost: 8, costType: 'free' },
     'flux': { brand: 'F', desc: 'Flux AI — Hızlı', cost: 8, costType: 'free' },
     'together-flux': { brand: 'TF', desc: 'Together Flux — Hızlı', cost: 8, costType: 'free' },
     'sana': { brand: 'SN', desc: 'Sana AI — Çok Hızlı', cost: 8, costType: 'free' },
     'style-midjourney': { brand: 'MJ', desc: 'Midjourney V6 stili', cost: 8, costType: 'free' },
-    'style-dalle3': { brand: 'D3', desc: 'DALL-E 3 stili', cost: 8, costType: 'free' },
+    'style-dalle3': { brand: 'GI', desc: 'GPT Image stili', cost: 25, costType: 'pro' },
     'style-anime': { brand: 'AN', desc: 'Anime Diffusion', cost: 8, costType: 'free' },
     'style-realism': { brand: '8K', desc: 'Hyper-Realism 8K', cost: 8, costType: 'free' },
     'style-cinematic': { brand: 'CI', desc: 'Cinematic AI', cost: 8, costType: 'free' },
@@ -1731,6 +1734,9 @@ function closeM(){
     'imagen-4-fast': { brand: 'IF', desc: 'Imagen 4.0 Fast', cost: 15, costType: 'pro' }
   };
   const FLAG_GRADIENTS = {
+    'auto-quality': 'linear-gradient(135deg,#22d3ee,#7c3aed)',
+    'openai-gpt-image-2': 'linear-gradient(135deg,#10b981,#22d3ee)',
+    'openai-gpt-image-1': 'linear-gradient(135deg,#0ea5e9,#10b981)',
     'cf-sdxl': 'linear-gradient(135deg,#06b6d4,#3b82f6)',
     'flux': 'linear-gradient(135deg,#0ea5e9,#06b6d4)',
     'together-flux': 'linear-gradient(135deg,#eab308,#ef4444)',
@@ -2622,6 +2628,7 @@ const CLIENT_MODEL_CREDIT_COST = {free:3,light:8,mid:20,heavy:50,image_free:8,im
 function getClientModelCreditCost(model,provider,kind){
   const id=String(model||'').toLowerCase();
   const p=String(provider||'').toLowerCase();
+  if(kind==='image' && (id==='auto-quality' || id.startsWith('openai-') || id==='style-dalle3'))return CLIENT_MODEL_CREDIT_COST.image_mid;
   if(kind==='image' || id.includes('imagen') || id.includes('gpt-image') || id==='flux' || id==='turbo' || id==='sana' || id.includes('cf-sdxl') || id.includes('style-')){
     if(id.includes('imagen-4-fast'))return 15;
     if(id.includes('imagen-4-ultra'))return CLIENT_MODEL_CREDIT_COST.image_ultra;
@@ -7213,6 +7220,8 @@ function providerKeyFor(provider){
 }
 function imageProviderForModel(model){
   if(!model)return '';
+  if(model==='auto-quality')return 'openai';
+  if(model.startsWith('openai-') || model.includes('gpt-image') || model==='dall-e-3' || model==='style-dalle3')return 'openai';
   if(model.startsWith('imagen-'))return 'gemini';
   if(model.startsWith('runware-'))return 'runware';
   if(model.startsWith('stability-'))return 'stability';
@@ -9550,11 +9559,14 @@ window.fetchUrlContent = async function(url) {
     const ip = health.imageProviders;
 
     const checks = {
+      'auto-quality':    { ok: !!(ip.openai_image || ip.gemini_imagen || ip.cloudflare), fallback: true, key: 'OPENAI_IMAGE_KEY' },
+      'openai-gpt-image-2': { ok: !!ip.openai_image, fallback: !ip.openai_image, key: 'OPENAI_IMAGE_KEY' },
+      'openai-gpt-image-1': { ok: !!ip.openai_image, fallback: !ip.openai_image, key: 'OPENAI_IMAGE_KEY' },
       'flux':            { ok: true },
       'turbo':           { ok: true },
       'sana':            { ok: true },
       'style-midjourney':{ ok: true },
-      'style-dalle3':    { ok: true },
+      'style-dalle3':    { ok: !!ip.openai_image, fallback: !ip.openai_image, key: 'OPENAI_IMAGE_KEY' },
       'style-anime':     { ok: true },
       'style-realism':   { ok: true },
       'style-cinematic': { ok: true },
@@ -9749,7 +9761,8 @@ async function requestImageWithFallback(prompt, model, timeoutMs=28000){
   const imageSize=getImageSizePayload();
   const payload={prompt:prompt,model:model,imageSize:imageSize.key,width:imageSize.width,height:imageSize.height,aspectRatio:imageSize.aspect,size:imageSize.size,apiKey:providerKeyFor(provider)};
   try{
-    const r=await postJsonApi('/api/image',payload,timeoutMs);
+    const endpoint=String(model||'').startsWith('imagen-')?'/api/imagen':'/api/image';
+    const r=await postJsonApi(endpoint,payload,timeoutMs);
     const remoteUrl=r?.data?.url||'';
     if(remoteUrl){
       return {

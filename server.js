@@ -2268,6 +2268,18 @@ const GEMINI_KEYS = (process.env.GEMINI_API_KEYS || [
 ].join(',')).split(',').map(k => k.trim()).filter(Boolean);
 const getGeminiKey = () => GEMINI_KEYS[Math.floor(Math.random() * GEMINI_KEYS.length)];
 const GOOGLE_API_KEY = fromEnv('GOOGLE_API_KEY', fromEnv('GEMINI_API_KEY', ''));
+const OPENAI_IMAGE_KEYS = (fromEnv('OPENAI_IMAGE_KEYS') || fromEnv('OPENAI_IMAGE_KEY') || fromEnv('OPENAI_API_KEY') || '')
+  .split(',')
+  .map(k => k.trim())
+  .filter(Boolean);
+let _openaiImageKeyIndex = 0;
+function getOpenAIImageKey() {
+  if (!OPENAI_IMAGE_KEYS.length) return '';
+  const key = OPENAI_IMAGE_KEYS[_openaiImageKeyIndex % OPENAI_IMAGE_KEYS.length];
+  _openaiImageKeyIndex = (_openaiImageKeyIndex + 1) % OPENAI_IMAGE_KEYS.length;
+  return key;
+}
+const OPENAI_IMAGE_MODEL = fromEnv('OPENAI_IMAGE_MODEL', 'gpt-image-2');
 
 // ⚠️  Hardcoded fallback'ler sadece dev ortamı içindir.
 // Production'da .env içinde tanımlayın — bu değerler git'e giderse sızar.
@@ -2558,6 +2570,149 @@ async function callGoogleDirectImage({ model, prompt, apiKey: apiKeyOverride }) 
   const fileName = `google_${Date.now()}.${ext}`;
   fs.writeFileSync(path.join(genDir, fileName), Buffer.from(imagePart.inlineData.data, 'base64'));
   return { url: `/generated/${fileName}`, prompt, model };
+}
+
+function saveGeneratedImageBuffer(buffer, prefix = 'img', ext = 'png') {
+  const genDir = path.join(__dirname, 'generated');
+  if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
+  const safeExt = String(ext || 'png').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'png';
+  const fileName = `${prefix}_${Date.now()}_${Math.floor(Math.random() * 10000)}.${safeExt}`;
+  fs.writeFileSync(path.join(genDir, fileName), buffer);
+  return `/generated/${fileName}`;
+}
+
+function normalizeOpenAIImageSize(imageSize) {
+  const aspect = String(imageSize?.aspectRatio || imageSize?.aspect || '1:1');
+  if (aspect === '16:9') return '1536x1024';
+  if (aspect === '9:16' || aspect === '4:5') return '1024x1536';
+  return '1024x1024';
+}
+
+function normalizeOpenAIImageModel(model) {
+  const m = String(model || '').toLowerCase();
+  if (m.includes('gpt-image-1-mini')) return 'gpt-image-1-mini';
+  if (m.includes('gpt-image-1.5')) return 'gpt-image-1.5';
+  if (m.includes('gpt-image-1')) return 'gpt-image-1';
+  if (m.includes('dall-e-3')) return 'dall-e-3';
+  return OPENAI_IMAGE_MODEL || 'gpt-image-2';
+}
+
+async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverride }) {
+  const apiKey = apiKeyOverride || getOpenAIImageKey();
+  if (!apiKey) throw new Error('OPENAI_IMAGE_KEY eksik');
+  const openaiModel = normalizeOpenAIImageModel(model);
+  const body = {
+    model: openaiModel,
+    prompt,
+    n: 1,
+    size: normalizeOpenAIImageSize(imageSize),
+    quality: openaiModel === 'dall-e-3' ? 'standard' : 'auto'
+  };
+  if (openaiModel !== 'dall-e-3') {
+    body.output_format = 'png';
+    body.moderation = 'auto';
+  }
+  const response = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(120000)
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.error?.message || `OpenAI image hatasi (${response.status})`);
+  const item = json.data?.[0];
+  let buffer = null;
+  if (item?.b64_json) buffer = Buffer.from(item.b64_json, 'base64');
+  else if (item?.url) {
+    const dl = await fetch(item.url, { signal: AbortSignal.timeout(60000) });
+    if (!dl.ok) throw new Error(`OpenAI gorsel indirilemedi (${dl.status})`);
+    buffer = Buffer.from(await dl.arrayBuffer());
+  }
+  if (!buffer || buffer.length < 1000) throw new Error('OpenAI bos gorsel dondurdu');
+  const url = saveGeneratedImageBuffer(buffer, 'openai', 'png');
+  return { url, provider: 'openai', model: openaiModel, revised_prompt: item?.revised_prompt || prompt };
+}
+
+async function searchImageReferenceSnippets(query) {
+  const q = `${query} visual appearance character reference outfit colors`;
+  try {
+    if (BRAVE_SEARCH_KEY) {
+      const brRes = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(q)}&count=4&text_decorations=false`, {
+        headers: { 'Accept': 'application/json', 'Accept-Encoding': 'gzip', 'X-Subscription-Token': BRAVE_SEARCH_KEY },
+        signal: AbortSignal.timeout(5000)
+      });
+      const brData = await brRes.json().catch(() => ({}));
+      if (brRes.ok && brData.web?.results?.length) {
+        return brData.web.results.map(r => `${r.title || ''}: ${r.description || ''}`.trim()).filter(Boolean).slice(0, 4);
+      }
+    }
+  } catch (err) {
+    console.warn('[IMAGE RESEARCH] Brave failed:', err.message);
+  }
+  try {
+    const ddgRes = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8' },
+      signal: AbortSignal.timeout(6000)
+    });
+    if (!ddgRes.ok) return [];
+    const html = await ddgRes.text();
+    const snippets = [];
+    const rx = /<a[^>]+class="result__a"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<a class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+    let m;
+    while ((m = rx.exec(html)) && snippets.length < 4) {
+      const title = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      const snip = m[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      if (title || snip) snippets.push(`${title}: ${snip}`.trim());
+    }
+    return snippets;
+  } catch (err) {
+    console.warn('[IMAGE RESEARCH] DDG failed:', err.message);
+    return [];
+  }
+}
+
+function shouldResearchImagePrompt(prompt) {
+  const p = String(prompt || '');
+  if (/\b(webden|internetten|araştır|referans|benzet|karakter|film|dizi|oyun|anime|ünlü|marka|logo)\b/i.test(p)) return true;
+  const words = p.match(/\b[A-ZÇĞİÖŞÜ][\wÇĞİÖŞÜçğıöşü-]{2,}\b/g) || [];
+  return words.some(w => !/^(Bir|Bana|Lutfen|Lütfen|Generate|Create|Draw|Ciz|Çiz)$/i.test(w));
+}
+
+async function buildImagePromptForQuality(originalPrompt, model, options = {}) {
+  const raw = String(originalPrompt || '').trim();
+  const lower = raw.toLocaleLowerCase('tr-TR');
+  const quality = [
+    'high quality, coherent anatomy, accurate subject details',
+    'clear composition, sharp focus, natural lighting, no distorted face or hands',
+    'respect the user requested colors, age, clothing, and scene details exactly'
+  ];
+  const negatives = 'Avoid: wrong hair color, extra fingers, deformed anatomy, blurry subject, unreadable text, random logos, watermark.';
+  const styleHint = /sarışın|sarisin|blonde/i.test(lower)
+    ? 'The main subject must have clearly blonde hair, not brown or black.'
+    : '';
+  const researchEnabled = options.research !== false && shouldResearchImagePrompt(raw);
+  let snippets = [];
+  if (researchEnabled) snippets = await searchImageReferenceSnippets(raw);
+  const reference = snippets.length
+    ? `Use these public web reference notes only as visual guidance, not as text to print: ${snippets.join(' | ').slice(0, 900)}.`
+    : '';
+  const finalPrompt = [
+    raw,
+    reference,
+    styleHint,
+    quality.join(', ') + '.',
+    negatives
+  ].filter(Boolean).join('\n');
+  return {
+    prompt: finalPrompt,
+    originalPrompt: raw,
+    referenceUsed: snippets.length > 0,
+    referenceSnippets: snippets,
+    model
+  };
 }
 
 function streamPieceFromChoice(choice) {
@@ -2869,6 +3024,7 @@ app.get('/api/health', (req, res) => {
       hf_ltx: Boolean(fromEnv('HF_TOKEN'))
     },
     imageProviders: {
+      openai_image: Boolean(OPENAI_IMAGE_KEYS.length > 0),
       cloudflare: Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN),
       runware: Boolean(RUNWARE_API_KEY),
       stability: Boolean(STABILITY_API_KEY),
@@ -3891,9 +4047,10 @@ function resolveImageSize(input = {}) {
 
 // Image generation endpoint supporting both Pollinations and Guicore API
 app.post('/api/image', chatLimiter, async (req, res) => {
-  const { prompt, model, apiKey: bodyApiKey } = req.body;
+  let { prompt, model, apiKey: bodyApiKey } = req.body;
   const imageSize = resolveImageSize(req.body || {});
   if (!prompt) return res.status(400).json({ error: 'Prompt required' });
+  prompt = String(prompt || '').trim();
   
   // Daily image limit check
   if (req.user?.id) {
@@ -3921,6 +4078,69 @@ app.post('/api/image', chatLimiter, async (req, res) => {
   };
   if (IMG_MODEL_ALIASES[imgModel]) {
     imgModel = IMG_MODEL_ALIASES[imgModel];
+  }
+
+  const promptMeta = await buildImagePromptForQuality(prompt, imgModel, { research: req.body?.research });
+  prompt = promptMeta.prompt;
+  const imageMeta = {
+    originalPrompt: promptMeta.originalPrompt,
+    revised_prompt: prompt,
+    referenceUsed: promptMeta.referenceUsed,
+    referenceSnippets: promptMeta.referenceSnippets
+  };
+
+  if (imgModel === 'auto-quality') {
+    imgModel = (overrideKey || OPENAI_IMAGE_KEYS.length) ? 'openai-gpt-image-2' : (GEMINI_KEYS.length ? 'imagen-4-fast' : 'cf-sdxl');
+  }
+
+  if (imgModel === 'style-dalle3') {
+    imgModel = 'openai-gpt-image-2';
+  }
+
+  if (imgModel.startsWith('openai-') || imgModel.includes('gpt-image') || imgModel === 'dall-e-3') {
+    try {
+      const out = await callOpenAIImage({ prompt, model: imgModel, imageSize, apiKey: overrideKey });
+      console.log(`[IMAGE] OpenAI saved: ${out.url}`);
+      return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE FALLBACK] OpenAI failed:', err.message);
+      imgModel = GEMINI_KEYS.length ? 'imagen-4-fast' : 'cf-sdxl';
+    }
+  }
+
+  if (imgModel.startsWith('imagen-') || imgModel.startsWith('gemini-')) {
+    try {
+      if (String(imgModel || '').startsWith('gemini-')) {
+        const directModel = imgModel || 'gemini-2.5-flash-image';
+        const out = await callGoogleDirectImage({ model: directModel, prompt, apiKey: overrideKey });
+        return res.json({ ...out, provider: 'google-direct-image', ...imageMeta });
+      }
+      const imagenModels = {
+        'imagen-4': 'imagen-4.0-generate-001',
+        'imagen-4-ultra': 'imagen-4.0-ultra-generate-001',
+        'imagen-4-fast': 'imagen-4.0-fast-generate-001'
+      };
+      const modelId = imagenModels[imgModel] || 'imagen-4.0-fast-generate-001';
+      const apiKey = overrideKey || getGeminiKey();
+      const response = await fetch(`${GOOGLE_DIRECT_BASE}/models/${modelId}:predict?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instances: [{ prompt }],
+          parameters: { sampleCount: 1, aspectRatio: imageSize.aspectRatio, personGeneration: 'allow_adult' }
+        }),
+        signal: AbortSignal.timeout(120000)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error?.message || `Imagen API hatasi (${response.status})`);
+      const b64 = data.predictions?.[0]?.bytesBase64Encoded || data.predictions?.[0]?.image?.bytesBase64Encoded;
+      if (!b64) throw new Error('Imagen yaniti beklenen formatta degil');
+      const url = saveGeneratedImageBuffer(Buffer.from(b64, 'base64'), 'imagen', 'png');
+      return res.json({ url, prompt, model: modelId, provider: 'gemini-imagen', ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE FALLBACK] Imagen failed:', err.message);
+      imgModel = 'cf-sdxl';
+    }
   }
 
   // ── RUNWARE — DEVRE DIŞI (key expired, gereksiz gecikme yaratıyor) ──
@@ -3956,7 +4176,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
       const fileName = `st_${Date.now()}.jpg`;
       fs.writeFileSync(path.join(genDir, fileName), buf);
       console.log(`[IMAGE] Stability saved: /generated/${fileName}`);
-      return res.json({ url: `/generated/${fileName}`, prompt, provider: 'stability' });
+      return res.json({ url: `/generated/${fileName}`, prompt, provider: 'stability', ...imageMeta });
     } catch (err) {
       console.warn('[IMAGE FALLBACK] Stability failed:', err.message, '→ Pollinations');
       imgModel = 'flux';
@@ -3985,7 +4205,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
       const fileName = `tg_${Date.now()}.jpg`;
       fs.writeFileSync(path.join(genDir, fileName), buf);
       console.log(`[IMAGE] Together Flux saved: /generated/${fileName}`);
-      return res.json({ url: `/generated/${fileName}`, prompt, provider: 'together' });
+      return res.json({ url: `/generated/${fileName}`, prompt, provider: 'together', ...imageMeta });
     } catch (err) {
       console.warn('[IMAGE FALLBACK] Together failed:', err.message, '→ Cloudflare Workers AI');
       imgModel = 'cf-sdxl';
@@ -4029,7 +4249,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
       const fileName = `cf_${Date.now()}.${ext}`;
       fs.writeFileSync(path.join(genDir, fileName), buffer);
       console.log(`[IMAGE] Cloudflare saved: /generated/${fileName}`);
-      return res.json({ url: `/generated/${fileName}`, prompt });
+      return res.json({ url: `/generated/${fileName}`, prompt, provider: 'cloudflare', ...imageMeta });
     } catch (err) {
       console.error('[IMAGE ERROR (Cloudflare)]', err.message);
       imgModel = 'flux';
@@ -4070,7 +4290,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
               const fileName = 'cf_' + Date.now() + '.png';
               fs.writeFileSync(path.join(genDir, fileName), buf);
               console.log('[IMAGE] Cloudflare SDXL saved: /generated/' + fileName + ' (' + (buf.length/1024).toFixed(1) + 'KB)');
-              return res.json({ url: '/generated/' + fileName, prompt: cfPrompt, model: imgModel, provider: 'cloudflare-sdxl' });
+              return res.json({ url: '/generated/' + fileName, prompt: cfPrompt, model: imgModel, provider: 'cloudflare-sdxl', ...imageMeta });
             }
           }
         } else {
@@ -4117,7 +4337,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
             const fileName = 'shen_' + Date.now() + '.jpg';
             fs.writeFileSync(path.join(genDir, fileName), buf);
             console.log('[IMAGE] Shenfeng saved: /generated/' + fileName + ' (' + (buf.length/1024).toFixed(1) + 'KB)');
-            return res.json({ url: '/generated/' + fileName, prompt: shenPrompt, model: imgModel, provider: 'shenfeng-gpt-image-2' });
+            return res.json({ url: '/generated/' + fileName, prompt: shenPrompt, model: imgModel, provider: 'shenfeng-gpt-image-2', ...imageMeta });
           }
         } else {
           console.warn('[IMAGE] Shenfeng status', shenRes.status);
@@ -4180,7 +4400,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         const fileName = `gen_${Date.now()}.jpg`;
         fs.writeFileSync(path.join(genDir, fileName), buffer);
         console.log(`[IMAGE] Saved: /generated/${fileName} (${(buffer.length/1024).toFixed(1)}KB) for: "${prompt.substring(0,30)}" [${finalModel}]`);
-        return res.json({ url: `/generated/${fileName}`, prompt: finalPrompt, model: finalModel, provider: 'pollinations' });
+        return res.json({ url: `/generated/${fileName}`, prompt: finalPrompt, model: finalModel, provider: 'pollinations', ...imageMeta });
       } catch (err) {
         lastErr = err;
         if (err.name === 'AbortError') {
@@ -4222,7 +4442,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
           const fileName = `cf_${Date.now()}.png`;
           fs.writeFileSync(path.join(genDir, fileName), buf);
           console.log(`[IMAGE] Cloudflare fallback saved: /generated/${fileName} (Pollinations fallback success)`);
-          return res.json({ url: `/generated/${fileName}`, prompt: fallbackPrompt, model: imgModel, provider: 'cloudflare-fallback' });
+          return res.json({ url: `/generated/${fileName}`, prompt: fallbackPrompt, model: imgModel, provider: 'cloudflare-fallback', ...imageMeta });
         }
       } catch (cfErr) {
         console.warn('[IMAGE] Cloudflare fallback failed:', cfErr.message);
@@ -4236,6 +4456,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
       model: finalModel,
       provider: 'local-svg',
       fallback: 'local-svg',
+      ...imageMeta,
       warning: 'Tüm görsel sağlayıcıları şu an yoğun. Lütfen 30-60 saniye bekleyip tekrar deneyin.'
     });
   }
@@ -4306,7 +4527,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
             if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
             const fileName = `gc_fb_${Date.now()}.jpg`;
             fs.writeFileSync(path.join(genDir, fileName), buf);
-            return res.json({ url: `/generated/${fileName}`, prompt, fallback: 'pollinations-flux' });
+            return res.json({ url: `/generated/${fileName}`, prompt, provider: 'pollinations-flux', fallback: 'pollinations-flux', ...imageMeta });
           }
         }
       }
@@ -4795,17 +5016,25 @@ app.post('/api/video', chatLimiter, async (req, res) => {
 
 // Gemini Imagen 4.0 image generation endpoint
 app.post('/api/imagen', chatLimiter, async (req, res) => {
-  const { prompt, model, apiKey: bodyApiKey } = req.body;
+  let { prompt, model, apiKey: bodyApiKey } = req.body;
   const imageSize = resolveImageSize(req.body || {});
   if (!prompt) return res.status(400).json({ error: 'Prompt gerekli' });
   const overrideKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
+  const promptMeta = await buildImagePromptForQuality(prompt, model || 'imagen-4-fast', { research: req.body?.research });
+  prompt = promptMeta.prompt;
+  const imageMeta = {
+    originalPrompt: promptMeta.originalPrompt,
+    revised_prompt: prompt,
+    referenceUsed: promptMeta.referenceUsed,
+    referenceSnippets: promptMeta.referenceSnippets
+  };
 
   try {
     if (String(model || '').startsWith('gemini-')) {
       const directModel = model || 'gemini-2.5-flash-image';
       const out = await callGoogleDirectImage({ model: directModel, prompt, apiKey: overrideKey });
       console.log(`[IMAGEN] Google Direct saved: ${out.url}`);
-      return res.json(out);
+      return res.json({ ...out, provider: 'google-direct-image', ...imageMeta });
     }
 
     const imagenModels = {
@@ -4837,7 +5066,7 @@ app.post('/api/imagen', chatLimiter, async (req, res) => {
       fs.mkdirSync(path.join(__dirname, 'generated'), { recursive: true });
       fs.writeFileSync(path.join(__dirname, 'generated', fileName), Buffer.from(data.predictions[0].bytesBase64Encoded, 'base64'));
       console.log(`[IMAGEN] Saved: /generated/${fileName}`);
-      return res.json({ url: `/generated/${fileName}`, prompt });
+      return res.json({ url: `/generated/${fileName}`, prompt, model: modelId, provider: 'gemini-imagen', ...imageMeta });
     }
 
     throw new Error('Imagen yanıtı beklenen formatta değil');
@@ -4867,7 +5096,7 @@ app.post('/api/imagen', chatLimiter, async (req, res) => {
             if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
             const fileName = `imagen_fb_${Date.now()}.jpg`;
             fs.writeFileSync(path.join(genDir, fileName), buf);
-            return res.json({ url: `/generated/${fileName}`, prompt, fallback: 'pollinations-flux', warning: err.message });
+            return res.json({ url: `/generated/${fileName}`, prompt, fallback: 'pollinations-flux', warning: err.message, ...imageMeta });
           }
         }
       }
@@ -4909,6 +5138,7 @@ function getModelCreditCost(model, provider) {
   if (provider === 'groq') return MODEL_CREDIT_COST.free;
   
   // ── IMAGE MODELS ──
+  if (m === 'auto-quality' || m.startsWith('openai-') || m === 'style-dalle3') return MODEL_CREDIT_COST.image_mid;
   if (m.includes('imagen-4-fast')) return 15;
   if (m.includes('imagen-4-ultra')) return MODEL_CREDIT_COST.image_ultra;
   if (m.includes('imagen-4') || m.includes('gpt-image')) return MODEL_CREDIT_COST.image_mid;
@@ -5038,6 +5268,9 @@ registerGatewayRoutes(app, {
 // ===== FEATURE 6: /api/models (OpenAI-compatible) =====
 app.get('/api/models', (req, res) => {
   const models = [
+    {id:'auto-quality', name:'Akilli Kalite', provider:'auto', type:'image'},
+    {id:'openai-gpt-image-2', name:'GPT Image 2', provider:'openai', type:'image'},
+    {id:'openai-gpt-image-1', name:'GPT Image 1', provider:'openai', type:'image'},
     {id:'flux', name:'Flux AI', provider:'cloudflare-sdxl', type:'image'},
     {id:'cf-sdxl', name:'Cloudflare SDXL', provider:'cloudflare', type:'image'},
     {id:'together-flux', name:'Together Flux', provider:'together', type:'image'},
@@ -5050,7 +5283,7 @@ app.get('/api/models', (req, res) => {
     {id:'imagen-4', name:'Imagen 4.0', provider:'gemini', type:'image'},
     {id:'imagen-4-fast', name:'Imagen 4.0 Fast', provider:'gemini', type:'image'},
     {id:'style-midjourney', name:'Midjourney V6 Style', provider:'cloudflare-sdxl', type:'image'},
-    {id:'style-dalle3', name:'DALL-E 3 Style', provider:'cloudflare-sdxl', type:'image'},
+    {id:'style-dalle3', name:'GPT Image Style', provider:'openai', type:'image'},
     {id:'style-anime', name:'Anime Diffusion', provider:'cloudflare-sdxl', type:'image'},
     {id:'style-realism', name:'Hyper-Realism 8K', provider:'cloudflare-sdxl', type:'image'},
     {id:'style-cinematic', name:'Cinematic AI', provider:'cloudflare-sdxl', type:'image'},
