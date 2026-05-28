@@ -950,16 +950,18 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== CONFIG =====
 // Guvenlik: Admin bilgileri frontend'te tutulmaz, backend uzerinden kontrol edilir
 const ALL_MODELS = [
-  {id:'llama-3.3-70b-versatile',name:'Llama 3.3 70B',tier:'free',provider:'groq',cat:'llama'},
+  {id:'llama-3.3-70b-versatile',name:'Llama 3.3 70B',tier:'free',provider:'groq',cat:'qualityfree'},
   {id:'meta-llama/llama-4-scout-17b-16e-instruct',name:'Llama 4 Scout 17B',tier:'free',provider:'groq',cat:'llama'},
   {id:'meta-llama/llama-4-maverick-17b-128e-instruct',name:'Llama 4 Maverick',tier:'free',provider:'groq',cat:'llama'},
-  {id:'openai/gpt-oss-120b',name:'GPT-OSS 120B (Groq)',tier:'free',provider:'groq',cat:'gpt'},
-  {id:'openai/gpt-oss-20b',name:'GPT-OSS 20B (Groq)',tier:'free',provider:'groq',cat:'gpt'},
+  {id:'openai/gpt-oss-120b',name:'GPT-OSS 120B (Groq)',tier:'free',provider:'groq',cat:'qualityfree'},
+  {id:'openai/gpt-oss-20b',name:'GPT-OSS 20B (Groq)',tier:'free',provider:'groq',cat:'qualityfree'},
   {id:'qwen/qwen3-32b',name:'Qwen3 32B (Groq)',tier:'free',provider:'groq',cat:'qwen'},
-  {id:'llama-3.1-8b-instant',name:'Llama 3.1 8B Ultra',tier:'free',provider:'groq',cat:'llama'},
+  {id:'llama-3.1-8b-instant',name:'Llama 3.1 8B Ultra',tier:'free',provider:'groq',cat:'qualityfree'},
   {id:'qwen/qwq-32b',name:'QwQ 32B (Reasoning)',tier:'free',provider:'groq',cat:'qwen'},
   {id:'mistral-saba-24b',name:'Mistral Saba 24B',tier:'free',provider:'groq',cat:'mistral'},
-  {id:'deepseek-r1-distill-llama-70b',name:'DeepSeek R1 Distill 70B',tier:'free',provider:'groq',cat:'deepseek'},
+  {id:'deepseek-r1-distill-llama-70b',name:'DeepSeek R1 Distill 70B',tier:'free',provider:'groq',cat:'qualityfree'},
+  {id:'openrouter/free',name:'OpenRouter Free Auto',tier:'free',provider:'openrouter',cat:'qualityfree'},
+  {id:'deepseek/deepseek-r1:free',name:'DeepSeek R1 Free',tier:'free',provider:'openrouter',cat:'qualityfree'},
   {id:'gemma2-9b-it',name:'Gemma 2 9B (Groq)',tier:'free',provider:'groq',cat:'gemini'},
   {id:'allam-2-7b',name:'ALLaM 2 7B',tier:'free',provider:'groq',cat:'other'},
   {id:'pollinations-openai',name:'GPT Sınırsız',tier:'free',provider:'pollinations',cat:'gpt'},
@@ -1017,8 +1019,8 @@ const ALL_MODELS = [
   {id:'nvidia/nemotron-nano-12b-v2-vl:free',name:'NVIDIA: Nemotron Nano 12B 2 VL',tier:'free',provider:'openrouter',cat:'nvidia'},
   {id:'qwen/qwen3-next-80b-a3b-instruct:free',name:'Qwen: Qwen3 Next 80B A3B Instruct',tier:'free',provider:'openrouter',cat:'qwen'},
   {id:'nvidia/nemotron-nano-9b-v2:free',name:'NVIDIA: Nemotron Nano 9B V2',tier:'free',provider:'openrouter',cat:'nvidia'},
-  {id:'openai/gpt-oss-120b:free',name:'OpenAI: gpt-oss-120b',tier:'free',provider:'openrouter',cat:'gpt'},
-  {id:'openai/gpt-oss-20b:free',name:'OpenAI: gpt-oss-20b',tier:'free',provider:'openrouter',cat:'gpt'},
+  {id:'openai/gpt-oss-120b:free',name:'OpenAI: gpt-oss-120b',tier:'free',provider:'openrouter',cat:'qualityfree'},
+  {id:'openai/gpt-oss-20b:free',name:'OpenAI: gpt-oss-20b',tier:'free',provider:'openrouter',cat:'qualityfree'},
   {id:'z-ai/glm-4.5-air:free',name:'Z.ai: GLM 4.5 Air',tier:'free',provider:'openrouter',cat:'other'},
   {id:'qwen/qwen3-coder:free',name:'Qwen: Qwen3 Coder 480B A35B',tier:'free',provider:'openrouter',cat:'qwen'},
   {id:'cognitivecomputations/dolphin-mistral-24b-venice-edition:free',name:'Venice: Uncensored',tier:'free',provider:'openrouter',cat:'mistral'},
@@ -1338,10 +1340,10 @@ const REMOTE_MODEL_TARGET_COUNT=457;
 const MODEL_TIER_LEVEL={free:0,starter:1,pro:2,enterprise:3};
 const PLAN_MODEL_LEVEL={guest:0,free:0,starter:1,popular:1,pro:2,creator:2,developer:3,power:3,agency_start:3,business:3,enterprise:3};
 const CLIENT_EXTRA_REMOTE_MODELS=[
-  { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', name: 'Llama 3.3 70B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'llama', remote: true },
+  { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', name: 'Llama 3.3 70B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'qualityfree', remote: true },
   { id: '@cf/mistralai/mistral-small-3.1-24b-instruct', name: 'Mistral Small 3.1 24B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'mistral', remote: true },
   { id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', name: 'DeepSeek R1 32B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'deepseek', remote: true },
-  { id: '@cf/qwen/qwen2.5-coder-32b-instruct', name: 'Qwen 2.5 Coder 32B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'qwen', remote: true },
+  { id: '@cf/qwen/qwen2.5-coder-32b-instruct', name: 'Qwen 2.5 Coder 32B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'qualityfree', remote: true },
   { id: '@cf/ibm-granite/granite-4.0-h-micro', name: 'IBM Granite 4.0 Micro (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'other', remote: true },
   { id: '@cf/meta/llama-3.1-8b-instruct-fp8', name: 'Llama 3.1 8B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'llama', remote: true },
   { id: '@cf/meta/llama-3-8b-instruct', name: 'Llama 3 8B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'llama', remote: true },
@@ -1403,7 +1405,7 @@ function getAllowedModelsForUser(){
 }
 function firstAllowedModel(){
   const allowed=getAllowedModelsForUser();
-  const stable=['pollinations-openai','openai/gpt-oss-20b','llama-3.1-8b-instant','gemini-flash-latest'];
+  const stable=['llama-3.3-70b-versatile','openai/gpt-oss-120b','openrouter/free','openai/gpt-oss-20b','llama-3.1-8b-instant','pollinations-openai'];
   for(const id of stable){
     const hit=allowed.find(m=>m.id===id)||ALL_MODELS.find(m=>m.id===id&&canUseModel(m));
     if(hit)return hit;
@@ -2634,7 +2636,7 @@ function getClientModelCreditCost(model,provider,kind){
     if(id.includes('imagen-4') || id.includes('gpt-image'))return CLIENT_MODEL_CREDIT_COST.image_mid;
     return CLIENT_MODEL_CREDIT_COST.image_free;
   }
-  if(p==='pollinations' || p==='groq' || p==='cerebras' || id.includes(':free'))return CLIENT_MODEL_CREDIT_COST.free;
+  if(p==='pollinations' || p==='groq' || p==='cerebras' || p==='cloudflare' || id==='openrouter/free' || id.includes(':free'))return CLIENT_MODEL_CREDIT_COST.free;
   if(['llama-3.1-8b','llama-3.3-70b','llama-4-scout','llama-4-maverick','gpt-oss-20b','gpt-oss-120b','qwen/qwen3-32b','qwq-32b','mistral-saba','deepseek-r1-distill','gemma2-9b','gemma-3-12b','gemini-flash-latest'].some(x=>id.includes(x)))return CLIENT_MODEL_CREDIT_COST.free;
   if(['gpt-5.5','gpt-5.4','gpt-5.3-codex','gpt-4.5','claude-opus','claude-sonnet-4-5','o3','o1-pro','gemini-3.1-pro','deepseek-v3.2'].some(x=>id.includes(x)) && !id.includes('mini') && !id.includes('spark'))return CLIENT_MODEL_CREDIT_COST.heavy;
   if(['gpt-5.4-mini','gpt-5.2','o3-mini','claude-sonnet-4','claude-sonnet-4-6','gemini-3-pro','gemini-2.5-pro','deepseek-v3.1','deepseek-v3','deepseek-v4','grok-3','grok-2'].some(x=>id.includes(x)))return CLIENT_MODEL_CREDIT_COST.mid;
@@ -3041,6 +3043,7 @@ function renderModelSelect(){
   const models=getEnabledModelsForUser();
   const totalCount=visibleModelCount();
   const cats={
+    qualityfree:{label:'Ücretsiz Kaliteli'},
     gpt:{label:'GPT / OpenAI'},gemini:{label:'Gemini / Google'},claude:{label:'Claude'},
     llama:{label:'Llama / Meta'},qwen:{label:'Qwen / Alibaba'},deepseek:{label:'DeepSeek'},
     nvidia:{label:'NVIDIA'},mistral:{label:'Mistral'},image:{label:'Görsel'},spicy:{label:'Spicy (18+)'},other:{label:'Di\u011fer'}
@@ -3147,6 +3150,7 @@ async function runModelHealthCheck(opts){
 // ===== QUARKAI MODEL PICKER =====
 let mpActiveCat='all';
 const CAT_INFO={
+  qualityfree:{icon:'sparkles',label:'Ücretsiz Kaliteli',color:'#22c55e'},
   gpt:{icon:'bot',label:'GPT',color:'#10b981'},gemini:{icon:'sparkles',label:'Google',color:'#4285f4'},
   claude:{icon:'message',label:'Claude',color:'#a855f7'},llama:{icon:'bot',label:'Meta',color:'#f59e0b'},
   qwen:{icon:'sparkles',label:'QWEN',color:'#06b6d4'},deepseek:{icon:'search',label:'DeepSeek',color:'#3b82f6'},

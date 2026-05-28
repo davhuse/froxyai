@@ -3017,10 +3017,12 @@ app.get('/api/model-catalog', async (req, res) => {
     // Cloudflare ve NVIDIA modellerini de listeye ekle (test edilmiş çalışan modeller)
     const extraModels = [
       // Cloudflare Workers AI (10K req/gün ÜCRETSİZ, yenileniyor)
-      { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', name: 'Llama 3.3 70B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'llama', remote: true },
+      { id: 'openrouter/free', name: 'OpenRouter Free Auto', tier: 'free', provider: 'openrouter', cat: 'qualityfree', remote: true },
+      { id: 'deepseek/deepseek-r1:free', name: 'DeepSeek R1 Free', tier: 'free', provider: 'openrouter', cat: 'qualityfree', remote: true },
+      { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', name: 'Llama 3.3 70B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'qualityfree', remote: true },
       { id: '@cf/mistralai/mistral-small-3.1-24b-instruct', name: 'Mistral Small 3.1 24B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'mistral', remote: true },
       { id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', name: 'DeepSeek R1 32B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'deepseek', remote: true },
-      { id: '@cf/qwen/qwen2.5-coder-32b-instruct', name: 'Qwen 2.5 Coder 32B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'qwen', remote: true },
+      { id: '@cf/qwen/qwen2.5-coder-32b-instruct', name: 'Qwen 2.5 Coder 32B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'qualityfree', remote: true },
       { id: '@cf/ibm-granite/granite-4.0-h-micro', name: 'IBM Granite 4.0 Micro (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'other', remote: true },
       { id: '@cf/meta/llama-3.1-8b-instruct-fp8', name: 'Llama 3.1 8B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'llama', remote: true },
       { id: '@cf/meta/llama-3-8b-instruct', name: 'Llama 3 8B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'llama', remote: true },
@@ -3470,6 +3472,8 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
     'google/gemma-2-9b-it:free': 'qwen/qwen3-32b',
     'microsoft/phi-3-mini-128k-instruct:free': 'llama-3.1-8b-instant',
     'deepseek/deepseek-chat:free': 'openai/gpt-oss-120b',
+    'deepseek/deepseek-r1:free': 'llama-3.3-70b-versatile',
+    'openrouter/free': 'llama-3.3-70b-versatile',
     'google/gemini-2.0-flash-exp:free': 'llama-3.3-70b-versatile',
     'qwen/qwen-2.5-coder-32b-instruct:free': 'qwen/qwen3-32b',
     'mistralai/mistral-nemo:free': 'llama-3.1-8b-instant',
@@ -5190,7 +5194,8 @@ function getModelCreditCost(model, provider) {
   // ── FREE TIER (3 kredi) — tamamen ucretsiz saglay\u0131c\u0131lar ──
   if (provider === 'pollinations') return MODEL_CREDIT_COST.free;
   if (provider === 'cerebras') return MODEL_CREDIT_COST.free;
-  if (m.includes(':free')) return MODEL_CREDIT_COST.free;
+  if (provider === 'cloudflare') return MODEL_CREDIT_COST.free;
+  if (m === 'openrouter/free' || m.includes(':free')) return MODEL_CREDIT_COST.free;
   
   const freeModels = [
     'llama-3.1-8b', 'llama-3.3-70b-versatile', 'llama-4-scout', 'llama-4-maverick',
