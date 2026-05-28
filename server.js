@@ -2674,6 +2674,21 @@ async function searchImageReferenceSnippets(query) {
   }
 }
 
+function fallbackImageReferenceSnippets(query) {
+  const q = String(query || '').toLocaleLowerCase('tr-TR');
+  const notes = [];
+  if (q.includes('homelander')) {
+    notes.push('Homelander visual guide: adult blond male superhero, slicked-back blond hair, clean-shaven face, confident unsettling smile, dark blue fitted suit, red-white cape, gold eagle shoulder accents, red gloves, patriotic comic-book villain mood, cinematic dramatic lighting.');
+  }
+  if (/\bsuperman\b/i.test(q)) {
+    notes.push('Classic superhero visual guide: adult dark-haired male hero, blue suit, red cape, strong jaw, heroic upright pose, bright cinematic lighting, clean comic-book silhouette.');
+  }
+  if (q.includes('joker')) {
+    notes.push('Joker visual guide: pale face, green hair, sharp grin, purple suit, chaotic theatrical expression, gritty cinematic lighting, urban night atmosphere.');
+  }
+  return notes;
+}
+
 function shouldResearchImagePrompt(prompt) {
   const p = String(prompt || '');
   if (/\b(webden|internetten|araştır|referans|benzet|karakter|film|dizi|oyun|anime|ünlü|marka|logo)\b/i.test(p)) return true;
@@ -2696,6 +2711,7 @@ async function buildImagePromptForQuality(originalPrompt, model, options = {}) {
   const researchEnabled = options.research !== false && shouldResearchImagePrompt(raw);
   let snippets = [];
   if (researchEnabled) snippets = await searchImageReferenceSnippets(raw);
+  if (researchEnabled && snippets.length === 0) snippets = fallbackImageReferenceSnippets(raw);
   const reference = snippets.length
     ? `Use these public web reference notes only as visual guidance, not as text to print: ${snippets.join(' | ').slice(0, 900)}.`
     : '';
