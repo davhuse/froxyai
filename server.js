@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const fs = require('fs');
 const zlib = require('zlib');
+const nodemailer = require('nodemailer');
 const { registerGatewayRoutes } = require('./src/gateway');
 
 // Local key file loader for environments where a real .env is not wired.
@@ -872,6 +873,29 @@ function sendBrevoEmail({ to, subject, html, text }) {
   });
 }
 
+async function sendLoginOtpEmail({ to, subject, html, text }) {
+  if (process.env.BREVO_SMTP_LOGIN && (process.env.BREVO_SMTP_KEY || process.env.BREVO_API_KEY)) {
+    const transporter = nodemailer.createTransport({
+      host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
+      port: Number(process.env.BREVO_SMTP_PORT || 587),
+      secure: false,
+      auth: {
+        user: process.env.BREVO_SMTP_LOGIN,
+        pass: process.env.BREVO_SMTP_KEY || process.env.BREVO_API_KEY
+      }
+    });
+    await transporter.sendMail({
+      from: LOGIN_OTP_FROM,
+      to,
+      subject,
+      html,
+      text
+    });
+    return;
+  }
+  await sendBrevoEmail({ to, subject, html, text });
+}
+
 async function issueLoginOtp(req, userRow) {
   if (!LOGIN_OTP_ENABLED) return null;
   const challengeId = crypto.randomBytes(24).toString('hex');
@@ -891,7 +915,7 @@ async function issueLoginOtp(req, userRow) {
         <p style="color:#94a3b8;font-size:13px;margin-top:18px">Bu kod ${LOGIN_OTP_TTL_MINUTES} dakika gecerlidir.</p>
       </div>
     </div>`;
-  await sendBrevoEmail({ to: userRow.email, subject, html, text });
+  await sendLoginOtpEmail({ to: userRow.email, subject, html, text });
   recordFunnelEvent(req, 'login_otp_sent', { userId: userRow.id, metadata: { email_domain: String(userRow.email).split('@')[1] || '' } });
   return { challengeId, expiresAt: expires, email: maskEmail(userRow.email) };
 }
