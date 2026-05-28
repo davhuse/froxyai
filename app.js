@@ -800,6 +800,7 @@ async function doAuth(type) {
   const errDiv = document.getElementById('auth-error');
   if(errDiv)errDiv.style.display = 'none';
   try {
+    if(type==='register'&&typeof trackFunnelEvent==='function')trackFunnelEvent('signup_click',{surface:'auth_submit'});
     const res = await fetch(`/api/${type}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -813,12 +814,8 @@ async function doAuth(type) {
       syncAuthUserToLocal();
       localStorage.setItem('saas_token', authToken);
       localStorage.setItem('saas_user', JSON.stringify(authUser));
-      closeM();
-      loginUI();
-      renderModelSelect();
       if(typeof msg==='function') msg(type==='login' ? 'Ba\u015far\u0131yla giri\u015f yap\u0131ld\u0131!' : 'Hesap olu\u015fturuldu! 100 kredi haz\u0131r.', 'ok');
-      updateCreditsUI();
-      go('chat');
+      completeAuthTransition('chat');
     } else {
       const localUsers=LS.get('ap_users',[]);
       const localMatch=type==='login'&&localUsers.some(u=>u.email===email&&u.pass===password);
@@ -1012,6 +1009,65 @@ const LS = {
   set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
   del:k=>localStorage.removeItem(k)
 };
+
+(function(){
+  if(window.__froxyFunnelTrackingV216)return;
+  window.__froxyFunnelTrackingV216=true;
+  const events={page_view:1,signup_click:1,register_complete:1,first_ai_message:1,pricing_view:1,purchase_click:1,purchase_complete:1};
+  function parse(raw,fallback){try{return raw?JSON.parse(raw):fallback}catch(e){return fallback}}
+  function sid(){
+    try{
+      let id=localStorage.getItem('frx_funnel_sid_v1');
+      if(!id){id='frx-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);localStorage.setItem('frx_funnel_sid_v1',id)}
+      return id;
+    }catch(e){return 'frx-sessionless'}
+  }
+  function utm(){
+    const p=new URLSearchParams(location.search||'');
+    const incoming={source:p.get('utm_source')||p.get('source')||'',medium:p.get('utm_medium')||p.get('medium')||'',campaign:p.get('utm_campaign')||p.get('campaign')||'',content:p.get('utm_content')||'',term:p.get('utm_term')||''};
+    if(Object.values(incoming).some(Boolean)){try{localStorage.setItem('frx_utm_payload_v1',JSON.stringify(Object.assign({captured_at:new Date().toISOString()},incoming)))}catch(e){};return incoming}
+    return parse(localStorage.getItem('frx_utm_payload_v1'),{})||{};
+  }
+  function payload(event,metadata){
+    const u=utm();
+    return {event,session_id:sid(),source:u.source||'',medium:u.medium||'',campaign:u.campaign||'',content:u.content||'',term:u.term||'',path:location.pathname+location.search,referrer:document.referrer||'',metadata:Object.assign({title:document.title||''},metadata||{})};
+  }
+  window.trackFunnelEvent=function(event,metadata){
+    if(!events[event])return;
+    const data=payload(event,metadata);
+    try{if(typeof gtag==='function')gtag('event',event,data.metadata);if(typeof fbq==='function')fbq('trackCustom',event,data.metadata)}catch(e){}
+    const body=JSON.stringify(data);
+    try{if(navigator.sendBeacon&&navigator.sendBeacon('/api/track',new Blob([body],{type:'application/json'})))return}catch(e){}
+    fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});
+  };
+  window.trackFirstFroxyAiUse=function(kind,metadata){
+    try{if(localStorage.getItem('frx_first_ai_message_sent_v1'))return;localStorage.setItem('frx_first_ai_message_sent_v1',new Date().toISOString())}catch(e){}
+    window.trackFunnelEvent('first_ai_message',Object.assign({kind:kind||'chat'},metadata||{}));
+  };
+  window.froxyCampaignUrl=function(source,medium,campaign){
+    const url=new URL(location.origin,location.origin);
+    url.searchParams.set('utm_source',source||'youtube');
+    url.searchParams.set('utm_medium',medium||'shorts');
+    url.searchParams.set('utm_campaign',campaign||'free100');
+    return url.toString();
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    window.trackFunnelEvent('page_view',{surface:'site'});
+    document.addEventListener('click',function(ev){
+      const el=ev.target&&ev.target.closest?ev.target.closest('a,button,[role="button"]'):null;
+      if(!el)return;
+      const text=String((el.getAttribute('onclick')||el.textContent||el.getAttribute('aria-label')||'')).toLowerCase();
+      if(text.includes("modal('reg")||text.includes('kayit')||text.includes('register')||text.includes('ucretsiz')||text.includes('100 kredi'))window.trackFunnelEvent('signup_click',{surface:'cta_click',label:(el.textContent||'').trim().slice(0,80)});
+      if(text.includes('buytokens')||text.includes('shopier')||text.includes('satin')||text.includes('satın'))window.trackFunnelEvent('purchase_click',{surface:'cta_click',label:(el.textContent||'').trim().slice(0,80)});
+    },true);
+    const targets=['#home-pricing-v252','#pricing','#ptab-store','.pricing-grid','.store-grid'].map(s=>document.querySelector(s)).filter(Boolean);
+    if('IntersectionObserver' in window&&targets.length){
+      let seen=false;
+      const io=new IntersectionObserver(function(entries){if(seen)return;if(entries.some(e=>e.isIntersecting&&e.intersectionRatio>0.25)){seen=true;window.trackFunnelEvent('pricing_view',{surface:'pricing_section'});io.disconnect()}},{threshold:[0.25,0.5]});
+      targets.forEach(t=>io.observe(t));
+    }
+  });
+})();
 
 const ICON_PATHS={
   bot:'<path d="M12 8V4H8"/><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M7 14h.01M17 14h.01"/><path d="M9 18h6"/>',
@@ -1299,6 +1355,28 @@ function syncAuthUserToLocal(){
   };
   admin=!!authUser.is_admin;
   LS.set('ap_user',user);
+}
+function completeAuthTransition(target){
+  const destination=target || ((admin || authUser?.is_admin || user?.isAdmin) ? 'admin' : 'chat');
+  try{closeM()}catch(e){}
+  try{loginUI()}catch(e){}
+  try{renderModelSelect()}catch(e){}
+  try{updateCreditsUI()}catch(e){}
+  try{updateSidebarAuthActions()}catch(e){}
+  try{updateHomeAuthActions()}catch(e){}
+  setTimeout(()=>{
+    try{
+      go(destination);
+      if(destination==='chat'&&typeof panelTab==='function')panelTab('chat');
+    }catch(e){}
+  },0);
+  setTimeout(()=>{
+    try{
+      const route=getRouteTarget();
+      if(destination==='chat' && route!=='chat')go('chat');
+      if(destination==='admin' && route!=='admin')go('admin');
+    }catch(e){}
+  },160);
 }
 // Ensure newly added models in code are also enabled for existing users
 ALL_MODELS.forEach(m => {
@@ -1944,7 +2022,7 @@ function finishOAuthLogin(provider,name,email,avatar){
     }else{
       msg('Hoşgeldin, '+existing.name+'!','ok');
     }
-    user=existing;LS.set('ap_user',user);admin=!!user.isAdmin;closeM();loginUI();go(admin?'admin':'chat');
+    user=existing;LS.set('ap_user',user);admin=!!user.isAdmin;completeAuthTransition(admin?'admin':'chat');
     return;
   }
   const myRefCode=genRefCode(name);
@@ -1959,7 +2037,10 @@ function finishOAuthLogin(provider,name,email,avatar){
   applyClientForceAdmin(user);
   fetch('/api/register-ip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}).catch(()=>{});
   users.push(user);LS.set('ap_users',users);LS.set('ap_user',user);
-  admin=!!user.isAdmin;closeM();loginUI();go(admin?'admin':'chat');
+  admin=!!user.isAdmin;
+  completeAuthTransition(admin?'admin':'chat');
+  if(typeof trackFunnelEvent==='function')trackFunnelEvent('register_complete',{method:'local_fallback',credits:user.totalTokens||0,plan:user.plan||'free'});
+  if(typeof trackFunnelEvent==='function')trackFunnelEvent('register_complete',{method:provider,credits:user.totalTokens||0,plan:user.plan||'free'});
   msg(provider.charAt(0).toUpperCase()+provider.slice(1)+' ile kayıt başarılı! HOSGELDIN50 kuponunu kazandınız!','ok');
 }
 
@@ -2023,7 +2104,7 @@ function handleOAuthCallback(){
         updateCreditsUI();
         renderModelSelect();
         if(typeof loadChatsFromServer==='function')setTimeout(loadChatsFromServer,250);
-        go((authUser.is_admin||authUser.isAdmin)?'admin':'chat');
+        completeAuthTransition((authUser.is_admin||authUser.isAdmin)?'admin':'chat');
         msg((provider==='github'?'GitHub':'Google')+' ile giris tamamlandi.','ok');
       }catch(e){
         localStorage.removeItem('saas_token');
@@ -2067,7 +2148,7 @@ function handleOAuthCallback(){
     }else{
       msg('Hoşgeldin, '+existing.name+'! 👋','ok');
     }
-    user=existing;LS.set('ap_user',user);admin=!!user.isAdmin;loginUI();go(admin?'admin':'chat');
+    user=existing;LS.set('ap_user',user);admin=!!user.isAdmin;completeAuthTransition(admin?'admin':'chat');
   }else{
     // New user — auto register
     const myRefCode=genRefCode(name);
@@ -2083,7 +2164,7 @@ function handleOAuthCallback(){
     applyClientForceAdmin(user);
     fetch('/api/register-ip',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}).catch(()=>{});
     users.push(user);LS.set('ap_users',users);LS.set('ap_user',user);
-    admin=!!user.isAdmin;loginUI();go(admin?'admin':'chat');
+    admin=!!user.isAdmin;completeAuthTransition(admin?'admin':'chat');
     msg('🎉 '+provider.charAt(0).toUpperCase()+provider.slice(1)+' ile kayıt başarılı! HOSGELDIN50 kuponunu kazandınız!','ok');
   }
 }
@@ -2153,7 +2234,8 @@ async function doReg(){
   
   applyClientForceAdmin(user);
   users.push(user);LS.set('ap_users',users);LS.set('ap_user',user);
-  admin=!!user.isAdmin;closeM();loginUI();go(admin?'admin':'chat');
+  admin=!!user.isAdmin;
+  completeAuthTransition(admin?'admin':'chat');
   
   if(isFirstReg){
     msg('Kayıt başarılı! 🎉 İlk kayıt kuponu: HOSGELDIN50 — Pro plana %50 indirim!','ok');
@@ -2170,7 +2252,7 @@ function doLogin(){
   const adminEmail=(typeof ADMIN_EMAIL!=='undefined'&&ADMIN_EMAIL)||'admin@froxyai.local';
   if(email===adminEmail&&pass===ap){
     user={name:'Admin',email:adminEmail,isAdmin:true,plan:'enterprise'};
-    LS.set('ap_user',user);admin=true;closeM();loginUI();go('admin');
+    LS.set('ap_user',user);admin=true;completeAuthTransition('admin');
     msg('Admin paneline hoşgeldiniz! 🔐','ok');return;
   }
   const users=LS.get('ap_users',[]);
@@ -2204,7 +2286,7 @@ function doLogin(){
   }
   
   applyClientForceAdmin(f);
-  user=f;LS.set('ap_user',user);admin=!!user.isAdmin;closeM();loginUI();go(admin?'admin':'chat');
+  user=f;LS.set('ap_user',user);admin=!!user.isAdmin;completeAuthTransition(admin?'admin':'chat');
 }
 function logout(){
   // Tüm oturum verilerini temizle
@@ -2645,7 +2727,8 @@ function go(v){
   }
   if(typeof window.__loadFullCss==='function')window.__loadFullCss();
   if(['img','tools','agents','store','support','gallery','analytics','prompts','rag','codeeditor','personas'].includes(v)){
-    go('chat');
+      if(type==='register'&&typeof trackFunnelEvent==='function')trackFunnelEvent('register_complete',{method:'email',credits:authUser.credits||0,plan:authUser.plan||'free'});
+      go('chat');
     panelTab(v);
     return;
   }
@@ -3088,14 +3171,23 @@ document.addEventListener('touchend',function(e){
 
 function renderModelPicker(filter){
   const pickerOpen=document.body.classList.contains('model-picker-open')||document.getElementById('model-picker')?.classList.contains('open');
-  if(pickerOpen&&!modelCatalogLoaded && ALL_MODELS.length<200)loadRemoteModelCatalog().catch(()=>{});
   filter=filter||'';
-  const models=getEnabledModelsForUser();
-  const totalCount=visibleModelCount();
   const catsEl=document.getElementById('mp-cats');
   const listEl=document.getElementById('mp-list');
   const countEl=document.getElementById('mp-count');
   if(!catsEl||!listEl)return;
+  if(pickerOpen&&!modelCatalogLoaded && ALL_MODELS.length<REMOTE_MODEL_TARGET_COUNT){
+    if(countEl)countEl.textContent='457 model yükleniyor';
+    catsEl.innerHTML='<div class="mp-cat active">'+figIcon('globe','inline')+' Tümü<span class="mp-cat-count">'+REMOTE_MODEL_TARGET_COUNT+'</span></div>';
+    listEl.innerHTML='<div class="mp-loading-state"><span></span><strong>Model kataloğu yükleniyor</strong><p>457 model listesi hazırlanıyor, birkaç saniye içinde tamamlanacak.</p></div>';
+    loadRemoteModelCatalog().then(()=>renderModelPicker(filter)).catch(()=>{
+      if(countEl)countEl.textContent=getEnabledModelsForUser().length+'/'+visibleModelCount()+' model';
+      listEl.innerHTML='<div class="mp-loading-state mp-loading-error"><strong>Model kataloğu yüklenemedi</strong><p>Temel model listesi gösteriliyor. Sayfayı yenileyince tekrar denenecek.</p></div>';
+    });
+    return;
+  }
+  const models=getEnabledModelsForUser();
+  const totalCount=visibleModelCount();
   const favorites=getModelFavorites();
   const catCounts={};
   models.forEach(m=>{const c=m.cat||'other';catCounts[c]=(catCounts[c]||0)+1});
