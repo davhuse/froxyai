@@ -4121,13 +4121,22 @@ app.post('/api/image', chatLimiter, async (req, res) => {
     imgModel = 'openai-gpt-image-2';
   }
 
-  if (imgModel.startsWith('openai-') || imgModel.includes('gpt-image') || imgModel === 'dall-e-3') {
+  const explicitOpenAIImage = imgModel.startsWith('openai-') || imgModel.includes('gpt-image') || imgModel === 'dall-e-3' || imgModel === 'style-dalle3';
+  if (explicitOpenAIImage) {
     try {
       const out = await callOpenAIImage({ prompt, model: imgModel, imageSize, apiKey: overrideKey });
       console.log(`[IMAGE] OpenAI saved: ${out.url}`);
       return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
     } catch (err) {
       console.warn('[IMAGE FALLBACK] OpenAI failed:', err.message);
+      if (model !== 'auto-quality') {
+        return res.status(503).json({
+          error: 'Secilen GPT Image saglayicisi su an gorsel uretim kanali acmiyor. Lutfen gercek OpenAI image key ekleyin veya Akilli Kalite/Cloudflare SDXL secin.',
+          provider: 'openai',
+          model: normalizeOpenAIImageModel(imgModel),
+          ...imageMeta
+        });
+      }
       imgModel = GEMINI_KEYS.length ? 'imagen-4-fast' : 'cf-sdxl';
     }
   }
