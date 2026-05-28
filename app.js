@@ -2124,6 +2124,13 @@ function handleOAuthCallback(){
   }
   
   const name=params.get('auth_name')||'Kullanıcı';
+  if(!allowLocalFallback()){
+    history.replaceState(null,'','/');
+    msg('Google oturumu icin backend token alinamadi. Lutfen tekrar giris yapin.','err');
+    setTimeout(()=>{try{modal('login')}catch(e){}},120);
+    return;
+  }
+
   const email=params.get('auth_email')||'';
   const avatar=params.get('auth_avatar')||'';
   
