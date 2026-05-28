@@ -1511,14 +1511,118 @@ app.use((req, res, next) => {
 
 const staticRoot = path.resolve(__dirname);
 const compressedTypes = new Set(['.js', '.css', '.html', '.json', '.svg', '.txt', '.xml']);
+const SEO_PAGES = {
+  '/': {
+    title: 'Froxy AI - 400+ AI Modeli Tek Panelde',
+    description: 'ChatGPT, Claude, Gemini, gorsel uretim araclari ve AI ajanlarini tek hesapta kullan. Yeni uyeler 100 ucretsiz krediyle baslar.'
+  },
+  '/sohbet': {
+    title: 'AI Sohbet Paneli - ChatGPT, Claude ve Gemini | Froxy AI',
+    description: 'ChatGPT, Claude, Gemini ve farkli AI modelleriyle tek panelden Turkce sohbet et. Froxy AI ile 100 ucretsiz krediyle basla.'
+  },
+  '/panel': {
+    title: 'AI Dashboard ve Tek Panel Yapay Zeka Platformu | Froxy AI',
+    description: 'Sohbet, gorsel uretim, kod, belge ve AI ajanlarini tek dashboard uzerinden yonet.'
+  },
+  '/dashboard': {
+    title: 'Froxy AI Dashboard - Tum AI Araclari Tek Ekranda',
+    description: '400+ AI modelini, kredi bakiyeni, araclarini ve uretim gecmisini tek dashboard uzerinden takip et.'
+  },
+  '/gorsel-uret': {
+    title: 'AI Gorsel Uretme Araci - Yapay Zeka ile Gorsel Uret | Froxy AI',
+    description: 'Prompt yazarak AI gorsel uret. Farkli gorsel modellerini tek panelde kullan ve 100 ucretsiz krediyle dene.'
+  },
+  '/ai-araclar': {
+    title: 'AI Araclari - ChatGPT, Claude, Gemini ve Daha Fazlasi | Froxy AI',
+    description: 'Yapay zeka sohbet, gorsel uretim, kod, belge, ses ve video araclarini tek panelde kullan.'
+  },
+  '/ai-ajanlar': {
+    title: 'AI Ajanlar - Gorev Odakli Yapay Zeka Asistanlari | Froxy AI',
+    description: 'Icerik, analiz, kod, pazarlama ve otomasyon icin AI ajanlariyla daha hizli calis.'
+  },
+  '/fiyatlandirma': {
+    title: 'Froxy AI Fiyatlandirma - 100 Ucretsiz Krediyle Dene',
+    description: 'Froxy AI kredi paketlerini incele. Yeni uyeler 100 ucretsiz krediyle ChatGPT, Claude, Gemini ve 400+ modeli deneyebilir.'
+  },
+  '/kayit': {
+    title: 'Froxy AI Kayit Ol - 100 Ucretsiz Kredi',
+    description: 'Froxy AI hesabini olustur, 100 ucretsiz krediyle 400+ AI modelini tek panelde dene.'
+  },
+  '/chatgpt-claude-gemini-tek-panel': {
+    title: 'ChatGPT, Claude ve Gemini Tek Panelde | Froxy AI',
+    description: 'ChatGPT, Claude ve Gemini arasinda sekme degistirmeden calis. Froxy AI ile populer AI modellerini tek panelde kullan.'
+  },
+  '/en-iyi-ai-araclari': {
+    title: 'En Iyi AI Araclari - 400+ Yapay Zeka Modeli | Froxy AI',
+    description: 'Sohbet, gorsel, kod, belge ve pazarlama icin en iyi AI araclarini tek panelde toplayan Froxy AI platformunu kesfet.'
+  },
+  '/chatgpt-alternatifi': {
+    title: 'ChatGPT Alternatifi AI Platformu | Froxy AI',
+    description: 'ChatGPT alternatifi arayanlar icin Claude, Gemini, Mistral ve 400+ AI modelini tek hesapta kullanma cozumu.'
+  },
+  '/ai-gorsel-uretme': {
+    title: 'AI Gorsel Uretme Rehberi ve Araci | Froxy AI',
+    description: 'Yapay zeka ile gorsel uretmek icin prompt yaz, farkli gorsel modellerini dene ve tek panelden sonuc al.'
+  },
+  '/yapay-zeka-araclari': {
+    title: 'Yapay Zeka Araclari - Tek Panelde AI Platformu | Froxy AI',
+    description: 'Yapay zeka araclari, AI sohbet modelleri, gorsel uretim ve ajanlari tek panelde kullan.'
+  },
+  '/ucretsiz-ai-araclari': {
+    title: 'Ucretsiz AI Araclari - 100 Krediyle Dene | Froxy AI',
+    description: 'Ucretsiz AI araclari arayanlar icin Froxy AI yeni uyelere 100 kredi verir. ChatGPT, Claude, Gemini ve daha fazlasini dene.'
+  },
+  '/ai-model-karsilastirma': {
+    title: 'AI Model Karsilastirma - ChatGPT Claude Gemini | Froxy AI',
+    description: 'ChatGPT, Claude, Gemini ve diger AI modellerini tek panelde deneyerek ihtiyacina en uygun modeli sec.'
+  }
+};
+
+function escapeHtmlAttr(value) {
+  return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function seoRouteKey(reqPath) {
+  let clean = '/';
+  try { clean = decodeURIComponent(reqPath || '/').replace(/\/+$/, '') || '/'; } catch(e) {}
+  const aliases = {
+    '/home': '/',
+    '/anasayfa': '/',
+    '/chat': '/sohbet',
+    '/gorsel': '/gorsel-uret',
+    '/araclar': '/ai-araclar',
+    '/ai-araclari': '/ai-araclar',
+    '/ajanlar': '/ai-ajanlar',
+    '/magaza': '/fiyatlandirma',
+    '/giris': '/kayit'
+  };
+  return aliases[clean] || clean;
+}
+
+function sendSeoIndex(req, res) {
+  const key = seoRouteKey(req.path);
+  const meta = SEO_PAGES[key] || SEO_PAGES['/'];
+  const canonical = key === '/' ? 'https://froxyai.com' : `https://froxyai.com${key}`;
+  fs.readFile(path.join(staticRoot, 'index.html'), 'utf8', (err, html) => {
+    if (err) return res.sendFile('index.html', { root: staticRoot });
+    let out = html
+      .replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtmlAttr(meta.title)}</title>`)
+      .replace(/<meta name="description" content="[^"]*">/i, `<meta name="description" content="${escapeHtmlAttr(meta.description)}">`)
+      .replace(/<link rel="canonical" href="[^"]*">/i, `<link rel="canonical" href="${escapeHtmlAttr(canonical)}">`)
+      .replace(/<meta property="og:title" content="[^"]*">/i, `<meta property="og:title" content="${escapeHtmlAttr(meta.title)}">`)
+      .replace(/<meta property="og:description" content="[^"]*">/i, `<meta property="og:description" content="${escapeHtmlAttr(meta.description)}">`)
+      .replace(/<meta property="og:url" content="[^"]*">/i, `<meta property="og:url" content="${escapeHtmlAttr(canonical)}">`)
+      .replace(/<meta name="twitter:title" content="[^"]*">/i, `<meta name="twitter:title" content="${escapeHtmlAttr(meta.title)}">`)
+      .replace(/<meta name="twitter:description" content="[^"]*">/i, `<meta name="twitter:description" content="${escapeHtmlAttr(meta.description)}">`);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.send(out);
+  });
+}
+
 // "/" -> index.html esdegerligi
-app.get('/', (req, res, next) => {
-  req.url = '/index.html';
-  next();
-});
-app.get(/^\/(?:anasayfa|home|sohbet|chat|panel|dashboard|kontrol-paneli|gorsel|gorsel-uret|araclar|ai-araclar|ai-araclari|ajanlar|ai-ajanlar|magaza|fiyatlandirma|destek|galeri|analitik|promptlar|bilgi-bankasi|giris|kayit|admin)\/?$/i, (req, res) => {
-  res.sendFile('index.html', { root: staticRoot });
-});
+app.get('/', sendSeoIndex);
+app.get(/^\/(?:anasayfa|home|sohbet|chat|panel|dashboard|kontrol-paneli|gorsel|gorsel-uret|araclar|ai-araclar|ai-araclari|ajanlar|ai-ajanlar|magaza|fiyatlandirma|destek|galeri|analitik|promptlar|bilgi-bankasi|giris|kayit|chatgpt-claude-gemini-tek-panel|en-iyi-ai-araclari|chatgpt-alternatifi|ai-gorsel-uretme|yapay-zeka-araclari|ucretsiz-ai-araclari|ai-model-karsilastirma|admin)\/?$/i, sendSeoIndex);
 app.get(/\.(js|css|html|json|svg|txt)$/i, (req, res, next) => {
   if (process.env.NO_COMPRESS === '1') return next();
   const enc = String(req.headers['accept-encoding'] || '');
@@ -1568,10 +1672,12 @@ const appRoutes = new Set([
   '/kontrol-paneli', '/gorsel', '/gorsel-uret', '/araclar', '/ai-araclar', '/ai-araclari',
   '/ajanlar', '/ai-ajanlar', '/magaza', '/fiyatlandirma', '/destek',
   '/galeri', '/analitik', '/promptlar', '/bilgi-bankasi', '/giris',
-  '/kayit', '/admin'
+  '/kayit', '/chatgpt-claude-gemini-tek-panel', '/en-iyi-ai-araclari',
+  '/chatgpt-alternatifi', '/ai-gorsel-uretme', '/yapay-zeka-araclari',
+  '/ucretsiz-ai-araclari', '/ai-model-karsilastirma', '/admin'
 ]);
 app.get(Array.from(appRoutes), (req, res) => {
-  res.sendFile('index.html', { root: staticRoot });
+  sendSeoIndex(req, res);
 });
 
 // ===== OAUTH CONFIG =====
