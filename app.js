@@ -860,6 +860,17 @@ async function doAuth(type) {
   const password = document.getElementById(type === 'login' ? 'l-pass' : 'r-pass').value;
   const username = type === 'register' ? document.getElementById('r-user').value.trim() : undefined;
   const errDiv = document.getElementById('auth-error');
+  function showAuthError(text){
+    const message=text || 'Giriş/kayıt başarısız.';
+    if(errDiv){
+      errDiv.textContent = message;
+      errDiv.style.display = 'block';
+      const target=document.getElementById(type === 'register' ? 'f-reg' : 'f-login');
+      if(target && errDiv.parentElement!==target)target.appendChild(errDiv);
+      try{errDiv.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}
+    }
+    if(typeof msg==='function')msg(message,'err');
+  }
   if(errDiv)errDiv.style.display = 'none';
   try {
     if(type==='register'&&typeof trackFunnelEvent==='function')trackFunnelEvent('signup_click',{surface:'auth_submit'});
@@ -880,16 +891,15 @@ async function doAuth(type) {
       const localUsers=LS.get('ap_users',[]);
       const localMatch=type==='login'&&localUsers.some(u=>u.email===email&&u.pass===password);
       if(localMatch&&allowLocalFallback()){await fallbackLocalAuth(type);return}
-      if(errDiv){errDiv.textContent = data.error || 'Giriş/kayıt başarısız.';errDiv.style.display = 'block'}
+      showAuthError(data.error || 'Giriş/kayıt başarısız.');
     }
   } catch (e) {
     if((e.apiUnavailable || e instanceof TypeError) && allowLocalFallback()){
       try{await fallbackLocalAuth(type);return}
-      catch(localErr){if(errDiv)errDiv.textContent='Bağlantı hatası: '+localErr.message}
-    }else if(errDiv){
-      errDiv.textContent = 'Bağlantı hatası: ' + e.message;
+      catch(localErr){showAuthError('Bağlantı hatası: '+localErr.message)}
+    }else{
+      showAuthError('Bağlantı hatası: ' + e.message);
     }
-    if(errDiv)errDiv.style.display = 'block';
   }
 }
 
