@@ -27011,3 +27011,47 @@ body.theme-forest .msg-content{color:var(--text)!important}
     font-size:12.5px!important;
   }
 }
+/* v283: cleaner reload-safe model picker, dashboard models and gallery states */
+#model-picker{
+  width:min(94vw,860px)!important;
+  max-height:min(84vh,760px)!important;
+  padding:18px!important;
+  border-radius:24px!important;
+  border-color:rgba(96,165,250,.22)!important;
+  background:linear-gradient(145deg,rgba(9,14,28,.98),rgba(10,18,34,.96))!important;
+}
+#model-picker .mp-body{display:grid!important;grid-template-columns:164px minmax(0,1fr)!important;gap:16px!important}
+#model-picker .mp-sidebar{width:164px!important;padding:8px!important;border:1px solid rgba(148,163,184,.12)!important;border-radius:18px!important;background:rgba(2,6,23,.24)!important}
+#model-picker .mp-cat{min-height:38px!important;border-radius:13px!important;padding:8px 10px!important;gap:8px!important}
+#model-picker .mp-cat-count{flex:0 0 auto!important}
+#model-picker .mp-list{gap:8px!important;padding-right:6px!important}
+#model-picker .mp-item{min-height:72px!important;padding:12px 14px!important;border:1px solid rgba(148,163,184,.10)!important;border-radius:18px!important;background:rgba(15,23,42,.28)!important;box-shadow:none!important}
+#model-picker .mp-item:hover{transform:translateY(-1px)!important;border-color:rgba(96,165,250,.26)!important;background:rgba(30,41,59,.42)!important}
+#model-picker .mp-item.selected{animation:none!important;border-color:rgba(34,197,94,.44)!important;background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(59,130,246,.08))!important}
+#model-picker .mp-item-info{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:6px!important}
+#model-picker .mp-item-name{font-size:14px!important;font-weight:850!important;line-height:1.25!important}
+#model-picker .mp-item-meta{flex-wrap:nowrap!important;gap:7px!important}
+#model-picker .pro-model-score{display:none!important}
+.growth-model-advisor{margin:0 0 14px!important;padding:12px 14px!important;border-radius:18px!important}
+.growth-advisor-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
+.growth-score-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:7px!important;margin-top:10px!important}
+.growth-score-grid span{grid-template-columns:1fr auto!important;gap:4px!important;font-size:10px!important}
+#ptab-dash .dash-models-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(145px,1fr))!important;gap:9px!important}
+#ptab-dash .dm-tag{min-width:0!important;min-height:56px!important}
+#ptab-dash .dm-tag.dm-empty{grid-column:1/-1!important}
+.pro-empty-gallery{min-height:150px!important;gap:8px!important;padding:22px!important;text-align:center!important;background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(124,58,237,.08))!important}
+.pro-empty-gallery strong{color:var(--text)!important;font-size:16px!important}
+.pro-empty-gallery span{color:var(--text2)!important;font-size:13px!important}
+.pro-empty-gallery button{margin-top:6px!important;border:1px solid rgba(96,165,250,.28)!important;border-radius:999px!important;padding:9px 13px!important;background:linear-gradient(135deg,var(--accent),var(--accent2))!important;color:#fff!important;font-weight:900!important}
+@media(max-width:760px){
+  #model-picker{left:10px!important;right:10px!important;top:66px!important;bottom:76px!important;width:auto!important;height:auto!important;max-height:none!important;padding:12px!important}
+  #model-picker .mp-body{grid-template-columns:1fr!important;grid-template-rows:auto minmax(0,1fr)!important;gap:10px!important}
+  #model-picker .mp-sidebar{width:100%!important;max-width:100%!important;display:flex!important;flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important;padding:6px!important;border-radius:16px!important}
+  #model-picker .mp-cat{flex:0 0 auto!important;max-width:150px!important;height:36px!important;white-space:nowrap!important}
+  #model-picker .mp-cat .fig-icon.inline{width:22px!important;height:22px!important}
+  #model-picker .mp-list{min-height:0!important}
+  #model-picker .mp-item{min-height:72px!important;padding:11px!important}
+  .growth-model-advisor{margin:0 0 10px!important}
+  .growth-score-grid{display:none!important}
+  #ptab-dash .dash-models-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
