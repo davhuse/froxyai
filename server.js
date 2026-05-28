@@ -216,6 +216,23 @@ db.exec(`
     value TEXT,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+  CREATE TABLE IF NOT EXISTS funnel_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event TEXT NOT NULL,
+    user_id INTEGER,
+    session_id TEXT,
+    source TEXT,
+    medium TEXT,
+    campaign TEXT,
+    content TEXT,
+    term TEXT,
+    path TEXT,
+    referrer TEXT,
+    metadata TEXT,
+    ip_hash TEXT,
+    user_agent TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Add is_admin column if not exists (migration safe)
@@ -233,6 +250,9 @@ try { db.exec('ALTER TABLE users ADD COLUMN daily_image_count INTEGER DEFAULT 0'
 try { db.exec('ALTER TABLE users ADD COLUMN daily_reset_date TEXT'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN reg_ip TEXT'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN reg_fingerprint TEXT'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_created ON funnel_events(created_at)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_event ON funnel_events(event)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_session ON funnel_events(session_id)'); } catch(e) {}
 try {
   const done = db.prepare("SELECT value FROM app_meta WHERE key = 'free_credit_normalized_v184'").get();
   if (!done) {
@@ -430,6 +450,13 @@ const generalLimiter = rateLimit({
   max: 60,
   message: { error: 'İstek limiti aşıldı.' },
 });
+const trackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 180,
+  message: { error: 'Takip istegi limiti asildi.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 app.use('/api/', generalLimiter);
 
 // Middleware to verify JWT
@@ -474,6 +501,67 @@ const adminMiddleware = (req, res, next) => {
 // Helper: log admin action
 function logActivity(userId, action, detail='') {
   try { db.prepare('INSERT INTO activity_logs (user_id, action, detail) VALUES (?, ?, ?)').run(userId, action, detail); } catch(e) {}
+}
+
+const FUNNEL_EVENT_NAMES = new Set([
+  'page_view',
+  'signup_click',
+  'register_complete',
+  'first_ai_message',
+  'pricing_view',
+  'purchase_click',
+  'purchase_complete'
+]);
+
+function clientIp(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection?.remoteAddress || '';
+}
+
+function safeField(value, max = 220) {
+  return String(value == null ? '' : value).trim().slice(0, max);
+}
+
+function safeMetadata(value) {
+  try {
+    if (!value || typeof value !== 'object') return null;
+    return JSON.stringify(value).slice(0, 3000);
+  } catch(e) {
+    return null;
+  }
+}
+
+function recordFunnelEvent(req, event, options = {}) {
+  const name = safeField(event, 80);
+  if (!FUNNEL_EVENT_NAMES.has(name)) return false;
+  try {
+    const body = req.body || {};
+    const query = req.query || {};
+    const metadata = Object.assign({}, body.metadata || {}, options.metadata || {});
+    const ip = clientIp(req);
+    const ipHash = ip ? crypto.createHash('sha256').update(ip).digest('hex').slice(0, 32) : '';
+    db.prepare(`INSERT INTO funnel_events
+      (event, user_id, session_id, source, medium, campaign, content, term, path, referrer, metadata, ip_hash, user_agent)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run(
+        name,
+        options.userId || req.user?.id || body.user_id || null,
+        safeField(body.session_id || query.session_id, 120),
+        safeField(body.source || query.utm_source || query.source, 80),
+        safeField(body.medium || query.utm_medium || query.medium, 80),
+        safeField(body.campaign || query.utm_campaign || query.campaign, 120),
+        safeField(body.content || query.utm_content || query.content, 120),
+        safeField(body.term || query.utm_term || query.term, 120),
+        safeField(body.path || req.headers.referer || req.originalUrl, 500),
+        safeField(body.referrer || req.headers.referer, 500),
+        safeMetadata(metadata),
+        ipHash,
+        safeField(req.headers['user-agent'], 500)
+      );
+    return true;
+  } catch(e) {
+    console.warn('[FUNNEL]', e.message);
+    return false;
+  }
 }
 
 function logCreditUsage({ userId, kind, model, provider, actualModel, cost, remaining, status='success' }) {
@@ -647,6 +735,10 @@ function applyShopierPayment(req, payload) {
     return { already: false, user };
   });
   const applied = tx();
+  recordFunnelEvent(req, 'purchase_complete', {
+    userId,
+    metadata: { plan, credits: pack.credits, payment_id: paymentId, order_id: orderId }
+  });
   return { ok: true, status: applied.already ? 'already_applied' : 'applied', payment_id: paymentId, plan, credits: pack.credits, user: applied.user };
 }
 
@@ -707,6 +799,11 @@ function extractShopierOrders(apiData) {
 
 
 // ===== SAAS & AUTH ENDPOINTS =====
+app.post('/api/track', trackLimiter, optionalAuthMiddleware, (req, res) => {
+  const ok = recordFunnelEvent(req, req.body?.event);
+  res.json({ success: true, tracked: ok });
+});
+
 app.post('/api/register', authLimiter, (req, res) => {
   const { username, email, password, fingerprint } = req.body;
   if(!username || !email || !password) return res.status(400).json({error: 'Eksik bilgi'});
@@ -738,6 +835,10 @@ app.post('/api/register', authLimiter, (req, res) => {
     if (isForceAdminEmail(email)) syncForceAdminEmail(email);
     const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(info.lastInsertRowid);
     const token = jwt.sign({ id: fresh.id, username: fresh.username, email: fresh.email, plan: fresh.plan || plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
+    recordFunnelEvent(req, 'register_complete', {
+      userId: fresh.id,
+      metadata: { method: 'email', plan, credits: FREE_STARTER_CREDITS, email_domain: String(email).split('@')[1] || '' }
+    });
     res.json({ token, user: fresh });
   } catch(e) {
     res.status(400).json({error: 'Bu e-posta veya kullanici adi zaten kullanilmakta'});
@@ -793,6 +894,43 @@ app.get('/api/admin/stats', adminMiddleware, (req, res) => {
     const adminCount = db.prepare('SELECT COUNT(*) as c FROM users WHERE is_admin = 1').get().c;
     const recentUsers = db.prepare('SELECT id, username, email, credits, plan, is_admin, is_blocked, block_until, block_reason, created_at, last_login FROM users ORDER BY created_at DESC LIMIT 5').all();
     res.json({ totalUsers, newToday, totalCredits, totalChats, totalDocs, blockedUsers, adminCount, recentUsers });
+  } catch(e) { res.status(500).json({error: e.message}); }
+});
+
+// GET /api/admin/funnel-events?days=7
+app.get('/api/admin/funnel-events', adminMiddleware, (req, res) => {
+  try {
+    const days = Math.min(90, Math.max(1, parseInt(req.query.days || '7', 10) || 7));
+    const since = `-${days} day`;
+    const byEvent = db.prepare(`
+      SELECT event, COUNT(*) AS count
+      FROM funnel_events
+      WHERE created_at >= datetime('now', ?)
+      GROUP BY event
+      ORDER BY count DESC
+    `).all(since);
+    const bySource = db.prepare(`
+      SELECT COALESCE(source, '') AS source, COALESCE(medium, '') AS medium, COALESCE(campaign, '') AS campaign, COUNT(*) AS count
+      FROM funnel_events
+      WHERE created_at >= datetime('now', ?)
+      GROUP BY source, medium, campaign
+      ORDER BY count DESC
+      LIMIT 30
+    `).all(since);
+    const daily = db.prepare(`
+      SELECT date(created_at) AS day, event, COUNT(*) AS count
+      FROM funnel_events
+      WHERE created_at >= datetime('now', ?)
+      GROUP BY day, event
+      ORDER BY day DESC, event ASC
+    `).all(since);
+    const recent = db.prepare(`
+      SELECT id, event, user_id, session_id, source, medium, campaign, path, metadata, created_at
+      FROM funnel_events
+      ORDER BY created_at DESC
+      LIMIT 80
+    `).all();
+    res.json({ days, byEvent, bySource, daily, recent });
   } catch(e) { res.status(500).json({error: e.message}); }
 });
 
@@ -1006,6 +1144,10 @@ app.post('/api/shopier/start', authMiddleware, (req, res) => {
       signature
     };
     recordShopierPayment({ payload: fields, paymentId: platformOrderId, orderId: platformOrderId, plan, pack, userId: user.id, verified: false, status: 'started' });
+    recordFunnelEvent(req, 'purchase_click', {
+      userId: user.id,
+      metadata: { plan, credits: pack.credits, amount: pack.price, platform_order_id: platformOrderId }
+    });
     logActivity(user.id, 'shopier_payment_started', `${platformOrderId}: ${plan}`);
     const inputs = Object.entries(fields).map(([k, v]) => `<input type="hidden" name="${String(k).replace(/"/g, '&quot;')}" value="${String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}">`).join('');
     const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Shopier'e yönlendiriliyor</title></head><body><form id="shopier-form" method="post" action="https://www.shopier.com/ShowProduct/api_pay4.php">${inputs}</form><script>document.getElementById('shopier-form').submit();setTimeout(function(){location.href=${JSON.stringify(frontend)}},12000);<\/script></body></html>`;
@@ -1347,6 +1489,7 @@ app.use((req, res, next) => {
   const fileName = path.basename(cleanPath);
   const allowedJson = new Set(['manifest.json', 'openrouter_models.json']);
   const allowedJs = new Set(['app.js', 'app.min.js', 'sw.js']);
+  const allowedXml = new Set(['sitemap.xml']);
   const blocked =
     /^\/(backup_|deploy_static_|node_modules|\.git|tts_out)(\/|$)/i.test(cleanPath) ||
     cleanPath.includes('/backup_') ||
@@ -1358,6 +1501,7 @@ app.use((req, res, next) => {
     fileName.endsWith('.log') ||
     fileName.endsWith('.md') ||
     fileName.endsWith('.txt') && fileName !== 'robots.txt' ||
+    fileName.endsWith('.xml') && !allowedXml.has(fileName) ||
     (fileName.endsWith('.js') && !allowedJs.has(fileName)) ||
     (fileName.endsWith('.json') && !allowedJson.has(fileName));
 
@@ -1366,7 +1510,7 @@ app.use((req, res, next) => {
 });
 
 const staticRoot = path.resolve(__dirname);
-const compressedTypes = new Set(['.js', '.css', '.html', '.json', '.svg', '.txt']);
+const compressedTypes = new Set(['.js', '.css', '.html', '.json', '.svg', '.txt', '.xml']);
 // "/" -> index.html esdegerligi
 app.get('/', (req, res, next) => {
   req.url = '/index.html';
@@ -1393,7 +1537,8 @@ app.get(/\.(js|css|html|json|svg|txt)$/i, (req, res, next) => {
     ext === '.css' ? 'text/css; charset=utf-8' :
     ext === '.html' ? 'text/html; charset=utf-8' :
     ext === '.json' ? 'application/json; charset=utf-8' :
-    ext === '.svg' ? 'image/svg+xml; charset=utf-8' : 'text/plain; charset=utf-8';
+    ext === '.svg' ? 'image/svg+xml; charset=utf-8' :
+    ext === '.xml' ? 'application/xml; charset=utf-8' : 'text/plain; charset=utf-8';
   const versioned = /[?&]v=/.test(req.originalUrl || '');
   res.setHeader('Content-Type', type);
   res.setHeader('Vary', 'Accept-Encoding');

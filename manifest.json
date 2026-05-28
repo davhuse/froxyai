@@ -1,7 +1,7 @@
 {
   "name": "Froxy AI - AI Platform",
   "short_name": "Froxy AI",
-  "description": "Froxy AI - Türkiye'nin en gelişmiş AI sohbet platformu. 100+ model, görsel üretim, sesli yanıt.",
+  "description": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI modelini tek panelde kullan. Yeni uyeler 100 ucretsiz krediyle baslar.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0B0F1A",

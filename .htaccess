@@ -8,6 +8,7 @@ AddCharset UTF-8 .html .htm .css .js .json .svg .txt
   AddType "text/css; charset=UTF-8" .css
   AddType "application/javascript; charset=UTF-8" .js
   AddType "application/json; charset=UTF-8" .json
+  AddType "application/xml; charset=UTF-8" .xml
   AddType "image/svg+xml; charset=UTF-8" .svg
 </IfModule>
 
