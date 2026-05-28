@@ -875,6 +875,10 @@ function sendBrevoEmail({ to, subject, html, text }) {
 }
 
 async function sendLoginOtpEmail({ to, subject, html, text }) {
+  if (process.env.BREVO_API_KEY) {
+    await sendBrevoEmail({ to, subject, html, text });
+    return;
+  }
   if (process.env.BREVO_SMTP_LOGIN && (process.env.BREVO_SMTP_KEY || process.env.BREVO_API_KEY)) {
     const transporter = nodemailer.createTransport({
       host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
