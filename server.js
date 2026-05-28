@@ -934,6 +934,40 @@ function loginPayloadForUser(userRow) {
   return { token, user: userRow };
 }
 
+const ALLOWED_REGISTRATION_EMAIL_DOMAINS = new Set(
+  (process.env.ALLOWED_REGISTRATION_EMAIL_DOMAINS || [
+    'gmail.com',
+    'googlemail.com',
+    'hotmail.com',
+    'hotmail.com.tr',
+    'outlook.com',
+    'outlook.com.tr',
+    'live.com',
+    'msn.com',
+    'yandex.com',
+    'yandex.com.tr',
+    'yandex.ru'
+  ].join(','))
+    .split(',')
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean)
+);
+
+function normalizeEmailAddress(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function emailDomain(email) {
+  const clean = normalizeEmailAddress(email);
+  const parts = clean.split('@');
+  return parts.length === 2 ? parts[1] : '';
+}
+
+function isAllowedRegistrationEmail(email) {
+  const domain = emailDomain(email);
+  return !!domain && ALLOWED_REGISTRATION_EMAIL_DOMAINS.has(domain);
+}
+
 
 // ===== SAAS & AUTH ENDPOINTS =====
 app.post('/api/track', trackLimiter, optionalAuthMiddleware, (req, res) => {
@@ -942,8 +976,12 @@ app.post('/api/track', trackLimiter, optionalAuthMiddleware, (req, res) => {
 });
 
 app.post('/api/register', authLimiter, (req, res) => {
-  const { username, email, password, fingerprint } = req.body;
+  const { username, password, fingerprint } = req.body;
+  const email = normalizeEmailAddress(req.body.email);
   if(!username || !email || !password) return res.status(400).json({error: 'Eksik bilgi'});
+  if(!isAllowedRegistrationEmail(email)) {
+    return res.status(400).json({error: 'Kayit icin Gmail, Outlook, Hotmail veya Yandex gibi guvenilir bir e-posta adresi kullanin.'});
+  }
   
   // Anti-abuse: IP ve fingerprint kontrolu
   const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection?.remoteAddress || '';
