@@ -2633,10 +2633,16 @@ async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverrid
     return { response, json };
   }
   let { response, json } = await postImage(body);
-  if (!response.ok && /multipart|quality|output_format|moderation|unsupported|invalid/i.test(String(json.error?.message || json.message || json.error || ''))) {
+  const firstErrorText = typeof json.error === 'string'
+    ? json.error
+    : (json.error?.message || json.message || JSON.stringify(json.error || json || {}));
+  if (!response.ok && /multipart|quality|output_format|moderation|unsupported|invalid/i.test(String(firstErrorText))) {
     ({ response, json } = await postImage(baseBody));
   }
-  if (!response.ok) throw new Error(json.error?.message || json.message || json.error || `OpenAI image hatasi (${response.status})`);
+  const finalErrorText = typeof json.error === 'string'
+    ? json.error
+    : (json.error?.message || json.message || JSON.stringify(json.error || json || {}));
+  if (!response.ok) throw new Error(finalErrorText || `OpenAI image hatasi (${response.status})`);
   const item = json.data?.[0];
   let buffer = null;
   if (item?.b64_json) buffer = Buffer.from(item.b64_json, 'base64');
