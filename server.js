@@ -4308,6 +4308,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
 
       const ext = contentType.includes('jpeg') || contentType.includes('jpg') ? 'jpg' : 'png';
       const buffer = Buffer.from(await response.arrayBuffer());
+      if (buffer.length < 10000) throw new Error('Cloudflare cok kucuk/eksik gorsel dondurdu');
       const fileName = `cf_${Date.now()}.${ext}`;
       fs.writeFileSync(path.join(genDir, fileName), buffer);
       console.log(`[IMAGE] Cloudflare saved: /generated/${fileName}`);
@@ -4346,7 +4347,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
           const ct = cfRes.headers.get('content-type') || '';
           if (ct.includes('image')) {
             const buf = Buffer.from(await cfRes.arrayBuffer());
-            if (buf.length >= 1000) {
+            if (buf.length >= 10000) {
               const genDir = path.join(__dirname, 'generated');
               if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
               const fileName = 'cf_' + Date.now() + '.png';
@@ -4499,6 +4500,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         });
         if (cfRes.ok) {
           const buf = Buffer.from(await cfRes.arrayBuffer());
+          if (buf.length < 10000) throw new Error('Cloudflare fallback cok kucuk/eksik gorsel dondurdu');
           const genDir = path.join(__dirname, 'generated');
           if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
           const fileName = `cf_${Date.now()}.png`;
