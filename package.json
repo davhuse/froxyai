@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "build": "node build.js",
+    "checkup": "node checkup-froxy.js",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
