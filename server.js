@@ -2608,28 +2608,35 @@ async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverrid
   const apiKey = apiKeyOverride || getOpenAIImageKey();
   if (!apiKey) throw new Error('OPENAI_IMAGE_KEY eksik');
   const openaiModel = normalizeOpenAIImageModel(model);
-  const body = {
+  const baseBody = {
     model: openaiModel,
     prompt,
     n: 1,
-    size: normalizeOpenAIImageSize(imageSize),
-    quality: openaiModel === 'dall-e-3' ? 'standard' : 'auto'
+    size: normalizeOpenAIImageSize(imageSize)
   };
-  if (openaiModel !== 'dall-e-3') {
+  const body = { ...baseBody, quality: openaiModel === 'dall-e-3' ? 'standard' : 'auto' };
+  if (openaiModel !== 'dall-e-3' && OPENAI_IMAGE_BASE_URL.includes('api.openai.com')) {
     body.output_format = 'png';
     body.moderation = 'auto';
   }
-  const response = await fetch(`${OPENAI_IMAGE_BASE_URL}/images/generations`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(120000)
-  });
-  const json = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(json.error?.message || `OpenAI image hatasi (${response.status})`);
+  async function postImage(payload) {
+    const response = await fetch(`${OPENAI_IMAGE_BASE_URL}/images/generations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(120000)
+    });
+    const json = await response.json().catch(() => ({}));
+    return { response, json };
+  }
+  let { response, json } = await postImage(body);
+  if (!response.ok && /multipart|quality|output_format|moderation|unsupported|invalid/i.test(String(json.error?.message || json.message || json.error || ''))) {
+    ({ response, json } = await postImage(baseBody));
+  }
+  if (!response.ok) throw new Error(json.error?.message || json.message || json.error || `OpenAI image hatasi (${response.status})`);
   const item = json.data?.[0];
   let buffer = null;
   if (item?.b64_json) buffer = Buffer.from(item.b64_json, 'base64');
