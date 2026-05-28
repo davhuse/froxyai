@@ -680,6 +680,17 @@ function renderImageResult(resEl, url, prompt, model, fallbackNote=''){
       finish(true);
     };
     imgEl.onerror = () => {
+      if(isStrictImageProviderModel(model)){
+        if(!imgEl.dataset.retryTried){
+          imgEl.dataset.retryTried='1';
+          imgEl.src=imageUrlForDisplay(url);
+          return;
+        }
+        clearTimeout(timeout);
+        renderImageErrorCard(resEl,prompt,model,url);
+        finish(false);
+        return;
+      }
       if(!imgEl.dataset.fallbackTried){
         imgEl.dataset.fallbackTried='1';
         const fallbackUrl=pollinationsDirectUrl(prompt,'flux',getImageSizePayload());
@@ -980,7 +991,6 @@ const ALL_MODELS = [
   {id:'flux-3d',name:'Flux 3D',tier:'free',provider:'pollinations',cat:'image'},
   {id:'sana',name:'Sana Image',tier:'free',provider:'pollinations',cat:'image'},
   {id:'cf-sdxl',name:'Cloudflare SDXL',tier:'free',provider:'cloudflare',cat:'image'},
-  {id:'together-flux',name:'Together Flux',tier:'free',provider:'together',cat:'image'},
   {id:'mistral-small-latest',name:'Mistral Small Latest',tier:'free',provider:'mistral',cat:'mistral'},
   {id:'ministral-8b-latest',name:'Ministral 8B Latest',tier:'free',provider:'mistral',cat:'mistral'},
   {id:'deepseek-chat-direct',name:'DeepSeek Sohbet Doğrudan',tier:'pro',provider:'deepseek_direct',cat:'deepseek'},
@@ -1710,12 +1720,10 @@ function closeM(){
 // ===== GÖRSEL MODEL CUSTOM PICKER =====
 (function initImgModelPicker(){
   const NAME_MAP = {
-    'auto-quality': { brand: 'AI', desc: 'Akilli Kalite - En iyi uygun saglayici', cost: 25, costType: 'pro' },
+    'auto-quality': { brand: 'AI', desc: 'Akilli Kalite - GPT Image/SDXL', cost: 25, costType: 'pro' },
     'openai-gpt-image-2': { brand: 'G2', desc: 'GPT Image 2 - OpenAI', cost: 25, costType: 'pro' },
-    'openai-gpt-image-1': { brand: 'G1', desc: 'GPT Image 1 - OpenAI', cost: 25, costType: 'pro' },
     'cf-sdxl': { brand: 'CF', desc: 'Cloudflare SDXL — Önerilen', cost: 8, costType: 'free' },
     'flux': { brand: 'F', desc: 'Flux AI — Hızlı', cost: 8, costType: 'free' },
-    'together-flux': { brand: 'TF', desc: 'Together Flux — Hızlı', cost: 8, costType: 'free' },
     'sana': { brand: 'SN', desc: 'Sana AI — Çok Hızlı', cost: 8, costType: 'free' },
     'style-midjourney': { brand: 'MJ', desc: 'Midjourney V6 stili', cost: 8, costType: 'free' },
     'style-dalle3': { brand: 'GI', desc: 'GPT Image stili', cost: 25, costType: 'pro' },
@@ -1727,18 +1735,12 @@ function closeM(){
     'flux-realism': { brand: 'FR', desc: 'Flux Realizm — Ultra Gerçekçi', cost: 8, costType: 'free' },
     'flux-anime': { brand: 'FA', desc: 'Flux Anime — Çizim Stili', cost: 8, costType: 'free' },
     'flux-3d': { brand: 'F3', desc: 'Flux 3D — Boyutlu Görsel', cost: 8, costType: 'free' },
-    'stability-core': { brand: 'SC', desc: 'Stability Core', cost: 25, costType: 'pro' },
-    'stability-ultra': { brand: 'SU', desc: 'Stability Ultra HD', cost: 40, costType: 'pro' },
-    'imagen-4': { brand: 'I4', desc: 'Google Imagen 4.0', cost: 25, costType: 'pro' },
-    'imagen-4-fast': { brand: 'IF', desc: 'Imagen 4.0 Fast', cost: 15, costType: 'pro' }
   };
   const FLAG_GRADIENTS = {
     'auto-quality': 'linear-gradient(135deg,#22d3ee,#7c3aed)',
     'openai-gpt-image-2': 'linear-gradient(135deg,#10b981,#22d3ee)',
-    'openai-gpt-image-1': 'linear-gradient(135deg,#0ea5e9,#10b981)',
     'cf-sdxl': 'linear-gradient(135deg,#06b6d4,#3b82f6)',
     'flux': 'linear-gradient(135deg,#0ea5e9,#06b6d4)',
-    'together-flux': 'linear-gradient(135deg,#eab308,#ef4444)',
     'sana': 'linear-gradient(135deg,#06b6d4,#8b5cf6)',
     'style-midjourney': 'linear-gradient(135deg,#a78bfa,#7c3aed)',
     'style-dalle3': 'linear-gradient(135deg,#10b981,#3b82f6)',
@@ -1750,10 +1752,6 @@ function closeM(){
     'flux-realism': 'linear-gradient(135deg,#10b981,#047857)',
     'flux-anime': 'linear-gradient(135deg,#ec4899,#f43f5e)',
     'flux-3d': 'linear-gradient(135deg,#8b5cf6,#6366f1)',
-    'stability-core': 'linear-gradient(135deg,#f59e0b,#d97706)',
-    'stability-ultra': 'linear-gradient(135deg,#ec4899,#7c3aed)',
-    'imagen-4': 'linear-gradient(135deg,#4285f4,#9b72cb)',
-    'imagen-4-fast': 'linear-gradient(135deg,#06b6d4,#10b981)'
   };
   
   function init(){
@@ -6527,6 +6525,12 @@ async function genImage(){
         await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
       }
     } else {
+      if(isStrictImageProviderModel(model)){
+        const errorText = data?.error?.message || data?.error || data?.message || 'SeÃ§ili GPT Image hattÄ± ÅŸu an gerÃ§ek gÃ¶rsel dÃ¶ndÃ¼rmedi.';
+        renderImageErrorCard(resEl, prompt, model, '');
+        msg(String(errorText), 'err');
+        return;
+      }
       const fallbackUrl=pollinationsDirectUrl(prompt,'flux',imageSize);
       const ok=await renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
       if(ok){
@@ -6536,6 +6540,11 @@ async function genImage(){
       }
     }
   } catch (err) {
+    if(isStrictImageProviderModel(model)){
+      renderImageErrorCard(resEl, prompt, model, '');
+      msg(normalizeNetworkError(err), 'err');
+      return;
+    }
     const fallbackUrl=pollinationsDirectUrl(prompt,'flux',imageSize);
     const ok=await renderImageResult(resEl, fallbackUrl, prompt, model, 'Seçili model yanıt vermedi; çalışan Flux yedeği kullanıldı.');
     if(ok){
@@ -7228,6 +7237,10 @@ function imageProviderForModel(model){
   if(model.startsWith('aiml-'))return 'aimlapi';
   if(model==='cf-sdxl')return 'cloudflare';
   return '';
+}
+function isStrictImageProviderModel(model){
+  const id=String(model||'');
+  return id==='openai-gpt-image-2' || id==='style-dalle3';
 }
 function setUserKey(provider,key){
   const keys=getUserKeys();
@@ -9560,7 +9573,6 @@ window.fetchUrlContent = async function(url) {
     const checks = {
       'auto-quality':    { ok: !!(ip.openai_image || ip.gemini_imagen || ip.cloudflare), fallback: true, key: 'OPENAI_IMAGE_KEY' },
       'openai-gpt-image-2': { ok: !!ip.openai_image, fallback: !ip.openai_image, key: 'OPENAI_IMAGE_KEY' },
-      'openai-gpt-image-1': { ok: !!ip.openai_image, fallback: !ip.openai_image, key: 'OPENAI_IMAGE_KEY' },
       'flux':            { ok: true },
       'turbo':           { ok: true },
       'sana':            { ok: true },
@@ -9572,16 +9584,10 @@ window.fetchUrlContent = async function(url) {
       'style-3d':        { ok: true },
       'style-cyberpunk': { ok: true },
       'cf-sdxl':         { ok: !!ip.cloudflare, fallback: true, key: 'CLOUDFLARE_API_TOKEN' },
-      'together-flux':   { ok: !!ip.together,   fallback: true, key: 'TOGETHER_API_KEY' },
       'runware-flux':    { ok: !!ip.runware,    fallback: true, key: 'RUNWARE_API_KEY' },
       'runware-sdxl':    { ok: !!ip.runware,    fallback: true, key: 'RUNWARE_API_KEY' },
-      'stability-core':  { ok: !!ip.stability,  fallback: true, key: 'STABILITY_API_KEY' },
-      'stability-ultra': { ok: !!ip.stability,  fallback: true, key: 'STABILITY_API_KEY' },
       'aiml-nano':       { ok: !!ip.aimlapi,    fallback: true, key: 'AIMLAPI_KEY' },
-      'aiml-flux':       { ok: !!ip.aimlapi,    fallback: true, key: 'AIMLAPI_KEY' },
-      'imagen-4':        { ok: !!ip.gemini_imagen, fallback: !ip.gemini_imagen, key: 'GEMINI_API_KEYS' },
-      'imagen-4-fast':   { ok: !!ip.gemini_imagen, fallback: !ip.gemini_imagen, key: 'GEMINI_API_KEYS' },
-      'imagen-4-ultra':  { ok: !!ip.gemini_imagen, fallback: !ip.gemini_imagen, key: 'GEMINI_API_KEYS' }
+      'aiml-flux':       { ok: !!ip.aimlapi,    fallback: true, key: 'AIMLAPI_KEY' }
     };
 
     Array.from(sel.options).forEach(function(opt) {
@@ -9775,6 +9781,16 @@ async function requestImageWithFallback(prompt, model, timeoutMs=28000){
     }
   }catch(err){
     console.warn('[IMAGE FALLBACK]',model,err?.message||err);
+  }
+  if(isStrictImageProviderModel(model)){
+    return {
+      ok:false,
+      url:'',
+      downloadUrl:'',
+      note:'GPT Image hattÄ± gerÃ§ek gÃ¶rsel dÃ¶ndÃ¼rmedi.',
+      model:model,
+      source:'error'
+    };
   }
   const directUrl = String(model||'').startsWith('style-') || model==='flux'
     ? pollinationsDirectUrl(prompt,'flux',imageSize)

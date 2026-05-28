@@ -2632,7 +2632,7 @@ async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverrid
     const json = await response.json().catch(() => ({}));
     return { response, json };
   }
-  let { response, json } = await postImage(body);
+  let { response, json } = await postImage(OPENAI_IMAGE_BASE_URL.includes('api.openai.com') ? body : baseBody);
   const firstErrorText = typeof json.error === 'string'
     ? json.error
     : (json.error?.message || json.message || JSON.stringify(json.error || json || {}));
@@ -5316,18 +5316,12 @@ app.get('/api/models', (req, res) => {
   const models = [
     {id:'auto-quality', name:'Akilli Kalite', provider:'auto', type:'image'},
     {id:'openai-gpt-image-2', name:'GPT Image 2', provider:'openai', type:'image'},
-    {id:'openai-gpt-image-1', name:'GPT Image 1', provider:'openai', type:'image'},
     {id:'flux', name:'Flux AI', provider:'cloudflare-sdxl', type:'image'},
     {id:'cf-sdxl', name:'Cloudflare SDXL', provider:'cloudflare', type:'image'},
-    {id:'together-flux', name:'Together Flux', provider:'together', type:'image'},
     {id:'flux-realism', name:'Flux Realism', provider:'pollinations', type:'image'},
     {id:'flux-anime', name:'Flux Anime', provider:'pollinations', type:'image'},
     {id:'flux-3d', name:'Flux 3D', provider:'pollinations', type:'image'},
     {id:'sana', name:'Sana Image', provider:'pollinations', type:'image'},
-    {id:'stability-core', name:'Stability Core', provider:'stability', type:'image'},
-    {id:'stability-ultra', name:'Stability Ultra HD', provider:'stability', type:'image'},
-    {id:'imagen-4', name:'Imagen 4.0', provider:'gemini', type:'image'},
-    {id:'imagen-4-fast', name:'Imagen 4.0 Fast', provider:'gemini', type:'image'},
     {id:'style-midjourney', name:'Midjourney V6 Style', provider:'cloudflare-sdxl', type:'image'},
     {id:'style-dalle3', name:'GPT Image Style', provider:'openai', type:'image'},
     {id:'style-anime', name:'Anime Diffusion', provider:'cloudflare-sdxl', type:'image'},
