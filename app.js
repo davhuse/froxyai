@@ -1476,7 +1476,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     loginUI();
   }
   if(typeof updateHomeAuthActions==='function')updateHomeAuthActions();
-  if(startupView==='admin' && (admin || authUser?.is_admin || user?.isAdmin)) go('admin');
+  if(startupView==='admin') go('admin');
   else if(startupView==='home') go('home');
   else if(startupView==='dash'){ go('chat'); panelTab('dash'); }
   else{go('chat');if(startupTab!=='chat')panelTab(startupTab)}
@@ -2742,12 +2742,15 @@ function go(v){
   if(v==='admin'){
     document.documentElement.classList.remove('home-mode');
     document.body.classList.remove('home-mode');
-    if(!admin && !authUser?.is_admin && !user?.isAdmin){modal('login');msg('Admin paneli için giriş yapın.','err');return}
     if(typeof ensureAdminShell==='function')ensureAdminShell();
     document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));
     document.getElementById('v-admin').classList.add('on');
     document.getElementById('nav').style.display='none';
     window.scrollTo(0,0);
+    if(!admin && !authUser?.is_admin && !user?.isAdmin){
+      if(typeof adminSetApiState==='function')adminSetApiState('fallback','Admin oturumu gerekli');
+      if(typeof msg==='function')msg('Admin paneli icin backend admin oturumu gerekli.','err');
+    }
     if(typeof adminTab==='function')adminTab('dashboard');
     setAppRoute(routeForView('admin'));
     return;
