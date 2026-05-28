@@ -2656,6 +2656,24 @@ async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverrid
   return { url, provider: 'openai', model: openaiModel, revised_prompt: item?.revised_prompt || prompt };
 }
 
+async function callCloudflareSdxlImage({ prompt, imageSize, provider = 'cloudflare' }) {
+  if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) throw new Error('Cloudflare image key yok');
+  const cfRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, width: imageSize.width, height: imageSize.height, num_steps: 24 }),
+    signal: AbortSignal.timeout(30000)
+  });
+  if (!cfRes.ok) {
+    const text = await cfRes.text().catch(() => '');
+    throw new Error(`Cloudflare image hatasi (${cfRes.status}) ${text.slice(0, 160)}`);
+  }
+  const buffer = Buffer.from(await cfRes.arrayBuffer());
+  if (!buffer || buffer.length < 1000) throw new Error('Cloudflare bos gorsel dondurdu');
+  const url = saveGeneratedImageBuffer(buffer, 'cf', 'png');
+  return { url, provider, model: 'cloudflare-sdxl', revised_prompt: prompt };
+}
+
 async function searchImageReferenceSnippets(query) {
   const q = `${query} visual appearance character reference outfit colors`;
   try {
@@ -4143,6 +4161,21 @@ app.post('/api/image', chatLimiter, async (req, res) => {
     } catch (err) {
       console.warn('[IMAGE FALLBACK] OpenAI failed:', err.message);
       if (model !== 'auto-quality') {
+        try {
+          const fallbackPrompt = `${prompt}\n\nRender as a polished premium AI-generated image with accurate subject details, clean composition, sharp focus, cinematic lighting.`;
+          const out = await callCloudflareSdxlImage({ prompt: fallbackPrompt, imageSize, provider: 'cloudflare-openai-fallback' });
+          console.log(`[IMAGE] OpenAI fallback saved: ${out.url}`);
+          return res.json({
+            ...out,
+            prompt: fallbackPrompt,
+            requestedProvider: 'openai',
+            requestedModel: normalizeOpenAIImageModel(imgModel),
+            warning: 'OpenAI image kanali gecici yanit vermedi; gercek Cloudflare SDXL gorseli donduruldu.',
+            ...imageMeta
+          });
+        } catch (fallbackErr) {
+          console.warn('[IMAGE FALLBACK] Explicit OpenAI fallback failed:', fallbackErr.message);
+        }
         return res.status(503).json({
           error: 'Secilen GPT Image saglayicisi su an gorsel uretim kanali acmiyor. Lutfen gercek OpenAI image key ekleyin veya Akilli Kalite/Cloudflare SDXL secin.',
           provider: 'openai',
