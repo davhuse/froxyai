@@ -1578,8 +1578,85 @@ const SEO_PAGES = {
   }
 };
 
+const SEO_CONTENT = {
+  '/chatgpt-claude-gemini-tek-panel': {
+    h1: 'ChatGPT, Claude ve Gemini Tek Panelde',
+    lead: 'Froxy AI, populer yapay zeka modellerini tek hesapta kullanmak isteyenler icin gelistirilmis bir AI calisma alanidir. ChatGPT, Claude, Gemini ve diger modeller arasinda sekme degistirmeden ilerleyebilir, ayni promptu farkli modellerde deneyebilir ve sonucu tek panelde karsilastirabilirsiniz.',
+    sections: [
+      ['Neden tek panel kullanilmali?', 'ChatGPT hizli fikir uretimi ve genel yardimda gucluyken, Claude uzun metinlerde ve duzenli cevaplarda one cikabilir. Gemini ise Google ekosistemi ve cok modlu is akislari icin kullanislidir. Bu modellerin hepsine ayri ayri girmek zaman kaybettirir. Froxy AI, bu daginikligi azaltarak modelleri tek kredi sistemi ve tek arayuzde toplar.'],
+      ['Kimler icin uygun?', 'Icerik uretenler, ogrenciler, yazilim gelistiriciler, sosyal medya yoneticileri, e-ticaret ekipleri ve kucuk isletmeler ayni panelden farkli AI modellerini deneyebilir. Boylece her is icin en uygun modeli elle aramak yerine tek ekrandan secim yapilir.'],
+      ['Froxy AI ile nasil baslanir?', 'Ucretsiz hesap olusturduktan sonra 100 krediyle baslayabilir, sohbet ekraninda model secip ilk promptunuzu yazabilirsiniz. Isterseniz ayni fikri ChatGPT, Claude ve Gemini benzeri farkli modellerle test ederek hangi cevabin daha iyi oldugunu gorebilirsiniz.']
+    ],
+    faq: [
+      ['ChatGPT, Claude ve Gemini ayni anda kullanilabilir mi?', 'Froxy AI panelinde farkli modeller arasinda gecis yapabilir ve ayni is akisini tek hesapta yonetebilirsiniz.'],
+      ['Baslamak icin kart gerekir mi?', 'Hayir. Yeni uyeler 100 ucretsiz krediyle paneli deneyebilir.'],
+      ['Hangi model daha iyi?', 'Tek bir en iyi model yoktur. Metin, kod, analiz, gorsel fikir veya uzun belge gibi goreve gore model tercihi degisir.']
+    ]
+  },
+  '/en-iyi-ai-araclari': {
+    h1: 'En Iyi AI Araclari Tek Panelde',
+    lead: 'En iyi AI araci, tek bir modelden ibaret degildir. Gunluk islerde sohbet modeli, gorsel uretim araci, kod yardimcisi, belge analiz araci ve ajan tabanli is akislari gerekebilir. Froxy AI bu araclari tek panelde bir araya getirerek arama ve deneme surecini kisaltir.',
+    sections: [
+      ['AI araclari hangi islerde kullanilir?', 'Yapay zeka araclari reklam metni yazma, blog fikri bulma, kod duzenleme, belge ozetleme, sosyal medya basligi hazirlama, gorsel uretme ve musteri destek taslaklari olusturma gibi cok farkli islerde kullanilir.'],
+      ['Tek panel avantajlari', 'Farkli sitelerde hesap acmak, kredi takip etmek ve model secmek yerine tek panel kullanmak daha pratiktir. Froxy AI, sohbet ve gorsel uretim gibi araclari ayni deneyimde topladigi icin deneme maliyetini ve zaman kaybini azaltir.'],
+      ['AI araclarini secmenin dogru yolu', 'Sadece populer olan modeli kullanmak yerine, ayni gorevi birden fazla modelle deneyip kalite, hiz ve maliyet acisindan karsilastirma yapmak daha dogru bir yoldur. Froxy AI bu karsilastirmayi kolaylastirir.']
+    ],
+    faq: [
+      ['Froxy AI ucretsiz denenebilir mi?', 'Evet. Yeni hesaplar 100 ucretsiz krediyle baslar.'],
+      ['Hangi AI araclari var?', 'Sohbet, gorsel uretim, belge analizi, kod yardimi, prompt araclari ve AI ajanlari gibi farkli araclar tek panelde sunulur.'],
+      ['Tek panel performansi etkiler mi?', 'Tek panel, farkli modellere erisimi daha kolay hale getirir; kalite ise secilen modele ve prompta baglidir.']
+    ]
+  },
+  '/chatgpt-alternatifi': {
+    h1: 'ChatGPT Alternatifi AI Platformu',
+    lead: 'ChatGPT cok guclu bir modeldir, ancak her is icin tek secenek degildir. Claude, Gemini, Mistral, DeepSeek ve diger modeller bazi gorevlerde daha uygun olabilir. Froxy AI, ChatGPT alternatifi arayan kullanicilara tek panelden cok model deneme imkani verir.',
+    sections: [
+      ['Neden ChatGPT alternatifi aranir?', 'Kimi kullanicilar daha uzun metinlerde daha duzenli cevap, kimi kullanicilar kodda daha farkli yaklasim, kimi kullanicilar da maliyet ve hiz avantajlari arar. Alternatif modelleri denemek, tek modele bagli kalmadan daha iyi sonuca ulasmayi saglar.'],
+      ['Froxy AI nasil fark yaratir?', 'Froxy AI sadece bir ChatGPT kopyasi degildir. Farkli model ailelerini, gorsel araclari ve AI ajanlarini tek arayuzde sunar. Bu sayede kullanici isine gore model degistirebilir.'],
+      ['Kimler kullanmali?', 'Icerik ekipleri, yazilimcilar, ogrenciler ve isletmeler ChatGPT alternatifi modelleri test ederek daha esnek bir yapay zeka calisma duzeni kurabilir.']
+    ],
+    faq: [
+      ['Froxy AI ChatGPT yerine kullanilir mi?', 'Evet, ChatGPT benzeri modellerle birlikte farkli alternatifleri de tek panelde denemek icin kullanilabilir.'],
+      ['Claude ve Gemini de var mi?', 'Froxy AI, farkli saglayicilardan cok sayida modeli tek panelde sunmayi hedefler.'],
+      ['Ucretsiz kredi ne ise yarar?', '100 krediyle paneli test edebilir, ilk sohbet ve araclardan bazilarini deneyebilirsiniz.']
+    ]
+  },
+  '/ai-gorsel-uretme': {
+    h1: 'AI Gorsel Uretme Araci',
+    lead: 'AI gorsel uretme, yazdiginiz promptu gorsele donusturen yapay zeka modelleriyle calisir. Froxy AI, gorsel uretim araclarini sohbet ve diger AI modelleriyle ayni panelde birlestirerek fikirden gorsele daha hizli gecmenizi saglar.',
+    sections: [
+      ['AI gorsel nasil uretilir?', 'Once ne istediginizi anlatan bir prompt yazarsiniz. Stil, renk, oran, konu ve detay seviyesi gibi unsurlar sonucu belirler. Froxy AI panelinde promptunuzu girerek farkli gorsel uretim akislariyla deneme yapabilirsiniz.'],
+      ['Kimler icin faydali?', 'Sosyal medya icerik ureticileri, reklam hazirlayanlar, e-ticaret sahipleri, sunum hazirlayanlar ve tasarim fikri arayan herkes AI gorsel uretimden faydalanabilir.'],
+      ['Daha iyi sonuc icin ipuclari', 'Promptta konu, ortam, stil, renk paleti ve kullanim amacini net belirtmek gerekir. Ornegin sadece “teknoloji gorseli” yerine “karanlik premium SaaS paneli, cyan ve mor neon vurgular, dikey reklam posteri” gibi acik bir prompt daha iyi sonuc verir.']
+    ],
+    faq: [
+      ['AI gorsel uretmek icin tasarim bilmek gerekir mi?', 'Hayir. Iyi bir prompt yazmak genelde yeterlidir, denemelerle sonuc iyilesir.'],
+      ['Gorsel uretim kredi harcar mi?', 'Evet, secilen model ve isleme gore kredi harcanir.'],
+      ['Froxy AI ile reklam gorseli hazirlanabilir mi?', 'Evet. Urun, hedef kitle ve stil bilgisiyle reklam odakli gorseller uretilebilir.']
+    ]
+  },
+  '/yapay-zeka-araclari': {
+    h1: 'Yapay Zeka Araclari ve AI Platformu',
+    lead: 'Yapay zeka araclari artik sadece sohbet botlarindan olusmuyor. Metin uretimi, kod yardimi, gorsel uretme, belge okuma, ozetleme, pazarlama ve otomasyon gibi isler icin farkli araclar gerekiyor. Froxy AI bu araclari tek panelde toplamaya odaklanir.',
+    sections: [
+      ['Hangi yapay zeka araclari onemli?', 'Sohbet modelleri fikir uretme ve yazma islerinde kullanilir. Kod araclari gelistirme surecini hizlandirir. Gorsel araclar reklam ve sosyal medya uretimini destekler. Belge araclari uzun metinleri ozetler ve analiz eder.'],
+      ['Tek panel neden daha verimli?', 'Farkli AI siteleri arasinda gecis yapmak, abonelikleri takip etmek ve hangi modelin neye iyi geldigini hatirlamak zordur. Tek panel, bu karmasayi azaltir ve calisma hizini artirir.'],
+      ['Froxy AI ile baslama', 'Yeni kullanicilar 100 ucretsiz krediyle hesap olusturup sohbet, model secimi ve gorsel uretim gibi temel akislari deneyebilir.']
+    ],
+    faq: [
+      ['Yapay zeka araclari isletmeler icin uygun mu?', 'Evet. Icerik, destek, analiz ve pazarlama gibi alanlarda isletmelere zaman kazandirabilir.'],
+      ['Tek bir AI modeli yeterli mi?', 'Cogu zaman hayir. Farkli isler icin farkli modeller daha iyi sonuc verebilir.'],
+      ['Froxy AI hangi vaadi sunuyor?', '400+ AI modelini ve farkli yapay zeka araclarini tek panelde kullanma deneyimi sunar.']
+    ]
+  }
+};
+
 function escapeHtmlAttr(value) {
   return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function escapeHtmlText(value) {
+  return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function seoRouteKey(reqPath) {
@@ -1614,6 +1691,20 @@ function sendSeoIndex(req, res) {
       .replace(/<meta property="og:url" content="[^"]*">/i, `<meta property="og:url" content="${escapeHtmlAttr(canonical)}">`)
       .replace(/<meta name="twitter:title" content="[^"]*">/i, `<meta name="twitter:title" content="${escapeHtmlAttr(meta.title)}">`)
       .replace(/<meta name="twitter:description" content="[^"]*">/i, `<meta name="twitter:description" content="${escapeHtmlAttr(meta.description)}">`);
+    const content = SEO_CONTENT[key];
+    if (content) {
+      const sections = (content.sections || []).map(([heading, body]) => `<section><h2>${escapeHtmlText(heading)}</h2><p>${escapeHtmlText(body)}</p></section>`).join('');
+      const faq = (content.faq || []).map(([q, a]) => `<details><summary>${escapeHtmlText(q)}</summary><p>${escapeHtmlText(a)}</p></details>`).join('');
+      const related = [
+        ['ChatGPT Claude Gemini tek panel', '/chatgpt-claude-gemini-tek-panel'],
+        ['En iyi AI araclari', '/en-iyi-ai-araclari'],
+        ['ChatGPT alternatifi', '/chatgpt-alternatifi'],
+        ['AI gorsel uretme', '/ai-gorsel-uretme'],
+        ['Yapay zeka araclari', '/yapay-zeka-araclari']
+      ].filter(([, href]) => href !== key).slice(0, 4).map(([label, href]) => `<a href="${href}">${escapeHtmlText(label)}</a>`).join('');
+      const seoHtml = `<article class="seo-landing-v1" style="max-width:980px;margin:56px auto;padding:0 20px 64px;color:#e5e7eb;font-family:Inter,system-ui,sans-serif;line-height:1.75"><p style="color:#38bdf8;font-weight:800;margin:0 0 10px">Froxy AI SEO Rehberi</p><h1 style="font-size:clamp(32px,5vw,56px);line-height:1.05;margin:0 0 18px;color:#fff">${escapeHtmlText(content.h1)}</h1><p style="font-size:18px;color:#cbd5e1;max-width:860px">${escapeHtmlText(content.lead)}</p>${sections}<section><h2>Sik sorulan sorular</h2>${faq}</section><section><h2>Froxy AI ile dene</h2><p>ChatGPT, Claude, Gemini ve 400+ AI modelini tek panelde denemek icin ucretsiz hesap olusturabilir, 100 baslangic kredisiyle ilk AI is akisini test edebilirsin.</p><p><a href="/kayit" style="color:#67e8f9;font-weight:800">100 ucretsiz krediyle kayit ol</a></p></section><nav aria-label="Ilgili SEO sayfalari" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">${related}</nav></article>`;
+      out = out.replace('</main>', `${seoHtml}</main>`);
+    }
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache');
     res.send(out);
