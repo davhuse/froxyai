@@ -2677,6 +2677,7 @@ async function searchImageReferenceSnippets(query) {
 function fallbackImageReferenceSnippets(query) {
   const q = String(query || '').toLocaleLowerCase('tr-TR');
   const notes = [];
+  notes.push(`Generic visual intent guide: infer the main subject from "${String(query || '').slice(0, 160)}", preserve the named person, character, place, brand, object, era, outfit, color, and mood requested by the user, and render the recognizable visual traits instead of inventing an unrelated subject.`);
   if (q.includes('homelander')) {
     notes.push('Homelander visual guide: adult blond male superhero, slicked-back blond hair, clean-shaven face, confident unsettling smile, dark blue fitted suit, red-white cape, gold eagle shoulder accents, red gloves, patriotic comic-book villain mood, cinematic dramatic lighting.');
   }
