@@ -2248,7 +2248,7 @@ function doLogin(){
   const pass=document.getElementById('l-pass').value;
   if(!email||!pass)return msg('E-posta ve şifre girin!','err');
   const savedAdminPass=LS.get('ap_admin_pass',null);
-  const ap=(savedAdminPass&&savedAdminPass!=='admin123')?savedAdminPass:ADMIN_PASS_DEFAULT;
+  const ap=(savedAdminPass&&savedAdminPass!=='admin123')?savedAdminPass:(typeof ADMIN_PASS_DEFAULT!=='undefined'?ADMIN_PASS_DEFAULT:'admin123');
   const adminEmail=(typeof ADMIN_EMAIL!=='undefined'&&ADMIN_EMAIL)||'admin@froxyai.local';
   if(email===adminEmail&&pass===ap){
     user={name:'Admin',email:adminEmail,isAdmin:true,plan:'enterprise'};
