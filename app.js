@@ -1349,7 +1349,7 @@ let enabledModels = ALL_MODELS.map(m=>m.id);
 let modelCatalogLoaded=false;
 let modelCatalogPromise=null;
 let remoteModelCount=0;
-const REMOTE_MODEL_TARGET_COUNT=457;
+const REMOTE_MODEL_TARGET_COUNT=632;
 const MODEL_TIER_LEVEL={free:0,starter:1,pro:2,enterprise:3};
 const PLAN_MODEL_LEVEL={guest:0,free:0,starter:1,popular:1,pro:2,creator:2,developer:3,power:3,agency_start:3,business:3,enterprise:3};
 const CLIENT_EXTRA_REMOTE_MODELS=[
@@ -1425,13 +1425,24 @@ function firstAllowedModel(){
   }
   return allowed[0]||ALL_MODELS.find(m=>m.id==='pollinations-openai')||ALL_MODELS[0];
 }
+function normalizeModelCatalogCounts(){
+  const seen=new Set();
+  for(let i=ALL_MODELS.length-1;i>=0;i--){
+    const id=String(ALL_MODELS[i]?.id||'').trim();
+    if(!id || seen.has(id))ALL_MODELS.splice(i,1);
+    else seen.add(id);
+  }
+  enabledModels=[...new Set((enabledModels||[]).filter(id=>seen.has(id)))];
+  ALL_MODELS.forEach(m=>{if(!enabledModels.includes(m.id))enabledModels.push(m.id)});
+  return seen.size;
+}
 function modelCountLabel(){
-  const liveCount=Math.max(ALL_MODELS.length, remoteModelCount||0, REMOTE_MODEL_TARGET_COUNT);
+  const liveCount=visibleModelCount();
   if(!modelCatalogLoaded && liveCount<200)return 'Katalog yükleniyor...';
   return liveCount.toLocaleString('tr-TR')+' model';
 }
 function visibleModelCount(){
-  return Math.max(getEnabledModelsForUser().length, remoteModelCount||0, REMOTE_MODEL_TARGET_COUNT);
+  return Math.max(remoteModelCount||0, REMOTE_MODEL_TARGET_COUNT);
 }
 function syncAuthUserToLocal(){
   if(!authUser)return;
@@ -1503,6 +1514,7 @@ async function loadRemoteModelCatalog(){
     }
   }
   try{
+    normalizeModelCatalogCounts();
     const seen=new Set(ALL_MODELS.map(m=>m.id));
     let added=0;
     const mergedModels=[...(d.models||[])];
@@ -1522,12 +1534,13 @@ async function loadRemoteModelCatalog(){
       seen.add(m.id);
       added++;
     });
+    const uniqueTotal=normalizeModelCatalogCounts();
     remoteModelCount = Math.max(
       remoteModelCount,
-      Number(d.count || mergedModels.length || 0),
+      Number(d.count || 0),
+      uniqueTotal,
       REMOTE_MODEL_TARGET_COUNT
     );
-    ALL_MODELS.forEach(m=>{if(!enabledModels.includes(m.id))enabledModels.push(m.id)});
     LS.set('ap_models',enabledModels);
     modelCatalogLoaded=true;
     try{renderModelsAdmin();}catch(uiErr){console.warn('[MODELS] Admin render skipped:',uiErr.message)}
@@ -3341,11 +3354,11 @@ function renderModelPicker(filter){
   const countEl=document.getElementById('mp-count');
   if(!catsEl||!listEl)return;
   if(pickerOpen&&!modelCatalogLoaded && ALL_MODELS.length<REMOTE_MODEL_TARGET_COUNT){
-    if(countEl)countEl.textContent='457 model yükleniyor';
+    if(countEl)countEl.textContent=REMOTE_MODEL_TARGET_COUNT.toLocaleString('tr-TR')+' model yükleniyor';
     catsEl.innerHTML='<div class="mp-cat active">'+figIcon('globe','inline')+' Tümü<span class="mp-cat-count">'+REMOTE_MODEL_TARGET_COUNT+'</span></div><div class="mp-cat mp-cat-qualityfree">'+figIcon('sparkles','inline')+' Ücretsiz Kaliteli<span class="mp-cat-count">...</span></div>';
-    listEl.innerHTML='<div class="mp-item mp-loading-row" style="min-height:72px;pointer-events:none"><div class="mp-item-icon">'+figIcon('sparkles')+'</div><div class="mp-item-info"><div class="mp-item-name">Model kataloğu yükleniyor</div><div class="mp-item-meta"><span class="mp-badge mp-badge-free">457 model</span><span>Hazırlanıyor</span></div></div></div><div class="mp-item mp-loading-row" style="min-height:72px;pointer-events:none"><div class="mp-item-icon">'+figIcon('globe')+'</div><div class="mp-item-info"><div class="mp-item-name">Ücretsiz Kaliteli modeller hazırlanıyor</div><div class="mp-item-meta"><span class="mp-badge mp-badge-free">kredi dostu</span><span>Birkaç saniye</span></div></div></div>';
+    listEl.innerHTML='<div class="mp-item mp-loading-row" style="min-height:72px;pointer-events:none"><div class="mp-item-icon">'+figIcon('sparkles')+'</div><div class="mp-item-info"><div class="mp-item-name">Model kataloğu yükleniyor</div><div class="mp-item-meta"><span class="mp-badge mp-badge-free">'+REMOTE_MODEL_TARGET_COUNT.toLocaleString('tr-TR')+' model</span><span>Hazırlanıyor</span></div></div></div><div class="mp-item mp-loading-row" style="min-height:72px;pointer-events:none"><div class="mp-item-icon">'+figIcon('globe')+'</div><div class="mp-item-info"><div class="mp-item-name">Ücretsiz Kaliteli modeller hazırlanıyor</div><div class="mp-item-meta"><span class="mp-badge mp-badge-free">kredi dostu</span><span>Birkaç saniye</span></div></div></div>';
     loadRemoteModelCatalog().then(()=>renderModelPicker(filter)).catch(()=>{
-      if(countEl)countEl.textContent=getEnabledModelsForUser().length+'/'+visibleModelCount()+' model';
+      if(countEl)countEl.textContent=modelCountLabel();
       listEl.innerHTML='<div class="mp-loading-state mp-loading-error"><strong>Model kataloğu yüklenemedi</strong><p>Temel model listesi gösteriliyor. Sayfayı yenileyince tekrar denenecek.</p></div>';
     });
     return;
@@ -3366,7 +3379,7 @@ function renderModelPicker(filter){
   if(mpActiveCat==='fav')filtered=filtered.filter(m=>favorites.includes(m.id));
   else if(mpActiveCat!=='all')filtered=filtered.filter(m=>(m.cat||'other')===mpActiveCat);
   if(filter){const q=filter.toLowerCase();filtered=filtered.filter(m=>m.name.toLowerCase().includes(q)||m.id.toLowerCase().includes(q))}
-  if(countEl)countEl.textContent=filtered.length+'/'+totalCount+' model';
+  if(countEl)countEl.textContent=modelCountLabel();
   const sel=document.getElementById('model-sel');
   const currentModel=sel?.value||'';
   if(!filtered.length){listEl.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">Model bulunamad\u0131</div>';return}
@@ -5260,7 +5273,7 @@ function adminTab(t){
   if(t==='models')renderAdminModels();
   if(t==='announce')loadAdminAnnouncements();
   if(t==='logs')loadAdminLogs();
-  if(t==='settings'){renderAdminProviderSummary();const c=document.getElementById('st-model-count');if(c)c.textContent=ALL_MODELS.length.toLocaleString('tr-TR')+' model'}
+  if(t==='settings'){renderAdminProviderSummary();const c=document.getElementById('st-model-count');if(c)c.textContent=visibleModelCount().toLocaleString('tr-TR')+' model'}
 }
 function updAdmin(){adminTab('dashboard')}
 async function loadAdminUsers(page){
@@ -5549,13 +5562,13 @@ function renderAdminProviderSummary(){
   if(el){
     el.innerHTML=Object.entries(providers).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([name,count])=>`<div class="admin-provider-row"><span>${esc(name)}</span><strong>${count.toLocaleString('tr-TR')}</strong></div>`).join('');
   }
-  const c=document.getElementById('st-model-count');if(c)c.textContent=ALL_MODELS.length.toLocaleString('tr-TR')+' model';
+  const c=document.getElementById('st-model-count');if(c)c.textContent=visibleModelCount().toLocaleString('tr-TR')+' model';
 }
 function renderAdminModels(){
   ensureAdminShell();
   if(!modelCatalogLoaded && ALL_MODELS.length<REMOTE_MODEL_TARGET_COUNT){
     const grid=document.getElementById('admin-model-grid');
-    if(grid)grid.innerHTML='<div class="admin-empty">Model kataloğu yükleniyor... 457 model listesi hazırlanıyor.</div>';
+    if(grid)grid.innerHTML='<div class="admin-empty">Model kataloğu yükleniyor... '+REMOTE_MODEL_TARGET_COUNT.toLocaleString('tr-TR')+' model listesi hazırlanıyor.</div>';
     loadRemoteModelCatalog().then(()=>{
       renderAdminProviderSummary();
       renderAdminModels();
@@ -10849,7 +10862,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     if(t==='settings'){
       renderAdminProviderSummary();
       const c=document.getElementById('st-model-count');
-      if(c)c.textContent=(typeof ALL_MODELS!=='undefined'?ALL_MODELS.length:0).toLocaleString('tr-TR')+' model';
+      if(c)c.textContent=(typeof visibleModelCount==='function'?visibleModelCount():0).toLocaleString('tr-TR')+' model';
     }
   };
 

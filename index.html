@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
@@ -121,30 +121,30 @@
     #app-route-skeleton{display:none}
     html.app-route-prepaint body{min-height:100vh;overflow:hidden}
     html.app-route-prepaint body>:not(#app-route-skeleton){display:none!important}
-    html.app-route-prepaint #app-route-skeleton{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 18%,rgba(46,211,255,.18),transparent 31%),radial-gradient(circle at 72% 70%,rgba(124,58,237,.2),transparent 34%),linear-gradient(135deg,#050814,#090e1d 52%,#060817);color:#f8fafc}
-    .app-route-skeleton-card{position:relative;display:grid;place-items:center;gap:14px;width:min(360px,calc(100vw - 34px));min-height:330px;padding:28px 22px;border:1px solid rgba(148,163,184,.18);border-radius:28px;background:linear-gradient(180deg,rgba(15,23,42,.72),rgba(10,15,30,.56));box-shadow:0 28px 90px rgba(0,0,0,.46),inset 0 0 40px rgba(46,211,255,.04);overflow:hidden;text-align:center}
-    .app-route-skeleton-card:before{content:"";position:absolute;inset:-40%;background:conic-gradient(from 120deg,transparent,rgba(46,211,255,.18),transparent,rgba(124,58,237,.22),transparent);animation:froxyLoaderSpin 4.8s linear infinite}
+    html.app-route-prepaint #app-route-skeleton{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 18%,rgba(34,211,238,.13),transparent 32%),linear-gradient(135deg,#050814,#080d1b 58%,#06111f);color:#f8fafc}
+    .app-route-skeleton-card{position:relative;display:grid;place-items:center;gap:13px;width:min(330px,calc(100vw - 40px));min-height:292px;padding:26px 22px;border:1px solid rgba(96,165,250,.22);border-radius:24px;background:linear-gradient(180deg,rgba(15,23,42,.78),rgba(8,13,25,.7));box-shadow:0 24px 80px rgba(0,0,0,.42),0 0 44px rgba(34,211,238,.08);overflow:hidden;text-align:center}
+    .app-route-skeleton-card:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(34,211,238,.08),transparent);animation:froxyLoaderSweep 2.6s ease-in-out infinite}
     .app-route-skeleton-card>*{position:relative;z-index:1}
-    .app-route-skeleton-logo{position:relative;width:112px;height:112px;display:grid;place-items:center}
-    .app-route-skeleton-logo:before,.app-route-skeleton-logo:after{content:"";position:absolute;inset:0;border-radius:32px;border:1px solid rgba(96,165,250,.28);animation:froxyLoaderPulse 2.1s ease-in-out infinite}
-    .app-route-skeleton-logo:after{inset:13px;border-color:rgba(168,85,247,.32);animation-delay:.35s}
-    .app-route-skeleton-logo img{width:78px;height:78px;border-radius:22px;box-shadow:0 0 34px rgba(46,211,255,.3)}
-    .app-route-skeleton-card strong{display:block;font-size:26px;line-height:1.05;font-weight:950;letter-spacing:0}
-    .app-route-skeleton-card p{max-width:282px;margin:0;color:#a8b5c8;font-size:14px;line-height:1.48;font-weight:750}
+    .app-route-skeleton-logo{position:relative;width:104px;height:104px;display:grid;place-items:center;border-radius:28px;background:rgba(15,23,42,.55);border:1px solid rgba(148,163,184,.16)}
+    .app-route-skeleton-logo:before,.app-route-skeleton-logo:after{content:"";position:absolute;inset:-7px;border-radius:32px;border:1px solid rgba(96,165,250,.2);animation:froxyLoaderPulse 2.1s ease-in-out infinite}
+    .app-route-skeleton-logo:after{inset:9px;border-color:rgba(168,85,247,.22);animation-delay:.35s}
+    .app-route-skeleton-logo img{width:74px;height:74px;border-radius:20px;box-shadow:0 0 26px rgba(46,211,255,.24)}
+    .app-route-skeleton-card strong{display:block;font-size:23px;line-height:1.08;font-weight:950;letter-spacing:0}
+    .app-route-skeleton-card p{max-width:270px;margin:0;color:#a8b5c8;font-size:13px;line-height:1.46;font-weight:750}
     .app-route-skeleton-steps{display:flex;gap:8px;align-items:center;justify-content:center;color:#c4d7ee;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
     .app-route-skeleton-steps em{font-style:normal;opacity:.62;animation:froxyStepBlink 1.4s ease-in-out infinite}.app-route-skeleton-steps em:nth-child(2){animation-delay:.18s}.app-route-skeleton-steps em:nth-child(3){animation-delay:.36s}
     .app-route-skeleton-bar{width:min(240px,68vw);height:8px;border-radius:999px;background:rgba(148,163,184,.14);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
     .app-route-skeleton-bar i{display:block;width:42%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#22d3ee,#3b82f6,#8b5cf6);animation:froxyBarSlide 1.18s ease-in-out infinite}
     .app-route-skeleton-fallback{display:none;height:42px;border:0;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#7c3aed);color:#fff;font:800 13px/1 var(--font);cursor:pointer;box-shadow:0 14px 34px rgba(59,130,246,.28);padding:0 18px}
     html.app-route-load-failed .app-route-skeleton-fallback{display:inline-flex;align-items:center;justify-content:center}
-    @keyframes froxyLoaderSpin{to{transform:rotate(360deg)}}@keyframes froxyLoaderPulse{0%,100%{transform:scale(.92);opacity:.42}50%{transform:scale(1.05);opacity:.92}}@keyframes froxyStepBlink{0%,100%{opacity:.38}50%{opacity:1}}@keyframes froxyBarSlide{0%{transform:translateX(-115%)}100%{transform:translateX(250%)}}
+    @keyframes froxyLoaderSweep{0%,100%{transform:translateX(-40%);opacity:.2}50%{transform:translateX(40%);opacity:.65}}@keyframes froxyLoaderPulse{0%,100%{transform:scale(.94);opacity:.42}50%{transform:scale(1.03);opacity:.82}}@keyframes froxyStepBlink{0%,100%{opacity:.38}50%{opacity:1}}@keyframes froxyBarSlide{0%{transform:translateX(-115%)}100%{transform:translateX(250%)}}
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
   <link rel="stylesheet" href="home-critical.min.css?v=v260">
-  <noscript><link rel="stylesheet" href="style.min.css?v=v288"></noscript>
+  <noscript><link rel="stylesheet" href="style.min.css?v=v291"></noscript>
   <script>
-  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v288';document.head.appendChild(l)};
-  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v288';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
+  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v291';document.head.appendChild(l)};
+  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v291';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
   ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})});
   window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)});
   </script>
@@ -221,8 +221,8 @@
   <div id="app-route-skeleton" aria-hidden="true">
     <div class="app-route-skeleton-card">
       <div class="app-route-skeleton-logo"><img src="froxy-logo-192-v260.png" alt="" width="78" height="78" decoding="async"></div>
-      <strong>Froxy AI hazırlanıyor</strong>
-      <p>Model ağı, çalışma alanı ve araçlar güvenli şekilde yükleniyor.</p>
+      <strong>Froxy AI yükleniyor</strong>
+      <p>Panel, sohbet ve model kataloğu hazırlanıyor.</p>
       <div class="app-route-skeleton-steps" aria-hidden="true"><em>Arayüz</em><em>Modeller</em><em>Hazır</em></div>
       <div class="app-route-skeleton-bar" aria-hidden="true"><i></i></div>
       <button class="app-route-skeleton-fallback" type="button" onclick="window.__loadFroxyApp&&window.__loadFroxyApp()">Tekrar dene</button>
@@ -2475,7 +2475,7 @@ echo curl_exec($ch);</pre>
       if(window.__loadFullCss)window.__loadFullCss();
       var sc=document.createElement('script');
       sc.fetchPriority='high';
-      sc.src='app.min.js?v=v288';
+      sc.src='app.min.js?v=v291';
       sc.defer=true;
       sc.onload=function(){
         appLoaded=true;
