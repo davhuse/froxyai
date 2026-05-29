@@ -2519,6 +2519,36 @@ const PROVIDERS = {
   aimlapi:   { key: AIMLAPI_KEY,     base: 'https://api.aimlapi.com/v1' },
 };
 
+const PROVIDER_KEY_POOLS = {
+  openai: FREEMODEL_KEYS,
+  groq: GROQ_KEYS,
+  openrouter: OPENROUTER_KEYS,
+  together: TOGETHER_KEYS,
+  gemini_direct: GEMINI_KEYS,
+  google_direct: [GOOGLE_API_KEY, ...GEMINI_KEYS].filter(Boolean)
+};
+const PROVIDER_KEY_INDEX = Object.fromEntries(Object.keys(PROVIDER_KEY_POOLS).map(name => [name, 0]));
+function providerKeyPool(provider) {
+  return PROVIDER_KEY_POOLS[provider] || [];
+}
+function rotateProviderKey(provider) {
+  const pool = providerKeyPool(provider);
+  if (pool.length < 2) return PROVIDERS[provider]?.key || pool[0] || '';
+  PROVIDER_KEY_INDEX[provider] = ((PROVIDER_KEY_INDEX[provider] || 0) + 1) % pool.length;
+  const nextKey = pool[PROVIDER_KEY_INDEX[provider]];
+  if (PROVIDERS[provider]) PROVIDERS[provider].key = nextKey;
+  if (provider === 'groq') GROQ_KEY = nextKey;
+  if (provider === 'openrouter') OPENROUTER_KEY = nextKey;
+  if (provider === 'openai') FREEMODEL_KEY = nextKey;
+  console.log(`[${provider.toUpperCase()}] Key rotated -> index ${PROVIDER_KEY_INDEX[provider]}/${pool.length}`);
+  return nextKey;
+}
+function isQuotaLikeStatus(status, text = '') {
+  const t = String(text || '').toLowerCase();
+  return status === 401 || status === 402 || status === 403 || status === 429 ||
+    /rate.?limit|too many requests|quota|insufficient|credit|billing|limit exceeded|resource_exhausted|exceeded/i.test(t);
+}
+
 function inferProviderFromModel(model) {
   const m = String(model || '').toLowerCase();
   if (m.startsWith('pollinations-')) return 'pollinations';
@@ -3369,6 +3399,10 @@ app.get('/api/health', (req, res) => {
       cacheAgeSeconds: modelCatalogCache.at ? Math.round((Date.now() - modelCatalogCache.at) / 1000) : null
     },
     providers,
+    keyPools: Object.fromEntries(Object.entries(PROVIDER_KEY_POOLS).map(([name, pool]) => [
+      name,
+      { count: pool.length, rotation: pool.length > 1 }
+    ])),
     videoProviders: {
       cloudflare: Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN),
       fal: Boolean(FAL_API_KEY),
@@ -3910,42 +3944,59 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
     max_tokens: max_tokens || 2000,
     stream: false
   });
+  const makeChatRequest = (activeKey) => new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const reqHeaders = {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(payload),
+      'Accept': 'application/json'
+    };
+    if (!isPollinations) {
+      reqHeaders['Authorization'] = 'Bearer ' + activeKey;
+    }
+
+    const options = {
+      hostname: urlObj.hostname,
+      port: 443,
+      path: urlObj.pathname + (urlObj.search || ''),
+      method: 'POST',
+      headers: reqHeaders
+    };
+
+    const request = https.request(options, (response) => {
+      let data = '';
+      response.on('data', chunk => { data += chunk.toString(); });
+      response.on('end', () => {
+        console.log(`[RESPONSE] Status: ${response.statusCode}, Length: ${data.length}`);
+        resolve({ status: response.statusCode, data, headers: response.headers });
+      });
+    });
+
+    request.on('error', reject);
+    request.setTimeout(20000, () => { request.destroy(); reject(new Error('Timeout')); });
+    request.write(payload);
+    request.end();
+  });
 
   try {
-    const result = await new Promise((resolve, reject) => {
-      const urlObj = new URL(url);
-      
-      const reqHeaders = {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(payload),
-        'Accept': 'application/json'
-      };
-      if (!isPollinations) {
-        reqHeaders['Authorization'] = 'Bearer ' + key;
+    let result = await makeChatRequest(key);
+    const keyPool = providerKeyPool(provider);
+    if (!bodyApiKey && !isPollinations && keyPool.length > 1 && isQuotaLikeStatus(result.status, result.data)) {
+      const attempts = Math.min(keyPool.length - 1, 4);
+      for (let attempt = 0; attempt < attempts; attempt++) {
+        const nextKey = rotateProviderKey(provider);
+        if (!nextKey || nextKey === key) continue;
+        key = nextKey;
+        console.log(`[KEY_RETRY] ${provider}/${model} quota-like ${result.status}; retry ${attempt + 1}/${attempts} with rotated key`);
+        const retryResult = await makeChatRequest(key);
+        if (!isQuotaLikeStatus(retryResult.status, retryResult.data)) {
+          result = retryResult;
+          result.keyRotated = true;
+          break;
+        }
+        result = retryResult;
       }
-
-      const options = {
-        hostname: urlObj.hostname,
-        port: 443,
-        path: urlObj.pathname + (urlObj.search || ''),
-        method: 'POST',
-        headers: reqHeaders
-      };
-
-      const request = https.request(options, (response) => {
-        let data = '';
-        response.on('data', chunk => { data += chunk.toString(); });
-        response.on('end', () => {
-          console.log(`[RESPONSE] Status: ${response.statusCode}, Length: ${data.length}`);
-          resolve({ status: response.statusCode, data, headers: response.headers });
-        });
-      });
-
-      request.on('error', reject);
-      request.setTimeout(20000, () => { request.destroy(); reject(new Error('Timeout')); });
-      request.write(payload);
-      request.end();
-    });
+    }
     // === POLLINATIONS 502/429 EARLY FALLBACK ===
     if (isPollinations && (result.status === 429 || result.status === 502 || result.status === 404)) {
       console.log(`[FALLBACK] Pollinations ${result.status} -> Groq GPT-OSS 20B`);
