@@ -1759,6 +1759,7 @@ function closeM(){
     'flux-realism': { brand: 'FR', desc: 'Flux Realizm — Ultra Gerçekçi', cost: 10, costType: 'free' },
     'flux-anime': { brand: 'FA', desc: 'Flux Anime — Çizim Stili', cost: 10, costType: 'free' },
     'flux-3d': { brand: 'F3', desc: 'Flux 3D — Boyutlu Görsel', cost: 10, costType: 'free' },
+    'imagegpt-free': { brand: 'IG', desc: 'ImageGPT Free - hızlı deneme', cost: 15, costType: 'free' },
     'together-juggernaut-flux': { brand: 'TJ', desc: 'Juggernaut Lightning Flux - Together', cost: 30, costType: 'pro' },
     'together-flux-schnell': { brand: 'TS', desc: 'FLUX.1 Schnell - Together', cost: 40, costType: 'pro' },
     'together-qwen-image': { brand: 'TQ', desc: 'Qwen Image - Together', cost: 90, costType: 'pro' },
@@ -1794,6 +1795,7 @@ function closeM(){
     'flux-realism': 'linear-gradient(135deg,#10b981,#047857)',
     'flux-anime': 'linear-gradient(135deg,#ec4899,#f43f5e)',
     'flux-3d': 'linear-gradient(135deg,#8b5cf6,#6366f1)',
+    'imagegpt-free': 'linear-gradient(135deg,#22c55e,#06b6d4)',
     'together-juggernaut-flux': 'linear-gradient(135deg,#f97316,#22d3ee)',
     'together-flux-schnell': 'linear-gradient(135deg,#111827,#22d3ee)',
     'together-qwen-image': 'linear-gradient(135deg,#2563eb,#38bdf8)',
@@ -2678,6 +2680,7 @@ function getClientModelCreditCost(model,provider,kind){
   const id=String(model||'').toLowerCase();
   const p=String(provider||'').toLowerCase();
   const togetherImageCosts={
+    'imagegpt-free':15,
     'together-juggernaut-flux':30,
     'together-flux-schnell':40,
     'together-qwen-image':90,
@@ -7576,6 +7579,7 @@ function providerKeyFor(provider){
     'nvidia':'nvidia',
     'fireworks':'fireworks',
     'together':'together',
+    'imagegpt':'imagegpt',
     'xai':'xai',
     'huggingface':'huggingface',
     'deepseek_direct':'deepseek',
@@ -7596,6 +7600,7 @@ function imageProviderForModel(model){
   if(model.startsWith('gemini-') || model.includes('nano-banana') || model.includes('nanobanana') || model.startsWith('imagen-'))return 'gemini';
   if(model.startsWith('runware-'))return 'runware';
   if(model.startsWith('stability-'))return 'stability';
+  if(model.startsWith('imagegpt-'))return 'imagegpt';
   if(model.startsWith('together-'))return 'together';
   if(model.startsWith('aiml-'))return 'aimlapi';
   if(model==='cf-sdxl')return 'cloudflare';
@@ -7642,6 +7647,7 @@ function renderApiKeyPanel(){
         {id:'runware',name:'Runware',placeholder:'rw_...'},
         {id:'stability',name:'Stability',placeholder:'st-...'},
         {id:'together',name:'Together Image',placeholder:'tg_...'},
+        {id:'imagegpt',name:'ImageGPT',placeholder:'imagegpt-...'},
         {id:'aimlapi',name:'AIML Image',placeholder:'aiml-...'},
         {id:'gemini',name:'Google Imagen',placeholder:'AIza...'}
       ]
@@ -9958,6 +9964,7 @@ window.fetchUrlContent = async function(url) {
       'style-3d':        { ok: true },
       'style-cyberpunk': { ok: true },
       'cf-sdxl':         { ok: !!ip.cloudflare, fallback: true, key: 'CLOUDFLARE_API_TOKEN' },
+      'imagegpt-free':   { ok: !!ip.imagegpt, fallback: !ip.imagegpt, key: 'IMAGEGPT_API_KEY' },
       'together-juggernaut-flux': { ok: !!ip.together, fallback: !ip.together, key: 'TOGETHER_API_KEY' },
       'together-flux-schnell': { ok: !!ip.together, fallback: !ip.together, key: 'TOGETHER_API_KEY' },
       'together-qwen-image': { ok: !!ip.together, fallback: !ip.together, key: 'TOGETHER_API_KEY' },

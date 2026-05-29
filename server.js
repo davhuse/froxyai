@@ -2431,6 +2431,7 @@ const CLOUDFLARE_ACCOUNT_ID  = fromEnv('CLOUDFLARE_ACCOUNT_ID', 'b5d9e214b534cf9
 const CLOUDFLARE_API_TOKEN   = fromEnv('CLOUDFLARE_API_TOKEN', 'cfut_1fIsRz5CTWw7PYHidCLBYTenqUyPBx37sxciLApH5d8faa1f')   || (CLOUDFLARE_CREDENTIALS ? (CLOUDFLARE_CREDENTIALS.split('--')[0] || '') : '');
 const FAL_API_KEY            = fromEnv('FAL_API_KEY')            || fromEnv('VIDEO_API_KEY');
 const REPLICATE_API_TOKEN    = fromEnv('REPLICATE_API_TOKEN');
+const IMAGEGPT_API_KEY       = fromEnv('IMAGEGPT_API_KEY');
 const VIDU_API_KEY           = fromEnv('VIDU_API_KEY');
 
 // ===== YENİ SAĞLAYICILAR =====
@@ -3385,6 +3386,7 @@ app.get('/api/health', (req, res) => {
       stability: Boolean(STABILITY_API_KEY),
       aimlapi: Boolean(AIMLAPI_KEY),
       together: Boolean(getTogetherKey()),
+      imagegpt: Boolean(IMAGEGPT_API_KEY),
       gemini_imagen: Boolean(GEMINI_KEYS.length > 0),
       pollinations: true // anahtarsız çalışır (image için hala)
     },
@@ -4701,6 +4703,41 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
     imgModel = 'flux';
   }
 
+  if (imgModel === 'imagegpt-free') {
+    const imageGptKey = overrideKey || IMAGEGPT_API_KEY;
+    if (!imageGptKey) {
+      imgModel = 'flux';
+    } else try {
+      const igRes = await fetch('https://api.imagegpt.online/generate/text-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': imageGptKey },
+        body: JSON.stringify({
+          prompt,
+          width: Math.min(imageSize.width, 1024),
+          height: Math.min(imageSize.height, 1024),
+          model: 'FLUX-SCHNELL',
+          outputType: 'url',
+          outputFormat: 'png'
+        }),
+        signal: AbortSignal.timeout(90000)
+      });
+      const igData = await igRes.json().catch(() => ({}));
+      if (!igRes.ok || !igData.url) throw new Error(igData.error?.message || igData.message || 'ImageGPT image error');
+      const dlRes = await fetch(igData.url, { signal: AbortSignal.timeout(60000) });
+      if (!dlRes.ok) throw new Error('ImageGPT görsel indirilemedi (' + dlRes.status + ')');
+      const buf = Buffer.from(await dlRes.arrayBuffer());
+      if (buf.length < 1000) throw new Error('ImageGPT boş görsel döndürdü');
+      const url = saveGeneratedImageBuffer(buf, 'imagegpt', 'png');
+      return res.json({ url, prompt, model: 'imagegpt-free', provider: 'imagegpt', creditsDeducted: igData.creditsDeducted, taskId: igData.taskId, ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE FALLBACK] ImageGPT failed:', err.message, '-> Pollinations Flux');
+      if (model !== 'auto-quality') {
+        return res.status(502).json({ error: 'Seçili ImageGPT modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'imagegpt' });
+      }
+      imgModel = 'flux';
+    }
+  }
+
   // 0) CLOUDFLARE WORKERS AI (low-cost/free allocation)
   if (imgModel === 'cf-sdxl') {
     if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
@@ -5626,6 +5663,7 @@ function getModelCreditCost(model, provider) {
   // ── IMAGE MODELS ──
   if (TOGETHER_IMAGE_MODELS[m]) return TOGETHER_IMAGE_MODELS[m].credits;
   if (m === 'auto-quality' || m.startsWith('openai-') || m === 'style-dalle3' || m.includes('gemini-2.5-flash-image') || m.includes('gemini-3.1-flash-image')) return MODEL_CREDIT_COST.image_mid;
+  if (m === 'imagegpt-free') return 15;
   if (m.includes('gemini-3-pro-image')) return MODEL_CREDIT_COST.image_ultra;
   if (m.includes('imagen-4-fast')) return 300;
   if (m.includes('imagen-4-ultra')) return MODEL_CREDIT_COST.image_ultra;
@@ -5707,7 +5745,9 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
   
   // Free image models still cost bandwidth credits
   let cost = MODEL_CREDIT_COST.image_free; // default 8
-  if (TOGETHER_IMAGE_MODELS[m]) {
+  if (m === 'imagegpt-free') {
+    cost = 15;
+  } else if (TOGETHER_IMAGE_MODELS[m]) {
     cost = TOGETHER_IMAGE_MODELS[m].credits;
   } else if (['flux','turbo','sana','cf-sdxl','together-flux'].includes(m) || m.startsWith('style-') || m.startsWith('flux-')) {
     cost = MODEL_CREDIT_COST.image_free; // 8 kredi
@@ -5770,6 +5810,7 @@ app.get('/api/models', (req, res) => {
     {id:'imagen-4', name:'Imagen 4', provider:'gemini-imagen', type:'image'},
     {id:'imagen-4-ultra', name:'Imagen 4 Ultra', provider:'gemini-imagen', type:'image'},
     {id:'openai-gpt-image-2', name:'GPT Image 2', provider:'openai', type:'image'},
+    {id:'imagegpt-free', name:'ImageGPT Free', provider:'imagegpt', type:'image'},
     {id:'together-juggernaut-flux', name:'Juggernaut Lightning Flux', provider:'together', type:'image'},
     {id:'together-flux-schnell', name:'FLUX.1 Schnell', provider:'together', type:'image'},
     {id:'together-qwen-image', name:'Qwen Image', provider:'together', type:'image'},
