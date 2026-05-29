@@ -4585,7 +4585,7 @@ document.addEventListener('click', e => {
 // ===== VOICE & EXPORT FEATURES =====
 let recognition = null;
 // ===== TEXT-TO-SPEECH (OpenAI + Edge TTS) =====
-const TTS_API_KEY = "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";
+// Keys must stay server-side. The client always calls /api/tts.
 let currentAudio = null;
 const VOICE_PREF_KEY = 'ap_voice_selection';
 const DEFAULT_VOICE_SELECTION = { voiceId: 'tr-TR-EmelNeural', voiceName: 'Edge Emel (TR Kadın)', engine: 'edge' };
@@ -4755,25 +4755,13 @@ async function speakMsg(idx) {
   if(typeof msg === 'function') msg('Seslendiriliyor...', 'info');
   try {
     let blob;
-    if (currentEngine === 'edge') {
-      // Use server-side Edge TTS
-      const response = await fetchWithTimeout('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.substring(0, 2000), voice: currentVoice, engine: 'edge' })
-      },20000);
-      if (!response.ok) throw new Error('Edge TTS: ' + response.statusText);
-      blob = await response.blob();
-    } else {
-      // OpenAI TTS
-      const response = await fetch('https://api.openai.com/v1/audio/speech', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TTS_API_KEY },
-        body: JSON.stringify({ model: 'tts-1', voice: currentVoice, input: text.substring(0, 4096) })
-      });
-      if (!response.ok) throw new Error('OpenAI TTS: ' + response.statusText);
-      blob = await response.blob();
-    }
+    const response = await fetchWithTimeout('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text.substring(0, 4096), voice: currentVoice, engine: currentEngine })
+    },20000);
+    if (!response.ok) throw new Error('TTS: ' + response.statusText);
+    blob = await response.blob();
     const url = URL.createObjectURL(blob);
     currentAudio = new Audio(url);
     currentAudio.onended = () => { currentAudio = null; URL.revokeObjectURL(url); updateVoiceBtnState(false); };
@@ -12263,4 +12251,96 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     return previousGenImage.apply(this,arguments);
   };
   try{genImage=window.genImage}catch(e){}
+})();
+
+/* v306: final check-up fixes. Keep one visible voice selector on dashboard and
+   make support contact visible without changing ticket/backend behavior. */
+(function(){
+  if(window.__froxyFinalCheckupV306)return;
+  window.__froxyFinalCheckupV306=true;
+
+  function renderDashboardVoicePanelV306(){
+    const dash=document.getElementById('ptab-dash');
+    if(!dash)return;
+    if(typeof ensureSingleVoicePanel==='function')ensureSingleVoicePanel();
+    if(document.getElementById('voice-panel'))return;
+    const target=dash.querySelector('.dashboard-pro .dash-grid') ||
+      dash.querySelector('.dashboard-pro') ||
+      dash.querySelector('.panel-page') ||
+      dash;
+    const panel=document.createElement('section');
+    panel.id='voice-panel';
+    panel.className='dash-panel voice-selection-panel dashboard-voice-panel-v306';
+    panel.innerHTML=`<div class="voice-panel-head">
+      <div>
+        <h3>Ses Motoru & Karakter Seç</h3>
+        <p>Sesli cevaplarda kullanılacak motor ve karakter. Seçimin sayfa yenilenince korunur.</p>
+      </div>
+      <span class="voice-panel-badge"><span id="current-voice-label">Edge Emel (TR Kadın)</span></span>
+    </div>
+    <div class="voice-engine-grid">
+      <div class="voice-engine-group">
+        <span class="voice-engine-label">Edge Neural</span>
+        <div class="voice-option-grid">
+          <button type="button" class="voice-option" data-voice-option data-voice-engine="edge" data-voice-id="tr-TR-EmelNeural" onclick="setVoice('tr-TR-EmelNeural','Edge Emel (TR Kadın)','edge')">Emel</button>
+          <button type="button" class="voice-option" data-voice-option data-voice-engine="edge" data-voice-id="tr-TR-AhmetNeural" onclick="setVoice('tr-TR-AhmetNeural','Edge Ahmet (TR Erkek)','edge')">Ahmet</button>
+          <button type="button" class="voice-option" data-voice-option data-voice-engine="edge" data-voice-id="tr-TR-EmelNeural" onclick="setVoice('tr-TR-EmelNeural','Edge Emel (TR Kadın)','edge')">Hızlı</button>
+        </div>
+      </div>
+      <div class="voice-engine-group">
+        <span class="voice-engine-label">OpenAI TTS</span>
+        <div class="voice-option-grid">
+          <button type="button" class="voice-option" data-voice-option data-voice-engine="openai" data-voice-id="nova" onclick="setVoice('nova','OpenAI Nova','openai')">Nova</button>
+          <button type="button" class="voice-option" data-voice-option data-voice-engine="openai" data-voice-id="shimmer" onclick="setVoice('shimmer','OpenAI Shimmer','openai')">Shimmer</button>
+          <button type="button" class="voice-option" data-voice-option data-voice-engine="openai" data-voice-id="alloy" onclick="setVoice('alloy','OpenAI Alloy','openai')">Alloy</button>
+        </div>
+      </div>
+    </div>`;
+    target.appendChild(panel);
+    if(typeof syncVoiceSelectorUI==='function')syncVoiceSelectorUI();
+  }
+
+  function renderSupportContactCardV306(){
+    const support=document.getElementById('ptab-support');
+    if(!support||document.getElementById('support-contact-card-v306'))return;
+    const card=document.createElement('div');
+    card.id='support-contact-card-v306';
+    card.className='support-contact-card-v306';
+    card.innerHTML=`<div><strong>Doğrudan destek</strong><span>Ticket dışında e-posta ile de ulaşabilirsin.</span></div><a href="mailto:destek@froxyai.com">destek@froxyai.com</a>`;
+    const anchor=support.querySelector('.sup-stats') ||
+      support.querySelector('.sup-cta-row') ||
+      support.querySelector('.sp4-wrap');
+    if(anchor)anchor.insertAdjacentElement('afterend',card);
+    else support.prepend(card);
+  }
+
+  function runFinalCheckupUiV306(){
+    renderDashboardVoicePanelV306();
+    renderSupportContactCardV306();
+  }
+
+  const prevPanelTab=window.panelTab || (typeof panelTab==='function'?panelTab:null);
+  if(prevPanelTab&&!window.__finalCheckupPanelTabWrappedV306){
+    window.__finalCheckupPanelTabWrappedV306=true;
+    window.panelTab=function(tab){
+      const result=prevPanelTab.apply(this,arguments);
+      if(tab==='dash'||tab==='dashboard'||tab==='support')setTimeout(runFinalCheckupUiV306,120);
+      return result;
+    };
+    try{panelTab=window.panelTab}catch(e){}
+  }
+
+  function scheduleFinalCheckupUiV306(){
+    [120,420,900,1600,2600,4200].forEach(delay=>setTimeout(runFinalCheckupUiV306,delay));
+    const started=Date.now();
+    const timer=setInterval(()=>{
+      runFinalCheckupUiV306();
+      const voiceOk=!!document.getElementById('voice-panel');
+      const supportOk=!!document.getElementById('support-contact-card-v306');
+      if((voiceOk&&supportOk)||Date.now()-started>7000)clearInterval(timer);
+    },500);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scheduleFinalCheckupUiV306);
+  else scheduleFinalCheckupUiV306();
 })();
