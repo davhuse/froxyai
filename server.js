@@ -39,6 +39,7 @@ try {
   console.warn('[ENV] key file load skipped:', envLoadErr.message);
 }
 
+
 const app = express();
 app.set('trust proxy', 1);
 
@@ -100,7 +101,42 @@ const ACTIVE_JWT_SECRET = JWT_SECRET || 'froxy_ai_fallback_secret_2026_replace_m
 const FREE_STARTER_CREDITS = 100;
 
 // Initialize SQLite DB
-const db = new Database('Froxy AI.db');
+function resolveDatabasePath() {
+  const explicit = process.env.DATABASE_PATH || process.env.SQLITE_PATH || process.env.DB_PATH;
+  if (explicit && explicit.trim()) return path.resolve(explicit.trim());
+
+  const railwayVolume = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.RAILWAY_VOLUME_PATH;
+  if (railwayVolume && railwayVolume.trim()) {
+    return path.join(path.resolve(railwayVolume.trim()), 'froxy-ai.sqlite');
+  }
+
+  return path.join(__dirname, 'Froxy AI.db');
+}
+
+const DATABASE_PATH = resolveDatabasePath();
+const DATABASE_IS_PERSISTENT = Boolean(
+  process.env.DATABASE_PATH ||
+  process.env.SQLITE_PATH ||
+  process.env.DB_PATH ||
+  process.env.RAILWAY_VOLUME_MOUNT_PATH ||
+  process.env.RAILWAY_VOLUME_PATH
+);
+try {
+  fs.mkdirSync(path.dirname(DATABASE_PATH), { recursive: true });
+  const legacyDb = path.join(__dirname, 'Froxy AI.db');
+  if (DATABASE_PATH !== legacyDb && fs.existsSync(legacyDb) && !fs.existsSync(DATABASE_PATH)) {
+    fs.copyFileSync(legacyDb, DATABASE_PATH);
+    const legacyWal = legacyDb + '-wal';
+    const legacyShm = legacyDb + '-shm';
+    if (fs.existsSync(legacyWal)) fs.copyFileSync(legacyWal, DATABASE_PATH + '-wal');
+    if (fs.existsSync(legacyShm)) fs.copyFileSync(legacyShm, DATABASE_PATH + '-shm');
+    console.log('[DB] Legacy SQLite copied to persistent path.');
+  }
+} catch (err) {
+  console.error('[DB] Database directory/copy setup failed:', err.message);
+}
+console.log('[DB] SQLite path:', DATABASE_PATH, DATABASE_IS_PERSISTENT ? '(persistent)' : '(local/ephemeral)');
+const db = new Database(DATABASE_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('busy_timeout = 5000');
 
@@ -2524,6 +2560,29 @@ function buildGoogleContents(messages) {
   return body;
 }
 
+function messageHasInlineImage(messages) {
+  for (const msg of messages || []) {
+    const content = msg && msg.content;
+    const parts = Array.isArray(content) ? content : [content];
+    for (const item of parts) {
+      if (!item || typeof item !== 'object') continue;
+      const imageUrl = item.image_url?.url || item.url;
+      if (item.type === 'image_url' && imageUrl) return true;
+    }
+  }
+  return false;
+}
+
+function providerModelSupportsVision(provider, model) {
+  const m = String(model || '').toLowerCase();
+  const p = String(provider || '').toLowerCase();
+  if (p === 'google-direct' || p === 'google_direct' || p === 'gemini-direct' || p === 'gemini_direct') return true;
+  if (p === 'claude') return /claude-3|sonnet|haiku|opus/.test(m);
+  if (p === 'openai') return /gpt-4|gpt-5|o3|vision|omni|image|4o/.test(m);
+  if (p === 'openrouter') return /vision|vl|pixtral|qwen-vl|llava|gemini|gpt-4|claude-3|nemotron.*vl/.test(m);
+  return /vision|vl|pixtral|qwen-vl|llava|gemini|gpt-4|claude-3|nemotron.*vl/.test(m);
+}
+
 async function callGoogleDirectChat({ model, messages, max_tokens, apiKey: apiKeyOverride }) {
   const apiKey = apiKeyOverride || GOOGLE_API_KEY || getGeminiKey();
   const body = buildGoogleContents(messages);
@@ -3065,6 +3124,11 @@ app.get('/api/health', (req, res) => {
     uptime: Math.round(process.uptime()),
     time: new Date().toISOString(),
     database: dbStats,
+    databaseStorage: {
+      path: DATABASE_PATH,
+      persistent: DATABASE_IS_PERSISTENT,
+      source: DATABASE_IS_PERSISTENT ? 'env-or-railway-volume' : 'app-directory'
+    },
     models: {
       remoteCached: modelCatalogCache.models.length,
       cacheAgeSeconds: modelCatalogCache.at ? Math.round((Date.now() - modelCatalogCache.at) / 1000) : null
@@ -3347,6 +3411,23 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   bodyApiKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
   bodyBaseUrl = typeof bodyBaseUrl === 'string' ? bodyBaseUrl.trim() : '';
 
+  const hasInlineImage = messageHasInlineImage(messages);
+  if (hasInlineImage && !providerModelSupportsVision(provider, model)) {
+    const geminiKey = GOOGLE_API_KEY || getGeminiKey();
+    if (geminiKey) {
+      console.log(`[VISION_REROUTE] ${provider || 'unknown'}:${model} -> google-direct:gemini-flash-latest`);
+      provider = 'google-direct';
+      model = 'gemini-flash-latest';
+      bodyApiKey = bodyApiKey || geminiKey;
+    } else {
+      return res.status(400).json({
+        error: {
+          message: 'Bu model görsel okuyamıyor. Görsel yüklemek için Gemini/vision destekli bir model seç veya Railway Variables içine GEMINI_API_KEY ekle.'
+        }
+      });
+    }
+  }
+
   // Credit Check (deduction happens after a successful response via /api/deduct-credit)
   if (req.user?.id) {
   try {
@@ -3520,7 +3601,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
     'mistral-saba-24b': 'llama-3.1-8b-instant',
     'mixtral-8x7b-32768': 'openai/gpt-oss-20b'
   };
-  const supportsVision = model.includes('vision') || model.includes('gemini') || model.includes('claude-3') || model.includes('gpt-4') || model.includes('pixtral') || model.includes('vl');
+  const supportsVision = providerModelSupportsVision(provider, model);
   if (!supportsVision || provider === 'pollinations') {
     messages = messages.map(m => {
       if (Array.isArray(m.content)) {

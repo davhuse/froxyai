@@ -376,7 +376,12 @@ function chatProviderOverride(provider){
 async function callChatApiWithFallback(initialModel,messages,maxTokens=900){
   let lastErr=null;
   let workingMessages=compactChatMessages(messages,6500);
-  for(const modelId of getChatFallbackChain(initialModel)){
+  let chain = getChatFallbackChain(initialModel);
+  if(chatMessageHasImage(workingMessages)){
+    const vision = ALL_MODELS.find(m=>m.id==='gemini-flash-latest') || ALL_MODELS.find(m=>chatModelSupportsVision(m.id));
+    if(vision) chain = [vision.id, ...chain.filter(id=>id!==vision.id && chatModelSupportsVision(id))];
+  }
+  for(const modelId of chain){
     const def=ALL_MODELS.find(m=>m.id===modelId)||{};
     const provider=getModelProvider(modelId);
     const apiModel=def.apiId||modelId;
@@ -3514,6 +3519,7 @@ function renderMsgs(opts={}){
 }
 let currentFile = null;
 let currentFileData = null;
+let currentFileReadPromise = null;
 
 function handleFileSelect(e) {
   const f = e.target.files[0];
@@ -3560,6 +3566,113 @@ function handleFileSelect(e) {
 function clearFile() {
   currentFile = null;
   currentFileData = null;
+  const inp = document.getElementById('chat-file');
+  if(inp) inp.value = '';
+  const prev = document.getElementById('chat-file-preview');
+  if(prev) prev.style.display = 'none';
+}
+
+function setChatFilePreviewState(text, state) {
+  const preview = document.getElementById('chat-file-preview');
+  const nameEl = document.getElementById('chat-file-name');
+  if (preview) {
+    preview.style.display = 'flex';
+    preview.dataset.state = state || 'ready';
+  }
+  if (nameEl && text) nameEl.innerText = text;
+}
+
+function chatMessageHasImage(messages) {
+  return (messages || []).some(msg => {
+    const parts = Array.isArray(msg && msg.content) ? msg.content : [msg && msg.content];
+    return parts.some(part => part && typeof part === 'object' && part.type === 'image_url' && (part.image_url?.url || part.url));
+  });
+}
+
+function chatModelSupportsVision(modelId) {
+  const def = ALL_MODELS.find(m => m.id === modelId) || {};
+  const id = String(def.apiId || modelId || '').toLowerCase();
+  const provider = String(def.provider || getModelProvider(modelId) || '').toLowerCase();
+  if (provider === 'google-direct' || provider === 'google_direct' || provider === 'gemini-direct' || provider === 'gemini_direct') return true;
+  if (provider === 'claude') return /claude-3|sonnet|haiku|opus/.test(id);
+  if (provider === 'openai') return /gpt-4|gpt-5|o3|vision|omni|image|4o/.test(id);
+  if (provider === 'openrouter') return /vision|vl|pixtral|qwen-vl|llava|gemini|gpt-4|claude-3|nemotron.*vl/.test(id);
+  return /vision|vl|pixtral|qwen-vl|llava|gemini|gpt-4|claude-3|nemotron.*vl/.test(id);
+}
+
+function handleFileSelect(e) {
+  const f = e.target.files[0];
+  if(!f) return;
+  currentFile = f;
+  currentFileData = null;
+  setChatFilePreviewState(f.name + ' okunuyor...', 'loading');
+
+  if(f.type.startsWith('image/')){
+    currentFileReadPromise = new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = ev => {
+        currentFileData = { type: 'image_url', image_url: { url: ev.target.result }, name: f.name, mime: f.type };
+        setChatFilePreviewState(f.name + ' hazır', 'ready');
+        resolve(currentFileData);
+      };
+      r.onerror = () => reject(new Error('Görsel okunamadı.'));
+      r.readAsDataURL(f);
+    }).catch(err => { msg(err.message || 'Dosya okunamadı', 'err'); clearFile(); return null; });
+    return;
+  }
+
+  if(f.type === 'application/pdf') {
+    if(typeof pdfjsLib === 'undefined'){
+      msg('PDF okuyucu yükleniyor...','info');
+      if(window.loadPdfLib)window.loadPdfLib(()=>handleFileSelect(e));
+      return;
+    }
+    currentFileReadPromise = new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = async ev => {
+        try {
+          const typedarray = new Uint8Array(ev.target.result);
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
+          let text = '';
+          for (let i = 1; i <= pdf.numPages && i <= 50; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            text += content.items.map(item => item.str).join(' ') + '\n';
+          }
+          if(!text.trim()) throw new Error('PDF içinde okunabilir metin bulunamadı.');
+          currentFileData = { type: 'text', text: 'Aşağıdaki dokümana göre soruyu yanıtla:\n\n' + text.substring(0, 30000), name: f.name, mime: f.type };
+          setChatFilePreviewState(f.name + ' hazır', 'ready');
+          resolve(currentFileData);
+        } catch(err) { reject(err); }
+      };
+      r.onerror = () => reject(new Error('PDF okunamadı.'));
+      r.readAsArrayBuffer(f);
+    }).catch(err => { msg(err.message || 'PDF okunamadı','err'); clearFile(); return null; });
+    return;
+  }
+
+  if(f.name.toLowerCase().endsWith('.txt')) {
+    currentFileReadPromise = new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = ev => {
+        currentFileData = { type: 'text', text: 'Aşağıdaki metne göre soruyu yanıtla:\n\n' + String(ev.target.result || '').substring(0, 30000), name: f.name, mime: f.type || 'text/plain' };
+        setChatFilePreviewState(f.name + ' hazır', 'ready');
+        resolve(currentFileData);
+      };
+      r.onerror = () => reject(new Error('TXT dosyası okunamadı.'));
+      r.readAsText(f);
+    }).catch(err => { msg(err.message || 'Dosya okunamadı','err'); clearFile(); return null; });
+    return;
+  }
+
+  msg('Sadece resim, PDF ve TXT dosyaları desteklenir.', 'err');
+  clearFile();
+}
+
+function clearFile() {
+  currentFile = null;
+  currentFileData = null;
+  currentFileReadPromise = null;
   const inp = document.getElementById('chat-file');
   if(inp) inp.value = '';
   const prev = document.getElementById('chat-file-preview');
@@ -3745,7 +3858,14 @@ function autoRenameChat(text){
 async function sendMsg(){
   ensureGuestChatSession();
   const inp=document.getElementById('chat-in');
-  const txt=inp.value.trim();if(!txt && !currentFileData)return;
+  const txt=inp.value.trim();if(!txt && !currentFileData && !currentFileReadPromise)return;
+  if(currentFile && currentFileReadPromise && !currentFileData){
+    setChatSendState(true);
+    setChatFilePreviewState(currentFile.name + ' okunuyor...', 'loading');
+    const readData = await currentFileReadPromise;
+    setChatSendState(false);
+    if(!readData)return;
+  }
   const abuseCheck=typeof checkClientAbuseLimit==='function'?checkClientAbuseLimit(txt):{ok:true};
   if(!abuseCheck.ok)return msg(abuseCheck.message,'err');
   const c=chats.find(x=>x.id===activeChat);if(!c)return;
@@ -3764,10 +3884,19 @@ async function sendMsg(){
     showCreditBlock('chat',estimatedCost,currentRemaining,modelDef?.name||requestedModel);
     return;
   }
-  const apiModel=modelDef?.apiId||model;
+  let apiModel=modelDef?.apiId||model;
   
   const tempFileData = currentFileData;
   const tempFileName = currentFile ? currentFile.name : '';
+  if(tempFileData && tempFileData.type === 'image_url' && !chatModelSupportsVision(model)){
+    const visionModel = ALL_MODELS.find(m=>m.id==='gemini-flash-latest') || ALL_MODELS.find(m=>m.provider==='google-direct' || m.provider==='gemini-direct');
+    if(visionModel){
+      model = visionModel.id;
+      modelDef = visionModel;
+      apiModel = visionModel.apiId || visionModel.id;
+      if(typeof msg==='function')msg('Görsel okuma için Gemini vision hattına geçildi.','ok');
+    }
+  }
   clearFile();
   
   const displayTxt = txt || `📎 ${tempFileName} eklendi.`;
