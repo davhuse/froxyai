@@ -121,8 +121,12 @@ const DATABASE_IS_PERSISTENT = Boolean(
   process.env.RAILWAY_VOLUME_MOUNT_PATH ||
   process.env.RAILWAY_VOLUME_PATH
 );
+const GENERATED_DIR = process.env.GENERATED_DIR
+  ? path.resolve(process.env.GENERATED_DIR)
+  : (DATABASE_IS_PERSISTENT ? path.join(path.dirname(DATABASE_PATH), 'generated') : path.join(__dirname, 'generated'));
 try {
   fs.mkdirSync(path.dirname(DATABASE_PATH), { recursive: true });
+  fs.mkdirSync(GENERATED_DIR, { recursive: true });
   const legacyDb = path.join(__dirname, 'Froxy AI.db');
   if (DATABASE_PATH !== legacyDb && fs.existsSync(legacyDb) && !fs.existsSync(DATABASE_PATH)) {
     fs.copyFileSync(legacyDb, DATABASE_PATH);
@@ -136,6 +140,7 @@ try {
   console.error('[DB] Database directory/copy setup failed:', err.message);
 }
 console.log('[DB] SQLite path:', DATABASE_PATH, DATABASE_IS_PERSISTENT ? '(persistent)' : '(local/ephemeral)');
+console.log('[FILES] Generated media path:', GENERATED_DIR);
 const db = new Database(DATABASE_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('busy_timeout = 5000');
@@ -170,6 +175,20 @@ db.exec(`
     user_id INTEGER,
     filename TEXT,
     content TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
+  CREATE TABLE IF NOT EXISTS image_gallery (
+    id TEXT PRIMARY KEY,
+    user_id INTEGER,
+    url TEXT NOT NULL,
+    prompt TEXT,
+    model TEXT,
+    provider TEXT,
+    mode TEXT DEFAULT 'generate',
+    source_image_url TEXT,
+    favorite INTEGER DEFAULT 0,
+    broken INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
   );
@@ -1245,7 +1264,16 @@ app.get('/api/admin/stats', adminMiddleware, (req, res) => {
     const blockedUsers = db.prepare('SELECT COUNT(*) as c FROM users WHERE is_blocked = 1').get().c;
     const adminCount = db.prepare('SELECT COUNT(*) as c FROM users WHERE is_admin = 1').get().c;
     const recentUsers = db.prepare('SELECT id, username, email, credits, plan, is_admin, is_blocked, block_until, block_reason, created_at, last_login FROM users ORDER BY created_at DESC LIMIT 5').all();
-    res.json({ totalUsers, newToday, totalCredits, totalChats, totalDocs, blockedUsers, adminCount, recentUsers });
+    const galleryImages = db.prepare('SELECT COUNT(*) as c FROM image_gallery WHERE broken = 0').get().c;
+    res.json({
+      totalUsers, newToday, totalCredits, totalChats, totalDocs, blockedUsers, adminCount, recentUsers, galleryImages,
+      databaseStorage: {
+        path: DATABASE_PATH,
+        generatedPath: GENERATED_DIR,
+        persistent: DATABASE_IS_PERSISTENT,
+        source: DATABASE_IS_PERSISTENT ? 'env-or-railway-volume' : 'app-directory'
+      }
+    });
   } catch(e) { res.status(500).json({error: e.message}); }
 });
 
@@ -2098,6 +2126,14 @@ app.get(/\.(js|css|html|json|svg|txt)$/i, (req, res, next) => {
   return zlib.gzip(raw, { level: 6 }, (err, out) => err ? next() : res.send(out));
 });
 
+app.use('/generated', express.static(GENERATED_DIR, {
+  etag: true,
+  maxAge: '30d',
+  setHeaders(res) {
+    res.setHeader('Cache-Control', 'public, max-age=2592000');
+  }
+}));
+
 app.use(express.static(staticRoot, {
   etag: true,
   maxAge: '1d',
@@ -2629,7 +2665,7 @@ async function callGoogleDirectImage({ model, prompt, apiKey: apiKeyOverride }) 
   const imagePart = parts.find(p => p.inlineData?.data);
   if (!imagePart) throw new Error('Google görsel yanıtı alınamadı');
   const fs = require('fs');
-  const genDir = path.join(__dirname, 'generated');
+  const genDir = GENERATED_DIR;
   if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
   const mime = imagePart.inlineData.mimeType || 'image/png';
   const ext = mime.includes('jpeg') || mime.includes('jpg') ? 'jpg' : mime.includes('webp') ? 'webp' : 'png';
@@ -2639,12 +2675,51 @@ async function callGoogleDirectImage({ model, prompt, apiKey: apiKeyOverride }) 
 }
 
 function saveGeneratedImageBuffer(buffer, prefix = 'img', ext = 'png') {
-  const genDir = path.join(__dirname, 'generated');
+  const genDir = GENERATED_DIR;
   if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
   const safeExt = String(ext || 'png').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'png';
   const fileName = `${prefix}_${Date.now()}_${Math.floor(Math.random() * 10000)}.${safeExt}`;
   fs.writeFileSync(path.join(genDir, fileName), buffer);
   return `/generated/${fileName}`;
+}
+
+function isSafeGeneratedUrl(url) {
+  const raw = String(url || '').trim();
+  return /^\/generated\/[a-z0-9_\-./]+\.(png|jpe?g|webp|gif|svg)$/i.test(raw) || /^https?:\/\/[^ "'<>]+\.(png|jpe?g|webp|gif)(\?[^ "'<>]*)?$/i.test(raw);
+}
+
+function galleryRow(row) {
+  return {
+    id: row.id,
+    url: row.url,
+    prompt: row.prompt || '',
+    model: row.model || '',
+    provider: row.provider || '',
+    mode: row.mode || 'generate',
+    favorite: Boolean(row.favorite),
+    created_at: row.created_at
+  };
+}
+
+function saveImageGalleryRecord({ userId, url, prompt, model, provider, mode = 'generate', sourceImageUrl = '' }) {
+  if (!userId || !isSafeGeneratedUrl(url)) return null;
+  const id = 'img_' + crypto.randomBytes(10).toString('hex');
+  db.prepare(`
+    INSERT OR IGNORE INTO image_gallery
+      (id, user_id, url, prompt, model, provider, mode, source_image_url)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, userId, url, String(prompt || '').slice(0, 4000), String(model || '').slice(0, 120), String(provider || '').slice(0, 80), mode, sourceImageUrl || '');
+  return id;
+}
+
+function parseDataImage(input) {
+  const raw = String(input || '');
+  const match = /^data:(image\/(?:png|jpeg|jpg|webp));base64,([a-z0-9+/=\r\n]+)$/i.exec(raw);
+  if (!match) throw new Error('Düzenleme için PNG, JPG veya WEBP data URL gerekli.');
+  const buffer = Buffer.from(match[2].replace(/\s/g, ''), 'base64');
+  if (!buffer.length || buffer.length > 12 * 1024 * 1024) throw new Error('Referans görsel boyutu geçersiz veya çok büyük.');
+  const ext = match[1].includes('webp') ? 'webp' : match[1].includes('png') ? 'png' : 'jpg';
+  return { mime: match[1].replace('jpg', 'jpeg'), buffer, ext };
 }
 
 function normalizeOpenAIImageSize(imageSize) {
@@ -2713,6 +2788,71 @@ async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverrid
   if (!buffer || buffer.length < 1000) throw new Error('OpenAI bos gorsel dondurdu');
   const url = saveGeneratedImageBuffer(buffer, 'openai', 'png');
   return { url, provider: 'openai', model: openaiModel, revised_prompt: item?.revised_prompt || prompt };
+}
+
+async function callOpenAIImageEdit({ prompt, image, model, imageSize, apiKey: apiKeyOverride }) {
+  const apiKey = apiKeyOverride || getOpenAIImageKey();
+  if (!apiKey) throw new Error('OPENAI_IMAGE_KEY eksik');
+  const parsed = parseDataImage(image);
+  const openaiModel = normalizeOpenAIImageModel(model);
+  const form = new FormData();
+  form.append('model', openaiModel);
+  form.append('prompt', prompt);
+  form.append('size', normalizeOpenAIImageSize(imageSize));
+  form.append('image', new Blob([parsed.buffer], { type: parsed.mime }), `reference.${parsed.ext}`);
+  const response = await fetch(`${OPENAI_IMAGE_BASE_URL}/images/edits`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${apiKey}` },
+    body: form,
+    signal: AbortSignal.timeout(120000)
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const err = typeof json.error === 'string' ? json.error : (json.error?.message || json.message || `OpenAI image edit hatasi (${response.status})`);
+    throw new Error(err);
+  }
+  const item = json.data?.[0];
+  let buffer = null;
+  if (item?.b64_json) buffer = Buffer.from(item.b64_json, 'base64');
+  else if (item?.url) {
+    const dl = await fetch(item.url, { signal: AbortSignal.timeout(60000) });
+    if (!dl.ok) throw new Error(`OpenAI edit gorseli indirilemedi (${dl.status})`);
+    buffer = Buffer.from(await dl.arrayBuffer());
+  }
+  if (!buffer || buffer.length < 1000) throw new Error('OpenAI edit bos gorsel dondurdu');
+  const url = saveGeneratedImageBuffer(buffer, 'edit_openai', 'png');
+  return { url, provider: 'openai-edit', model: openaiModel, revised_prompt: item?.revised_prompt || prompt };
+}
+
+async function callGoogleDirectImageEdit({ prompt, image, model, apiKey: apiKeyOverride }) {
+  const apiKey = apiKeyOverride || getGeminiKey();
+  if (!apiKey) throw new Error('GEMINI_API_KEY eksik');
+  const parsed = parseDataImage(image);
+  const directModel = model && String(model).startsWith('gemini-') ? model : 'gemini-2.5-flash-image';
+  const response = await fetch(`${GOOGLE_DIRECT_BASE}/models/${directModel}:generateContent`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+    body: JSON.stringify({
+      contents: [{
+        role: 'user',
+        parts: [
+          { inlineData: { mimeType: parsed.mime, data: parsed.buffer.toString('base64') } },
+          { text: prompt }
+        ]
+      }],
+      generationConfig: { responseModalities: ['Image'] }
+    }),
+    signal: AbortSignal.timeout(120000)
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(json.error?.message || `Google image edit hatasi (${response.status})`);
+  const parts = json.candidates?.[0]?.content?.parts || [];
+  const imagePart = parts.find(p => p.inlineData?.data);
+  if (!imagePart) throw new Error('Google edit gorsel yaniti alinamadi');
+  const mime = imagePart.inlineData.mimeType || 'image/png';
+  const ext = mime.includes('jpeg') || mime.includes('jpg') ? 'jpg' : mime.includes('webp') ? 'webp' : 'png';
+  const url = saveGeneratedImageBuffer(Buffer.from(imagePart.inlineData.data, 'base64'), 'edit_google', ext);
+  return { url, provider: 'google-direct-image-edit', model: directModel };
 }
 
 async function callCloudflareSdxlImage({ prompt, imageSize, provider = 'cloudflare' }) {
@@ -3126,6 +3266,7 @@ app.get('/api/health', (req, res) => {
     database: dbStats,
     databaseStorage: {
       path: DATABASE_PATH,
+      generatedPath: GENERATED_DIR,
       persistent: DATABASE_IS_PERSISTENT,
       source: DATABASE_IS_PERSISTENT ? 'env-or-railway-volume' : 'app-directory'
     },
@@ -3454,6 +3595,13 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
       return res.json(googleReply);
     } catch (err) {
       console.warn('[GOOGLE_DIRECT_CHAT]', err.message);
+      if (hasInlineImage) {
+        return res.status(502).json({
+          error: {
+            message: 'Görsel okuma hattı şu anda cevap veremedi. Fotoğrafı göremeyen metin modeline düşürmedim; lütfen tekrar dene veya başka bir vision model seç.'
+          }
+        });
+      }
       return res.json(await groqFallbackChat(messages, max_tokens, 'llama-3.1-8b-instant'));
     }
   }
@@ -4118,7 +4266,7 @@ app.post('/api/tts', chatLimiter, async (req, res) => {
     await tts.setMetadata(edgeVoice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
 
     // Use temp directory to get the MP3 file
-    const tmpDir = path.join(__dirname, 'generated', 'tts_tmp');
+    const tmpDir = path.join(GENERATED_DIR, 'tts_tmp');
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
     
     const result = await tts.toFile(tmpDir, cleanText);
@@ -4143,7 +4291,7 @@ app.post('/api/tts', chatLimiter, async (req, res) => {
 
 function createLocalImageFallback(prompt, reason = '') {
   const clean = String(prompt || 'AI image').replace(/[<>&"']/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[ch])).slice(0, 160);
-  const genDir = path.join(__dirname, 'generated');
+  const genDir = GENERATED_DIR;
   if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
   const fileName = `fallback_${Date.now()}.svg`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
@@ -4186,7 +4334,81 @@ function resolveImageSize(input = {}) {
 }
 
 // Image generation endpoint supporting both Pollinations and Guicore API
-app.post('/api/image', chatLimiter, async (req, res) => {
+app.post('/api/image/edit', chatLimiter, optionalAuthMiddleware, async (req, res) => {
+  let { prompt, image, model, apiKey: bodyApiKey } = req.body || {};
+  const imageSize = resolveImageSize(req.body || {});
+  prompt = String(prompt || '').trim();
+  if (!prompt) return res.status(400).json({ error: 'Prompt required' });
+  if (!image) return res.status(400).json({ error: 'Düzenleme için referans fotoğraf gerekli.' });
+  const overrideKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
+  let requestedModel = String(model || 'auto-quality');
+  const isOpenAI = requestedModel === 'auto-quality' || requestedModel.startsWith('openai-') || requestedModel.includes('gpt-image') || requestedModel === 'style-dalle3';
+  const isGemini = requestedModel === 'auto-quality' || requestedModel.startsWith('gemini-') || requestedModel.startsWith('imagen-');
+  const errors = [];
+  try {
+    let out = null;
+    if (isOpenAI && (overrideKey || OPENAI_IMAGE_KEYS.length)) {
+      out = await callOpenAIImageEdit({ prompt, image, model: requestedModel, imageSize, apiKey: overrideKey });
+    } else if (isGemini && GEMINI_KEYS.length) {
+      out = await callGoogleDirectImageEdit({ prompt, image, model: requestedModel, apiKey: overrideKey });
+    }
+    if (!out) {
+      return res.status(400).json({ error: 'Bu model fotoğraf düzenleyemiyor. GPT Image veya Gemini Image Edit destekli bir model seç.' });
+    }
+    const sourceImageUrl = '';
+    const galleryId = saveImageGalleryRecord({
+      userId: req.user?.id,
+      url: out.url,
+      prompt,
+      model: out.model || requestedModel,
+      provider: out.provider,
+      mode: 'edit',
+      sourceImageUrl
+    });
+    return res.json({ ...out, prompt, mode: 'edit', galleryId });
+  } catch (err) {
+    errors.push(err.message);
+    if (!String(requestedModel).startsWith('gemini-') && GEMINI_KEYS.length) {
+      try {
+        const out = await callGoogleDirectImageEdit({ prompt, image, model: 'gemini-2.5-flash-image', apiKey: overrideKey });
+        const galleryId = saveImageGalleryRecord({ userId: req.user?.id, url: out.url, prompt, model: out.model, provider: out.provider, mode: 'edit' });
+        return res.json({ ...out, prompt, mode: 'edit', galleryId, fallbackFrom: requestedModel, warning: errors[0] });
+      } catch (inner) {
+        errors.push(inner.message);
+      }
+    }
+    return res.status(502).json({ error: 'Fotoğraf düzenleme başarısız: ' + errors.join(' | ') });
+  }
+});
+
+app.get('/api/gallery', optionalAuthMiddleware, (req, res) => {
+  if (!req.user?.id) return res.json({ images: [] });
+  const rows = db.prepare(`
+    SELECT * FROM image_gallery
+    WHERE user_id = ? AND broken = 0
+    ORDER BY datetime(created_at) DESC
+    LIMIT 120
+  `).all(req.user.id);
+  res.json({ images: rows.map(galleryRow) });
+});
+
+app.post('/api/gallery', optionalAuthMiddleware, (req, res) => {
+  if (!req.user?.id) return res.status(401).json({ error: 'Galeri kaydı için giriş gerekli.' });
+  const { url, prompt, model, provider, mode, sourceImageUrl } = req.body || {};
+  if (!isSafeGeneratedUrl(url)) return res.status(400).json({ error: 'Geçersiz veya kırık görsel URL.' });
+  const existing = db.prepare('SELECT id FROM image_gallery WHERE user_id = ? AND url = ?').get(req.user.id, url);
+  if (existing) return res.json({ ok: true, id: existing.id });
+  const id = saveImageGalleryRecord({ userId: req.user.id, url, prompt, model, provider, mode: mode || 'generate', sourceImageUrl });
+  res.json({ ok: true, id });
+});
+
+app.delete('/api/gallery/:id', optionalAuthMiddleware, (req, res) => {
+  if (!req.user?.id) return res.status(401).json({ error: 'Unauthorized' });
+  const info = db.prepare('UPDATE image_gallery SET broken = 1 WHERE id = ? AND user_id = ?').run(req.params.id, req.user.id);
+  res.json({ ok: true, changed: info.changes });
+});
+
+app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   let { prompt, model, apiKey: bodyApiKey } = req.body;
   const imageSize = resolveImageSize(req.body || {});
   if (!prompt) return res.status(400).json({ error: 'Prompt required' });
@@ -4318,7 +4540,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         throw new Error('Stability: ' + errText.slice(0, 200));
       }
       const buf = Buffer.from(await stRes.arrayBuffer());
-      const genDir = path.join(__dirname, 'generated');
+      const genDir = GENERATED_DIR;
       if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
       const fileName = `st_${Date.now()}.jpg`;
       fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -4347,7 +4569,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
       if (!imgUrl) throw new Error('Together URL boş');
       const dlRes = await fetch(imgUrl);
       const buf = Buffer.from(await dlRes.arrayBuffer());
-      const genDir = path.join(__dirname, 'generated');
+      const genDir = GENERATED_DIR;
       if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
       const fileName = `tg_${Date.now()}.jpg`;
       fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -4388,7 +4610,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
       }
 
       const fs = require('fs');
-      const genDir = path.join(__dirname, 'generated');
+      const genDir = GENERATED_DIR;
       if (!fs.existsSync(genDir)) fs.mkdirSync(genDir);
 
       const ext = contentType.includes('jpeg') || contentType.includes('jpg') ? 'jpg' : 'png';
@@ -4433,7 +4655,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
           if (ct.includes('image')) {
             const buf = Buffer.from(await cfRes.arrayBuffer());
             if (buf.length >= 10000) {
-              const genDir = path.join(__dirname, 'generated');
+              const genDir = GENERATED_DIR;
               if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
               const fileName = 'cf_' + Date.now() + '.png';
               fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -4480,7 +4702,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
             if (dl.ok) buf = Buffer.from(await dl.arrayBuffer());
           }
           if (buf && buf.length >= 1000) {
-            const genDir = path.join(__dirname, 'generated');
+            const genDir = GENERATED_DIR;
             if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
             const fileName = 'shen_' + Date.now() + '.jpg';
             fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -4543,7 +4765,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         const buffer = Buffer.from(await response.arrayBuffer());
         if (buffer.length < 1000) throw new Error(`çok küçük yanıt (${buffer.length} bytes)`);
 
-        const genDir = path.join(__dirname, 'generated');
+        const genDir = GENERATED_DIR;
         if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
         const fileName = `gen_${Date.now()}.jpg`;
         fs.writeFileSync(path.join(genDir, fileName), buffer);
@@ -4586,7 +4808,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         if (cfRes.ok) {
           const buf = Buffer.from(await cfRes.arrayBuffer());
           if (buf.length < 10000) throw new Error('Cloudflare fallback cok kucuk/eksik gorsel dondurdu');
-          const genDir = path.join(__dirname, 'generated');
+          const genDir = GENERATED_DIR;
           if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
           const fileName = `cf_${Date.now()}.png`;
           fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -4672,7 +4894,7 @@ app.post('/api/image', chatLimiter, async (req, res) => {
         if (ct.includes('image')) {
           const buf = Buffer.from(await polRes.arrayBuffer());
           if (buf.length >= 1000) {
-            const genDir = path.join(__dirname, 'generated');
+            const genDir = GENERATED_DIR;
             if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
             const fileName = `gc_fb_${Date.now()}.jpg`;
             fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -4725,7 +4947,7 @@ app.get('/api/img-proxy', async (req, res) => {
   const imageSize = resolveImageSize(req.query || {});
   if (!prompt) return res.status(400).send('Prompt required');
   const cacheKey = crypto.createHash('md5').update(`${prompt}_${seed||''}_${model||'flux'}_${imageSize.width}x${imageSize.height}`).digest('hex');
-  const genDir = path.join(__dirname, 'generated', 'proxy');
+  const genDir = path.join(GENERATED_DIR, 'proxy');
   if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
   const cachePath = path.join(genDir, `${cacheKey}.jpg`);
   if (fs.existsSync(cachePath)) {
@@ -4824,7 +5046,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
         throw new Error(`Pollinations video yerine ${ct} döndü: ${errText.slice(0, 200)}`);
       }
       const buf = Buffer.from(await polRes.arrayBuffer());
-      const genDir = path.join(__dirname, 'generated');
+      const genDir = GENERATED_DIR;
       if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
       const fileName = `pv_${Date.now()}.mp4`;
       fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -4856,7 +5078,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       const ct = hfRes.headers.get('content-type') || '';
       if (!ct.includes('video')) throw new Error(`HF video yerine ${ct} döndü`);
       const buf = Buffer.from(await hfRes.arrayBuffer());
-      const genDir = path.join(__dirname, 'generated');
+      const genDir = GENERATED_DIR;
       if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
       const fileName = `ltx_${Date.now()}.mp4`;
       fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -5145,7 +5367,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       const dlRes = await fetch(`${videoUri}&key=${apiKey}`);
       if (!dlRes.ok) throw new Error('Veo video indirme: ' + dlRes.status);
       const buf = Buffer.from(await dlRes.arrayBuffer());
-      const genDir = path.join(__dirname, 'generated');
+      const genDir = GENERATED_DIR;
       if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
       const fileName = `veo_${Date.now()}.mp4`;
       fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -5212,8 +5434,8 @@ app.post('/api/imagen', chatLimiter, async (req, res) => {
     if (data.predictions?.[0]?.bytesBase64Encoded) {
       const fs = require('fs');
       const fileName = `img_${Date.now()}.png`;
-      fs.mkdirSync(path.join(__dirname, 'generated'), { recursive: true });
-      fs.writeFileSync(path.join(__dirname, 'generated', fileName), Buffer.from(data.predictions[0].bytesBase64Encoded, 'base64'));
+      fs.mkdirSync(GENERATED_DIR, { recursive: true });
+      fs.writeFileSync(path.join(GENERATED_DIR, fileName), Buffer.from(data.predictions[0].bytesBase64Encoded, 'base64'));
       console.log(`[IMAGEN] Saved: /generated/${fileName}`);
       return res.json({ url: `/generated/${fileName}`, prompt, model: modelId, provider: 'gemini-imagen', ...imageMeta });
     }
@@ -5241,7 +5463,7 @@ app.post('/api/imagen', chatLimiter, async (req, res) => {
         if (ct.includes('image')) {
           const buf = Buffer.from(await polRes.arrayBuffer());
           if (buf.length >= 1000) {
-            const genDir = path.join(__dirname, 'generated');
+            const genDir = GENERATED_DIR;
             if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
             const fileName = `imagen_fb_${Date.now()}.jpg`;
             fs.writeFileSync(path.join(genDir, fileName), buf);
@@ -5467,7 +5689,7 @@ app.post('/v1/images/generations', async (req, res) => {
 
 // ===== FEATURE: /api/admin/image-stats (Image Generation Stats) =====
 app.get('/api/admin/image-stats', (req, res) => {
-  const genDir = path.join(__dirname, 'generated');
+  const genDir = GENERATED_DIR;
   let count = 0, totalSize = 0;
   try {
     const files = fs.readdirSync(genDir).filter(f => /\.(png|jpg|jpeg|svg)$/i.test(f));
@@ -5512,7 +5734,7 @@ app.get('/api/admin/provider-health-live', adminMiddleware, (req, res) => {
       providers: providerRows,
       generated_images: (() => {
         try {
-          return fs.readdirSync(path.join(__dirname, 'generated')).filter(f => /\.(png|jpg|jpeg|svg|webp)$/i.test(f)).length;
+          return fs.readdirSync(GENERATED_DIR).filter(f => /\.(png|jpg|jpeg|svg|webp)$/i.test(f)).length;
         } catch(e) { return 0; }
       })()
     });
@@ -5576,3 +5798,4 @@ app.listen(PORT, () => {
   console.log(`   Video: Veo 2.0/3.0/3.1`);
   console.log(`   Image: Imagen 4.0, Pollinations, Guicore\n`);
 });
+

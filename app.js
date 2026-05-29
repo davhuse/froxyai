@@ -406,6 +406,9 @@ async function callChatApiWithFallback(initialModel,messages,maxTokens=900){
       }
       const data=await readApiJson(res);
       const content=data?.choices?.[0]?.message?.content||data?.content||data?.message||'';
+      if(chatMessageHasImage(workingMessages) && looksLikeVisionFailure(content)){
+        throw new Error('Se?ili hat g?rseli okuyamad?; vision destekli yedek model aran?yor.');
+      }
       if(content && /tekrar gönder|tekrar dene|tekrar deneyelim|Ana model|ana model|Yedek hat|güvenli mod|servis uyar/i.test(String(content))){
         throw new Error('Seçili model cevap üretemedi; çalışan yedek model aranıyor.');
       }
@@ -518,6 +521,11 @@ function handleGalleryImageError(img,url){
     }
   }
   removeImageUrlEverywhere(url);
+  const serverId=card?.getAttribute?.('data-gallery-id');
+  if(serverId&&authToken){
+    fetch('/api/gallery/'+encodeURIComponent(serverId),{method:'DELETE',headers:{'Authorization':'Bearer '+authToken}}).catch(()=>{});
+  }
+  setTimeout(()=>{try{card?.remove()}catch(e){}},80);
 }
 window.handleGalleryImageError=handleGalleryImageError;
 function getImageModelLabel(model){
@@ -642,7 +650,7 @@ function pollinationsDirectUrl(prompt, model, sizePayload){
 function shouldUseDirectImageModel(model){
   return false; // Tüm modeller server proxy üzerinden çalışır — en stabil yaklaşım
 }
-function renderImageResult(resEl, url, prompt, model, fallbackNote=''){
+function renderImageResult(resEl, url, prompt, model, fallbackNote='', mode='generate'){
   const displayUrl=imageUrlForDisplay(url);
   let settled=false;
   resEl.innerHTML = `
@@ -681,7 +689,7 @@ function renderImageResult(resEl, url, prompt, model, fallbackNote=''){
       clearTimeout(timeout);
       imgEl.dataset.imgState = 'loaded';
       lastImgUrl = imageUrlForDownload(url);
-      addImageHistory(imageUrlForDownload(url), prompt, model);
+      addImageHistory(imageUrlForDownload(url), prompt, model, mode);
       finish(true);
     };
     imgEl.onerror = () => {
@@ -3589,6 +3597,10 @@ function chatMessageHasImage(messages) {
   });
 }
 
+function looksLikeVisionFailure(text) {
+  return /g[öo]rseli g[öo]remiyorum|resmi g[öo]remiyorum|foto[ğg]raf[ıi] g[öo]remiyorum|g[öo]rsele eri[şs]emiyorum|cannot view images|can't see the image|unable to view/i.test(String(text || ''));
+}
+
 function chatModelSupportsVision(modelId) {
   const def = ALL_MODELS.find(m => m.id === modelId) || {};
   const id = String(def.apiId || modelId || '').toLowerCase();
@@ -4178,6 +4190,7 @@ function formatMsg(t){
   return t;
 }
 document.addEventListener('input',e=>{if(e.target.id==='chat-in'){e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,150)+'px'}});
+document.addEventListener('DOMContentLoaded',()=>{try{setImageWorkflowMode(imageWorkflowMode)}catch(e){}});
 
 // Copy Code Event Delegation
 document.addEventListener('click', e => {
@@ -5133,6 +5146,20 @@ function adminRenderRecent(users){
     <td><button class="admin-action-btn admin-btn-credit" onclick="openCreditModal(${adminJsArg(u.id)},${adminJsArg(u.username||u.email)})">Kredi</button></td>
   </tr>`).join('');
 }
+function updateAdminDbStatusCard(data){
+  const grid=document.querySelector('#at-dashboard .admin-stats-grid');
+  if(!grid)return;
+  let card=document.getElementById('admin-db-status-card');
+  if(!card){
+    card=document.createElement('div');
+    card.id='admin-db-status-card';
+    card.className='admin-stat-card admin-db-status-card';
+    grid.appendChild(card);
+  }
+  const db=data?.databaseStorage||{};
+  const ok=!!db.persistent;
+  card.innerHTML=`<div class="admin-stat-icon">${typeof adminIcon==='function'?adminIcon('database',22):''}</div><div><div class="admin-stat-value">${ok?'Kalıcı DB aktif':'DB kalıcı değil'}</div><div class="admin-stat-label">${Number(data?.totalUsers||0).toLocaleString('tr-TR')} kullanıcı · ${Number(data?.galleryImages||0).toLocaleString('tr-TR')} görsel</div><div class="admin-stat-sub" title="${esc(db.path||'')}">${esc(db.path||'DB yolu alınamadı')}</div></div>`;
+}
 async function loadAdminStats(){
   adminSetTableSkeleton('at-recent-tbody',5,4);
   adminSetBlockSkeleton('admin-provider-list',4);
@@ -5159,6 +5186,7 @@ async function loadAdminStats(){
   if($('as-blocked'))$('as-blocked').textContent=Number(d.blockedUsers||0).toLocaleString('tr-TR');
   if($('as-admins'))$('as-admins').textContent=Number(d.adminCount||0)+' admin';
   if($('an-user-count'))$('an-user-count').textContent=Number(d.totalUsers||0).toLocaleString('tr-TR');
+  updateAdminDbStatusCard(d);
   adminRenderRecent(d.recentUsers||[]);
   renderAdminProviderSummary();
   // Provider health
@@ -6564,6 +6592,60 @@ document.addEventListener('click',e=>{
 let lastImgPrompt = '';
 let lastImgModel = '';
 let lastImgUrl = '';
+let imageWorkflowMode = 'generate';
+let imageEditDataUrl = '';
+let serverImageGalleryCache = [];
+
+function imageModelCanEdit(model){
+  const m=String(model||'').toLowerCase();
+  return m==='auto-quality'||m.startsWith('openai-')||m.includes('gpt-image')||m==='style-dalle3'||m.startsWith('gemini-')||m.startsWith('imagen-');
+}
+
+function setImageWorkflowMode(mode){
+  imageWorkflowMode=mode==='edit'?'edit':'generate';
+  document.querySelectorAll('.img-edit-toggle [data-img-mode]').forEach(btn=>btn.classList.toggle('active',btn.dataset.imgMode===imageWorkflowMode));
+  const field=document.getElementById('img-edit-upload-field');
+  if(field)field.style.display=imageWorkflowMode==='edit'?'block':'none';
+  const label=document.getElementById('btn-gen-img')?.querySelector('span:last-child');
+  if(label)label.textContent=imageWorkflowMode==='edit'?'Fotoğrafı Düzenle':'Görsel Üret';
+  updateImageCreditSurface();
+}
+
+function handleImageEditFile(e){
+  const f=e.target.files?.[0];
+  if(!f)return;
+  if(!/^image\/(png|jpeg|webp)$/i.test(f.type))return msg('Düzenleme için PNG, JPG veya WEBP seç.','err');
+  const r=new FileReader();
+  r.onload=ev=>{
+    imageEditDataUrl=String(ev.target.result||'');
+    const name=document.getElementById('img-edit-file-name');
+    if(name)name.textContent=f.name;
+    const prev=document.getElementById('img-edit-preview');
+    if(prev){prev.style.display='block';prev.innerHTML=`<img src="${esc(imageEditDataUrl)}" alt="Düzenlenecek fotoğraf">`;}
+  };
+  r.onerror=()=>msg('Fotoğraf okunamadı.','err');
+  r.readAsDataURL(f);
+}
+
+async function syncServerGalleryRecord(url,prompt,model,provider='',mode='generate'){
+  if(!authToken||!url||String(url).startsWith('data:')||String(url).startsWith('blob:'))return null;
+  try{
+    const res=await fetch('/api/gallery',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},body:JSON.stringify({url,prompt,model,provider,mode})});
+    const data=await readApiJson(res);
+    if(res.ok&&data.id)return data.id;
+  }catch(e){}
+  return null;
+}
+
+async function loadServerGallery(){
+  if(!authToken){serverImageGalleryCache=[];return []}
+  try{
+    const res=await fetch('/api/gallery',{headers:{'Authorization':'Bearer '+authToken}});
+    const data=await readApiJson(res);
+    serverImageGalleryCache=Array.isArray(data.images)?data.images:[];
+  }catch(e){serverImageGalleryCache=[]}
+  return serverImageGalleryCache;
+}
 
 function getImageHistory(){return LS.get('ap_image_history',[])}
 function cleanImageCollection(items){
@@ -6583,11 +6665,19 @@ function syncCleanImageHistory(){
   if(cleaned.length!==items.length)LS.set('ap_image_history',cleaned);
   return cleaned;
 }
-function addImageHistory(url,prompt,model){
+function addImageHistory(url,prompt,model,mode='generate'){
   if(!isProbablyImageUrl(url))return;
   const items=getImageHistory().filter(x=>x.url!==url);
   items.unshift({url,prompt,model,date:new Date().toISOString()});
   LS.set('ap_image_history',items.slice(0,24));
+  syncServerGalleryRecord(url,prompt,model,'',mode).then(id=>{
+    if(id){
+      serverImageGalleryCache.unshift({id,url,prompt,model,mode,created_at:new Date().toISOString()});
+      serverImageGalleryCache=cleanImageCollection(serverImageGalleryCache).slice(0,120);
+      if(typeof renderGallery==='function')renderGallery();
+      if(typeof renderImageGalleryPro==='function')renderImageGalleryPro();
+    }
+  });
   try{if(typeof saveToGallery==='function')saveToGallery(url,prompt,model)}catch(e){}
   renderImageHistory();
 }
@@ -6651,6 +6741,10 @@ async function genImage(){
   
   if(!prompt) return msg('Lütfen bir prompt girin!','error');
   if(!user) return msg('Lütfen giriş yapın!','error');
+  const isEditMode=imageWorkflowMode==='edit'||document.querySelector('[data-img-mode="edit"]')?.classList.contains('active');
+  if(isEditMode){
+    return genImageEdit(prompt,model,imageSize,resEl,btn);
+  }
   const estimatedCost=getClientModelCreditCost(model,imageProviderForModel(model),'image');
   const currentRemaining=remainingUserCredits();
   if(Number.isFinite(currentRemaining)&&currentRemaining<estimatedCost){
@@ -6714,6 +6808,45 @@ async function genImage(){
 }
 
 // Görseli indir
+async function genImageEdit(prompt,model,imageSize,resEl,btn){
+  const editImage=imageEditDataUrl||document.querySelector('#img-edit-preview img')?.getAttribute('src')||'';
+  if(!editImage)return msg('D?zenlemek i?in ?nce bir foto?raf se?.','err');
+  if(!imageModelCanEdit(model))return msg('Bu model foto?raf d?zenleyemiyor. GPT Image veya Gemini Image destekli bir model se?.','err');
+  const estimatedCost=getClientModelCreditCost(model,imageProviderForModel(model),'image');
+  const currentRemaining=remainingUserCredits();
+  if(Number.isFinite(currentRemaining)&&currentRemaining<estimatedCost){
+    showCreditBlock('image',estimatedCost,currentRemaining,getImageModelLabel(model)||model);
+    return;
+  }
+  btn.disabled=true;
+  btn.innerHTML=figIcon('sparkles','inline')+' D?zenleniyor...';
+  resEl.innerHTML=imageLoadingHtml(prompt,getImageModelLabel(model)+' d?zenleme');
+  try{
+    const {res,data}=await postJsonApi('/api/image/edit',{prompt,model,image:editImage,imageSize:imageSize.key,width:imageSize.width,height:imageSize.height,aspectRatio:imageSize.aspect,size:imageSize.size,apiKey:providerKeyFor(imageProviderForModel(model))},120000);
+    if(res.ok&&data.url){
+      const ok=await renderImageResult(resEl,data.url,prompt,data.model||model,(data.provider||'AI edit')+' ile d?zenlendi','edit');
+      if(ok){
+        const billedProvider=imageProviderForModel(model);
+        const billedCost=getClientModelCreditCost(model,billedProvider,'image');
+        await chargeSuccessfulUse(model,billedProvider,'image',billedCost);
+      }
+    }else{
+      renderImageErrorCard(resEl,prompt,model,'');
+      msg(data?.error||'Foto?raf d?zenleme ba?ar?s?z.','err');
+    }
+  }catch(err){
+    renderImageErrorCard(resEl,prompt,model,'');
+    msg(normalizeNetworkError(err),'err');
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML=figIcon('image','inline')+' Foto?raf? D?zenle';
+  }
+}
+
+window.setImageWorkflowMode=setImageWorkflowMode;
+window.handleImageEditFile=handleImageEditFile;
+window.genImage=genImage;
+
 function downloadImage(){
   if(!lastImgUrl) return;
   const a = document.createElement('a');
@@ -7271,6 +7404,16 @@ function saveToGallery(url,prompt,model){
   LS.set('ap_image_gallery',gallery);
 }
 function getUnifiedImageGallery(){
+  const remote=(serverImageGalleryCache||[]).map((x,i)=>({
+    id:x.id||('srv_'+i),
+    url:x.url,
+    prompt:x.prompt,
+    model:x.model,
+    provider:x.provider,
+    mode:x.mode,
+    date:x.created_at?new Date(x.created_at).getTime():Date.now(),
+    serverId:x.id
+  }));
   const history=(typeof getImageHistory==='function'?getImageHistory():[]).map((x,i)=>({
     id:x.id||('hist_'+i+'_'+String(x.date||'')),
     url:x.url,
@@ -7280,7 +7423,7 @@ function getUnifiedImageGallery(){
   }));
   const saved=cleanImageCollection(getImageGallery());
   const seen=new Set();
-  return cleanImageCollection([...history,...saved]).filter(x=>{
+  return cleanImageCollection([...remote,...history,...saved]).filter(x=>{
     const key=imageUrlForDisplay(x.url);
     if(!x||!x.url||seen.has(key))return false;
     seen.add(key);
@@ -7290,13 +7433,17 @@ function getUnifiedImageGallery(){
 function renderGallery(){
   const cont=document.getElementById('gallery-grid');
   if(!cont)return;
+  if(authToken&&!cont.dataset.serverGalleryLoaded){
+    cont.dataset.serverGalleryLoaded='1';
+    loadServerGallery().then(()=>renderGallery());
+  }
   const gallery=getUnifiedImageGallery();
   if(!gallery.length){cont.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">Henüz görsel yok. Görsel ürettiğinizde burada görünecek.</div>';return}
   cont.innerHTML=gallery.map(img=>{
     const prompt=esc(img.prompt||'');
     const url=esc(img.url);
-    return `<div class="gallery-item" style="animation:scaleIn .3s ease">
-      <img src="${url}" loading="lazy" style="width:100%;border-radius:12px;cursor:pointer" onclick="window.open(this.src)">
+    return `<div class="gallery-item" data-gallery-id="${esc(img.serverId||img.id||'')}" style="animation:scaleIn .3s ease">
+      <img src="${url}" loading="lazy" style="width:100%;border-radius:12px;cursor:pointer" onclick="window.open(this.src)" onerror="handleGalleryImageError&&handleGalleryImageError(this,this.src)">
       <div style="font-size:11px;color:var(--text3);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${prompt}</div>
       <div style="display:flex;gap:6px;margin-top:8px">
         <button class="btn btn-sm" onclick="navigator.clipboard?.writeText('${jsStr(img.prompt||'')}');msg('Prompt kopyalandı','ok')">Prompt</button>
@@ -10409,13 +10556,17 @@ window.downloadEditorCanvas=downloadEditorCanvas;
       if(oldRenderGallery)return oldRenderGallery();
       return;
     }
+    if(authToken&&!cont.dataset.serverGalleryLoaded){
+      cont.dataset.serverGalleryLoaded='1';
+      loadServerGallery().then(()=>window.renderGallery());
+    }
     const gallery=getUnifiedImageGallery();
     const favs=imageFavs();
     if(!gallery.length){cont.innerHTML='<div class="growth-empty-gallery">Henüz görsel yok. İlk üretimden sonra favoriler ve koleksiyonlar burada görünecek.</div>';return}
     cont.innerHTML='<div class="growth-gallery-toolbar"><div><strong>Görsel koleksiyonu</strong><span>'+gallery.length+' çıktı · '+favs.length+' favori</span></div><button type="button" onclick="downloadFavoriteImagesV202()">Favorileri indir</button></div>'+
       gallery.map(img=>{
         const isFav=favs.includes(img.url);
-        return '<article class="gallery-item growth-gallery-card '+(isFav?'is-fav':'')+'"><button type="button" class="growth-gallery-star" onclick="toggleImageFavoriteV202(\''+jsStr(img.url)+'\')" title="Favori">'+(isFav?'★':'☆')+'</button><img src="'+esc(img.url)+'" loading="lazy" onclick="window.open(this.src)" onerror="handleGalleryImageError&&handleGalleryImageError(this,this.src)"><p>'+esc(img.prompt||'Görsel')+'</p><div><button type="button" onclick="navigator.clipboard?.writeText(\''+jsStr(img.prompt||'')+'\');msg(\'Prompt kopyalandı\',\'ok\')">Prompt</button><a href="'+esc(img.url)+'" download="froxyai-gorsel.jpg">İndir</a></div></article>';
+        return '<article class="gallery-item growth-gallery-card '+(isFav?'is-fav':'')+'" data-gallery-id="'+esc(img.serverId||img.id||'')+'"><button type="button" class="growth-gallery-star" onclick="toggleImageFavoriteV202(\''+jsStr(img.url)+'\')" title="Favori">'+(isFav?'★':'☆')+'</button><img src="'+esc(img.url)+'" loading="lazy" onclick="window.open(this.src)" onerror="handleGalleryImageError&&handleGalleryImageError(this,this.src)"><p>'+esc(img.prompt||'Görsel')+'</p><div><button type="button" onclick="navigator.clipboard?.writeText(\''+jsStr(img.prompt||'')+'\');msg(\'Prompt kopyalandı\',\'ok\')">Prompt</button><a href="'+esc(img.url)+'" download="froxyai-gorsel.jpg">İndir</a></div></article>';
       }).join('');
   };
   try{renderGallery=window.renderGallery}catch(e){}
@@ -11523,4 +11674,26 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{notifyPaymentState();setTimeout(renderAdminShopierPaymentsV215,1200);});
   else setTimeout(()=>{notifyPaymentState();renderAdminShopierPaymentsV215();},900);
+})();
+
+// v286: keep photo edit mode above late image-generation wrappers.
+(function(){
+  const previousGenImage=window.genImage || (typeof genImage==='function'?genImage:null);
+  if(!previousGenImage||window.__imageEditFinalGuard)return;
+  window.__imageEditFinalGuard=true;
+  window.genImage=async function(){
+    const editActive=!!document.querySelector('[data-img-mode="edit"].active');
+    if(editActive&&typeof genImageEdit==='function'){
+      const promptEl=document.getElementById('img-prompt');
+      const modelEl=document.getElementById('img-model');
+      const resEl=document.getElementById('img-result');
+      const btn=document.getElementById('btn-gen-img');
+      const prompt=(promptEl?.value||'').trim();
+      const model=modelEl?.value||'auto-quality';
+      if(!prompt)return msg('Lütfen bir prompt girin!','error');
+      return genImageEdit(prompt,model,getImageSizePayload(),resEl,btn);
+    }
+    return previousGenImage.apply(this,arguments);
+  };
+  try{genImage=window.genImage}catch(e){}
 })();

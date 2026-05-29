@@ -141,10 +141,10 @@
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
   <link rel="stylesheet" href="home-critical.min.css?v=v260">
-  <noscript><link rel="stylesheet" href="style.min.css?v=v284"></noscript>
+  <noscript><link rel="stylesheet" href="style.min.css?v=v286"></noscript>
   <script>
-  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v284';document.head.appendChild(l)};
-  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v284';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
+  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v286';document.head.appendChild(l)};
+  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v286';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
   ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})});
   window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)});
   </script>
@@ -1490,6 +1490,10 @@ echo curl_exec($ch);</pre>
 
             <div class="img-gen-workspace">
               <div class="img-gen-form">
+                <div class="img-edit-toggle" role="tablist" aria-label="Görsel modu">
+                  <button type="button" class="active" data-img-mode="generate" onclick="setImageWorkflowMode('generate')">Yeni üret</button>
+                  <button type="button" data-img-mode="edit" onclick="setImageWorkflowMode('edit')">Fotoğrafı düzenle</button>
+                </div>
                 <div class="img-gen-field">
                   <label class="img-gen-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg> Model Seçimi</label>
                   <div class="img-gen-select-wrap">
@@ -1540,6 +1544,16 @@ echo curl_exec($ch);</pre>
                     <textarea id="img-prompt" rows="3" placeholder="Hayal ettiğiniz görseli tarif edin..." class="img-gen-textarea"></textarea>
                     <div class="img-gen-textarea-glow"></div>
                   </div>
+                </div>
+
+                <div class="img-gen-field img-edit-upload-field" id="img-edit-upload-field" style="display:none">
+                  <label class="img-gen-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m8 14 2.5-2.5L14 15l2-2 3 3"/><circle cx="8.5" cy="8.5" r="1.5"/></svg> Düzenlenecek fotoğraf</label>
+                  <input type="file" id="img-edit-file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleImageEditFile(event)">
+                  <button type="button" class="img-edit-upload" onclick="document.getElementById('img-edit-file')?.click()">
+                    <span id="img-edit-file-name">Fotoğraf seç</span>
+                    <small>PNG, JPG veya WEBP</small>
+                  </button>
+                  <div id="img-edit-preview" class="img-edit-preview" style="display:none"></div>
                 </div>
 
                 <button class="img-gen-btn" onclick="genImage()" id="btn-gen-img">
@@ -2436,7 +2450,7 @@ echo curl_exec($ch);</pre>
       if(window.__loadFullCss)window.__loadFullCss();
       var sc=document.createElement('script');
       sc.fetchPriority='high';
-      sc.src='app.min.js?v=v284';
+      sc.src='app.min.js?v=v286';
       sc.defer=true;
       sc.onload=function(){
         appLoaded=true;
