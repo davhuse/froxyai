@@ -396,7 +396,7 @@ function resetDailyIfNeeded(userId) {
 function checkDailyLimit(userId, type) {
   resetDailyIfNeeded(userId);
   const user = db.prepare('SELECT plan, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(userId);
-  if (!user) return { allowed: false, reason: 'Kullanici bulunamadi' };
+  if (!user) return { allowed: false, reason: 'Kullanıcı bulunamadı' };
   const limits = getDailyLimits(user.plan || 'free');
   if (type === 'chat' && user.daily_chat_count >= limits.chat) {
     return { allowed: false, reason: 'Gunluk mesaj limitinize ulastiniz (' + limits.chat + '/' + limits.chat + '). Paketinizi yukseltebilirsiniz.' };
@@ -813,7 +813,7 @@ function applyShopierPayment(req, payload) {
     const row = db.prepare('SELECT * FROM shopier_payments WHERE payment_id = ?').get(paymentId);
     if (row && row.status === 'applied') return { already: true, user: db.prepare('SELECT id, username, email, credits, plan FROM users WHERE id = ?').get(row.user_id) };
     const before = db.prepare('SELECT credits FROM users WHERE id = ?').get(userId);
-    if (!before) throw new Error('Kullanici bulunamadi');
+    if (!before) throw new Error('Kullanıcı bulunamadı');
     db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(plan, pack.credits, userId);
     recordShopierPayment({ payload, paymentId, orderId, plan, pack, userId, verified: true, status: 'applied' });
     db.prepare('UPDATE shopier_payments SET applied_at = CURRENT_TIMESTAMP WHERE payment_id = ?').run(paymentId);
@@ -1275,6 +1275,31 @@ app.get('/api/admin/stats', adminMiddleware, (req, res) => {
       }
     });
   } catch(e) { res.status(500).json({error: e.message}); }
+});
+
+app.get('/api/leaderboard', (req, res) => {
+  try {
+    const limit = Math.max(1, Math.min(25, parseInt(req.query.limit || '10', 10) || 10));
+    const users = db.prepare(`
+      SELECT
+        u.username,
+        u.plan,
+        COALESCE(SUM(CASE WHEN cu.status = 'success' THEN cu.cost ELSE 0 END), 0) AS spentCredits
+      FROM users u
+      LEFT JOIN credit_usage cu ON cu.user_id = u.id
+      WHERE COALESCE(u.is_blocked, 0) = 0
+      GROUP BY u.id
+      ORDER BY spentCredits DESC, u.created_at ASC
+      LIMIT ?
+    `).all(limit).map(row => ({
+      username: row.username || 'Kullanıcı',
+      plan: row.plan || 'free',
+      spentCredits: Number(row.spentCredits || 0)
+    }));
+    res.json({ users });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // GET /api/admin/funnel-events?days=7
@@ -2738,6 +2763,16 @@ function normalizeOpenAIImageModel(model) {
   return OPENAI_IMAGE_MODEL || 'gpt-image-2';
 }
 
+function isOpenAIImageEditModel(model) {
+  const m = String(model || '').toLowerCase();
+  return m.startsWith('openai-') || m.includes('gpt-image') || m === 'style-dalle3' || m === 'dall-e-3';
+}
+
+function isGeminiImageEditModel(model) {
+  const m = String(model || '').toLowerCase();
+  return m === 'auto-quality' || m.startsWith('gemini-') || m.includes('nano-banana') || m.includes('nanobanana');
+}
+
 async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverride }) {
   const apiKey = apiKeyOverride || getOpenAIImageKey();
   if (!apiKey) throw new Error('OPENAI_IMAGE_KEY eksik');
@@ -2828,7 +2863,8 @@ async function callGoogleDirectImageEdit({ prompt, image, model, apiKey: apiKeyO
   const apiKey = apiKeyOverride || getGeminiKey();
   if (!apiKey) throw new Error('GEMINI_API_KEY eksik');
   const parsed = parseDataImage(image);
-  const directModel = model && String(model).startsWith('gemini-') ? model : 'gemini-2.5-flash-image';
+  const rawModel = String(model || '').toLowerCase();
+  const directModel = rawModel.startsWith('gemini-') ? model : 'gemini-2.5-flash-image';
   const response = await fetch(`${GOOGLE_DIRECT_BASE}/models/${directModel}:generateContent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
@@ -4342,20 +4378,38 @@ app.post('/api/image/edit', chatLimiter, optionalAuthMiddleware, async (req, res
   if (!image) return res.status(400).json({ error: 'Düzenleme için referans fotoğraf gerekli.' });
   const overrideKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
   let requestedModel = String(model || 'auto-quality');
-  const isOpenAI = requestedModel === 'auto-quality' || requestedModel.startsWith('openai-') || requestedModel.includes('gpt-image') || requestedModel === 'style-dalle3';
-  const isGemini = requestedModel === 'auto-quality' || requestedModel.startsWith('gemini-') || requestedModel.startsWith('imagen-');
+  const isAuto = requestedModel === 'auto-quality';
+  const isOpenAI = isOpenAIImageEditModel(requestedModel);
+  const isGemini = isGeminiImageEditModel(requestedModel);
   const errors = [];
+
+  async function tryGemini() {
+    if (!(isAuto || isGemini) || !GEMINI_KEYS.length) return null;
+    return callGoogleDirectImageEdit({ prompt, image, model: requestedModel, apiKey: overrideKey });
+  }
+
+  async function tryOpenAI() {
+    if (!(isAuto || isOpenAI) || !(overrideKey || OPENAI_IMAGE_KEYS.length)) return null;
+    return callOpenAIImageEdit({ prompt, image, model: requestedModel, imageSize, apiKey: overrideKey });
+  }
+
   try {
     let out = null;
-    if (isOpenAI && (overrideKey || OPENAI_IMAGE_KEYS.length)) {
-      out = await callOpenAIImageEdit({ prompt, image, model: requestedModel, imageSize, apiKey: overrideKey });
-    } else if (isGemini && GEMINI_KEYS.length) {
-      out = await callGoogleDirectImageEdit({ prompt, image, model: requestedModel, apiKey: overrideKey });
+    try {
+      out = isOpenAI && !isAuto ? await tryOpenAI() : await tryGemini();
+    } catch (err) {
+      errors.push(err.message);
     }
     if (!out) {
-      return res.status(400).json({ error: 'Bu model fotoğraf düzenleyemiyor. GPT Image veya Gemini Image Edit destekli bir model seç.' });
+      try {
+        out = isOpenAI && !isAuto ? await tryGemini() : await tryOpenAI();
+      } catch (err) {
+        errors.push(err.message);
+      }
     }
-    const sourceImageUrl = '';
+    if (!out) {
+      return res.status(400).json({ error: 'Bu model foto?raf d?zenleyemiyor. GPT Image veya Gemini/Nano Banana se?.' });
+    }
     const galleryId = saveImageGalleryRecord({
       userId: req.user?.id,
       url: out.url,
@@ -4363,20 +4417,11 @@ app.post('/api/image/edit', chatLimiter, optionalAuthMiddleware, async (req, res
       model: out.model || requestedModel,
       provider: out.provider,
       mode: 'edit',
-      sourceImageUrl
+      sourceImageUrl: ''
     });
-    return res.json({ ...out, prompt, mode: 'edit', galleryId });
+    return res.json({ ...out, prompt, mode: 'edit', galleryId, warning: errors[0] || undefined });
   } catch (err) {
     errors.push(err.message);
-    if (!String(requestedModel).startsWith('gemini-') && GEMINI_KEYS.length) {
-      try {
-        const out = await callGoogleDirectImageEdit({ prompt, image, model: 'gemini-2.5-flash-image', apiKey: overrideKey });
-        const galleryId = saveImageGalleryRecord({ userId: req.user?.id, url: out.url, prompt, model: out.model, provider: out.provider, mode: 'edit' });
-        return res.json({ ...out, prompt, mode: 'edit', galleryId, fallbackFrom: requestedModel, warning: errors[0] });
-      } catch (inner) {
-        errors.push(inner.message);
-      }
-    }
     return res.status(502).json({ error: 'Fotoğraf düzenleme başarısız: ' + errors.join(' | ') });
   }
 });
@@ -5566,7 +5611,7 @@ app.post('/api/deduct-credit', authMiddleware, (req, res) => {
   }
   
   const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
-  if (!user) return res.status(404).json({ error: 'Kullanici bulunamadi' });
+  if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
   if (user.credits < cost) return res.status(402).json({ error: 'Yetersiz kredi', required: cost, remaining: user.credits });
   
   db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);
@@ -5602,7 +5647,7 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
   }
   
   const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
-  if (!user) return res.status(404).json({ error: 'Kullanici bulunamadi' });
+  if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
   if (user.credits < cost) return res.status(402).json({ error: 'Yetersiz kredi', required: cost, remaining: user.credits });
   
   db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);

@@ -1736,7 +1736,8 @@ function closeM(){
 // ===== GÖRSEL MODEL CUSTOM PICKER =====
 (function initImgModelPicker(){
   const NAME_MAP = {
-    'auto-quality': { brand: 'AI', desc: 'Akilli Kalite - GPT Image/SDXL', cost: 25, costType: 'pro' },
+    'auto-quality': { brand: 'AI', desc: 'Akıllı Kalite - Gemini/GPT Image', cost: 25, costType: 'pro' },
+    'gemini-2.5-flash-image': { brand: 'NB', desc: 'Gemini 2.5 Flash Image - Nano Banana', cost: 25, costType: 'pro' },
     'openai-gpt-image-2': { brand: 'G2', desc: 'GPT Image 2 - OpenAI', cost: 25, costType: 'pro' },
     'cf-sdxl': { brand: 'CF', desc: 'Cloudflare SDXL — Önerilen', cost: 8, costType: 'free' },
     'flux': { brand: 'F', desc: 'Flux AI — Hızlı', cost: 8, costType: 'free' },
@@ -1754,6 +1755,7 @@ function closeM(){
   };
   const FLAG_GRADIENTS = {
     'auto-quality': 'linear-gradient(135deg,#22d3ee,#7c3aed)',
+    'gemini-2.5-flash-image': 'linear-gradient(135deg,#f59e0b,#22d3ee)',
     'openai-gpt-image-2': 'linear-gradient(135deg,#10b981,#22d3ee)',
     'cf-sdxl': 'linear-gradient(135deg,#06b6d4,#3b82f6)',
     'flux': 'linear-gradient(135deg,#0ea5e9,#06b6d4)',
@@ -3290,8 +3292,8 @@ function renderModelPicker(filter){
   if(!catsEl||!listEl)return;
   if(pickerOpen&&!modelCatalogLoaded && ALL_MODELS.length<REMOTE_MODEL_TARGET_COUNT){
     if(countEl)countEl.textContent='457 model yükleniyor';
-    catsEl.innerHTML='<div class="mp-cat active">'+figIcon('globe','inline')+' Tümü<span class="mp-cat-count">'+REMOTE_MODEL_TARGET_COUNT+'</span></div>';
-    listEl.innerHTML='<div class="mp-loading-state"><span></span><strong>Model kataloğu yükleniyor</strong><p>457 model listesi hazırlanıyor, birkaç saniye içinde tamamlanacak.</p></div>';
+    catsEl.innerHTML='<div class="mp-cat active">'+figIcon('globe','inline')+' Tümü<span class="mp-cat-count">'+REMOTE_MODEL_TARGET_COUNT+'</span></div><div class="mp-cat mp-cat-qualityfree">'+figIcon('sparkles','inline')+' Ücretsiz Kaliteli<span class="mp-cat-count">...</span></div>';
+    listEl.innerHTML='<div class="mp-item mp-loading-row" style="min-height:72px;pointer-events:none"><div class="mp-item-icon">'+figIcon('sparkles')+'</div><div class="mp-item-info"><div class="mp-item-name">Model kataloğu yükleniyor</div><div class="mp-item-meta"><span class="mp-badge mp-badge-free">457 model</span><span>Hazırlanıyor</span></div></div></div><div class="mp-item mp-loading-row" style="min-height:72px;pointer-events:none"><div class="mp-item-icon">'+figIcon('globe')+'</div><div class="mp-item-info"><div class="mp-item-name">Ücretsiz Kaliteli modeller hazırlanıyor</div><div class="mp-item-meta"><span class="mp-badge mp-badge-free">kredi dostu</span><span>Birkaç saniye</span></div></div></div>';
     loadRemoteModelCatalog().then(()=>renderModelPicker(filter)).catch(()=>{
       if(countEl)countEl.textContent=getEnabledModelsForUser().length+'/'+visibleModelCount()+' model';
       listEl.innerHTML='<div class="mp-loading-state mp-loading-error"><strong>Model kataloğu yüklenemedi</strong><p>Temel model listesi gösteriliyor. Sayfayı yenileyince tekrar denenecek.</p></div>';
@@ -6248,18 +6250,29 @@ function applyCoupon(){
 }
 
 // ===== LEADERBOARD =====
-function renderLeaderboard(){
+async function renderLeaderboard(){
   const el=document.getElementById('leaderboard-list');if(!el)return;
-  const users=LS.get('ap_users',[]).filter(u=>u.status!=='blocked');
-  const byUsage=[...users].sort((a,b)=>(b.usedTokens||0)-(a.usedTokens||0)).slice(0,10);
-  if(!byUsage.length){el.innerHTML='<p style="color:var(--text3);text-align:center;padding:16px">Henüz kullanıcı yok</p>';return;}
+  let byUsage=[];
+  try{
+    const res=await fetch('/api/leaderboard?limit=10',{headers:{'Accept':'application/json'}});
+    const data=await readApiJson(res);
+    if(res.ok&&Array.isArray(data.users))byUsage=data.users.map(u=>({name:u.username,plan:u.plan,spentCredits:Number(u.spentCredits||0)}));
+  }catch(e){}
+  if(!byUsage.length){
+    byUsage=LS.get('ap_users',[])
+      .filter(u=>u.status!=='blocked')
+      .map(u=>({name:u.name,plan:u.plan,spentCredits:Number(u.usedTokens||0)}))
+      .sort((a,b)=>(b.spentCredits||0)-(a.spentCredits||0))
+      .slice(0,10);
+  }
+  if(!byUsage.length){el.innerHTML='<p style="color:var(--text3);text-align:center;padding:16px">Henüz kredi harcaması yok.</p>';return;}
   const medals=['🥇','🥈','🥉'];
-  el.innerHTML=byUsage.map((u,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;${i<byUsage.length-1?'border-bottom:1px solid var(--border)':''}">
-    <span style="font-size:${i<3?'20px':'14px'};width:28px;text-align:center">${medals[i]||(i+1)+'.'}</span>
-    <div class="ua" style="width:28px;height:28px;font-size:12px">${u.name[0]?.toUpperCase()}</div>
-    <div style="flex:1"><strong style="font-size:13px">${esc(u.name)}</strong><br><span style="font-size:11px;color:var(--text3)">${PLANS[u.plan]?.name||u.plan}</span></div>
-    <span style="font-size:13px;font-weight:700;color:var(--accent2)">${((u.usedTokens||0)/1000).toFixed(0)}K</span>
-  </div>`).join('');
+  el.innerHTML=byUsage.map((u,i)=>'<div style="display:flex;align-items:center;gap:12px;padding:10px 0;'+(i<byUsage.length-1?'border-bottom:1px solid var(--border)':'')+'">'
+    +'<span style="font-size:'+(i<3?'20px':'14px')+';width:28px;text-align:center">'+(medals[i]||(i+1)+'.')+'</span>'
+    +'<div class="ua" style="width:28px;height:28px;font-size:12px">'+((u.name||'K')[0]||'K').toUpperCase()+'</div>'
+    +'<div style="flex:1"><strong style="font-size:13px">'+esc(u.name||'Kullanıcı')+'</strong><br><span style="font-size:11px;color:var(--text3)">'+(PLANS[u.plan]?.name||u.plan||'Ücretsiz')+'</span></div>'
+    +'<span style="font-size:13px;font-weight:700;color:var(--accent2)">'+Number(u.spentCredits||0).toLocaleString('tr-TR')+' kredi</span>'
+    +'</div>').join('');
 }
 
 // ===== CODE EDITOR =====
@@ -6598,7 +6611,7 @@ let serverImageGalleryCache = [];
 
 function imageModelCanEdit(model){
   const m=String(model||'').toLowerCase();
-  return m==='auto-quality'||m.startsWith('openai-')||m.includes('gpt-image')||m==='style-dalle3'||m.startsWith('gemini-')||m.startsWith('imagen-');
+  return m==='auto-quality'||m.startsWith('openai-')||m.includes('gpt-image')||m==='style-dalle3'||m.startsWith('gemini-')||m.includes('nano-banana')||m.includes('nanobanana');
 }
 
 function setImageWorkflowMode(mode){
@@ -6775,7 +6788,7 @@ async function genImage(){
       }
     } else {
       if(isStrictImageProviderModel(model)){
-        const errorText = data?.error?.message || data?.error || data?.message || 'SeÃ§ili GPT Image hattÄ± ÅŸu an gerÃ§ek gÃ¶rsel dÃ¶ndÃ¼rmedi.';
+        const errorText = data?.error?.message || data?.error || data?.message || 'Seçili GPT Image hattı şu an gerçek görsel döndürmedi.';
         renderImageErrorCard(resEl, prompt, model, '');
         msg(String(errorText), 'err');
         return;
@@ -6810,8 +6823,8 @@ async function genImage(){
 // Görseli indir
 async function genImageEdit(prompt,model,imageSize,resEl,btn){
   const editImage=imageEditDataUrl||document.querySelector('#img-edit-preview img')?.getAttribute('src')||'';
-  if(!editImage)return msg('D?zenlemek i?in ?nce bir foto?raf se?.','err');
-  if(!imageModelCanEdit(model))return msg('Bu model foto?raf d?zenleyemiyor. GPT Image veya Gemini Image destekli bir model se?.','err');
+  if(!editImage)return msg('Düzenlemek için önce bir fotoğraf seç.','err');
+  if(!imageModelCanEdit(model))return msg('Bu model fotoğraf düzenleyemiyor. GPT Image veya Gemini/Nano Banana seç.','err');
   const estimatedCost=getClientModelCreditCost(model,imageProviderForModel(model),'image');
   const currentRemaining=remainingUserCredits();
   if(Number.isFinite(currentRemaining)&&currentRemaining<estimatedCost){
@@ -6819,12 +6832,12 @@ async function genImageEdit(prompt,model,imageSize,resEl,btn){
     return;
   }
   btn.disabled=true;
-  btn.innerHTML=figIcon('sparkles','inline')+' D?zenleniyor...';
-  resEl.innerHTML=imageLoadingHtml(prompt,getImageModelLabel(model)+' d?zenleme');
+  btn.innerHTML=figIcon('sparkles','inline')+' Düzenleniyor...';
+  resEl.innerHTML=imageLoadingHtml(prompt,getImageModelLabel(model)+' düzenleme');
   try{
     const {res,data}=await postJsonApi('/api/image/edit',{prompt,model,image:editImage,imageSize:imageSize.key,width:imageSize.width,height:imageSize.height,aspectRatio:imageSize.aspect,size:imageSize.size,apiKey:providerKeyFor(imageProviderForModel(model))},120000);
     if(res.ok&&data.url){
-      const ok=await renderImageResult(resEl,data.url,prompt,data.model||model,(data.provider||'AI edit')+' ile d?zenlendi','edit');
+      const ok=await renderImageResult(resEl,data.url,prompt,data.model||model,(data.provider||'AI edit')+' ile düzenlendi','edit');
       if(ok){
         const billedProvider=imageProviderForModel(model);
         const billedCost=getClientModelCreditCost(model,billedProvider,'image');
@@ -6832,14 +6845,14 @@ async function genImageEdit(prompt,model,imageSize,resEl,btn){
       }
     }else{
       renderImageErrorCard(resEl,prompt,model,'');
-      msg(data?.error||'Foto?raf d?zenleme ba?ar?s?z.','err');
+      msg(data?.error||'Fotoğraf düzenleme başarısız.','err');
     }
   }catch(err){
     renderImageErrorCard(resEl,prompt,model,'');
     msg(normalizeNetworkError(err),'err');
   }finally{
     btn.disabled=false;
-    btn.innerHTML=figIcon('image','inline')+' Foto?raf? D?zenle';
+    btn.innerHTML=figIcon('image','inline')+' Fotoğrafı Düzenle';
   }
 }
 
@@ -7531,9 +7544,9 @@ function providerKeyFor(provider){
 }
 function imageProviderForModel(model){
   if(!model)return '';
-  if(model==='auto-quality')return 'openai';
+  if(model==='auto-quality')return 'gemini';
   if(model.startsWith('openai-') || model.includes('gpt-image') || model==='dall-e-3' || model==='style-dalle3')return 'openai';
-  if(model.startsWith('imagen-'))return 'gemini';
+  if(model.startsWith('gemini-') || model.includes('nano-banana') || model.includes('nanobanana') || model.startsWith('imagen-'))return 'gemini';
   if(model.startsWith('runware-'))return 'runware';
   if(model.startsWith('stability-'))return 'stability';
   if(model.startsWith('together-'))return 'together';
@@ -9137,7 +9150,7 @@ function renderProfessionalDashboard(){
 
     msgs.forEach(row => {
       const isUser = row.classList.contains('user');
-      const name = isUser ? 'Kullanici' : 'AI Asistan';
+      const name = isUser ? 'Kullanıcı' : 'AI Asistan';
       const textEl = row.querySelector('.msg-text');
       if (!textEl) return;
       const text = textEl.innerText || textEl.textContent || '';
@@ -9236,7 +9249,7 @@ function renderProfessionalDashboard(){
       window.favoriteModels.push(modelId);
     }
     localStorage.setItem('ap_fav_models', JSON.stringify(window.favoriteModels));
-    if(typeof toast==='function') toast(idx > -1 ? 'Favorilerden cikarildi' : 'Favorilere eklendi ⭐','ok');
+    if(typeof toast==='function') toast(idx > -1 ? 'Favorilerden çıkarıldı' : 'Favorilere eklendi ⭐','ok');
   };
 
   window.isModelFavorite = function(modelId) {
@@ -10093,7 +10106,7 @@ async function requestImageWithFallback(prompt, model, timeoutMs=28000){
       ok:false,
       url:'',
       downloadUrl:'',
-      note:'GPT Image hattÄ± gerÃ§ek gÃ¶rsel dÃ¶ndÃ¼rmedi.',
+      note:'GPT Image hattı gerçek görsel döndürmedi.',
       model:model,
       source:'error'
     };
@@ -10439,7 +10452,7 @@ function openImageEditor(url){
   img.src=url.startsWith('/')?(location.origin+url):url;
   var btns=document.createElement('div');
   btns.style.cssText='display:flex;gap:10px';
-  btns.innerHTML='<button onclick="rotateEditorCanvas()" style="padding:8px 16px;border-radius:10px;background:rgba(59,130,246,.2);border:1px solid rgba(96,165,250,.3);color:#fff;cursor:pointer;font-weight:700">Dondur 90</button><button onclick="flipEditorCanvas()" style="padding:8px 16px;border-radius:10px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);color:#fff;cursor:pointer;font-weight:700">Cevir</button><button onclick="downloadEditorCanvas()" style="padding:8px 16px;border-radius:10px;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.3);color:#fff;cursor:pointer;font-weight:700">Indir</button><button onclick="document.getElementById(\'img-editor-overlay\')?.remove()" style="padding:8px 16px;border-radius:10px;background:rgba(244,63,94,.2);border:1px solid rgba(244,63,94,.3);color:#fff;cursor:pointer;font-weight:700">Kapat</button>';
+  btns.innerHTML='<button onclick="rotateEditorCanvas()" style="padding:8px 16px;border-radius:10px;background:rgba(59,130,246,.2);border:1px solid rgba(96,165,250,.3);color:#fff;cursor:pointer;font-weight:700">Döndür 90</button><button onclick="flipEditorCanvas()" style="padding:8px 16px;border-radius:10px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);color:#fff;cursor:pointer;font-weight:700">Çevir</button><button onclick="downloadEditorCanvas()" style="padding:8px 16px;border-radius:10px;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.3);color:#fff;cursor:pointer;font-weight:700">İndir</button><button onclick="document.getElementById(\'img-editor-overlay\')?.remove()" style="padding:8px 16px;border-radius:10px;background:rgba(244,63,94,.2);border:1px solid rgba(244,63,94,.3);color:#fff;cursor:pointer;font-weight:700">Kapat</button>';
   ov.appendChild(canvas);ov.appendChild(btns);document.body.appendChild(ov);
 }
 function rotateEditorCanvas(){
