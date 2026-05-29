@@ -141,10 +141,10 @@
     .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)}
   </style>
   <link rel="stylesheet" href="home-critical.min.css?v=v260">
-  <noscript><link rel="stylesheet" href="style.min.css?v=v291"></noscript>
+  <noscript><link rel="stylesheet" href="style.min.css?v=v292"></noscript>
   <script>
-  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v291';document.head.appendChild(l)};
-  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v291';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
+  window.__loadFullCss=function(){if(document.getElementById('full-css'))return;var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v292';document.head.appendChild(l)};
+  (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v292';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})();
   ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})});
   window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)});
   </script>
@@ -2475,7 +2475,7 @@ echo curl_exec($ch);</pre>
       if(window.__loadFullCss)window.__loadFullCss();
       var sc=document.createElement('script');
       sc.fetchPriority='high';
-      sc.src='app.min.js?v=v291';
+      sc.src='app.min.js?v=v292';
       sc.defer=true;
       sc.onload=function(){
         appLoaded=true;
@@ -2635,11 +2635,15 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="model-picker-overlay" onclick="closeModelPicker()"></div>
 <div id="model-picker">
   <div class="mp-header">
-    <h3>🤖 Model Seçin</h3>
-    <span id="mp-count" style="font-size:12px;color:var(--text3)"></span>
-    <button onclick="closeModelPicker()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;margin-left:auto">✕</button>
+    <div class="mp-title-block">
+      <span class="mp-kicker">AI Model Komuta Paneli</span>
+      <h3>Model Seçin</h3>
+    </div>
+    <span id="mp-count" class="mp-count-pill"></span>
+    <button class="mp-close-btn" onclick="closeModelPicker()" aria-label="Model seçiciyi kapat">×</button>
   </div>
-  <input type="text" id="mp-search" placeholder="Model ara..." oninput="filterModels(this.value)" style="width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:13px;box-sizing:border-box;margin-bottom:12px">
+  <div id="mp-status" class="mp-status-card"></div>
+  <input type="text" id="mp-search" placeholder="Model, sağlayıcı veya yetenek ara..." oninput="filterModels(this.value)">
   <div class="mp-body">
     <div class="mp-sidebar" id="mp-cats"></div>
     <div class="mp-list" id="mp-list"></div>
