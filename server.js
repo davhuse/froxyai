@@ -2467,6 +2467,18 @@ const TOGETHER_KEYS = (fromEnv('TOGETHER_API_KEYS') || fromEnv('TOGETHER_API_KEY
 let _togKeyIndex = 0;
 function getTogetherKey() { return TOGETHER_KEYS[_togKeyIndex % TOGETHER_KEYS.length]; }
 function rotateTogetherKey() { _togKeyIndex = (_togKeyIndex + 1) % TOGETHER_KEYS.length; console.log('[TOGETHER] Key rotated -> ' + _togKeyIndex + '/' + TOGETHER_KEYS.length); return getTogetherKey(); }
+const TOGETHER_IMAGE_MODELS = {
+  'together-juggernaut-flux': { model: 'Rundiffusion/Juggernaut-Lightning-Flux', width: 720, height: 1280, credits: 30, steps: 4 },
+  'together-flux-schnell': { model: 'black-forest-labs/FLUX.1-schnell', credits: 40, steps: 4 },
+  'together-qwen-image': { model: 'Qwen/Qwen-Image', credits: 90 },
+  'together-flux2-dev': { model: 'black-forest-labs/FLUX.2-dev', credits: 220 },
+  'together-imagen4-fast': { model: 'google/imagen-4.0-fast', credits: 300 },
+  'together-flux-kontext-pro': { model: 'black-forest-labs/FLUX.1-kontext-pro', credits: 600 },
+  'together-flux2-pro': { model: 'black-forest-labs/FLUX.2-pro', credits: 450 },
+  'together-gemini-flash-image': { model: 'google/flash-image-2.5', credits: 600 },
+  'together-qwen-image-pro': { model: 'Qwen/Qwen-Image-2.0-Pro', credits: 1000 },
+  'together-gemini-pro-image': { model: 'google/gemini-3-pro-image', credits: 1800 }
+};
 
 // === FREEMODEL.DEV KEY ROTATION (gpt-5.5/5.4 icin) ===
 const FREEMODEL_KEYS = (fromEnv('FREEMODEL_API_KEYS') || fromEnv('FREEMODEL_API_KEY') || [
@@ -3262,6 +3274,32 @@ app.get('/api/model-catalog', async (req, res) => {
       });
 
     modelCatalogCache = { at: now, models };
+    let togetherModels = [];
+    try {
+      const togetherKey = getTogetherKey();
+      if (togetherKey) {
+        const tRes = await fetch('https://api.together.xyz/v1/models', {
+          headers: { Authorization: `Bearer ${togetherKey}` },
+          signal: AbortSignal.timeout(12000)
+        });
+        const tData = await tRes.json().catch(() => ({}));
+        const tRemote = Array.isArray(tData) ? tData : (Array.isArray(tData.data) ? tData.data : []);
+        togetherModels = tRemote
+          .map(m => ({ id: m.id || m.name || '', name: m.display_name || m.name || m.id || '' }))
+          .filter(m => m.id && !/image|flux|imagen|wan|video|audio|tts|embed|rerank|whisper/i.test(`${m.id} ${m.name}`))
+          .slice(0, 180)
+          .map(m => ({
+            id: m.id,
+            name: m.name || m.id,
+            tier: /free|oss|8b|mini|small/i.test(m.id) ? 'free' : 'pro',
+            provider: 'together',
+            cat: modelCategory(m),
+            remote: true
+          }));
+      }
+    } catch (tErr) {
+      console.warn('[MODEL CATALOG] Together skipped:', tErr.message);
+    }
     
     // Cloudflare ve NVIDIA modellerini de listeye ekle (test edilmiş çalışan modeller)
     const extraModels = [
@@ -3283,7 +3321,12 @@ app.get('/api/model-catalog', async (req, res) => {
       { id: 'mistralai/mixtral-8x7b-instruct-v0.1', name: 'Mixtral 8x7B (NVIDIA)', tier: 'free', provider: 'nvidia', cat: 'mistral', remote: true },
       { id: 'mistralai/mixtral-8x22b-instruct-v0.1', name: 'Mixtral 8x22B (NVIDIA)', tier: 'pro', provider: 'nvidia', cat: 'mistral', remote: true }
     ];
-    const allModels = [...models, ...extraModels];
+    const seenIds = new Set();
+    const allModels = [...models, ...togetherModels, ...extraModels].filter(m => {
+      if (!m.id || seenIds.has(m.id)) return false;
+      seenIds.add(m.id);
+      return true;
+    });
     modelCatalogCache = { at: now, models: allModels };
     res.json({ source: 'openrouter+cf+nvidia', count: allModels.length, models: allModels });
   } catch (err) {
@@ -4619,30 +4662,35 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
   }
 
   // ── TOGETHER AI — Flux-1-schnell (ücretsiz tier) ───────────────────────
-  if (imgModel === 'together-flux') {
+  if (imgModel === 'together-flux' || TOGETHER_IMAGE_MODELS[imgModel]) {
     const togetherKey = overrideKey || getTogetherKey();
     if (!togetherKey) {
       imgModel = 'cf-sdxl';
     } else try {
+      const togetherCfg = TOGETHER_IMAGE_MODELS[imgModel] || { model: 'black-forest-labs/FLUX.1-schnell', credits: 120, steps: 4 };
       const tRes = await fetch('https://api.together.xyz/v1/images/generations', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${togetherKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'black-forest-labs/FLUX.1-schnell-Free', prompt, width: imageSize.width, height: imageSize.height, steps: 4, n: 1 })
+        body: JSON.stringify({ model: togetherCfg.model, prompt, width: togetherCfg.width || imageSize.width, height: togetherCfg.height || imageSize.height, steps: togetherCfg.steps, n: 1 })
       });
       const tData = await tRes.json();
       if (!tRes.ok) throw new Error(tData.error?.message || 'Together image error');
       const imgUrl = tData.data?.[0]?.url;
       if (!imgUrl) throw new Error('Together URL boş');
       const dlRes = await fetch(imgUrl);
+      if (!dlRes.ok) throw new Error('Together görsel indirilemedi (' + dlRes.status + ')');
       const buf = Buffer.from(await dlRes.arrayBuffer());
       const genDir = GENERATED_DIR;
       if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
       const fileName = `tg_${Date.now()}.jpg`;
       fs.writeFileSync(path.join(genDir, fileName), buf);
-      console.log(`[IMAGE] Together Flux saved: /generated/${fileName}`);
-      return res.json({ url: `/generated/${fileName}`, prompt, provider: 'together', ...imageMeta });
+      console.log(`[IMAGE] Together ${togetherCfg.model} saved: /generated/${fileName}`);
+      return res.json({ url: `/generated/${fileName}`, prompt, model: togetherCfg.model, provider: 'together', ...imageMeta });
     } catch (err) {
-      console.warn('[IMAGE FALLBACK] Together failed:', err.message, '→ Cloudflare Workers AI');
+      console.warn('[IMAGE FALLBACK] Together failed:', err.message, '-> Cloudflare Workers AI');
+      if (model !== 'auto-quality') {
+        return res.status(502).json({ error: 'Seçili Together görsel modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'together' });
+      }
       imgModel = 'cf-sdxl';
     }
   }
@@ -5550,9 +5598,9 @@ const MODEL_CREDIT_COST = {
   'light': 8,        // Gemini Flash, Claude Haiku, GPT mini, Gemma
   'mid': 20,         // Claude Sonnet, GPT-5.2, DeepSeek V3
   'heavy': 50,       // Claude Opus, GPT-5.5, o3, o1-pro
-  'image_free': 8,   // Flux, SDXL, Pollinations (bandwidth)
-  'image_mid': 25,   // Imagen 4, GPT-Image-2
-  'image_ultra': 40  // Imagen 4 Ultra
+  'image_free': 10,   // Flux, SDXL, Pollinations (bandwidth)
+  'image_mid': 300,   // Imagen 4, GPT-Image-2
+  'image_ultra': 900  // Imagen 4 Ultra
 };
 
 // Map model IDs to cost tiers
@@ -5576,9 +5624,10 @@ function getModelCreditCost(model, provider) {
   if (provider === 'groq') return MODEL_CREDIT_COST.free;
   
   // ── IMAGE MODELS ──
+  if (TOGETHER_IMAGE_MODELS[m]) return TOGETHER_IMAGE_MODELS[m].credits;
   if (m === 'auto-quality' || m.startsWith('openai-') || m === 'style-dalle3' || m.includes('gemini-2.5-flash-image') || m.includes('gemini-3.1-flash-image')) return MODEL_CREDIT_COST.image_mid;
   if (m.includes('gemini-3-pro-image')) return MODEL_CREDIT_COST.image_ultra;
-  if (m.includes('imagen-4-fast')) return 15;
+  if (m.includes('imagen-4-fast')) return 300;
   if (m.includes('imagen-4-ultra')) return MODEL_CREDIT_COST.image_ultra;
   if (m.includes('imagen-4') || m.includes('gpt-image')) return MODEL_CREDIT_COST.image_mid;
   if (m === 'flux' || m.includes('style-') || m === 'turbo' || m === 'sana' || m.includes('cf-sdxl') || m.includes('flux-') || m === 'together-flux') return MODEL_CREDIT_COST.image_free;
@@ -5658,10 +5707,12 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
   
   // Free image models still cost bandwidth credits
   let cost = MODEL_CREDIT_COST.image_free; // default 8
-  if (['flux','turbo','sana','cf-sdxl','together-flux'].includes(m) || m.startsWith('style-') || m.startsWith('flux-')) {
+  if (TOGETHER_IMAGE_MODELS[m]) {
+    cost = TOGETHER_IMAGE_MODELS[m].credits;
+  } else if (['flux','turbo','sana','cf-sdxl','together-flux'].includes(m) || m.startsWith('style-') || m.startsWith('flux-')) {
     cost = MODEL_CREDIT_COST.image_free; // 8 kredi
   } else if (m.includes('imagen-4-fast')) {
-    cost = 15; // fast = cheaper
+    cost = 300; // fast premium
   } else if (m.includes('imagen-4-ultra')) {
     cost = MODEL_CREDIT_COST.image_ultra; // 40 kredi
   } else if (m.includes('gemini-3-pro-image')) {
@@ -5690,9 +5741,9 @@ app.get('/api/credit-costs', (req, res) => {
       light: 'Hafif modeller \u2014 Gemini Flash, Claude Haiku, GPT mini (8 kredi)',
       mid: 'Orta modeller \u2014 Claude Sonnet, GPT-5.2, DeepSeek V3 (20 kredi)',
       heavy: 'Ag\u0131r modeller \u2014 Claude Opus, GPT-5.5, o3, o1-pro (50 kredi)',
-      image_free: 'Flux, SDXL, Pollinations (8 kredi)',
-      image_mid: 'Imagen 4, GPT-Image-2 (25 kredi)',
-      image_ultra: 'Imagen 4 Ultra (40 kredi)'
+      image_free: 'Flux, SDXL, Pollinations (10 kredi)',
+      image_mid: 'GPT Image / Gemini Flash / Imagen 4 (300 kredi)',
+      image_ultra: 'Imagen Ultra / Gemini Pro Image (900+ kredi)'
     }
   });
 });
@@ -5719,6 +5770,16 @@ app.get('/api/models', (req, res) => {
     {id:'imagen-4', name:'Imagen 4', provider:'gemini-imagen', type:'image'},
     {id:'imagen-4-ultra', name:'Imagen 4 Ultra', provider:'gemini-imagen', type:'image'},
     {id:'openai-gpt-image-2', name:'GPT Image 2', provider:'openai', type:'image'},
+    {id:'together-juggernaut-flux', name:'Juggernaut Lightning Flux', provider:'together', type:'image'},
+    {id:'together-flux-schnell', name:'FLUX.1 Schnell', provider:'together', type:'image'},
+    {id:'together-qwen-image', name:'Qwen Image', provider:'together', type:'image'},
+    {id:'together-flux2-dev', name:'FLUX.2 Dev', provider:'together', type:'image'},
+    {id:'together-imagen4-fast', name:'Imagen 4 Fast Together', provider:'together', type:'image'},
+    {id:'together-flux-kontext-pro', name:'FLUX Kontext Pro', provider:'together', type:'image'},
+    {id:'together-flux2-pro', name:'FLUX.2 Pro', provider:'together', type:'image'},
+    {id:'together-gemini-flash-image', name:'Gemini Flash Image Together', provider:'together', type:'image'},
+    {id:'together-qwen-image-pro', name:'Qwen Image 2 Pro', provider:'together', type:'image'},
+    {id:'together-gemini-pro-image', name:'Gemini 3 Pro Image Together', provider:'together', type:'image'},
     {id:'flux', name:'Flux AI', provider:'cloudflare-sdxl', type:'image'},
     {id:'cf-sdxl', name:'Cloudflare SDXL', provider:'cloudflare', type:'image'},
     {id:'flux-realism', name:'Flux Realism', provider:'pollinations', type:'image'},
