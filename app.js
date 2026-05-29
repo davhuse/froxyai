@@ -1852,6 +1852,12 @@ function closeM(){
     if(!sel || sel.dataset.customDone === '1') return;
     sel.dataset.customDone = '1';
     sel.dataset.customActive = '1';
+    if(!sel.__froxyAllOptions){
+      sel.__froxyAllOptions = Array.from(sel.querySelectorAll('optgroup')).map(grp=>({
+        label: grp.label || '',
+        options: Array.from(grp.querySelectorAll('option')).map(opt=>({value:opt.value,text:opt.textContent,disabled:opt.disabled}))
+      }));
+    }
     
     const wrap = document.createElement('div');
     wrap.className = 'img-model-picker';
@@ -1865,6 +1871,7 @@ function closeM(){
     panel.className = 'img-model-picker-panel';
     
     function renderTrigger(){
+      if(typeof syncImageModelOptionsForMode === 'function') syncImageModelOptionsForMode(false);
       const v = sel.value;
       const meta = NAME_MAP[v] || { brand: '?', desc: 'Model', cost: 8, costType: 'free' };
       trigger.innerHTML = `
@@ -1879,6 +1886,7 @@ function closeM(){
     }
     
     function renderPanel(){
+      if(typeof syncImageModelOptionsForMode === 'function') syncImageModelOptionsForMode(false);
       let html = '';
       const groups = sel.querySelectorAll('optgroup');
       groups.forEach(function(grp){
@@ -1941,6 +1949,7 @@ function closeM(){
     });
     
     sel.addEventListener('change', renderTrigger);
+    window.__renderImgModelPicker = function(){ renderTrigger(); renderPanel(); };
     
     renderTrigger();
     renderPanel();
@@ -3347,6 +3356,7 @@ async function runModelHealthCheck(opts){
 // ===== QUARKAI MODEL PICKER =====
 let mpActiveCat='all';
 let mpSortMode=LS.get('ap_mp_sort','recommended');
+let mpTaskIntent=LS.get('ap_mp_task_intent','');
 const CAT_INFO={
   qualityfree:{icon:'sparkles',label:'Ücretsiz Kaliteli',color:'#22c55e'},
   gpt:{icon:'bot',label:'GPT',color:'#10b981'},gemini:{icon:'sparkles',label:'Google',color:'#4285f4'},
@@ -3392,9 +3402,31 @@ function modelSortCost(m){
   const provider=modelProviderKey(m);
   return getClientModelCreditCost(m.apiId||m.id,provider,m.cat==='image'?'image':'chat');
 }
+function modelTaskScore(m,intent){
+  const txt=[m?.id,m?.apiId,m?.name,m?.cat,m?.tier,m?.provider,modelProviderKey(m)].join(' ').toLowerCase();
+  if(intent==='code')return (modelSupportsCode(m)?40:0)+(/deepseek|qwen|coder|codex|gpt-oss/i.test(txt)?18:0)+modelQualityScore(m);
+  if(intent==='vision')return (modelSupportsVisionId(m)?48:-24)+(/gemini|gpt-4|claude|llava|pixtral|vision|vl/i.test(txt)?18:0)+modelQualityScore(m);
+  if(intent==='research')return (/gemini|gpt|claude|sonnet|perplexity|search|web/i.test(txt)?28:0)+modelQualityScore(m)-Math.min(modelSortCost(m),18);
+  if(intent==='fast')return (modelIsFast(m)?42:0)+(m?.provider==='groq'?16:0)-modelSortCost(m);
+  if(intent==='long')return (/claude|gemini|gpt|llama.*70b|120b|long|context/i.test(txt)?34:0)+modelQualityScore(m);
+  return 0;
+}
+function modelCapabilityTags(m,cost){
+  const tags=[];
+  if(modelSupportsCode(m))tags.push('Kod');
+  if(modelSupportsVisionId(m))tags.push('Görsel okur');
+  if(modelIsFast(m))tags.push('Hızlı');
+  if(/claude|gemini|gpt-4|gpt-5|120b|70b|long|context/i.test([m?.id,m?.name,m?.cat].join(' ')))tags.push('Uzun bağlam');
+  if(cost<=3||m?.tier==='free'||m?.cat==='qualityfree')tags.push('Ucuz');
+  if(cost>=12||(/pro|premium|sonnet|opus|gpt-5|gpt-4/i.test([m?.id,m?.name,m?.tier].join(' '))))tags.push('Premium');
+  return [...new Set(tags)].slice(0,4);
+}
 function sortModelPickerModels(models){
   const arr=[...models];
   const originalIndex=new Map(models.map((m,i)=>[m.id,i]));
+  if(mpTaskIntent){
+    return arr.sort((a,b)=>modelTaskScore(b,mpTaskIntent)-modelTaskScore(a,mpTaskIntent)||modelQualityScore(b)-modelQualityScore(a)||modelSortCost(a)-modelSortCost(b));
+  }
   if(mpSortMode==='cheap')return arr.sort((a,b)=>modelSortCost(a)-modelSortCost(b)||String(a.name).localeCompare(String(b.name),'tr'));
   if(mpSortMode==='fast')return arr.sort((a,b)=>(Number(modelIsFast(b))-Number(modelIsFast(a)))||(modelSortCost(a)-modelSortCost(b))||modelQualityScore(b)-modelQualityScore(a));
   if(mpSortMode==='quality')return arr.sort((a,b)=>modelQualityScore(b)-modelQualityScore(a)||modelSortCost(a)-modelSortCost(b));
@@ -3402,8 +3434,30 @@ function sortModelPickerModels(models){
 }
 function setModelPickerSort(mode){
   mpSortMode=['recommended','cheap','fast','quality'].includes(mode)?mode:'recommended';
+  mpTaskIntent='';
   LS.set('ap_mp_sort',mpSortMode);
+  LS.set('ap_mp_task_intent','');
   renderModelPicker(document.getElementById('mp-search')?.value||'');
+}
+function setModelTaskIntent(intent){
+  mpTaskIntent=['code','vision','research','fast','long'].includes(intent)?intent:'';
+  if(mpTaskIntent==='fast')mpSortMode='fast';
+  if(mpTaskIntent==='code')mpActiveCat='code';
+  if(mpTaskIntent==='vision')mpActiveCat='vision';
+  LS.set('ap_mp_task_intent',mpTaskIntent);
+  renderModelPicker(document.getElementById('mp-search')?.value||'');
+  updateChatCreditEstimate();
+}
+function updateChatCreditEstimate(){
+  const host=document.getElementById('chat-credit-estimate');
+  if(!host)return;
+  const sel=document.getElementById('model-sel');
+  const modelId=sel?.value||'';
+  const model=ALL_MODELS.find(m=>m.id===modelId)||{};
+  const provider=modelProviderKey(model)||getModelProvider(modelId);
+  const cost=getClientModelCreditCost(model.apiId||modelId,provider,'chat');
+  const intentLabel={code:'Kod',vision:'Görsel',research:'Araştırma',fast:'Hızlı',long:'Uzun metin'}[mpTaskIntent]||'Genel';
+  host.innerHTML='<span>Tahmini</span><b>'+Number(cost||1).toLocaleString('tr-TR')+' kredi</b><em>'+esc(intentLabel)+'</em>';
 }
 function modelUseCase(m){
   if(modelSupportsVisionId(m))return 'Görsel okuma ve çok modlu yanıt';
@@ -3600,7 +3654,7 @@ function renderModelPicker(filter){
   const sortEl=document.getElementById('mp-sort');
   if(sortEl){
     const sortLabels={recommended:'Önerilen',cheap:'En ucuz',fast:'En hızlı',quality:'En kaliteli'};
-    sortEl.innerHTML=Object.entries(sortLabels).map(([id,label])=>'<button type="button" class="'+(mpSortMode===id?'active':'')+'" onclick="setModelPickerSort(\''+id+'\')">'+esc(label)+'</button>').join('');
+    sortEl.innerHTML=Object.entries(sortLabels).map(([id,label])=>'<button type="button" class="'+(!mpTaskIntent&&mpSortMode===id?'active':'')+'" onclick="setModelPickerSort(\''+id+'\')">'+esc(label)+'</button>').join('');
   }
   filtered=sortModelPickerModels(filtered);
   const sel=document.getElementById('model-sel');
@@ -3616,7 +3670,8 @@ function renderModelPicker(filter){
     const fav=isModelFavorite(m.id);
     const status=modelSupportsVisionId(m)?'Vision':(modelIsFast(m)?'Hızlı':(m.tier==='free'?'Free':'Pro'));
     const useCase=esc(modelUseCase(m));
-    return '<div class="mp-item '+(sel2?'selected':'')+'" data-model-id="'+esc(m.id)+'" role="button" tabindex="0" onclick="selectModel(\''+jsStr(m.id)+'\')" style="animation:fadeSlideUp .18s '+(Math.min(i,18)*0.01)+'s both">'+providerBrandMark(m,provider,false)+'<div class="mp-item-info"><div class="mp-item-name">'+esc(m.name)+'</div><div class="mp-item-meta">'+badge+'<span class="mp-provider-name">'+esc(providerLabel(provider))+'</span><span class="mp-use-case">'+useCase+'</span></div></div><div class="mp-item-status"><span>'+esc(status)+'</span>'+(sel2?'<b>Aktif</b>':'')+'</div><button type="button" class="mp-star '+(fav?'on':'')+'" onclick="toggleModelFavorite(\''+jsStr(m.id)+'\',event)" aria-label="'+(fav?'Favoriden çıkar':'Favoriye ekle')+'" title="Favori"><span aria-hidden="true">'+(fav?'★':'☆')+'</span></button></div>';
+    const tags=modelCapabilityTags(m,cost).map(t=>'<span class="mp-tag">'+esc(t)+'</span>').join('');
+    return '<div class="mp-item '+(sel2?'selected':'')+'" data-model-id="'+esc(m.id)+'" role="button" tabindex="0" onclick="selectModel(\''+jsStr(m.id)+'\')" style="animation:fadeSlideUp .18s '+(Math.min(i,18)*0.01)+'s both">'+providerBrandMark(m,provider,false)+'<div class="mp-item-info"><div class="mp-item-name">'+esc(m.name)+'</div><div class="mp-item-meta">'+badge+'<span class="mp-provider-name">'+esc(providerLabel(provider))+'</span><span class="mp-use-case">'+useCase+'</span></div><div class="mp-tags">'+tags+'</div></div><div class="mp-item-status"><span>'+esc(status)+'</span>'+(sel2?'<b>Aktif</b>':'')+'</div><button type="button" class="mp-star '+(fav?'on':'')+'" onclick="toggleModelFavorite(\''+jsStr(m.id)+'\',event)" aria-label="'+(fav?'Favoriden çıkar':'Favoriye ekle')+'" title="Favori"><span aria-hidden="true">'+(fav?'★':'☆')+'</span></button></div>';
   }).join('');
 }
 function filterModels(q){renderModelPicker(q)}
@@ -3632,6 +3687,7 @@ function selectModel(id){
   if(sel){sel.value=id;LS.set('ap_selected_model',id);if(typeof updateModelBadge==='function')updateModelBadge()}
   if(m){const btn=document.getElementById('mpb-name');if(btn)btn.textContent=m.name;const provider=modelProviderKey(m);applyProviderBrandIcon(document.querySelector('.mpb-icon'),m,provider);applyProviderBrandIcon(document.querySelector('.model-picker-chip .dock-icon'),m,provider)}
   closeModelPicker();
+  updateChatCreditEstimate();
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModelPicker()});
 window.openModelPicker=openModelPicker;
@@ -3641,6 +3697,7 @@ window.renderModelPicker=renderModelPicker;
 window.filterModels=filterModels;
 window.selectModel=selectModel;
 window.setModelPickerSort=setModelPickerSort;
+window.setModelTaskIntent=setModelTaskIntent;
 if(typeof toggleModelFavorite==='function')window.toggleModelFavorite=toggleModelFavorite;
 if(!document.getElementById('mp-anim-style')){const s=document.createElement('style');s.id='mp-anim-style';s.textContent='@keyframes fadeSlideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}';document.head.appendChild(s)}
 
@@ -6049,8 +6106,17 @@ function ensureChatPolish(){
     <button class="chat-action-pill" onclick="chatInsertHelper('Türkçe karakterleri ve anlatımı düzelt: ')">Türkçe düzelt</button>
     <button class="chat-action-pill" onclick="chatInsertHelper('Bu kodu adım adım açıkla:\\n')">Kod açıkla</button>
     <button class="chat-action-pill primary" onclick="compareModels()">Modellerle karşılaştır</button>
+    <span id="chat-credit-estimate" class="chat-credit-estimate"></span>
+    <span class="chat-task-picks">
+      <button class="chat-task-chip" data-task-intent="code" onclick="setModelTaskIntent('code')">Kod</button>
+      <button class="chat-task-chip" data-task-intent="vision" onclick="setModelTaskIntent('vision')">Görsel</button>
+      <button class="chat-task-chip" data-task-intent="research" onclick="setModelTaskIntent('research')">Araştırma</button>
+      <button class="chat-task-chip" data-task-intent="fast" onclick="setModelTaskIntent('fast')">Hızlı</button>
+      <button class="chat-task-chip" data-task-intent="long" onclick="setModelTaskIntent('long')">Uzun metin</button>
+    </span>
   `;
   inputArea.prepend(bar);
+  updateChatCreditEstimate();
 }
 function chatInsertHelper(text){
   const ta=document.getElementById('chat-in');
@@ -6075,11 +6141,13 @@ async function compareModels(){
   saveChats();renderMsgs({stickToBottom:true});
   const selected=document.getElementById('model-sel')?.value||'llama-3.1-8b-instant';
   const smart=typeof recommendSmartModel==='function'?recommendSmartModel(prompt):null;
-  const alt=(smart&&smart!==selected)?smart:(selected==='llama-3.1-8b-instant'?'openai/gpt-oss-20b':'llama-3.1-8b-instant');
-  const pair=[selected,alt].filter((id,i,a)=>id&&a.indexOf(id)===i).slice(0,2);
+  const candidates=[selected,smart,'llama-3.1-8b-instant','openai/gpt-oss-20b','gemini-flash-latest','openai/gpt-oss-120b']
+    .filter((id,i,a)=>id&&a.indexOf(id)===i)
+    .filter(id=>ALL_MODELS.some(m=>m.id===id)||id===selected)
+    .slice(0,4);
   const system={role:'system',content:'Türkçe, net ve kullanıcıya doğrudan faydalı cevap ver. İç düşünce yazma.'};
   compareMsg.content='';
-  compareMsg.comparisons=await Promise.all(pair.map(async id=>{
+  compareMsg.comparisons=await Promise.all(candidates.map(async id=>{
     const def=ALL_MODELS.find(m=>m.id===id)||{};
     const provider=getModelProvider(id);
     const cost=getClientModelCreditCost(id,provider,'chat');
@@ -6111,6 +6179,7 @@ function refineAssistantMessage(idx,mode){
   if(ta){ta.value=(prompts[mode]||prompts.tr)+old;ta.focus()}
 }
 document.addEventListener('DOMContentLoaded',()=>setTimeout(ensureChatPolish,150));
+setInterval(()=>{try{ensureChatPolish();updateChatCreditEstimate();}catch(e){}},2500);
 
 // ===== PROMPT LIBRARY =====
 const PROMPT_LIB=[
@@ -6921,15 +6990,22 @@ document.addEventListener('click',e=>{
 let lastImgPrompt = '';
 let lastImgModel = '';
 let lastImgUrl = '';
-let imageWorkflowMode = 'generate';
-let imageQualityMode = LS.get('ap_img_quality_mode','cheap');
-let imageEditDataUrl = '';
-let serverImageGalleryCache = [];
+var imageWorkflowMode = 'generate';
+var imageQualityMode = LS.get('ap_img_quality_mode','cheap');
+var imageEditDataUrl = '';
+var serverImageGalleryCache = [];
+const IMG_PRESET_HISTORY_KEY='ap_image_preset_history';
 
 function imageQualityRecommendedModel(mode){
+  syncImageModelOptionsForMode(false);
   const available=Array.from(document.getElementById('img-model')?.options||[]).map(o=>o.value);
   const pick=list=>list.find(id=>available.includes(id));
-  const map={
+  const map=imageWorkflowMode==='edit'?{
+    cheap:['gemini-2.5-flash-image','together-gemini-flash-image','openai-gpt-image-2','auto-quality'],
+    fast:['gemini-2.5-flash-image','together-gemini-flash-image','auto-quality','openai-gpt-image-2'],
+    quality:['openai-gpt-image-2','gemini-2.5-flash-image','together-gemini-flash-image','auto-quality'],
+    premium:['openai-gpt-image-2','gemini-3-pro-image','together-gemini-pro-image','gemini-2.5-flash-image']
+  }:{
     cheap:['imagegpt-free','cf-sdxl','flux','together-flux-schnell'],
     fast:['cf-sdxl','together-flux-schnell','imagegpt-free','flux'],
     quality:['gemini-2.5-flash-image','together-gemini-flash-image','openai-gpt-image-2','cf-sdxl'],
@@ -6940,6 +7016,8 @@ function imageQualityRecommendedModel(mode){
 function setImageQualityMode(mode,selectRecommended=true){
   imageQualityMode=['cheap','fast','quality','premium'].includes(mode)?mode:'cheap';
   LS.set('ap_img_quality_mode',imageQualityMode);
+  syncImageModelOptionsForMode(false);
+  updateImageQualityLabels();
   document.querySelectorAll('[data-img-quality]').forEach(btn=>btn.classList.toggle('active',btn.dataset.imgQuality===imageQualityMode));
   if(selectRecommended){
     const sel=document.getElementById('img-model');
@@ -6950,6 +7028,7 @@ function setImageQualityMode(mode,selectRecommended=true){
     }
   }
   updateImageCreditSurface();
+  if(typeof window.__renderImgModelPicker==='function')window.__renderImgModelPicker();
 }
 function ensureImageQualityModes(){
   const picker=document.getElementById('img-model-picker')||document.getElementById('img-model');
@@ -6968,15 +7047,61 @@ function imageModelCanEdit(model){
   const m=String(model||'').toLowerCase();
   return m==='auto-quality'||m.startsWith('openai-')||m.includes('gpt-image')||m==='style-dalle3'||m.startsWith('gemini-')||m.includes('nano-banana')||m.includes('nanobanana');
 }
+function updateImageQualityLabels(){
+  const labels=imageWorkflowMode==='edit'
+    ? {cheap:'Ucuz Düzenle',fast:'Hızlı Düzenle',quality:'Kaliteli Edit',premium:'Premium Edit'}
+    : {cheap:'Ucuz',fast:'Hızlı',quality:'Kaliteli',premium:'Premium'};
+  document.querySelectorAll('[data-img-quality]').forEach(btn=>{btn.textContent=labels[btn.dataset.imgQuality]||btn.textContent});
+}
+function syncImageModelOptionsForMode(adjust=true){
+  const sel=document.getElementById('img-model');
+  if(!sel)return;
+  if(!sel.__froxyAllOptions){
+    sel.__froxyAllOptions=Array.from(sel.querySelectorAll('optgroup')).map(grp=>({
+      label:grp.label||'',
+      options:Array.from(grp.querySelectorAll('option')).map(opt=>({value:opt.value,text:opt.textContent,disabled:opt.disabled}))
+    }));
+  }
+  const current=sel.value;
+  const edit=imageWorkflowMode==='edit';
+  const groups=[];
+  sel.__froxyAllOptions.forEach(group=>{
+    const opts=group.options.filter(opt=>!edit||imageModelCanEdit(opt.value));
+    if(!opts.length)return;
+    const grp=document.createElement('optgroup');
+    grp.label=edit ? 'Fotoğraf düzenleme modelleri' : group.label;
+    opts.forEach(item=>{
+      const opt=document.createElement('option');
+      opt.value=item.value;
+      opt.textContent=item.text;
+      opt.disabled=!!item.disabled;
+      grp.appendChild(opt);
+    });
+    groups.push(grp);
+  });
+  const values=groups.flatMap(grp=>Array.from(grp.querySelectorAll('option')).map(o=>o.value));
+  sel.innerHTML='';
+  groups.forEach(grp=>sel.appendChild(grp));
+  if(values.includes(current))sel.value=current;
+  else if(adjust){
+    const next=imageQualityRecommendedModel(imageQualityMode);
+    sel.value=values.includes(next)?next:(values[0]||'');
+    sel.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+}
 
 function setImageWorkflowMode(mode){
   imageWorkflowMode=mode==='edit'?'edit':'generate';
+  syncImageModelOptionsForMode(true);
   document.querySelectorAll('.img-edit-toggle [data-img-mode]').forEach(btn=>btn.classList.toggle('active',btn.dataset.imgMode===imageWorkflowMode));
   const field=document.getElementById('img-edit-upload-field');
   if(field)field.style.display=imageWorkflowMode==='edit'?'block':'none';
   const label=document.getElementById('btn-gen-img')?.querySelector('span:last-child');
   if(label)label.textContent=imageWorkflowMode==='edit'?'Fotoğrafı Düzenle':'Görsel Üret';
+  updateImageQualityLabels();
   updateImageCreditSurface();
+  if(typeof window.__renderImgModelPicker==='function')window.__renderImgModelPicker();
+  ensureImagePresetHistory();
 }
 
 function handleImageEditFile(e){
@@ -7035,8 +7160,9 @@ function syncCleanImageHistory(){
 }
 function addImageHistory(url,prompt,model,mode='generate'){
   if(!isProbablyImageUrl(url))return;
+  saveImagePresetHistory({prompt,model,mode});
   const items=getImageHistory().filter(x=>x.url!==url);
-  items.unshift({url,prompt,model,date:new Date().toISOString()});
+  items.unshift({url,prompt,model,mode,qualityMode:imageQualityMode,size:getSelectedImageSize(),date:new Date().toISOString()});
   LS.set('ap_image_history',items.slice(0,24));
   syncServerGalleryRecord(url,prompt,model,'',mode).then(id=>{
     if(id){
@@ -7048,6 +7174,48 @@ function addImageHistory(url,prompt,model,mode='generate'){
   });
   try{if(typeof saveToGallery==='function')saveToGallery(url,prompt,model)}catch(e){}
   renderImageHistory();
+  ensureImagePresetHistory();
+}
+function getImagePresetHistory(){return LS.get(IMG_PRESET_HISTORY_KEY,[])}
+function saveImagePresetHistory(data){
+  const preset={
+    prompt:data.prompt||document.getElementById('img-prompt')?.value||'',
+    model:data.model||document.getElementById('img-model')?.value||'flux',
+    mode:data.mode||imageWorkflowMode,
+    qualityMode:imageQualityMode,
+    size:getSelectedImageSize(),
+    date:new Date().toISOString()
+  };
+  const key=[preset.prompt,preset.model,preset.mode,preset.qualityMode,preset.size].join('|');
+  const items=getImagePresetHistory().filter(x=>[x.prompt,x.model,x.mode,x.qualityMode,x.size].join('|')!==key);
+  items.unshift(preset);
+  LS.set(IMG_PRESET_HISTORY_KEY,items.slice(0,8));
+}
+function ensureImagePresetHistory(){
+  const prompt=document.getElementById('img-prompt');
+  if(!prompt)return;
+  let host=document.getElementById('img-preset-history');
+  if(!host){
+    host=document.createElement('div');
+    host.id='img-preset-history';
+    host.className='img-preset-history';
+    prompt.parentElement?.appendChild(host);
+  }
+  const items=getImagePresetHistory();
+  if(!items.length){host.innerHTML='';return}
+  host.innerHTML='<span>Son ayarlar</span>'+items.slice(0,5).map((item,i)=>'<button type="button" onclick="applyImagePresetHistory('+i+')"><b>'+esc(item.qualityMode||'mod')+'</b><em>'+esc((item.prompt||'').slice(0,34)||item.model)+'</em></button>').join('');
+}
+function applyImagePresetHistory(index){
+  const item=getImagePresetHistory()[index];
+  if(!item)return;
+  if(item.mode)setImageWorkflowMode(item.mode);
+  if(item.qualityMode)setImageQualityMode(item.qualityMode,false);
+  const prompt=document.getElementById('img-prompt');
+  const model=document.getElementById('img-model');
+  if(prompt)prompt.value=item.prompt||'';
+  if(model&&item.model&&Array.from(model.options).some(o=>o.value===item.model)){model.value=item.model;model.dispatchEvent(new Event('change',{bubbles:true}))}
+  if(item.size&&typeof setImageSize==='function')setImageSize(item.size);
+  msg('Görsel ayarı geri yüklendi','ok');
 }
 function renderImageHistory(){
   const box=document.getElementById('img-history');
@@ -7216,6 +7384,7 @@ window.setImageQualityMode=setImageQualityMode;
 window.ensureImageQualityModes=ensureImageQualityModes;
 window.handleImageEditFile=handleImageEditFile;
 window.genImage=genImage;
+window.applyImagePresetHistory=applyImagePresetHistory;
 
 function downloadImage(){
   if(!lastImgUrl) return;
