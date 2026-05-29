@@ -2671,7 +2671,8 @@ async function callGoogleDirectChat({ model, messages, max_tokens, apiKey: apiKe
 
 async function callGoogleDirectImage({ model, prompt, apiKey: apiKeyOverride }) {
   const apiKey = apiKeyOverride || GOOGLE_API_KEY || getGeminiKey();
-  const response = await fetch(`${GOOGLE_DIRECT_BASE}/models/${model}:generateContent`, {
+  const directModel = normalizeGeminiImageModel(model);
+  const response = await fetch(`${GOOGLE_DIRECT_BASE}/models/${directModel}:generateContent`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -2696,7 +2697,7 @@ async function callGoogleDirectImage({ model, prompt, apiKey: apiKeyOverride }) 
   const ext = mime.includes('jpeg') || mime.includes('jpg') ? 'jpg' : mime.includes('webp') ? 'webp' : 'png';
   const fileName = `google_${Date.now()}.${ext}`;
   fs.writeFileSync(path.join(genDir, fileName), Buffer.from(imagePart.inlineData.data, 'base64'));
-  return { url: `/generated/${fileName}`, prompt, model };
+  return { url: `/generated/${fileName}`, prompt, model: directModel };
 }
 
 function saveGeneratedImageBuffer(buffer, prefix = 'img', ext = 'png') {
@@ -2771,6 +2772,20 @@ function isOpenAIImageEditModel(model) {
 function isGeminiImageEditModel(model) {
   const m = String(model || '').toLowerCase();
   return m === 'auto-quality' || m.startsWith('gemini-') || m.includes('nano-banana') || m.includes('nanobanana');
+}
+
+function normalizeGeminiImageModel(model) {
+  const m = String(model || '').toLowerCase();
+  if (m.includes('nano-banana') || m.includes('nanobanana')) return 'gemini-2.5-flash-image';
+  const supported = new Set([
+    'gemini-2.5-flash-image',
+    'gemini-3.1-flash-image',
+    'gemini-3-pro-image',
+    'gemini-3.1-flash-image-preview',
+    'gemini-3-pro-image-preview'
+  ]);
+  if (supported.has(m)) return m;
+  return 'gemini-2.5-flash-image';
 }
 
 async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverride }) {
@@ -2860,11 +2875,10 @@ async function callOpenAIImageEdit({ prompt, image, model, imageSize, apiKey: ap
 }
 
 async function callGoogleDirectImageEdit({ prompt, image, model, apiKey: apiKeyOverride }) {
-  const apiKey = apiKeyOverride || getGeminiKey();
+  const apiKey = apiKeyOverride || GOOGLE_API_KEY || getGeminiKey();
   if (!apiKey) throw new Error('GEMINI_API_KEY eksik');
   const parsed = parseDataImage(image);
-  const rawModel = String(model || '').toLowerCase();
-  const directModel = rawModel.startsWith('gemini-') ? model : 'gemini-2.5-flash-image';
+  const directModel = normalizeGeminiImageModel(model);
   const response = await fetch(`${GOOGLE_DIRECT_BASE}/models/${directModel}:generateContent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
@@ -4384,7 +4398,7 @@ app.post('/api/image/edit', chatLimiter, optionalAuthMiddleware, async (req, res
   const errors = [];
 
   async function tryGemini() {
-    if (!(isAuto || isGemini) || !GEMINI_KEYS.length) return null;
+    if (!(isAuto || isGemini) || !(GEMINI_KEYS.length || GOOGLE_API_KEY || overrideKey)) return null;
     return callGoogleDirectImageEdit({ prompt, image, model: requestedModel, apiKey: overrideKey });
   }
 
@@ -4408,7 +4422,7 @@ app.post('/api/image/edit', chatLimiter, optionalAuthMiddleware, async (req, res
       }
     }
     if (!out) {
-      return res.status(400).json({ error: 'Bu model foto?raf d?zenleyemiyor. GPT Image veya Gemini/Nano Banana se?.' });
+      return res.status(400).json({ error: 'Bu model fotoğraf düzenleyemiyor. GPT Image veya Gemini/Nano Banana seç.' });
     }
     const galleryId = saveImageGalleryRecord({
       userId: req.user?.id,
@@ -4497,7 +4511,7 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
   };
 
   if (imgModel === 'auto-quality') {
-    imgModel = (overrideKey || OPENAI_IMAGE_KEYS.length) ? 'openai-gpt-image-2' : (GEMINI_KEYS.length ? 'imagen-4-fast' : 'cf-sdxl');
+    imgModel = (GEMINI_KEYS.length || GOOGLE_API_KEY || overrideKey) ? 'gemini-2.5-flash-image' : ((OPENAI_IMAGE_KEYS.length) ? 'openai-gpt-image-2' : 'cf-sdxl');
   }
 
   if (imgModel === 'style-dalle3') {
@@ -4518,7 +4532,7 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
         imageMeta.warning = 'OpenAI image kanali gecici yanit vermedi; gercek Cloudflare SDXL gorseli donduruldu.';
         imgModel = 'cf-sdxl';
       }
-      if (model === 'auto-quality') imgModel = GEMINI_KEYS.length ? 'imagen-4-fast' : 'cf-sdxl';
+      if (model === 'auto-quality') imgModel = (GEMINI_KEYS.length || GOOGLE_API_KEY || overrideKey) ? 'gemini-2.5-flash-image' : 'cf-sdxl';
     }
   }
 
@@ -4553,6 +4567,13 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       return res.json({ url, prompt, model: modelId, provider: 'gemini-imagen', ...imageMeta });
     } catch (err) {
       console.warn('[IMAGE FALLBACK] Imagen failed:', err.message);
+      if (model !== 'auto-quality') {
+        return res.status(502).json({
+          error: 'Seçili Google görsel modeli şu an yanıt vermedi: ' + err.message,
+          model: imgModel,
+          provider: imgModel.startsWith('gemini-') ? 'google-direct-image' : 'gemini-imagen'
+        });
+      }
       imgModel = 'cf-sdxl';
     }
   }
@@ -5555,7 +5576,8 @@ function getModelCreditCost(model, provider) {
   if (provider === 'groq') return MODEL_CREDIT_COST.free;
   
   // ── IMAGE MODELS ──
-  if (m === 'auto-quality' || m.startsWith('openai-') || m === 'style-dalle3') return MODEL_CREDIT_COST.image_mid;
+  if (m === 'auto-quality' || m.startsWith('openai-') || m === 'style-dalle3' || m.includes('gemini-2.5-flash-image') || m.includes('gemini-3.1-flash-image')) return MODEL_CREDIT_COST.image_mid;
+  if (m.includes('gemini-3-pro-image')) return MODEL_CREDIT_COST.image_ultra;
   if (m.includes('imagen-4-fast')) return 15;
   if (m.includes('imagen-4-ultra')) return MODEL_CREDIT_COST.image_ultra;
   if (m.includes('imagen-4') || m.includes('gpt-image')) return MODEL_CREDIT_COST.image_mid;
@@ -5642,7 +5664,9 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
     cost = 15; // fast = cheaper
   } else if (m.includes('imagen-4-ultra')) {
     cost = MODEL_CREDIT_COST.image_ultra; // 40 kredi
-  } else if (m.includes('imagen-4') || m.includes('gpt-image')) {
+  } else if (m.includes('gemini-3-pro-image')) {
+    cost = MODEL_CREDIT_COST.image_ultra; // pro image = premium
+  } else if (m.includes('imagen-4') || m.includes('gpt-image') || m.includes('gemini-2.5-flash-image') || m.includes('gemini-3.1-flash-image')) {
     cost = MODEL_CREDIT_COST.image_mid; // 25 kredi
   }
   
@@ -5686,6 +5710,14 @@ registerGatewayRoutes(app, {
 app.get('/api/models', (req, res) => {
   const models = [
     {id:'auto-quality', name:'Akilli Kalite', provider:'auto', type:'image'},
+    {id:'gemini-2.5-flash-image', name:'Gemini 2.5 Flash Image / Nano Banana', provider:'google-direct', type:'image'},
+    {id:'gemini-3.1-flash-image', name:'Gemini 3.1 Flash Image', provider:'google-direct', type:'image'},
+    {id:'gemini-3-pro-image', name:'Gemini 3 Pro Image', provider:'google-direct', type:'image'},
+    {id:'gemini-3.1-flash-image-preview', name:'Gemini 3.1 Flash Image Preview', provider:'google-direct', type:'image'},
+    {id:'gemini-3-pro-image-preview', name:'Gemini 3 Pro Image Preview', provider:'google-direct', type:'image'},
+    {id:'imagen-4-fast', name:'Imagen 4 Fast', provider:'gemini-imagen', type:'image'},
+    {id:'imagen-4', name:'Imagen 4', provider:'gemini-imagen', type:'image'},
+    {id:'imagen-4-ultra', name:'Imagen 4 Ultra', provider:'gemini-imagen', type:'image'},
     {id:'openai-gpt-image-2', name:'GPT Image 2', provider:'openai', type:'image'},
     {id:'flux', name:'Flux AI', provider:'cloudflare-sdxl', type:'image'},
     {id:'cf-sdxl', name:'Cloudflare SDXL', provider:'cloudflare', type:'image'},
