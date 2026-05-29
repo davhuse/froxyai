@@ -181,6 +181,34 @@ body.model-picker-open #growth-model-advisor,
   box-shadow: 0 0 0 4px rgba(34, 211, 238, .10) !important;
 }
 
+#model-picker .mp-sort {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  margin: 0 0 12px !important;
+  padding: 4px !important;
+  border: 1px solid rgba(125, 211, 252, .14) !important;
+  border-radius: 14px !important;
+  background: rgba(2, 6, 23, .34) !important;
+}
+
+#model-picker .mp-sort button {
+  min-height: 32px !important;
+  border: 1px solid transparent !important;
+  border-radius: 11px !important;
+  background: transparent !important;
+  color: #93a4bb !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+}
+
+#model-picker .mp-sort button.active {
+  color: #fff !important;
+  border-color: rgba(34, 211, 238, .28) !important;
+  background: linear-gradient(135deg, rgba(37, 99, 235, .78), rgba(124, 58, 237, .66)) !important;
+}
+
 #model-picker .mp-body {
   display: grid !important;
   grid-template-columns: 190px minmax(0, 1fr) !important;
@@ -580,11 +608,16 @@ body.model-picker-open #growth-model-advisor,
   }
 
   #model-picker .mp-body {
-    height: calc(100% - 96px) !important;
+    height: calc(100% - 142px) !important;
     min-height: 0 !important;
     grid-template-columns: 1fr !important;
     grid-template-rows: auto minmax(0, 1fr) !important;
     gap: 9px !important;
+  }
+
+  #model-picker .mp-sort {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin-bottom: 9px !important;
   }
 
   #model-picker .mp-sidebar {

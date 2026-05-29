@@ -484,6 +484,19 @@ function chatProviderMetaHtml(meta){
   const rotated=meta.keyRotated?'<span class="provider-pill info">Key değişti</span>':'';
   return `<div class="msg-provider-meta"><span class="provider-pill">Seçilen: ${esc(selectedName)}</span><span class="provider-pill">Çalışan: ${esc(provider)}</span>${fallback}${rotated}</div>`;
 }
+function formatCompareResult(m){
+  const rows=Array.isArray(m.comparisons)?m.comparisons:[];
+  if(!rows.length)return formatMsg(m.content||'Karşılaştırma hazırlanıyor...');
+  return `<div class="compare-result"><div class="compare-result-head"><strong>Model karşılaştırması</strong><span>Aynı prompt, iki farklı model</span></div><div class="compare-grid">${rows.map(item=>{
+    const meta=item.meta||{};
+    const selected=ALL_MODELS.find(x=>x.id===meta.selectedModel);
+    const active=ALL_MODELS.find(x=>x.id===meta.activeModel);
+    const title=item.name||selected?.name||meta.selectedModel||'Model';
+    const activeLabel=active?.name||meta.activeModel||title;
+    const provider=providerLabel(meta.activeProvider||modelProviderKey(active||selected)||'AI');
+    return `<article class="compare-card ${item.error?'error':''}"><div class="compare-card-top"><b>${esc(title)}</b><span>${esc(provider)}</span></div><div class="compare-card-meta"><em>${esc(activeLabel)}</em>${meta.fallback?'<em class="warn">Fallback</em>':''}${meta.keyRotated?'<em class="info">Key değişti</em>':''}</div><div class="compare-card-body">${formatMsg(item.content||item.error||'Cevap alınamadı')}</div></article>`;
+  }).join('')}</div></div>`;
+}
 function setChatSendState(busy=false){
   const btn=document.getElementById('chat-send');
   if(!btn)return;
@@ -3333,6 +3346,7 @@ async function runModelHealthCheck(opts){
 
 // ===== QUARKAI MODEL PICKER =====
 let mpActiveCat='all';
+let mpSortMode=LS.get('ap_mp_sort','recommended');
 const CAT_INFO={
   qualityfree:{icon:'sparkles',label:'Ücretsiz Kaliteli',color:'#22c55e'},
   gpt:{icon:'bot',label:'GPT',color:'#10b981'},gemini:{icon:'sparkles',label:'Google',color:'#4285f4'},
@@ -3361,6 +3375,35 @@ function modelIsRecommended(m){
 function modelIsFast(m){
   const id=String(m?.id||'')+' '+String(m?.name||'');
   return m?.provider==='groq'||m?.provider==='pollinations'||/flash|instant|schnell|fast|8b|mini|small/i.test(id);
+}
+function modelQualityScore(m){
+  let score=0;
+  const txt=[m?.id,m?.apiId,m?.name,m?.cat,m?.tier,m?.provider].join(' ').toLowerCase();
+  if(modelIsRecommended(m))score+=18;
+  if(modelSupportsVisionId(m))score+=16;
+  if(modelSupportsCode(m))score+=10;
+  if(/gpt-5|gpt-4|claude|sonnet|opus|gemini.*pro|deepseek|llama-3\.3|70b|120b|qwen3/i.test(txt))score+=22;
+  if(/pro|premium|enterprise|quality/i.test(txt))score+=14;
+  if(m?.tier&&m.tier!=='free')score+=8;
+  if(modelIsFast(m))score+=4;
+  return score;
+}
+function modelSortCost(m){
+  const provider=modelProviderKey(m);
+  return getClientModelCreditCost(m.apiId||m.id,provider,m.cat==='image'?'image':'chat');
+}
+function sortModelPickerModels(models){
+  const arr=[...models];
+  const originalIndex=new Map(models.map((m,i)=>[m.id,i]));
+  if(mpSortMode==='cheap')return arr.sort((a,b)=>modelSortCost(a)-modelSortCost(b)||String(a.name).localeCompare(String(b.name),'tr'));
+  if(mpSortMode==='fast')return arr.sort((a,b)=>(Number(modelIsFast(b))-Number(modelIsFast(a)))||(modelSortCost(a)-modelSortCost(b))||modelQualityScore(b)-modelQualityScore(a));
+  if(mpSortMode==='quality')return arr.sort((a,b)=>modelQualityScore(b)-modelQualityScore(a)||modelSortCost(a)-modelSortCost(b));
+  return arr.sort((a,b)=>(Number(modelIsRecommended(b))-Number(modelIsRecommended(a)))||modelQualityScore(b)-modelQualityScore(a)||(originalIndex.get(a.id)-originalIndex.get(b.id)));
+}
+function setModelPickerSort(mode){
+  mpSortMode=['recommended','cheap','fast','quality'].includes(mode)?mode:'recommended';
+  LS.set('ap_mp_sort',mpSortMode);
+  renderModelPicker(document.getElementById('mp-search')?.value||'');
 }
 function modelUseCase(m){
   if(modelSupportsVisionId(m))return 'Görsel okuma ve çok modlu yanıt';
@@ -3554,6 +3597,12 @@ function renderModelPicker(filter){
   const clearBtn=document.getElementById('mp-search-clear');
   if(clearBtn)clearBtn.classList.toggle('show',!!rawFilter);
   if(countEl)countEl.textContent=rawFilter?(filtered.length.toLocaleString('tr-TR')+' sonuç'):modelCountLabel();
+  const sortEl=document.getElementById('mp-sort');
+  if(sortEl){
+    const sortLabels={recommended:'Önerilen',cheap:'En ucuz',fast:'En hızlı',quality:'En kaliteli'};
+    sortEl.innerHTML=Object.entries(sortLabels).map(([id,label])=>'<button type="button" class="'+(mpSortMode===id?'active':'')+'" onclick="setModelPickerSort(\''+id+'\')">'+esc(label)+'</button>').join('');
+  }
+  filtered=sortModelPickerModels(filtered);
   const sel=document.getElementById('model-sel');
   const currentModel=sel?.value||'';
   renderModelPickerStatus(currentModel);
@@ -3591,6 +3640,7 @@ window.closeModelPicker=closeModelPicker;
 window.renderModelPicker=renderModelPicker;
 window.filterModels=filterModels;
 window.selectModel=selectModel;
+window.setModelPickerSort=setModelPickerSort;
 if(typeof toggleModelFavorite==='function')window.toggleModelFavorite=toggleModelFavorite;
 if(!document.getElementById('mp-anim-style')){const s=document.createElement('style');s.id='mp-anim-style';s.textContent='@keyframes fadeSlideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}';document.head.appendChild(s)}
 
@@ -3767,7 +3817,8 @@ function renderMsgs(opts={}){
     const feedbackBtns = m.role==='assistant' && m.content !== '__TYPING__' ? `<span class="msg-feedback-group" aria-label="Geri bildirim"><button class="msg-action-btn icon-only feedback-btn ${m.feedback==='up'?'active up':''}" onclick="setMessageFeedback(${idx},'up')" title="İyi cevap">${iconSvg('thumbUp',14)}</button><button class="msg-action-btn icon-only feedback-btn ${m.feedback==='down'?'active down':''}" onclick="setMessageFeedback(${idx},'down')" title="Kötü cevap">${iconSvg('thumbDown',14)}</button></span>` : '';
     const refineBtns = m.role==='assistant' && m.content !== '__TYPING__' ? `<button class="msg-action-btn" onclick="refineAssistantMessage(${idx},'short')" title="K\u0131salt">K\u0131sa</button><button class="msg-action-btn" onclick="refineAssistantMessage(${idx},'long')" title="Detayland\u0131r">Detay</button><button class="msg-action-btn" onclick="refineAssistantMessage(${idx},'tr')" title="T\u00fcrk\u00e7e d\u00fczelt">TR</button>` : '';
     const providerMeta=m.role==='assistant'&&m.content!=='__TYPING__'?chatProviderMetaHtml(m.meta):'';
-    row.innerHTML=`<div class="msg-ava">${ava}</div><div class="msg-body"><div class="msg-name">${m.role==='user'?esc(user.name):aiName}</div><div class="msg-text">${formatMsg(m.content)}</div>${providerMeta}<div class="msg-actions">${editBtn}${feedbackBtns}${regenBtn}${copyMsgBtn}${ttsBtn}${refineBtns}</div></div>`;
+    const contentHtml=m.compare?formatCompareResult(m):formatMsg(m.content);
+    row.innerHTML=`<div class="msg-ava">${ava}</div><div class="msg-body"><div class="msg-name">${m.role==='user'?esc(user.name):aiName}</div><div class="msg-text">${contentHtml}</div>${providerMeta}<div class="msg-actions">${editBtn}${feedbackBtns}${regenBtn}${copyMsgBtn}${ttsBtn}${refineBtns}</div></div>`;
     msgsEl.appendChild(row);
   });
   if(keepBottom)scrollChatToBottom(true);
@@ -4453,6 +4504,7 @@ function formatMsg(t){
 }
 document.addEventListener('input',e=>{if(e.target.id==='chat-in'){e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,150)+'px'}});
 document.addEventListener('DOMContentLoaded',()=>{try{setImageWorkflowMode(imageWorkflowMode)}catch(e){}});
+document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{try{ensureImageQualityModes()}catch(e){}},250));
 
 // Copy Code Event Delegation
 document.addEventListener('click', e => {
@@ -6018,30 +6070,34 @@ async function compareModels(){
   if(!c){newChat();return setTimeout(compareModels,50)}
   if(ta)ta.value='';
   c.messages.push({role:'user',content:'[Model karşılaştırması]\n'+prompt});
-  c.messages.push({role:'assistant',content:'__TYPING__'});
-  saveChats();renderMsgs();
-  const models=[
-    {id:'pollinations-openai',name:'OpenAI Free'},
-    {id:'pollinations-gemini',name:'Gemini Free'},
-    {id:'pollinations-deepseek',name:'DeepSeek Free'}
-  ];
-  const answers=[];
-  for(const m of models){
+  const compareMsg={role:'assistant',content:'__TYPING__',compare:true,comparisons:[]};
+  c.messages.push(compareMsg);
+  saveChats();renderMsgs({stickToBottom:true});
+  const selected=document.getElementById('model-sel')?.value||'llama-3.1-8b-instant';
+  const smart=typeof recommendSmartModel==='function'?recommendSmartModel(prompt):null;
+  const alt=(smart&&smart!==selected)?smart:(selected==='llama-3.1-8b-instant'?'openai/gpt-oss-20b':'llama-3.1-8b-instant');
+  const pair=[selected,alt].filter((id,i,a)=>id&&a.indexOf(id)===i).slice(0,2);
+  const system={role:'system',content:'Türkçe, net ve kullanıcıya doğrudan faydalı cevap ver. İç düşünce yazma.'};
+  compareMsg.content='';
+  compareMsg.comparisons=await Promise.all(pair.map(async id=>{
+    const def=ALL_MODELS.find(m=>m.id===id)||{};
+    const provider=getModelProvider(id);
+    const cost=getClientModelCreditCost(id,provider,'chat');
     try{
-      const text=typeof directPollinationsReply==='function'
-        ? await directPollinationsReply([{role:'user',content:prompt}],m.id)
-        : '';
-      answers.push(`### ${m.name}\n${text||'Bu modelden cevap alınamadı.'}`);
+      const data=await callChatApiWithFallback(id,[system,{role:'user',content:prompt}],900);
+      const content=cleanAssistantReply(data?.choices?.[0]?.message?.content||'');
+      const activeModel=data.__model||data.actualModel||id;
+      const activeDef=ALL_MODELS.find(m=>m.id===activeModel)||{};
+      const meta={selectedModel:id,selectedProvider:provider,activeModel,activeProvider:data.__provider||data.actualProvider||modelProviderKey(activeDef)||provider,fallback:!!data.__fallback||!!data.fallback,keyRotated:!!data.__keyRotated||!!data.keyRotated};
+      await chargeSuccessfulUse(id,provider,'chat',cost);
+      return {name:def.name||id,content,meta,cost};
     }catch(e){
-      answers.push(`### ${m.name}\nBağlantı alınamadı: ${e.message||'bilinmeyen hata'}`);
+      return {name:def.name||id,error:normalizeNetworkError(e),meta:{selectedModel:id,selectedProvider:provider,activeModel:id,activeProvider:provider,fallback:false,keyRotated:false},cost};
     }
-  }
-  const typingIndex=c.messages.findIndex(m=>m.content==='__TYPING__');
-  const finalText='## Model Karşılaştırması\n\n'+answers.join('\n\n')+'\n\n**Kısa öneri:** En tutarlı cevabı alıp gerekirse diğer iki cevaptan iyi kısımları birleştir.';
-  if(typingIndex>=0)c.messages[typingIndex]={role:'assistant',content:finalText};
-  else c.messages.push({role:'assistant',content:finalText});
-  saveChats();renderMsgs();
+  }));
+  saveChats();renderMsgs({stickToBottom:true});
 }
+
 function refineAssistantMessage(idx,mode){
   const c=chats.find(x=>x.id===activeChat);
   const old=c?.messages?.[idx]?.content;
@@ -6866,8 +6922,47 @@ let lastImgPrompt = '';
 let lastImgModel = '';
 let lastImgUrl = '';
 let imageWorkflowMode = 'generate';
+let imageQualityMode = LS.get('ap_img_quality_mode','cheap');
 let imageEditDataUrl = '';
 let serverImageGalleryCache = [];
+
+function imageQualityRecommendedModel(mode){
+  const available=Array.from(document.getElementById('img-model')?.options||[]).map(o=>o.value);
+  const pick=list=>list.find(id=>available.includes(id));
+  const map={
+    cheap:['imagegpt-free','cf-sdxl','flux','together-flux-schnell'],
+    fast:['cf-sdxl','together-flux-schnell','imagegpt-free','flux'],
+    quality:['gemini-2.5-flash-image','together-gemini-flash-image','openai-gpt-image-2','cf-sdxl'],
+    premium:['openai-gpt-image-2','gemini-3-pro-image','together-flux-kontext-pro','together-flux2-pro','gemini-2.5-flash-image']
+  };
+  return pick(map[mode]||map.cheap)||available[0]||'flux';
+}
+function setImageQualityMode(mode,selectRecommended=true){
+  imageQualityMode=['cheap','fast','quality','premium'].includes(mode)?mode:'cheap';
+  LS.set('ap_img_quality_mode',imageQualityMode);
+  document.querySelectorAll('[data-img-quality]').forEach(btn=>btn.classList.toggle('active',btn.dataset.imgQuality===imageQualityMode));
+  if(selectRecommended){
+    const sel=document.getElementById('img-model');
+    const next=imageQualityRecommendedModel(imageQualityMode);
+    if(sel&&next&&sel.value!==next){
+      sel.value=next;
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+  }
+  updateImageCreditSurface();
+}
+function ensureImageQualityModes(){
+  const picker=document.getElementById('img-model-picker')||document.getElementById('img-model');
+  if(!picker||document.getElementById('img-quality-modes'))return;
+  const box=document.createElement('div');
+  box.id='img-quality-modes';
+  box.className='img-quality-modes';
+  box.innerHTML=[
+    ['cheap','Ucuz'],['fast','Hızlı'],['quality','Kaliteli'],['premium','Premium']
+  ].map(([id,label])=>`<button type="button" data-img-quality="${id}" onclick="setImageQualityMode('${id}')">${label}</button>`).join('');
+  picker.parentElement.insertBefore(box,picker);
+  setImageQualityMode(imageQualityMode,false);
+}
 
 function imageModelCanEdit(model){
   const m=String(model||'').toLowerCase();
@@ -7036,7 +7131,7 @@ async function genImage(){
     const isImagen = model.startsWith('imagen-');
     const endpoint = isImagen ? '/api/imagen' : '/api/image';
     
-    const {res,data} = await postJsonApi(endpoint, { prompt, model, imageSize: imageSize.key, width: imageSize.width, height: imageSize.height, aspectRatio: imageSize.aspect, size: imageSize.size, apiKey: providerKeyFor(imageProviderForModel(model)) }, 120000);
+    const {res,data} = await postJsonApi(endpoint, { prompt, model, qualityMode:imageQualityMode, imageSize: imageSize.key, width: imageSize.width, height: imageSize.height, aspectRatio: imageSize.aspect, size: imageSize.size, apiKey: providerKeyFor(imageProviderForModel(model)) }, 120000);
     
     if (res.ok && data.url) {
       const note = data.provider ? `${data.provider} ile üretildi` : '';
@@ -7117,6 +7212,8 @@ async function genImageEdit(prompt,model,imageSize,resEl,btn){
 }
 
 window.setImageWorkflowMode=setImageWorkflowMode;
+window.setImageQualityMode=setImageQualityMode;
+window.ensureImageQualityModes=ensureImageQualityModes;
 window.handleImageEditFile=handleImageEditFile;
 window.genImage=genImage;
 

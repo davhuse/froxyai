@@ -3678,6 +3678,23 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
     }
   }
   if (!provider) provider = inferProviderFromModel(model);
+  const requestedModel = model;
+  const requestedProvider = provider;
+  const originalJson = res.json.bind(res);
+  res.json = (payload) => {
+    try {
+      if (payload && typeof payload === 'object' && !payload.error) {
+        const fallbackValue = payload.fallback || payload.__fallback || false;
+        payload.requestedModel = payload.requestedModel || requestedModel;
+        payload.requestedProvider = payload.requestedProvider || requestedProvider;
+        payload.actualModel = payload.actualModel || payload.__model || model;
+        payload.actualProvider = payload.actualProvider || payload.__provider || provider;
+        payload.fallback = fallbackValue;
+        payload.keyRotated = !!(payload.keyRotated || payload.__keyRotated);
+      }
+    } catch (_) {}
+    return originalJson(payload);
+  };
   bodyApiKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
   bodyBaseUrl = typeof bodyBaseUrl === 'string' ? bodyBaseUrl.trim() : '';
 
@@ -4564,7 +4581,7 @@ app.delete('/api/gallery/:id', optionalAuthMiddleware, (req, res) => {
 });
 
 app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => {
-  let { prompt, model, apiKey: bodyApiKey } = req.body;
+  let { prompt, model, qualityMode, apiKey: bodyApiKey } = req.body;
   const imageSize = resolveImageSize(req.body || {});
   if (!prompt) return res.status(400).json({ error: 'Prompt required' });
   prompt = String(prompt || '').trim();
@@ -4606,8 +4623,12 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
     referenceSnippets: promptMeta.referenceSnippets
   };
 
-  if (imgModel === 'auto-quality') {
-    imgModel = (GEMINI_KEYS.length || GOOGLE_API_KEY || overrideKey) ? 'gemini-2.5-flash-image' : ((OPENAI_IMAGE_KEYS.length) ? 'openai-gpt-image-2' : 'cf-sdxl');
+  if (imgModel === 'auto-quality' || !imgModel) {
+    const mode = String(qualityMode || 'quality').toLowerCase();
+    if (mode === 'cheap') imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : (CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN ? 'cf-sdxl' : 'flux');
+    else if (mode === 'fast') imgModel = (CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN) ? 'cf-sdxl' : (TOGETHER_KEYS.length ? 'together-flux-schnell' : 'flux');
+    else if (mode === 'premium') imgModel = OPENAI_IMAGE_KEYS.length ? 'openai-gpt-image-2' : ((GEMINI_KEYS.length || GOOGLE_API_KEY || overrideKey) ? 'gemini-2.5-flash-image' : (TOGETHER_KEYS.length ? 'together-flux-kontext-pro' : 'cf-sdxl'));
+    else imgModel = (GEMINI_KEYS.length || GOOGLE_API_KEY || overrideKey) ? 'gemini-2.5-flash-image' : ((OPENAI_IMAGE_KEYS.length) ? 'openai-gpt-image-2' : 'cf-sdxl');
   }
 
   if (imgModel === 'style-dalle3') {
