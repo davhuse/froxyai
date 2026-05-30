@@ -28580,3 +28580,116 @@ button,.btn,.ah-btn,.tool-chip,.chat-task-chip,.mp-cat,.mp-sort button,.img-qual
     max-width:160px!important;
   }
 }
+
+/* v331 repair: restore chat model logo colors and tame tools/prompts icon blobs */
+#model-picker .mp-provider-logo.mp-logo-openai{background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.20),transparent 28%),linear-gradient(135deg,#10a37f,#0f766e)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-gemini{background:linear-gradient(135deg,#4285f4,#8b5cf6 55%,#22d3ee)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-claude{background:linear-gradient(135deg,#d97706,#f97316)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-groq{background:linear-gradient(135deg,#111827,#f97316)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-openrouter{background:linear-gradient(135deg,#0f172a,#38bdf8)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-deepseek{background:linear-gradient(135deg,#1d4ed8,#60a5fa)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-qwen{background:linear-gradient(135deg,#06b6d4,#2563eb)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-meta{background:linear-gradient(135deg,#2563eb,#22d3ee)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-mistral{background:linear-gradient(135deg,#f59e0b,#ef4444)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-nvidia{background:linear-gradient(135deg,#76b900,#16a34a)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-cloudflare{background:linear-gradient(135deg,#f97316,#facc15)!important;color:#1f2937!important}
+#model-picker .mp-provider-logo.mp-logo-pollinations{background:linear-gradient(135deg,#ec4899,#8b5cf6)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-together{background:linear-gradient(135deg,#14b8a6,#2563eb)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-sambanova{background:linear-gradient(135deg,#7c3aed,#db2777)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-cerebras{background:linear-gradient(135deg,#334155,#94a3b8)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo.mp-logo-huggingface{background:linear-gradient(135deg,#facc15,#f59e0b)!important;color:#1f2937!important}
+#model-picker .mp-provider-logo.mp-logo-xai{background:linear-gradient(135deg,#0f172a,#64748b)!important;color:#ffffff!important}
+#model-picker .mp-provider-logo svg{color:inherit!important;stroke:currentColor!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-openai{background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.20),transparent 28%),linear-gradient(135deg,#10a37f,#0f766e)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-gemini{background:linear-gradient(135deg,#4285f4,#8b5cf6 55%,#22d3ee)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-claude{background:linear-gradient(135deg,#d97706,#f97316)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-groq{background:linear-gradient(135deg,#111827,#f97316)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-openrouter{background:linear-gradient(135deg,#0f172a,#38bdf8)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-deepseek{background:linear-gradient(135deg,#1d4ed8,#60a5fa)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-qwen{background:linear-gradient(135deg,#06b6d4,#2563eb)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-meta{background:linear-gradient(135deg,#2563eb,#22d3ee)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-mistral{background:linear-gradient(135deg,#f59e0b,#ef4444)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-nvidia{background:linear-gradient(135deg,#76b900,#16a34a)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-cloudflare{background:linear-gradient(135deg,#f97316,#facc15)!important;color:#1f2937!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-pollinations{background:linear-gradient(135deg,#ec4899,#8b5cf6)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-together{background:linear-gradient(135deg,#14b8a6,#2563eb)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-sambanova{background:linear-gradient(135deg,#7c3aed,#db2777)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-cerebras{background:linear-gradient(135deg,#334155,#94a3b8)!important;color:#ffffff!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-huggingface{background:linear-gradient(135deg,#facc15,#f59e0b)!important;color:#1f2937!important}
+#model-picker .mp-cat>.mp-provider-logo.mp-logo-xai{background:linear-gradient(135deg,#0f172a,#64748b)!important;color:#ffffff!important}
+#ptab-tools .ai-tool-card,
+#ptab-prompts .prompt-card{
+  padding-top:18px!important;
+}
+#ptab-tools .ai-tool-card:before,
+#ptab-prompts .prompt-card:before{
+  content:none!important;
+  display:none!important;
+}
+#ptab-tools .tool-card-top{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+}
+#ptab-tools .tool-card-top span,
+#ptab-prompts .prompt-card .persona-icon-3d{
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  border-radius:12px!important;
+  display:grid!important;
+  place-items:center!important;
+  margin:0 0 14px!important;
+  background:linear-gradient(135deg,rgba(34,211,238,.16),rgba(124,58,237,.16))!important;
+  border:1px solid rgba(125,211,252,.18)!important;
+  box-shadow:none!important;
+  color:#dff7ff!important;
+  overflow:hidden!important;
+}
+#ptab-tools .tool-card-top span:before,
+#ptab-tools .tool-card-top span:after,
+#ptab-prompts .prompt-card .persona-icon-3d:before,
+#ptab-prompts .prompt-card .persona-icon-3d:after{
+  content:none!important;
+  display:none!important;
+}
+#ptab-tools .tool-card-top span svg,
+#ptab-prompts .prompt-card .persona-icon-3d svg{
+  width:19px!important;
+  height:19px!important;
+  color:#dff7ff!important;
+  stroke:currentColor!important;
+  filter:none!important;
+}
+#ptab-tools .tool-card-top em{
+  height:24px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  padding:0 9px!important;
+  border-radius:999px!important;
+  border:1px solid rgba(148,163,184,.13)!important;
+  background:rgba(2,6,23,.34)!important;
+  color:#b9c8dd!important;
+  font-size:10px!important;
+  font-weight:950!important;
+}
+#ptab-prompts .prompt-card h3{
+  margin-right:46px!important;
+}
+#ptab-prompts .prompt-card .prompt-fav,
+#ptab-prompts .prompt-card .fav-star,
+#ptab-prompts .prompt-card [class*="fav"]{
+  color:#94a3b8!important;
+}
+
+/* v331b: sidebar brand chips need to stay colored too */
+#model-picker .mp-sidebar .mp-cat>span.mp-provider-logo.sm.mp-logo-openrouter{background:linear-gradient(135deg,#0f172a,#38bdf8)!important;color:#fff!important}
+#model-picker .mp-sidebar .mp-cat>span.mp-provider-logo.sm.mp-logo-pollinations{background:linear-gradient(135deg,#ec4899,#8b5cf6)!important;color:#fff!important}
+#model-picker .mp-sidebar .mp-cat>span.mp-provider-logo.sm.mp-logo-groq{background:linear-gradient(135deg,#111827,#f97316)!important;color:#fff!important}
+#model-picker .mp-sidebar .mp-cat>span.mp-provider-logo.sm.mp-logo-sambanova{background:linear-gradient(135deg,#7c3aed,#db2777)!important;color:#fff!important}
+#model-picker .mp-sidebar .mp-cat>span.mp-provider-logo.sm.mp-logo-gemini{background:linear-gradient(135deg,#4285f4,#8b5cf6 55%,#22d3ee)!important;color:#fff!important}
+#model-picker .mp-sidebar .mp-cat>span.mp-provider-logo.sm.mp-logo-openai{background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.20),transparent 28%),linear-gradient(135deg,#10a37f,#0f766e)!important;color:#fff!important}
+#model-picker .mp-sidebar .mp-cat>span.mp-provider-logo.sm.mp-logo-claude{background:linear-gradient(135deg,#d97706,#f97316)!important;color:#fff!important}
+#model-picker .mp-sidebar .mp-cat>span.mp-provider-logo.sm.mp-logo-deepseek{background:linear-gradient(135deg,#1d4ed8,#60a5fa)!important;color:#fff!important}
+#model-picker .mp-sidebar .mp-cat>span.mp-provider-logo.sm.mp-logo-meta{background:linear-gradient(135deg,#2563eb,#22d3ee)!important;color:#fff!important}
