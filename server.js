@@ -4027,7 +4027,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
       messages = [
         {
           role: 'system',
-          content: 'Sen Froxy AI asistanısın. Daima Türkçe, doğal ve akıcı cümlelerle cevap ver. Kullanıcının duygusuna empati göster ama cümlelerin sonuna ☀, ⭐, 🌞 gibi gereksiz emoji veya simge KOYMA. Bozuk karakter, mojibake, garip semboller veya placeholder kullanma. Yanıtların açık, profesyonel ve insan gibi olsun. "Anladım" gibi kalıp ifadelerden kaçın, doğrudan konuya gir.'
+          content: 'Sen Froxy AI asistanısın. Daima Türkçe, doğal ve akıcı cümlelerle cevap ver. Kullanıcının duygusuna empati göster ama cümlelerin sonuna emoji, yıldız veya gereksiz simge koyma. Bozuk karakter, mojibake, garip semboller veya placeholder kullanma. Yanıtların açık, profesyonel ve insan gibi olsun. "Anladım" gibi kalıp ifadelerden kaçın, doğrudan konuya gir.'
         },
         ...messages
       ];
@@ -4039,7 +4039,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
         if (!String(existing).includes('Froxy AI')) {
           messages[sysIdx] = {
             role: 'system',
-            content: existing + '\n\nÖNEMLİ: Cümle sonlarına ☀, ⭐ gibi emoji koyma. Bozuk karakter veya mojibake kullanma. Türkçe cevap ver, doğal ve akıcı yaz.'
+            content: existing + '\n\nÖNEMLİ: Cümle sonlarına emoji veya yıldız gibi gereksiz simge koyma. Bozuk karakter veya mojibake kullanma. Türkçe cevap ver, doğal ve akıcı yaz.'
           };
         }
       }
@@ -4055,8 +4055,16 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
         const fallbackValue = payload.fallback || payload.__fallback || false;
         payload.requestedModel = payload.requestedModel || requestedModel;
         payload.requestedProvider = payload.requestedProvider || requestedProvider;
-        payload.actualModel = payload.actualModel || payload.__model || model;
-        payload.actualProvider = payload.actualProvider || payload.__provider || provider;
+        if (typeof fallbackValue === 'string' && fallbackValue) {
+          const parts = fallbackValue.includes('/') ? fallbackValue.split('/') : [];
+          const fallbackProvider = parts[0] || (fallbackValue === 'local-safe' ? 'local' : 'groq');
+          const fallbackModel = parts.length ? parts.slice(1).join('/') : fallbackValue;
+          payload.actualProvider = payload.actualProvider || payload.__provider || fallbackProvider || provider;
+          payload.actualModel = payload.actualModel || payload.__model || fallbackModel || model;
+        } else {
+          payload.actualModel = payload.actualModel || payload.__model || model;
+          payload.actualProvider = payload.actualProvider || payload.__provider || provider;
+        }
         payload.fallback = fallbackValue;
         payload.keyRotated = !!(payload.keyRotated || payload.__keyRotated);
       }
@@ -6417,4 +6425,3 @@ app.listen(PORT, () => {
   console.log(`   Video: Veo 2.0/3.0/3.1`);
   console.log(`   Image: Imagen 4.0, Pollinations, Guicore\n`);
 });
-
