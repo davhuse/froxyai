@@ -943,7 +943,8 @@ async function renderRegisterTurnstile(){
   if(!host)return;
   host.dataset.required=cfg.turnstileRequired?'1':'0';
   if(!cfg.turnstileSiteKey){
-    host.innerHTML=cfg.turnstileRequired?'<span>Robot dogrulamasi ayari eksik.</span>':'';
+    host.classList.add('is-placeholder');
+    host.innerHTML='<div class="turnstile-placeholder"><strong>Robot doğrulama</strong><small>'+(cfg.turnstileRequired?'Turnstile site key eksik. Railway Variables içine TURNSTILE_SITE_KEY eklenmeli.':'Turnstile site key eklenince burada doğrulama kutusu görünecek.')+'</small></div>';
     return;
   }
   try{
@@ -2059,6 +2060,26 @@ function tab(t){
   }
   if(t==='reg')setTimeout(renderRegisterTurnstile,80);
 }
+
+// Desktop wheel fix: auth modal has an inner scroll panel, so route wheel to it.
+(function(){
+  if(window.__authWheelFixV311)return;
+  window.__authWheelFixV311=true;
+  document.addEventListener('wheel',function(e){
+    const modal=document.getElementById('auth-modal');
+    if(!modal||!modal.classList.contains('open'))return;
+    const panel=modal.querySelector('.auth-panel');
+    if(!panel)return;
+    const insidePanel=panel.contains(e.target);
+    const insideShell=modal.querySelector('.auth-shell')?.contains(e.target);
+    if(!insideShell)return;
+    if(panel.scrollHeight<=panel.clientHeight)return;
+    if(!insidePanel||e.target.closest('.auth-hero')){
+      panel.scrollTop += e.deltaY;
+      e.preventDefault();
+    }
+  },{passive:false,capture:true});
+})();
 
 // ===== FORGOT PASSWORD =====
 async function doForgotPassword() {
