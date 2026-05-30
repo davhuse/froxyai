@@ -907,6 +907,68 @@ async function resendLoginCode(){
   }
 }
 
+let securityConfigCache=null;
+let registerTurnstileWidgetId=null;
+let registerTurnstileToken='';
+
+async function getSecurityConfig(){
+  if(securityConfigCache)return securityConfigCache;
+  try{
+    const res=await fetch('/api/security/config',{cache:'no-store'});
+    securityConfigCache=await res.json();
+  }catch(e){
+    securityConfigCache={turnstileRequired:false,turnstileSiteKey:'',consentVersion:'2026-05-30-v1'};
+  }
+  return securityConfigCache;
+}
+
+function loadTurnstileScript(){
+  return new Promise((resolve,reject)=>{
+    if(window.turnstile)return resolve(window.turnstile);
+    const existing=document.getElementById('cf-turnstile-script');
+    if(existing){existing.addEventListener('load',()=>resolve(window.turnstile));existing.addEventListener('error',reject);return;}
+    const s=document.createElement('script');
+    s.id='cf-turnstile-script';
+    s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    s.async=true;s.defer=true;
+    s.onload=()=>resolve(window.turnstile);
+    s.onerror=()=>reject(new Error('Turnstile yuklenemedi'));
+    document.head.appendChild(s);
+  });
+}
+
+async function renderRegisterTurnstile(){
+  const cfg=await getSecurityConfig();
+  const host=document.getElementById('register-turnstile');
+  if(!host)return;
+  host.dataset.required=cfg.turnstileRequired?'1':'0';
+  if(!cfg.turnstileSiteKey){
+    host.innerHTML=cfg.turnstileRequired?'<span>Robot dogrulamasi ayari eksik.</span>':'';
+    return;
+  }
+  try{
+    await loadTurnstileScript();
+    if(registerTurnstileWidgetId!==null&&window.turnstile){
+      try{window.turnstile.reset(registerTurnstileWidgetId)}catch(e){}
+      return;
+    }
+    registerTurnstileWidgetId=window.turnstile.render(host,{
+      sitekey:cfg.turnstileSiteKey,
+      theme:'dark',
+      callback:(token)=>{registerTurnstileToken=token||''},
+      'expired-callback':()=>{registerTurnstileToken=''},
+      'error-callback':()=>{registerTurnstileToken=''}
+    });
+  }catch(e){
+    host.innerHTML='<span>Robot dogrulamasi yuklenemedi, tekrar deneyin.</span>';
+  }
+}
+
+function resetRegisterTurnstile(){
+  registerTurnstileToken='';
+  try{if(window.turnstile&&registerTurnstileWidgetId!==null)window.turnstile.reset(registerTurnstileWidgetId)}catch(e){}
+}
+
 async function doAuth(type) {
   const email = document.getElementById(type === 'login' ? 'l-email' : 'r-email').value.trim();
   const password = document.getElementById(type === 'login' ? 'l-pass' : 'r-pass').value;
@@ -925,11 +987,21 @@ async function doAuth(type) {
   }
   if(errDiv)errDiv.style.display = 'none';
   try {
+    let extra={};
+    if(type==='register'){
+      const cfg=await getSecurityConfig();
+      const termsAccepted=!!document.getElementById('r-terms-accepted')?.checked;
+      const privacyAccepted=!!document.getElementById('r-privacy-accepted')?.checked;
+      const marketingOptIn=!!document.getElementById('r-marketing-opt-in')?.checked;
+      if(!termsAccepted||!privacyAccepted){showAuthError('Kayit icin KVKK/Gizlilik ve Kullanim Sartlari onaylarini kabul etmelisiniz.');return;}
+      if(cfg.turnstileRequired&&cfg.turnstileSiteKey&&!registerTurnstileToken){showAuthError('Robot dogrulamasi tamamlanamadi, tekrar deneyin.');return;}
+      extra={termsAccepted,privacyAccepted,marketingOptIn,consentVersion:cfg.consentVersion||'2026-05-30-v1',turnstileToken:registerTurnstileToken};
+    }
     if(type==='register'&&typeof trackFunnelEvent==='function')trackFunnelEvent('signup_click',{surface:'auth_submit'});
     const res = await fetch(`/api/${type}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, username })
+      body: JSON.stringify(Object.assign({ email, password, username, fingerprint:(typeof getDeviceFingerprint==='function'?getDeviceFingerprint():'') }, extra))
     });
     const data = await readApiJson(res);
     if (res.ok) {
@@ -940,6 +1012,7 @@ async function doAuth(type) {
       }
       finishBackendAuth(data,type==='login' ? 'Başarıyla giriş yapıldı!' : 'Hesap oluşturuldu! 100 kredi hazır.');
     } else {
+      if(type==='register')resetRegisterTurnstile();
       const localUsers=LS.get('ap_users',[]);
       const localMatch=type==='login'&&localUsers.some(u=>u.email===email&&u.pass===password);
       if(localMatch&&allowLocalFallback()){await fallbackLocalAuth(type);return}
@@ -1984,6 +2057,7 @@ function tab(t){
     tabsEl.classList.toggle('tab-forgot', t === 'forgot');
     tabsEl.classList.toggle('tab-otp', t === 'otp');
   }
+  if(t==='reg')setTimeout(renderRegisterTurnstile,80);
 }
 
 // ===== FORGOT PASSWORD =====
@@ -5567,9 +5641,39 @@ function adminTab(t){
   if(t==='models')renderAdminModels();
   if(t==='announce')loadAdminAnnouncements();
   if(t==='logs')loadAdminLogs();
-  if(t==='settings'){renderAdminProviderSummary();const c=document.getElementById('st-model-count');if(c)c.textContent=visibleModelCount().toLocaleString('tr-TR')+' model'}
+  if(t==='settings'){renderAdminProviderSummary();loadAdminSecurityStatus();const c=document.getElementById('st-model-count');if(c)c.textContent=visibleModelCount().toLocaleString('tr-TR')+' model'}
 }
 function updAdmin(){adminTab('dashboard')}
+async function loadAdminSecurityStatus(){
+  try{
+    const host=document.querySelector('#at-settings .admin-two-col')||document.getElementById('at-settings');
+    if(!host)return;
+    let card=document.getElementById('admin-security-status-card');
+    if(!card){
+      card=document.createElement('div');
+      card.id='admin-security-status-card';
+      card.className='admin-card';
+      card.innerHTML='<div class="admin-card-header"><h3>Guvenlik ve Odeme Durumu</h3></div><div class="admin-card-body" id="admin-security-status-body"><div class="admin-empty">Yukleniyor...</div></div>';
+      host.appendChild(card);
+    }
+    const data=await adminApiJson('/api/admin/security-status');
+    const body=document.getElementById('admin-security-status-body');
+    if(!body)return;
+    const row=(label,val,ok)=>'<div class="admin-info-row"><span>'+label+'</span><strong style="color:'+(ok?'#22c55e':'#f59e0b')+'">'+val+'</strong></div>';
+    body.innerHTML=[
+      row('Turnstile',data.turnstile?.secretConfigured?'Aktif':(data.turnstile?.required?'Eksik':'Opsiyonel'),data.turnstile?.secretConfigured||!data.turnstile?.required),
+      row('OTP',data.otp?.enabled?'Aktif':'Kapali',!!data.otp?.enabled),
+      row('Consent versiyon',esc(data.consent?.version||'-'),true),
+      row('Dodo API',data.dodo?.apiConfigured?'Hazir':'Env eksik',!!data.dodo?.apiConfigured),
+      row('Dodo webhook',data.dodo?.webhookConfigured?'Imza aktif':'Secret eksik',!!data.dodo?.webhookConfigured),
+      row('Shopier yedek',data.shopier?.fallback?'Korunuyor':'Kapali',!!data.shopier?.fallback),
+      row('Kalici DB',data.database?.persistent?'Aktif':'Local/ephemeral',!!data.database?.persistent)
+    ].join('');
+  }catch(e){
+    const body=document.getElementById('admin-security-status-body');
+    if(body)body.innerHTML='<div class="admin-empty">Guvenlik durumu alinamadi.</div>';
+  }
+}
 async function loadAdminUsers(page){
   if(page)adminCurrentPage=page;
   adminSetTableSkeleton('au-tbody',8,5);
@@ -6956,6 +7060,9 @@ const LEGAL={
   kvkk:{title:'KVKK Aydınlatma Metni',body:`<h4>Veri Sorumlusu</h4><p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında, kişisel verileriniz veri sorumlusu sıfatıyla Froxy AI tarafından aşağıda açıklanan amaçlarla işlenmektedir.</p><h4>İşlenen Veriler</h4><p>Ad-soyad, e-posta adresi, IP adresi, kullanım logları ve API istek kayıtları.</p><h4>İşleme Amaçları</h4><p>Hizmet sunumu, kullanıcı desteği, güvenlik, yasal yükümlülükler ve hizmet geliştirme.</p><h4>Veri Aktarımı</h4><p>Kişisel verileriniz, API hizmeti kapsamında yurt dışındaki model sağlayıcılarına (OpenAI, Google vb.) aktarılabilir. Bu aktarım, hizmetin doğası gereği zorunludur.</p><h4>Haklarınız</h4><p>KVKK madde 11 kapsamında; verilerinize erişim, düzeltme, silme, aktarım ve işlemeye itiraz haklarına sahipsiniz. Başvurularınızı <strong>info@froxyai.com</strong> adresine iletebilirsiniz. Genel destek: <strong>destek@froxyai.com</strong>.</p>`},
   disclaimer:{title:'Sorumluluk Reddi',body:`<h4>Genel</h4><p>Froxy AI, üçüncü taraf yapay zeka modellerine erişim sağlayan bir aracı platformdur. Üretilen içeriklerin doğruluğu, güvenilirliği veya uygunluğu konusunda herhangi bir garanti verilmez.</p><h4>İçerik Sorumluluğu</h4><p>AI modelleri tarafından üretilen tüm içeriklerin hukuki, etik ve ticari sorumluluğu tamamen kullanıcıya aittir. Froxy AI, üretilen içeriklerden doğabilecek zararlardan sorumlu tutulamaz.</p><h4>Hizmet Sürekliliği</h4><p>Platform, %99.9 uptime hedeflemekle birlikte, bakım, güncelleme veya üçüncü taraf kaynaklı kesintiler yaşanabilir. Bu kesintilerden doğan zararlardan sorumluluk kabul edilmez.</p><h4>Üçüncü Taraf Hizmetleri</h4><p>Platform, OpenAI, Google, Anthropic gibi üçüncü taraf sağlayıcılara bağımlıdır. Bu sağlayıcıların hizmet değişiklikleri veya kesintileri Froxy AI'in kontrolü dışındadır.</p><h4>İletişim</h4><p>Genel sorular için: <strong>info@froxyai.com</strong>. Teknik destek: <strong>destek@froxyai.com</strong>.</p>`}
 };
+LEGAL.preinfo={title:'On Bilgilendirme Formu',body:`<h4>Hizmet</h4><p>Froxy AI, sohbet, gorsel uretim ve AI araclari icin dijital kredi tabanli bir yazilim hizmetidir. Satin alinan krediler odeme onayindan sonra kullanici hesabina dijital olarak yuklenir.</p><h4>Satici Bilgileri</h4><p>Unvan, adres ve vergi bilgileri gercek firma bilgileriyle guncellenecektir. Destek e-posta adresi: <strong>destek@froxyai.com</strong>.</p><h4>Odeme</h4><p>Dodo Payments Merchant of Record kanali onceliklidir; odeme, vergi ve faturalama surecleri odeme saglayicisi tarafindan yonetilebilir. Shopier yedek odeme kanali olarak korunur.</p><h4>Teslimat</h4><p>Dijital kredi teslimati fiziksel kargo icermez ve odeme onayindan sonra otomatik yapilir.</p>`};
+LEGAL.distance={title:'Mesafeli Satis Sozlesmesi',body:`<h4>Taraflar</h4><p>Alici, Froxy AI hesabiyla dijital kredi satin alan kullanicidir. Satici bilgileri gercek sirket/vergi bilgileriyle guncellenecektir.</p><h4>Konu</h4><p>Bu sozlesme, Froxy AI dijital kredi paketlerinin elektronik ortamda satisi ve teslimatini kapsar.</p><h4>Cayma Hakki</h4><p>Elektronik ortamda aninda ifa edilen dijital hizmetlerde, kredi hesaba tanimlandiktan veya kullanilmaya baslandiktan sonra cayma/iade hakki sinirlanabilir. Teknik hata veya mukerrer odeme durumlari destek ekibi tarafindan incelenir.</p><h4>Destek</h4><p>Her turlu talep icin <strong>destek@froxyai.com</strong>.</p>`};
+LEGAL.contact={title:'Iletisim ve Destek',body:`<h4>Destek Kanali</h4><p>Froxy AI destek ekibine <strong>destek@froxyai.com</strong> adresinden ulasabilirsiniz.</p><h4>Yasal Bilgiler</h4><p>Unvan, adres ve vergi bilgileri POS/MoR basvuru surecinde gercek bilgilerle doldurulacaktir.</p>`};
 function showLegal(key){
   const d=LEGAL[key];if(!d)return;
   const title=document.getElementById('legal-title');
@@ -12112,14 +12219,52 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     }
   }
 
-  window.buyTokensById=function(planId){
-    try {
-      if (typeof msg === 'function') {
-        msg('Ödeme sayfası yeni sekmede açılıyor...', 'success');
-      }
-    } catch (_) {}
+  function openCheckoutConfirm(planId){
+    const pack=(typeof STORE_PACKS!=='undefined'?STORE_PACKS:[]).find(p=>p.id===planId)||{id:planId,name:'Kredi paketi',tokens:0,price:0};
+    document.getElementById('froxy-checkout-modal')?.remove();
+    const modal=document.createElement('div');
+    modal.id='froxy-checkout-modal';
+    modal.className='froxy-checkout-backdrop';
+    modal.innerHTML=`<div class="froxy-checkout-card" role="dialog" aria-modal="true" aria-label="Odeme onayi">
+      <div class="froxy-checkout-head"><div><span>Guvenli odeme</span><h3>${esc(pack.name)} paketini onayla</h3></div><button type="button" class="froxy-checkout-close" aria-label="Kapat">x</button></div>
+      <div class="froxy-checkout-body">
+        <div class="froxy-checkout-plan"><div><strong>${Number(pack.tokens||0).toLocaleString('tr-TR')} kredi</strong><small>Dijital teslimat, odeme sonrasi otomatik yukleme</small></div><b>?${Number(pack.price||0).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})}</b></div>
+        <div class="froxy-checkout-notes"><span>? Dodo Payments global odeme/MoR kanali olarak denenir.</span><span>? Dodo hazir degilse Shopier yedek odeme kanali acilir.</span><span>? Kullanim sartlari, iade/iptal ve destek sureci odeme oncesi aciktir.</span></div>
+        <label class="froxy-checkout-consent"><input type="checkbox" id="checkout-contract-accepted"><span><a href="#" data-legal="terms">Kullanim Sartlari</a>, <a href="#" data-legal="refund">Iade/Iptal</a>, <a href="#" data-legal="preinfo">On Bilgilendirme</a> ve <a href="#" data-legal="distance">Mesafeli Satis</a> metinlerini okudum, dijital teslimati kabul ediyorum.</span></label>
+        <div class="froxy-checkout-actions"><button type="button" class="froxy-checkout-secondary">Vazgec</button><button type="button" class="froxy-checkout-primary">Odemeye gec</button></div>
+      </div></div>`;
+    document.body.appendChild(modal);
+    const close=()=>modal.remove();
+    modal.querySelector('.froxy-checkout-close').onclick=close;
+    modal.querySelector('.froxy-checkout-secondary').onclick=close;
+    modal.addEventListener('click',e=>{if(e.target===modal)close();});
+    modal.querySelectorAll('[data-legal]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();try{showLegal(a.dataset.legal)}catch(_){}}));
+    modal.querySelector('.froxy-checkout-primary').onclick=()=>startDodoCheckout(planId,modal);
+  }
+
+  async function startDodoCheckout(planId,modal){
+    const accepted=!!modal.querySelector('#checkout-contract-accepted')?.checked;
+    if(!accepted){if(typeof msg==='function')msg('Odeme icin sozlesme ve dijital teslimat onayini isaretleyin.','err');return;}
+    const popup=window.open('about:blank','_blank','noopener,noreferrer');
     const fallback=window.getShopierPlanUrl(planId);
-    window.open(fallback,'_blank','noopener,noreferrer');
+    if(!authToken){if(popup)popup.location.href=fallback;else window.location.href=fallback;return;}
+    try{
+      const res=await fetch('/api/dodo/start',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},body:JSON.stringify({plan:planId,checkoutConsentAccepted:true})});
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(data.error||'Odeme baslatilamadi');
+      const url=data.url||data.fallback_url||fallback;
+      if(popup&&!popup.closed)popup.location.href=url;else window.open(url,'_blank','noopener,noreferrer');
+      modal.remove();
+      if(typeof msg==='function')msg((data.gateway==='shopier'?'Shopier':'Dodo')+' odeme sayfasi acildi.','ok');
+    }catch(e){
+      try{if(typeof msg==='function')msg('Dodo baslatilamadi, Shopier yedek kanali aciliyor.','info')}catch(_){}
+      if(popup&&!popup.closed)popup.location.href=fallback;else window.open(fallback,'_blank','noopener,noreferrer');
+      modal.remove();
+    }
+  }
+
+  window.buyTokensById=function(planId){
+    openCheckoutConfirm(planId||'starter');
   };
   window.buyTokens=function(i){
     const pack=(typeof STORE_PACKS!=='undefined'&&STORE_PACKS[i])?STORE_PACKS[i]:null;

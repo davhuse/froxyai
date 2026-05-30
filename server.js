@@ -13,6 +13,7 @@ const fs = require('fs');
 const zlib = require('zlib');
 const nodemailer = require('nodemailer');
 const { registerGatewayRoutes } = require('./src/gateway');
+const { Webhook } = require('standardwebhooks');
 
 // Local key file loader for environments where a real .env is not wired.
 // Supported file: .env.keys (KEY=value lines, # comments ignored)
@@ -298,6 +299,50 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     applied_at DATETIME
   );
+  CREATE TABLE IF NOT EXISTS consent_records (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    email TEXT,
+    consent_version TEXT,
+    terms_accepted INTEGER DEFAULT 0,
+    privacy_accepted INTEGER DEFAULT 0,
+    marketing_opt_in INTEGER DEFAULT 0,
+    ip_hash TEXT,
+    fingerprint TEXT,
+    user_agent TEXT,
+    source TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE TABLE IF NOT EXISTS security_audit (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    email TEXT,
+    event TEXT,
+    status TEXT,
+    detail TEXT,
+    ip_hash TEXT,
+    fingerprint TEXT,
+    user_agent TEXT,
+    metadata TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE TABLE IF NOT EXISTS dodo_payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    payment_id TEXT UNIQUE,
+    checkout_session_id TEXT,
+    order_id TEXT,
+    email TEXT,
+    user_id INTEGER,
+    plan TEXT,
+    credits INTEGER DEFAULT 0,
+    amount REAL,
+    currency TEXT,
+    status TEXT DEFAULT 'pending',
+    verified INTEGER DEFAULT 0,
+    raw_json TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    applied_at DATETIME
+  );
   CREATE TABLE IF NOT EXISTS app_meta (
     key TEXT PRIMARY KEY,
     value TEXT,
@@ -337,9 +382,17 @@ try { db.exec('ALTER TABLE users ADD COLUMN daily_image_count INTEGER DEFAULT 0'
 try { db.exec('ALTER TABLE users ADD COLUMN daily_reset_date TEXT'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN reg_ip TEXT'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN reg_fingerprint TEXT'); } catch(e) {}
+try { db.exec('ALTER TABLE registration_otps ADD COLUMN terms_accepted INTEGER DEFAULT 0'); } catch(e) {}
+try { db.exec('ALTER TABLE registration_otps ADD COLUMN privacy_accepted INTEGER DEFAULT 0'); } catch(e) {}
+try { db.exec('ALTER TABLE registration_otps ADD COLUMN marketing_opt_in INTEGER DEFAULT 0'); } catch(e) {}
+try { db.exec('ALTER TABLE registration_otps ADD COLUMN consent_version TEXT'); } catch(e) {}
+try { db.exec('ALTER TABLE registration_otps ADD COLUMN turnstile_verified INTEGER DEFAULT 0'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_created ON funnel_events(created_at)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_event ON funnel_events(event)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_session ON funnel_events(session_id)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_security_audit_created ON security_audit(created_at)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_consent_records_email ON consent_records(email)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_dodo_payments_payment_id ON dodo_payments(payment_id)'); } catch(e) {}
 try {
   const done = db.prepare("SELECT value FROM app_meta WHERE key = 'free_credit_normalized_v184'").get();
   if (!done) {
@@ -373,6 +426,104 @@ const SHOPIER_PACKAGE_CATALOG = {
 const SHOPIER_PRODUCT_TO_PLAN = Object.fromEntries(Object.entries(SHOPIER_PACKAGE_CATALOG).map(([plan, pack]) => [pack.productId, plan]));
 const SHOPIER_STATIC_URLS = Object.fromEntries(Object.entries(SHOPIER_PACKAGE_CATALOG).map(([plan, pack]) => [plan, `https://www.shopier.com/froxyai/${pack.productId}`]));
 const SHOPIER_API_BASE = process.env.SHOPIER_API_BASE || 'https://api.shopier.com/v1';
+const SECURITY_CONSENT_VERSION = process.env.SECURITY_CONSENT_VERSION || '2026-05-30-v1';
+const TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY || process.env.CLOUDFLARE_TURNSTILE_SITE_KEY || '';
+const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY || process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY || '';
+const TURNSTILE_REQUIRED = String(process.env.TURNSTILE_REQUIRED || (process.env.NODE_ENV === 'production' ? '1' : '0')).trim() !== '0';
+const DODO_API_KEY = process.env.DODO_API_KEY || process.env.DODO_PAYMENTS_API_KEY || '';
+const DODO_WEBHOOK_SECRET = process.env.DODO_WEBHOOK_SECRET || process.env.DODO_PAYMENTS_WEBHOOK_SECRET || '';
+const DODO_API_BASE = process.env.DODO_API_BASE || 'https://api.dodopayments.com';
+
+function envForPlan(prefix, plan) {
+  return process.env[`${prefix}_${String(plan || '').toUpperCase()}`] || '';
+}
+
+function getClientIp(req) {
+  return String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || req.connection?.remoteAddress || '';
+}
+
+function hashForAudit(value) {
+  if (!value) return '';
+  return crypto.createHash('sha256').update(String(value)).digest('hex').slice(0, 32);
+}
+
+function recordSecurityAudit(req, event, status, detail, userId, metadata) {
+  try {
+    db.prepare(`INSERT INTO security_audit (user_id, email, event, status, detail, ip_hash, fingerprint, user_agent, metadata)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+      userId || req.user?.id || null,
+      metadata?.email || null,
+      event,
+      status,
+      String(detail || '').slice(0, 500),
+      hashForAudit(getClientIp(req)),
+      String(req.body?.fingerprint || metadata?.fingerprint || '').slice(0, 160),
+      String(req.headers['user-agent'] || '').slice(0, 500),
+      JSON.stringify(metadata || {}).slice(0, 4000)
+    );
+  } catch(e) {}
+}
+
+function recordConsent({ userId, email, consentVersion, termsAccepted, privacyAccepted, marketingOptIn, req, fingerprint, source }) {
+  db.prepare(`INSERT INTO consent_records (user_id, email, consent_version, terms_accepted, privacy_accepted, marketing_opt_in, ip_hash, fingerprint, user_agent, source)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+    userId || null,
+    normalizeEmailAddress(email),
+    consentVersion || SECURITY_CONSENT_VERSION,
+    termsAccepted ? 1 : 0,
+    privacyAccepted ? 1 : 0,
+    marketingOptIn ? 1 : 0,
+    hashForAudit(getClientIp(req)),
+    String(fingerprint || req.body?.fingerprint || '').slice(0, 160),
+    String(req.headers['user-agent'] || '').slice(0, 500),
+    source || 'register'
+  );
+}
+
+function postFormJson(urlString, fields) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlString);
+    const data = new URLSearchParams(fields).toString();
+    const req = https.request(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'content-length': Buffer.byteLength(data)
+      }
+    }, (resp) => {
+      let raw = '';
+      resp.on('data', chunk => raw += chunk);
+      resp.on('end', () => {
+        try { resolve(JSON.parse(raw || '{}')); }
+        catch(e) { reject(new Error('Dogrulama yaniti okunamadi')); }
+      });
+    });
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+  });
+}
+
+async function verifyTurnstile(req, token, action) {
+  if (!TURNSTILE_SECRET_KEY) {
+    if (TURNSTILE_REQUIRED && process.env.NODE_ENV === 'production') {
+      return { ok: false, error: 'Turnstile secret tanimli degil' };
+    }
+    return { ok: true, skipped: true, reason: 'secret_missing_local' };
+  }
+  if (!token) return { ok: false, error: 'Robot dogrulamasi tamamlanamadi' };
+  try {
+    const data = await postFormJson('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      secret: TURNSTILE_SECRET_KEY,
+      response: token,
+      remoteip: getClientIp(req)
+    });
+    const ok = !!data.success;
+    return { ok, data, error: ok ? '' : 'Robot dogrulamasi basarisiz oldu' };
+  } catch(e) {
+    return { ok: false, error: e.message || 'Robot dogrulamasi yapilamadi' };
+  }
+}
 
 function getShopierPlan(plan) {
   return SHOPIER_PACKAGE_CATALOG[String(plan || '').trim()] || SHOPIER_PACKAGE_CATALOG.starter;
@@ -864,6 +1015,99 @@ function shopierApiRequest(method, apiPath, body) {
   });
 }
 
+function dodoApiRequest(method, apiPath, body) {
+  return new Promise((resolve, reject) => {
+    if (!DODO_API_KEY) return reject(new Error('DODO_API_KEY eksik.'));
+    const url = new URL(apiPath, DODO_API_BASE.endsWith('/') ? DODO_API_BASE : DODO_API_BASE + '/');
+    const data = body ? JSON.stringify(body) : null;
+    const req = https.request(url, {
+      method,
+      headers: Object.assign({
+        'Authorization': 'Bearer ' + DODO_API_KEY,
+        'Accept': 'application/json'
+      }, data ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) } : {})
+    }, (resp) => {
+      let raw = '';
+      resp.on('data', chunk => raw += chunk);
+      resp.on('end', () => {
+        let json = null;
+        try { json = raw ? JSON.parse(raw) : null; } catch(e) {}
+        if (resp.statusCode >= 200 && resp.statusCode < 300) return resolve({ status: resp.statusCode, data: json, raw });
+        const err = new Error((json && (json.message || json.error)) || raw || ('Dodo API hata: ' + resp.statusCode));
+        err.status = resp.statusCode;
+        err.data = json;
+        reject(err);
+      });
+    });
+    req.on('error', reject);
+    if (data) req.write(data);
+    req.end();
+  });
+}
+
+function recordDodoPayment({ payload, paymentId, checkoutSessionId, orderId, plan, pack, userId, email, verified, status }) {
+  const amount = Number(payload?.amount || payload?.total_amount || pack?.price || 0);
+  const currency = String(payload?.currency || 'TRY').toUpperCase();
+  const raw = JSON.stringify(payload || {}).slice(0, 12000);
+  const existing = paymentId ? db.prepare('SELECT * FROM dodo_payments WHERE payment_id = ?').get(paymentId) : null;
+  if (existing) {
+    db.prepare(`UPDATE dodo_payments SET checkout_session_id = ?, order_id = ?, email = ?, user_id = COALESCE(?, user_id), plan = ?, credits = ?, amount = ?, currency = ?, status = ?, verified = ?, raw_json = ? WHERE id = ?`)
+      .run(checkoutSessionId || existing.checkout_session_id, orderId || existing.order_id, email || existing.email, userId || existing.user_id, plan || existing.plan, pack?.credits || existing.credits || 0, amount, currency, status, verified ? 1 : 0, raw, existing.id);
+    return existing.id;
+  }
+  const r = db.prepare(`INSERT INTO dodo_payments (payment_id, checkout_session_id, order_id, email, user_id, plan, credits, amount, currency, status, verified, raw_json)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(paymentId || null, checkoutSessionId || null, orderId || null, email || null, userId || null, plan || null, pack?.credits || 0, amount, currency, status, verified ? 1 : 0, raw);
+  return r.lastInsertRowid;
+}
+
+function normalizeDodoWebhook(event) {
+  const data = event?.data || event?.payload || event || {};
+  const metadata = data.metadata || data.meta || {};
+  const paymentId = data.payment_id || data.paymentId || data.id || event?.id;
+  const checkoutSessionId = data.checkout_session_id || data.checkoutSessionId || data.session_id || metadata.checkout_session_id;
+  const orderId = metadata.order_id || data.order_id || data.orderId || paymentId;
+  const plan = metadata.plan || data.plan || parseShopierPlanFromOrder(orderId);
+  const userId = Number(metadata.user_id || data.user_id || data.customer?.metadata?.user_id || 0) || null;
+  const email = data.customer?.email || data.customer_email || data.email || metadata.email || '';
+  const status = String(data.status || data.payment_status || event?.type || '').toLowerCase();
+  const success = /succeed|success|paid|complete|confirmed/.test(status) || /payment\.succeeded|payment\.paid|checkout\.session\.completed/.test(String(event?.type || '').toLowerCase());
+  return { data, paymentId, checkoutSessionId, orderId, plan, userId, email, success, status };
+}
+
+function applyDodoPayment(req, event) {
+  const n = normalizeDodoWebhook(event);
+  const pack = n.plan ? getShopierPlan(n.plan) : null;
+  let userId = n.userId;
+  if (!userId && n.email) {
+    const user = db.prepare('SELECT id FROM users WHERE lower(email) = ?').get(normalizeEmailAddress(n.email));
+    if (user) userId = user.id;
+  }
+  if (!n.success) {
+    recordDodoPayment({ payload: n.data, paymentId: n.paymentId, checkoutSessionId: n.checkoutSessionId, orderId: n.orderId, plan: n.plan, pack, userId, email: n.email, verified: true, status: n.status || 'failed' });
+    return { ok: false, status: 'not_paid', payment_id: n.paymentId };
+  }
+  if (!userId || !n.plan || !pack || !n.paymentId) {
+    recordDodoPayment({ payload: n.data, paymentId: n.paymentId || `dodo-missing-${Date.now()}`, checkoutSessionId: n.checkoutSessionId, orderId: n.orderId, plan: n.plan, pack, userId, email: n.email, verified: true, status: 'missing_match' });
+    return { ok: false, status: 'missing_match', payment_id: n.paymentId };
+  }
+  const tx = db.transaction(() => {
+    const row = db.prepare('SELECT * FROM dodo_payments WHERE payment_id = ?').get(n.paymentId);
+    if (row && row.status === 'applied') return { already: true, user: db.prepare('SELECT id, username, email, credits, plan FROM users WHERE id = ?').get(row.user_id) };
+    const before = db.prepare('SELECT credits FROM users WHERE id = ?').get(userId);
+    if (!before) throw new Error('Kullanici bulunamadi');
+    db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(n.plan, pack.credits, userId);
+    recordDodoPayment({ payload: n.data, paymentId: n.paymentId, checkoutSessionId: n.checkoutSessionId, orderId: n.orderId, plan: n.plan, pack, userId, email: n.email, verified: true, status: 'applied' });
+    db.prepare('UPDATE dodo_payments SET applied_at = CURRENT_TIMESTAMP WHERE payment_id = ?').run(n.paymentId);
+    const user = db.prepare('SELECT id, username, email, credits, plan FROM users WHERE id = ?').get(userId);
+    logActivity(userId, 'dodo_payment_applied', `${n.paymentId}: ${n.plan}, +${pack.credits} kredi`);
+    return { already: false, user };
+  });
+  const applied = tx();
+  recordFunnelEvent(req, 'purchase_complete', { userId, metadata: { gateway: 'dodo', plan: n.plan, credits: pack.credits, payment_id: n.paymentId } });
+  return { ok: true, status: applied.already ? 'already_applied' : 'applied', payment_id: n.paymentId, plan: n.plan, credits: pack.credits, user: applied.user };
+}
+
 function normalizeShopierOrder(order) {
   return Object.assign({}, order || {}, {
     __verifiedViaShopierApi: true,
@@ -1014,14 +1258,16 @@ function sendOtpMail({ to, code, purpose }) {
   return sendLoginOtpEmail({ to, subject, html, text });
 }
 
-async function issueRegistrationOtp(req, { username, email, passwordHash, clientIp, fingerprint }) {
+async function issueRegistrationOtp(req, { username, email, passwordHash, clientIp, fingerprint, termsAccepted, privacyAccepted, marketingOptIn, consentVersion, turnstileVerified }) {
   if (!LOGIN_OTP_ENABLED) return null;
   const challengeId = crypto.randomBytes(24).toString('hex');
   const code = String(crypto.randomInt(100000, 1000000));
   const expires = new Date(Date.now() + LOGIN_OTP_TTL_MINUTES * 60 * 1000).toISOString();
   db.prepare("DELETE FROM registration_otps WHERE email = ? AND (used = 1 OR expires_at < datetime('now'))").run(email);
-  db.prepare('INSERT INTO registration_otps (username, email, password_hash, reg_ip, reg_fingerprint, challenge_id, code_hash, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-    .run(username, email, passwordHash, clientIp, fingerprint || '', challengeId, loginOtpHash(code, challengeId), expires);
+  db.prepare(`INSERT INTO registration_otps
+    (username, email, password_hash, reg_ip, reg_fingerprint, challenge_id, code_hash, expires_at, terms_accepted, privacy_accepted, marketing_opt_in, consent_version, turnstile_verified)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(username, email, passwordHash, clientIp, fingerprint || '', challengeId, loginOtpHash(code, challengeId), expires, termsAccepted ? 1 : 0, privacyAccepted ? 1 : 0, marketingOptIn ? 1 : 0, consentVersion || SECURITY_CONSENT_VERSION, turnstileVerified ? 1 : 0);
   await sendOtpMail({ to: email, code, purpose: 'register' });
   recordFunnelEvent(req, 'register_otp_sent', { metadata: { email_domain: emailDomain(email) } });
   return { challengeId, expiresAt: expires, email: maskEmail(email), purpose: 'register' };
@@ -1068,16 +1314,41 @@ app.post('/api/track', trackLimiter, optionalAuthMiddleware, (req, res) => {
   res.json({ success: true, tracked: ok });
 });
 
+app.get('/api/security/config', (req, res) => {
+  res.json({
+    turnstileSiteKey: TURNSTILE_SITE_KEY,
+    turnstileRequired: TURNSTILE_REQUIRED,
+    consentVersion: SECURITY_CONSENT_VERSION,
+    otpEnabled: LOGIN_OTP_ENABLED,
+    dodoEnabled: Boolean(DODO_API_KEY || Object.keys(SHOPIER_PACKAGE_CATALOG).some(plan => envForPlan('DODO_LINK', plan)))
+  });
+});
+
 app.post('/api/register', authLimiter, async (req, res) => {
-  const { username, password, fingerprint } = req.body;
+  const { username, password, fingerprint, turnstileToken } = req.body;
+  const termsAccepted = req.body.termsAccepted === true || req.body.termsAccepted === 'true' || req.body.termsAccepted === 1;
+  const privacyAccepted = req.body.privacyAccepted === true || req.body.privacyAccepted === 'true' || req.body.privacyAccepted === 1;
+  const marketingOptIn = req.body.marketingOptIn === true || req.body.marketingOptIn === 'true' || req.body.marketingOptIn === 1;
+  const consentVersion = String(req.body.consentVersion || SECURITY_CONSENT_VERSION).slice(0, 80);
   const email = normalizeEmailAddress(req.body.email);
   if(!username || !email || !password) return res.status(400).json({error: 'Eksik bilgi'});
+  if(!termsAccepted || !privacyAccepted) {
+    recordSecurityAudit(req, 'register_consent', 'blocked', 'required_consent_missing', null, { email });
+    return res.status(400).json({error: 'Kayit icin KVKK/Gizlilik ve Kullanim Sartlari onaylarini kabul etmelisiniz.'});
+  }
   if(!isAllowedRegistrationEmail(email)) {
+    recordSecurityAudit(req, 'register_email_domain', 'blocked', 'untrusted_email_domain', null, { email });
     return res.status(400).json({error: 'Kayit icin Gmail, Outlook, Hotmail veya Yandex gibi guvenilir bir e-posta adresi kullanin.'});
   }
+  const captcha = await verifyTurnstile(req, turnstileToken, 'register');
+  if(!captcha.ok) {
+    recordSecurityAudit(req, 'turnstile_register', 'blocked', captcha.error, null, { email });
+    return res.status(400).json({ error: 'Robot dogrulamasi tamamlanamadi, tekrar deneyin.' });
+  }
+  recordSecurityAudit(req, 'turnstile_register', captcha.skipped ? 'skipped' : 'success', captcha.reason || 'verified', null, { email });
   
   // Anti-abuse: IP ve fingerprint kontrolu
-  const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection?.remoteAddress || '';
+  const clientIp = getClientIp(req);
   const fp = (fingerprint || '').trim();
   
   // Ayni IP'den son 24 saatte max 3 kayit
@@ -1101,12 +1372,13 @@ app.post('/api/register', authLimiter, async (req, res) => {
     }
     const hash = bcrypt.hashSync(password, 10);
     const plan = 'free';
-    const otp = await issueRegistrationOtp(req, { username, email, passwordHash: hash, clientIp, fingerprint: fp });
+    const otp = await issueRegistrationOtp(req, { username, email, passwordHash: hash, clientIp, fingerprint: fp, termsAccepted, privacyAccepted, marketingOptIn, consentVersion, turnstileVerified: !captcha.skipped });
     if (otp) return res.json({ requiresOtp: true, challengeId: otp.challengeId, email: otp.email, expiresAt: otp.expiresAt, purpose: 'register' });
     const stmt = db.prepare('INSERT INTO users (username, email, password, plan, credits, reg_ip, reg_fingerprint) VALUES (?, ?, ?, ?, ?, ?, ?)');
     const info = stmt.run(username, email, hash, plan, FREE_STARTER_CREDITS, clientIp, fp);
     if (isForceAdminEmail(email)) syncForceAdminEmail(email);
     const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(info.lastInsertRowid);
+    recordConsent({ userId: fresh.id, email, consentVersion, termsAccepted, privacyAccepted, marketingOptIn, req, fingerprint: fp, source: 'register_no_otp' });
     const token = jwt.sign({ id: fresh.id, username: fresh.username, email: fresh.email, plan: fresh.plan || plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
     recordFunnelEvent(req, 'register_complete', {
       userId: fresh.id,
@@ -1183,7 +1455,12 @@ app.post('/api/register/resend-code', authLimiter, async (req, res) => {
       email: row.email,
       passwordHash: row.password_hash,
       clientIp: row.reg_ip,
-      fingerprint: row.reg_fingerprint
+      fingerprint: row.reg_fingerprint,
+      termsAccepted: !!row.terms_accepted,
+      privacyAccepted: !!row.privacy_accepted,
+      marketingOptIn: !!row.marketing_opt_in,
+      consentVersion: row.consent_version || SECURITY_CONSENT_VERSION,
+      turnstileVerified: !!row.turnstile_verified
     });
     res.json({ requiresOtp: true, challengeId: otp.challengeId, email: otp.email, expiresAt: otp.expiresAt, purpose: 'register' });
   } catch(e) {
@@ -1240,6 +1517,18 @@ app.post('/api/register/verify-code', authLimiter, (req, res) => {
     db.prepare('UPDATE registration_otps SET used = 1 WHERE id = ?').run(row.id);
     if (isForceAdminEmail(row.email)) syncForceAdminEmail(row.email);
     const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(info.lastInsertRowid);
+    recordConsent({
+      userId: fresh.id,
+      email: row.email,
+      consentVersion: row.consent_version || SECURITY_CONSENT_VERSION,
+      termsAccepted: !!row.terms_accepted,
+      privacyAccepted: !!row.privacy_accepted,
+      marketingOptIn: !!row.marketing_opt_in,
+      req,
+      fingerprint: row.reg_fingerprint || '',
+      source: 'register_otp'
+    });
+    recordSecurityAudit(req, 'register_otp_verify', 'success', 'user_created', fresh.id, { email: row.email });
     recordFunnelEvent(req, 'register_complete', {
       userId: fresh.id,
       metadata: { method: 'email_otp', plan, credits: FREE_STARTER_CREDITS, email_domain: emailDomain(row.email) }
@@ -1457,6 +1746,22 @@ app.get('/api/admin/shopier-payments', adminMiddleware, (req, res) => {
   } catch(e) { res.status(500).json({error: e.message}); }
 });
 
+app.get('/api/admin/security-status', adminMiddleware, (req, res) => {
+  try {
+    const audit24h = db.prepare("SELECT event, status, COUNT(*) c FROM security_audit WHERE created_at > datetime('now', '-1 day') GROUP BY event, status").all();
+    const consentCount = db.prepare('SELECT COUNT(*) c FROM consent_records').get()?.c || 0;
+    res.json({
+      turnstile: { siteKeyConfigured: !!TURNSTILE_SITE_KEY, secretConfigured: !!TURNSTILE_SECRET_KEY, required: TURNSTILE_REQUIRED },
+      otp: { enabled: LOGIN_OTP_ENABLED, ttlMinutes: LOGIN_OTP_TTL_MINUTES },
+      consent: { version: SECURITY_CONSENT_VERSION, records: consentCount },
+      dodo: { apiConfigured: !!DODO_API_KEY, webhookConfigured: !!DODO_WEBHOOK_SECRET, apiBase: DODO_API_BASE },
+      shopier: { apiConfigured: !!(process.env.SHOPIER_API_KEY && process.env.SHOPIER_API_SECRET), fallback: true },
+      database: { persistent: DATABASE_IS_PERSISTENT, path: DATABASE_PATH },
+      audit24h
+    });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // POST /api/admin/shopier-sync-orders
 app.post('/api/admin/shopier-sync-orders', adminMiddleware, async (req, res) => {
   try {
@@ -1559,6 +1864,69 @@ app.post('/api/shopier/start', authMiddleware, (req, res) => {
     res.json({ fallback: false, action: 'https://www.shopier.com/ShowProduct/api_pay4.php', fields, html, platform_order_id: platformOrderId });
   } catch(e) {
     res.status(500).json({ error: 'Shopier ödeme başlatılamadı: ' + e.message, fallback_url: fallbackUrl });
+  }
+});
+
+app.post('/api/dodo/start', authMiddleware, async (req, res) => {
+  const plan = String(req.body.plan || 'starter').trim();
+  const pack = SHOPIER_PACKAGE_CATALOG[plan];
+  if (!pack) return res.status(400).json({ error: 'Gecerli paket secin.' });
+  const checkoutConsentAccepted = req.body.checkoutConsentAccepted === true || req.body.checkoutConsentAccepted === 'true' || req.body.checkoutConsentAccepted === 1;
+  if (!checkoutConsentAccepted) return res.status(400).json({ error: 'Odeme oncesi sozlesme ve dijital teslimat onayini kabul etmelisiniz.' });
+  try {
+    const user = db.prepare('SELECT id, username, email FROM users WHERE id = ?').get(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Kullanici bulunamadi.' });
+    const orderId = `FRX-${user.id}-${plan}-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+    const frontend = process.env.FRONTEND_ORIGIN || 'https://froxyai.com';
+    const staticLink = envForPlan('DODO_LINK', plan);
+    const productId = envForPlan('DODO_PRODUCT', plan);
+    recordSecurityAudit(req, 'payment_started', 'started', 'dodo_checkout_requested', user.id, { email: user.email, plan, gateway: 'dodo' });
+    if (!DODO_API_KEY || !productId) {
+      if (staticLink) return res.json({ fallback: true, gateway: 'dodo_link', url: staticLink, order_id: orderId });
+      const shopierUrl = SHOPIER_STATIC_URLS[plan] || 'https://www.shopier.com/froxyai';
+      return res.json({ fallback: true, gateway: 'shopier', url: shopierUrl, reason: 'dodo_not_configured', order_id: orderId });
+    }
+    const payload = {
+      product_cart: [{ product_id: productId, quantity: 1 }],
+      customer: { email: user.email, name: user.username || user.email },
+      metadata: { user_id: String(user.id), email: user.email, plan, order_id: orderId, credits: String(pack.credits) },
+      return_url: `${frontend.replace(/\/$/, '')}/magaza?payment=success`,
+      cancel_url: `${frontend.replace(/\/$/, '')}/magaza?payment=cancel`
+    };
+    let api;
+    try {
+      api = await dodoApiRequest('POST', 'checkout/sessions', payload);
+    } catch(firstErr) {
+      api = await dodoApiRequest('POST', 'checkout-sessions', payload);
+    }
+    const data = api.data || {};
+    const checkoutUrl = data.checkout_url || data.url || data.payment_link || data.hosted_url;
+    const sessionId = data.checkout_session_id || data.session_id || data.id || orderId;
+    recordDodoPayment({ payload: data, paymentId: sessionId, checkoutSessionId: sessionId, orderId, plan, pack, userId: user.id, email: user.email, verified: false, status: 'started' });
+    recordFunnelEvent(req, 'purchase_click', { userId: user.id, metadata: { gateway: 'dodo', plan, credits: pack.credits, amount: pack.price, order_id: orderId } });
+    if (!checkoutUrl) return res.status(502).json({ error: 'Dodo checkout linki alinamadi.' });
+    res.json({ fallback: false, gateway: 'dodo', url: checkoutUrl, checkout_session_id: sessionId, order_id: orderId });
+  } catch(e) {
+    const fallbackUrl = SHOPIER_STATIC_URLS[plan] || 'https://www.shopier.com/froxyai';
+    res.status(e.status || 500).json({ error: 'Dodo odeme baslatilamadi: ' + e.message, fallback_url: fallbackUrl });
+  }
+});
+
+app.post('/api/dodo/webhook', (req, res) => {
+  if (!DODO_WEBHOOK_SECRET) return res.status(503).json({ error: 'Dodo webhook secret eksik.' });
+  try {
+    const wh = new Webhook(DODO_WEBHOOK_SECRET);
+    const event = wh.verify(req.rawBody || JSON.stringify(req.body || {}), {
+      'webhook-id': req.headers['webhook-id'] || req.headers['svix-id'] || req.headers['dodo-webhook-id'],
+      'webhook-timestamp': req.headers['webhook-timestamp'] || req.headers['svix-timestamp'],
+      'webhook-signature': req.headers['webhook-signature'] || req.headers['svix-signature']
+    });
+    const result = applyDodoPayment(req, event);
+    recordSecurityAudit(req, 'dodo_webhook', result.ok ? 'success' : 'received', result.status, result.user?.id || null, { payment_id: result.payment_id });
+    res.json(result);
+  } catch(e) {
+    recordSecurityAudit(req, 'dodo_webhook', 'blocked', 'invalid_signature', null, {});
+    res.status(401).json({ error: 'Dodo webhook imzasi gecersiz.' });
   }
 });
 
