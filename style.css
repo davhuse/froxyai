@@ -27365,9 +27365,10 @@ body.theme-forest .msg-content{color:var(--text)!important}
   overflow:hidden!important;
 }
 #auth-modal.auth-modal-v2 .auth-panel{
-  display:block!important;
+  display:flex!important;
+  flex-direction:column!important;
   height:100%!important;
-  overflow-y:scroll!important;
+  overflow:hidden!important;
   overflow-x:hidden!important;
   -webkit-overflow-scrolling:touch!important;
   touch-action:pan-y!important;
@@ -27392,8 +27393,42 @@ body.theme-forest .msg-content{color:var(--text)!important}
   flex-direction:column!important;
   gap:14px!important;
   padding-bottom:28px!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+  scrollbar-width:thin!important;
+  scrollbar-color:rgba(103,232,249,.58) rgba(15,23,42,.55)!important;
 }
-#auth-modal.auth-modal-v2 .auth-panel::after{
+#auth-modal.auth-modal-v2 .auth-form[style*="display:none"],
+#auth-modal.auth-modal-v2 .auth-form[style*="display: none"],
+#auth-modal.auth-modal-v2 #f-login:not(.auth-active-form),
+#auth-modal.auth-modal-v2 #f-reg:not(.auth-active-form),
+#auth-modal.auth-modal-v2 #f-otp:not(.auth-active-form),
+#auth-modal.auth-modal-v2 #f-forgot:not(.auth-active-form){
+  display:none!important;
+}
+#auth-modal.auth-modal-v2 #f-login,
+#auth-modal.auth-modal-v2 #f-reg,
+#auth-modal.auth-modal-v2 #f-otp,
+#auth-modal.auth-modal-v2 #f-forgot{
+  max-height:calc(100% - 88px)!important;
+  padding-right:10px!important;
+}
+#auth-modal.auth-modal-v2 .auth-form::-webkit-scrollbar{
+  width:10px!important;
+}
+#auth-modal.auth-modal-v2 .auth-form::-webkit-scrollbar-track{
+  background:rgba(15,23,42,.55)!important;
+  border-radius:999px!important;
+}
+#auth-modal.auth-modal-v2 .auth-form::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#22d3ee,#7c3aed)!important;
+  border:2px solid rgba(15,23,42,.9)!important;
+  border-radius:999px!important;
+}
+#auth-modal.auth-modal-v2 .auth-form::after{
   content:"";
   position:sticky;
   bottom:-44px;

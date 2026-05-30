@@ -2042,12 +2042,15 @@ function closeM(){
 })();
 
 function tab(t){
+  document.querySelectorAll('#auth-modal .auth-form').forEach(el=>el.classList.remove('auth-active-form'));
   document.getElementById('f-login').style.display=t==='login'?'block':'none';
+  document.getElementById('f-login')?.classList.toggle('auth-active-form',t==='login');
   document.getElementById('f-reg').style.display=t==='reg'?'block':'none';
+  document.getElementById('f-reg')?.classList.toggle('auth-active-form',t==='reg');
   const fForgot = document.getElementById('f-forgot');
-  if(fForgot) fForgot.style.display=t==='forgot'?'block':'none';
+  if(fForgot){ fForgot.style.display=t==='forgot'?'block':'none'; fForgot.classList.toggle('auth-active-form',t==='forgot'); }
   const fOtp = document.getElementById('f-otp');
-  if(fOtp) fOtp.style.display=t==='otp'?'block':'none';
+  if(fOtp){ fOtp.style.display=t==='otp'?'block':'none'; fOtp.classList.toggle('auth-active-form',t==='otp'); }
   document.getElementById('t-login').className=t==='login'?'on':'';
   document.getElementById('t-reg').className=t==='reg'?'on':'';
   // v119: Tab indicator kayması için parent'a class ekle
@@ -2068,10 +2071,11 @@ function tab(t){
   document.addEventListener('wheel',function(e){
     const modal=document.getElementById('auth-modal');
     if(!modal||!modal.classList.contains('open'))return;
-    const panel=modal.querySelector('.auth-panel');
-    if(!panel)return;
-    if(panel.scrollHeight<=panel.clientHeight)return;
-    panel.scrollTop += e.deltaY;
+    const activeForm=[...modal.querySelectorAll('.auth-form')].find(el=>getComputedStyle(el).display!=='none');
+    const target=activeForm||modal.querySelector('.auth-panel');
+    if(!target)return;
+    if(target.scrollHeight<=target.clientHeight)return;
+    target.scrollTop += e.deltaY;
     e.preventDefault();
   },{passive:false,capture:true});
 })();
