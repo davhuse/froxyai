@@ -28696,7 +28696,7 @@ button,.btn,.ah-btn,.tool-chip,.chat-task-chip,.mp-cat,.mp-sort button,.img-qual
 
 /* v332: colored category rail and balanced prompt cards */
 #model-picker .mp-body{
-  grid-template-columns:200px minmax(0,1fr)!important;
+  grid-template-columns:220px minmax(0,1fr)!important;
   gap:14px!important;
 }
 #model-picker .mp-sidebar{
