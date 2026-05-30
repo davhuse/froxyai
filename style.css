@@ -27453,3 +27453,60 @@ body.theme-forest .msg-content{color:var(--text)!important}
     max-height:100dvh!important;
   }
 }
+
+/* v317 homepage section repair: model, demo and trust blocks */
+#v-home.home-premium-v252 .ah-model-command-v308 .ah-section-head,
+#v-home.home-premium-v252 .ah-demo-section .ah-section-head,
+#v-home.home-premium-v252 .ah-trust-v308 .ah-section-head{margin-bottom:24px}
+#v-home.home-premium-v252 .ah-model-command-v308,
+#v-home.home-premium-v252 .ah-demo-section,
+#v-home.home-premium-v252 .ah-trust-v308{overflow:hidden}
+#v-home.home-premium-v252 .ah-model-console,
+#v-home.home-premium-v252 .ah-demo-grid-v308,
+#v-home.home-premium-v252 .ah-trust-console-v308{width:min(100% - 40px,1200px);max-width:1200px;margin:0 auto;min-width:0}
+#v-home.home-premium-v252 .ah-model-console *,
+#v-home.home-premium-v252 .ah-demo-grid-v308 *,
+#v-home.home-premium-v252 .ah-trust-console-v308 *{box-sizing:border-box;min-width:0}
+#v-home.home-premium-v252 .ah-section-head h2,
+#v-home.home-premium-v252 .ah-section-head p,
+#v-home.home-premium-v252 .ah-provider-grid-v308 b,
+#v-home.home-premium-v252 .ah-provider-grid-v308 span,
+#v-home.home-premium-v252 .ah-model-console-side strong,
+#v-home.home-premium-v252 .ah-model-console-side em,
+#v-home.home-premium-v252 .ah-demo-steps-v308 b,
+#v-home.home-premium-v252 .ah-demo-steps-v308 span,
+#v-home.home-premium-v252 .ah-trust-copy-v308 strong,
+#v-home.home-premium-v252 .ah-trust-copy-v308 p,
+#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid b,
+#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid small{overflow-wrap:anywhere;word-break:normal;letter-spacing:0}
+#v-home.home-premium-v252 .ah-model-console{grid-template-columns:minmax(0,1fr) minmax(260px,320px)}
+#v-home.home-premium-v252 .ah-provider-grid-v308{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#v-home.home-premium-v252 .ah-provider-grid-v308 article,
+#v-home.home-premium-v252 .ah-demo-steps-v308 article{display:flex;min-height:154px;flex-direction:column;align-items:flex-start;padding:16px;border:1px solid rgba(148,163,184,.12);border-radius:17px;background:rgba(3,7,18,.34);color:#fff;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+#v-home.home-premium-v252 .ah-provider-grid-v308 article:hover,
+#v-home.home-premium-v252 .ah-demo-steps-v308 article:hover,
+#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid button:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.32);background:rgba(15,23,42,.56)}
+#v-home.home-premium-v252 .ah-provider-grid-v308 i,
+#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid i{width:40px;height:40px;display:grid;place-items:center;flex:0 0 auto;margin-bottom:14px;border-radius:13px;border:1px solid rgba(255,255,255,.10);color:#fff;font-style:normal;font-size:11px;font-weight:950}
+#v-home.home-premium-v252 .ah-provider-grid-v308 small{display:block;color:#67e8f9;font-size:11px;font-weight:950;text-transform:uppercase}
+#v-home.home-premium-v252 .ah-provider-grid-v308 b{display:block;margin:8px 0 6px;color:#f8fafc;font-size:18px;line-height:1.15}
+#v-home.home-premium-v252 .ah-provider-grid-v308 span{color:#9fb0c6;font-size:13px;line-height:1.55}
+#v-home.home-premium-v252 .ah-demo-grid-v308{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,310px);gap:16px;align-items:stretch}
+#v-home.home-premium-v252 .ah-demo-grid-v308 .ah-video-shell{width:100%;min-height:320px}
+#v-home.home-premium-v252 .ah-demo-steps-v308{display:grid;gap:10px}
+#v-home.home-premium-v252 .ah-demo-steps-v308 article{min-height:0}
+#v-home.home-premium-v252 .ah-demo-steps-v308 i{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 auto;margin-bottom:11px;border-radius:12px;background:linear-gradient(135deg,var(--ah-blue),var(--ah-purple));color:#fff;font-style:normal;font-size:11px;font-weight:950}
+#v-home.home-premium-v252 .ah-demo-steps-v308 b{display:block;margin-bottom:5px;color:#f8fafc;font-size:16px;line-height:1.2}
+#v-home.home-premium-v252 .ah-demo-steps-v308 span{color:#9fb0c6;font-size:13px;line-height:1.55}
+#v-home.home-premium-v252 .ah-trust-console-v308{display:grid;grid-template-columns:minmax(280px,340px) minmax(0,1fr);gap:18px;padding:18px;border:1px solid rgba(125,211,252,.16);border-radius:22px;background:radial-gradient(circle at 18% 0%,rgba(34,211,238,.10),transparent 36%),linear-gradient(180deg,rgba(15,23,42,.62),rgba(2,6,23,.34));box-shadow:0 26px 80px rgba(0,0,0,.26),0 0 0 1px rgba(255,255,255,.025) inset}
+#v-home.home-premium-v252 .ah-trust-copy-v308{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:14px}
+#v-home.home-premium-v252 .ah-trust-copy-v308>span{color:#67e8f9;font-size:11px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
+#v-home.home-premium-v252 .ah-trust-copy-v308 strong{color:#f8fafc;font-size:clamp(20px,2.2vw,24px);line-height:1.2}
+#v-home.home-premium-v252 .ah-trust-copy-v308 p{margin:0;color:#9fb0c6;font-size:13px;line-height:1.55}
+#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid{width:100%;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid button{display:flex;min-height:156px;flex-direction:column;align-items:flex-start;text-align:left;padding:18px;border:1px solid rgba(148,163,184,.12);border-radius:17px;background:rgba(3,7,18,.34);color:#fff}
+#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid i{background:linear-gradient(135deg,rgba(34,211,238,.28),rgba(124,58,237,.26))}
+#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid b{display:block;margin:0 0 7px;color:#f8fafc;font-size:15px;line-height:1.25}
+#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid small{display:block;color:#9fb0c6;font-size:12.5px;line-height:1.5}
+@media(max-width:980px){#v-home.home-premium-v252 .ah-model-console,#v-home.home-premium-v252 .ah-demo-grid-v308,#v-home.home-premium-v252 .ah-trust-console-v308{grid-template-columns:1fr}#v-home.home-premium-v252 .ah-provider-grid-v308{grid-template-columns:repeat(2,minmax(0,1fr))}#v-home.home-premium-v252 .ah-demo-grid-v308 .ah-video-shell{min-height:280px}}
+@media(max-width:640px){#v-home.home-premium-v252 .ah-model-console,#v-home.home-premium-v252 .ah-demo-grid-v308,#v-home.home-premium-v252 .ah-trust-console-v308{width:min(100% - 28px,1200px)}#v-home.home-premium-v252 .ah-provider-grid-v308,#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid{grid-template-columns:1fr}#v-home.home-premium-v252 .ah-model-console-main,#v-home.home-premium-v252 .ah-model-console-side,#v-home.home-premium-v252 .ah-trust-console-v308{border-radius:18px;padding:14px}#v-home.home-premium-v252 .ah-model-console-side strong{font-size:20px}#v-home.home-premium-v252 .ah-demo-grid-v308 .ah-video-shell{min-height:240px}#v-home.home-premium-v252 .ah-provider-grid-v308 article,#v-home.home-premium-v252 .ah-trust-v308 .ah-legal-grid button{min-height:auto}}
