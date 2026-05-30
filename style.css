@@ -27351,3 +27351,67 @@ body.theme-forest .msg-content{color:var(--text)!important}
     padding-bottom:72px!important;
   }
 }
+
+/* v311 force visible, usable auth scrolling on login/register */
+#auth-modal.auth-modal-v2.open{
+  overflow-y:auto!important;
+  overscroll-behavior-y:contain!important;
+  touch-action:pan-y!important;
+}
+#auth-modal.auth-modal-v2 .auth-shell{
+  overflow:hidden!important;
+}
+#auth-modal.auth-modal-v2 .auth-panel{
+  display:block!important;
+  height:100%!important;
+  overflow-y:scroll!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+  overscroll-behavior-y:contain!important;
+  scrollbar-width:thin!important;
+  scrollbar-color:rgba(103,232,249,.58) rgba(15,23,42,.55)!important;
+}
+#auth-modal.auth-modal-v2 .auth-panel::-webkit-scrollbar{
+  width:10px!important;
+}
+#auth-modal.auth-modal-v2 .auth-panel::-webkit-scrollbar-track{
+  background:rgba(15,23,42,.55)!important;
+  border-radius:999px!important;
+}
+#auth-modal.auth-modal-v2 .auth-panel::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#22d3ee,#7c3aed)!important;
+  border:2px solid rgba(15,23,42,.9)!important;
+  border-radius:999px!important;
+}
+#auth-modal.auth-modal-v2 .auth-form{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:14px!important;
+  padding-bottom:28px!important;
+}
+#auth-modal.auth-modal-v2 .auth-panel::after{
+  content:"";
+  position:sticky;
+  bottom:-44px;
+  display:block;
+  height:44px;
+  margin-top:-16px;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(15,23,42,0),rgba(15,23,42,.95));
+}
+@media(max-height:760px){
+  #auth-modal.auth-modal-v2 .auth-shell{
+    height:calc(100dvh - 24px)!important;
+    max-height:calc(100dvh - 24px)!important;
+  }
+  #auth-modal.auth-modal-v2 .auth-panel{
+    max-height:calc(100dvh - 24px)!important;
+  }
+}
+@media(max-width:480px){
+  #auth-modal.auth-modal-v2 .auth-panel{
+    height:100dvh!important;
+    max-height:100dvh!important;
+  }
+}
