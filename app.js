@@ -2070,14 +2070,9 @@ function tab(t){
     if(!modal||!modal.classList.contains('open'))return;
     const panel=modal.querySelector('.auth-panel');
     if(!panel)return;
-    const insidePanel=panel.contains(e.target);
-    const insideShell=modal.querySelector('.auth-shell')?.contains(e.target);
-    if(!insideShell)return;
     if(panel.scrollHeight<=panel.clientHeight)return;
-    if(!insidePanel||e.target.closest('.auth-hero')){
-      panel.scrollTop += e.deltaY;
-      e.preventDefault();
-    }
+    panel.scrollTop += e.deltaY;
+    e.preventDefault();
   },{passive:false,capture:true});
 })();
 
