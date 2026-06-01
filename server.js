@@ -1514,9 +1514,10 @@ app.post('/api/register/verify-code', authLimiter, (req, res) => {
     const plan = 'free';
     const info = db.prepare('INSERT INTO users (username, email, password, plan, credits, reg_ip, reg_fingerprint) VALUES (?, ?, ?, ?, ?, ?, ?)')
       .run(row.username, row.email, row.password_hash, plan, FREE_STARTER_CREDITS, row.reg_ip || '', row.reg_fingerprint || '');
+    db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(info.lastInsertRowid);
     db.prepare('UPDATE registration_otps SET used = 1 WHERE id = ?').run(row.id);
     if (isForceAdminEmail(row.email)) syncForceAdminEmail(row.email);
-    const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(info.lastInsertRowid);
+    const fresh = db.prepare('SELECT id, username, email, credits, plan, is_admin, last_login FROM users WHERE id = ?').get(info.lastInsertRowid);
     recordConsent({
       userId: fresh.id,
       email: row.email,
@@ -1553,9 +1554,12 @@ app.get('/api/admin/stats', adminMiddleware, (req, res) => {
     const blockedUsers = db.prepare('SELECT COUNT(*) as c FROM users WHERE is_blocked = 1').get().c;
     const adminCount = db.prepare('SELECT COUNT(*) as c FROM users WHERE is_admin = 1').get().c;
     const recentUsers = db.prepare('SELECT id, username, email, credits, plan, is_admin, is_blocked, block_until, block_reason, created_at, last_login FROM users ORDER BY created_at DESC LIMIT 5').all();
+    const latestUser = db.prepare('SELECT id, username, email, created_at, last_login FROM users ORDER BY created_at DESC LIMIT 1').get() || null;
+    const latestLogin = db.prepare('SELECT id, username, email, last_login FROM users WHERE last_login IS NOT NULL ORDER BY last_login DESC LIMIT 1').get() || null;
+    const recentLogins24h = db.prepare("SELECT COUNT(*) as c FROM users WHERE last_login >= datetime('now', '-1 day')").get().c;
     const galleryImages = db.prepare('SELECT COUNT(*) as c FROM image_gallery WHERE broken = 0').get().c;
     res.json({
-      totalUsers, newToday, totalCredits, totalChats, totalDocs, blockedUsers, adminCount, recentUsers, galleryImages,
+      totalUsers, newToday, totalCredits, totalChats, totalDocs, blockedUsers, adminCount, recentUsers, latestUser, latestLogin, recentLogins24h, galleryImages,
       databaseStorage: {
         path: DATABASE_PATH,
         generatedPath: GENERATED_DIR,

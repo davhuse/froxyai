@@ -5989,16 +5989,15 @@ function ensureAdminShell(){
 }
 
 function adminCanUseLocalFallback(){
-  return allowLocalFallback();
+  return false;
 }
 function adminSetApiState(mode,detail=''){
   const el=document.getElementById('admin-api-state');
   if(!el)return;
-  el.textContent=mode==='api'?'Backend bağlı':'Statik fallback aktif';
-  el.textContent=mode==='api'?'Backend bagli - admin token dogrulandi':(detail||'Backend oturumu gerekli');
+  el.textContent=mode==='api'?'Backend bağlı - admin token doğrulandı':(detail||'Backend oturumu gerekli');
   el.parentElement?.classList.toggle('is-offline',mode!=='api');
   const authMode=document.getElementById('st-auth-mode');
-  if(authMode)authMode.textContent=mode==='api'?'JWT backend dogrulandi':(detail||'Backend oturumu gerekli');
+  if(authMode)authMode.textContent=mode==='api'?'JWT backend doğrulandı':(detail||'Backend oturumu gerekli');
 }
 function adminPlanOptions(selected='free'){
   return Object.entries(PLANS).map(([id,p])=>`<option value="${id}" ${id===selected?'selected':''}>${esc(p.name||id)}</option>`).join('');
@@ -6030,6 +6029,7 @@ async function adminApiJson(url,options={}){
   }
 }
 function adminLocalUsers(){
+  if(!adminCanUseLocalFallback())return [];
   const users=LS.get('ap_users',[]).map(u=>({
     id:u.id,
     username:u.username||u.name||'Kullanıcı',
@@ -6119,7 +6119,12 @@ function updateAdminDbStatusCard(data){
   }
   const db=data?.databaseStorage||{};
   const ok=!!db.persistent;
-  card.innerHTML=`<div class="admin-stat-icon">${typeof adminIcon==='function'?adminIcon('database',22):''}</div><div><div class="admin-stat-value">${ok?'Kalıcı DB aktif':'DB kalıcı değil'}</div><div class="admin-stat-label">${Number(data?.totalUsers||0).toLocaleString('tr-TR')} kullanıcı · ${Number(data?.galleryImages||0).toLocaleString('tr-TR')} görsel</div><div class="admin-stat-sub" title="${esc(db.path||'')}">${esc(db.path||'DB yolu alınamadı')}</div></div>`;
+  const latest=data?.latestUser;
+  const login=data?.latestLogin;
+  const userLine=Number(data?.totalUsers||0).toLocaleString('tr-TR')+' kullanıcı · '+Number(data?.recentLogins24h||0).toLocaleString('tr-TR')+' son 24s giriş';
+  const latestLine=latest?('Son kayıt: '+esc(latest.username||latest.email||'-')+' · '+fmtDate(latest.created_at)):'Son kayıt yok';
+  const loginLine=login?('Son giriş: '+esc(login.username||login.email||'-')+' · '+fmtDate(login.last_login)):'Son giriş yok';
+  card.innerHTML=`<div class="admin-stat-icon">${typeof adminIcon==='function'?adminIcon('database',22):''}</div><div><div class="admin-stat-value">${ok?'Kalıcı DB aktif':'DB kalıcı değil'}</div><div class="admin-stat-label">${userLine}</div><div class="admin-stat-sub">${latestLine}</div><div class="admin-stat-sub">${loginLine}</div><div class="admin-stat-sub" title="${esc(db.path||'')}">${esc(db.path||'DB yolu alınamadı')}</div></div>`;
 }
 async function loadAdminStats(){
   adminSetTableSkeleton('at-recent-tbody',5,4);

@@ -28908,3 +28908,588 @@ button,.btn,.ah-btn,.tool-chip,.chat-task-chip,.mp-cat,.mp-sort button,.img-qual
   align-self:end!important;
   font-size:12px!important;
 }
+﻿/* ============================================
+   MODERN MODEL SHOWCASE - Yeni Tasarım
+   ============================================ */
+
+.ah-model-command-v308 {
+  background: linear-gradient(180deg, 
+    rgba(15, 23, 42, 0.6) 0%, 
+    rgba(8, 13, 25, 0.8) 100%);
+  border-radius: 24px;
+  padding: 60px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.ah-model-command-v308::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, 
+    rgba(124, 58, 237, 0.08) 0%, 
+    transparent 50%);
+  animation: modelGlow 15s ease-in-out infinite;
+}
+
+@keyframes modelGlow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10%, 10%) scale(1.1); }
+}
+
+/* Model Grid - Modern Card Layout */
+.ah-provider-grid-v308 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.ah-provider-grid-v308 article {
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 0.8) 0%, 
+    rgba(15, 23, 42, 0.9) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 16px;
+  padding: 28px 24px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ah-provider-grid-v308 article::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--accent, #7c3aed) 50%, 
+    transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.ah-provider-grid-v308 article:hover {
+  transform: translateY(-8px);
+  border-color: rgba(124, 58, 237, 0.3);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(124, 58, 237, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.ah-provider-grid-v308 article:hover::before {
+  opacity: 1;
+}
+
+/* Brand Icons - Modern Style */
+.ah-provider-grid-v308 i {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, 
+    rgba(124, 58, 237, 0.1) 0%, 
+    rgba(59, 130, 246, 0.1) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  transition: all 0.3s ease;
+}
+
+.ah-provider-grid-v308 article:hover i {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+}
+
+.ah-provider-grid-v308 i img {
+  width: 32px;
+  height: 32px;
+  filter: brightness(1.2);
+}
+
+/* Typography */
+.ah-provider-grid-v308 small {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.7);
+  margin-bottom: 8px;
+}
+
+.ah-provider-grid-v308 b {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.ah-provider-grid-v308 span {
+  display: block;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(203, 213, 225, 0.8);
+}
+
+/* Console Layout - Side by Side */
+.ah-model-console {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.ah-model-console-side {
+  background: linear-gradient(135deg, 
+    rgba(124, 58, 237, 0.1) 0%, 
+    rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ah-model-console-side span {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(124, 58, 237, 0.8);
+}
+
+.ah-model-console-side strong {
+  font-size: 18px;
+  line-height: 1.5;
+  color: #f8fafc;
+}
+
+.ah-model-console-side div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.ah-model-console-side em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 6px;
+  color: #c4b5fd;
+}
+
+/* ============================================
+   MODERN DEMO SECTION - Video Showcase
+   ============================================ */
+
+.ah-demo-section {
+  padding: 80px 0;
+  position: relative;
+}
+
+.ah-demo-grid-v308 {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  align-items: center;
+}
+
+/* Video Container - Modern Frame */
+.ah-video-shell {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 
+    0 40px 80px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 0.9) 0%, 
+    rgba(15, 23, 42, 0.95) 100%);
+}
+
+.ah-video-placeholder {
+  position: relative;
+  aspect-ratio: 16 / 9;
+}
+
+/* Browser Chrome */
+.ah-video-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  background: rgba(15, 23, 42, 0.8);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.ah-video-top span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.3);
+}
+
+.ah-video-top span:nth-child(1) { background: #ef4444; }
+.ah-video-top span:nth-child(2) { background: #f59e0b; }
+.ah-video-top span:nth-child(3) { background: #10b981; }
+
+/* Video Frame */
+.ah-video-frame {
+  position: relative;
+  background: #000;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* YouTube Lite Button */
+.ah-video-lite {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.95) 0%, 
+    rgba(30, 41, 59, 0.9) 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 40px;
+  transition: all 0.3s ease;
+}
+
+.ah-video-lite::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, 
+    rgba(124, 58, 237, 0.1) 0%, 
+    transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ah-video-lite:hover::before {
+  opacity: 1;
+}
+
+/* Play Button */
+.ah-video-play {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.4);
+}
+
+.ah-video-play::after {
+  content: "";
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 12px 0 12px 20px;
+  border-color: transparent transparent transparent #fff;
+  margin-left: 4px;
+}
+
+.ah-video-lite:hover .ah-video-play {
+  transform: scale(1.1);
+  box-shadow: 0 12px 48px rgba(124, 58, 237, 0.6);
+}
+
+/* Video Badge */
+.ah-video-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Video Copy */
+.ah-video-copy {
+  text-align: center;
+  z-index: 1;
+}
+
+.ah-video-copy strong {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-bottom: 8px;
+}
+
+.ah-video-copy small {
+  display: block;
+  font-size: 14px;
+  color: rgba(203, 213, 225, 0.7);
+  line-height: 1.6;
+}
+
+/* Demo Steps - Modern Cards */
+.ah-demo-steps-v308 {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ah-demo-steps-v308 article {
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 0.6) 0%, 
+    rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: start;
+  transition: all 0.3s ease;
+}
+
+.ah-demo-steps-v308 article:hover {
+  border-color: rgba(124, 58, 237, 0.3);
+  transform: translateX(8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.ah-demo-steps-v308 i {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.ah-demo-steps-v308 b {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 8px;
+}
+
+.ah-demo-steps-v308 span {
+  display: block;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(203, 213, 225, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .ah-model-console {
+    grid-template-columns: 1fr;
+  }
+  
+  .ah-demo-grid-v308 {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  
+  .ah-provider-grid-v308 {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    padding: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .ah-provider-grid-v308 {
+    grid-template-columns: 1fr;
+  }
+  
+  .ah-video-frame {
+    min-height: 300px;
+  }
+  
+  .ah-video-play {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+/* v334 - site-wide premium motion polish.
+   Low-cost transform/opacity only; no layout-heavy blur/orb effects. */
+@keyframes froxySoftIn {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes froxyPanelIn {
+  from { opacity: 0; transform: translate3d(0, 10px, 0) scale(.985); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes froxyGlowPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(34, 211, 238, 0); }
+  50% { box-shadow: 0 0 26px rgba(34, 211, 238, .18); }
+}
+
+.reveal,
+.pro-reveal,
+.section-reveal,
+.ai-tools-hero,
+.prompt-hero,
+.support-hero,
+.ah-model-console,
+.ah-demo-grid-v308,
+.ah-provider-grid-v308,
+.admin-hero,
+.admin-card,
+.admin-stat-card {
+  animation: froxySoftIn .52s cubic-bezier(.2,.78,.2,1) both;
+}
+
+.reveal:not(.visible):not(.in),
+.section-reveal:not(.visible):not(.in) {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+}
+
+.reveal.visible,
+.reveal.in,
+.section-reveal.visible,
+.section-reveal.in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition: opacity .52s cubic-bezier(.2,.78,.2,1), transform .52s cubic-bezier(.2,.78,.2,1);
+}
+
+.card,
+.tool-card,
+.prompt-card,
+.support-card,
+.admin-card,
+.admin-stat-card,
+.membership-code-item,
+.ah-provider-grid-v308 article,
+.ah-demo-steps-v308 article {
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, background .22s ease;
+  will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tool-card:hover,
+  .prompt-card:hover,
+  .support-card:hover,
+  .admin-card:hover,
+  .admin-stat-card:hover,
+  .membership-code-item:hover,
+  .ah-provider-grid-v308 article:hover {
+    transform: translate3d(0, -3px, 0);
+    border-color: rgba(34, 211, 238, .28);
+    box-shadow: 0 18px 48px rgba(2, 6, 23, .32), 0 0 0 1px rgba(124, 58, 237, .12);
+  }
+}
+
+.btn,
+.ah-btn,
+.admin-refresh-btn,
+.admin-btn-primary,
+.admin-action-btn,
+.tool-chip,
+.model-picker button {
+  transition: transform .18s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover,
+  .ah-btn:hover,
+  .admin-refresh-btn:hover,
+  .admin-btn-primary:hover,
+  .tool-chip:hover,
+  .model-picker button:hover {
+    transform: translate3d(0, -1px, 0);
+  }
+}
+
+.message,
+.chat-message,
+.bubble,
+.model-picker,
+.modal,
+.auth-modal,
+.image-result-card,
+.gallery-card {
+  animation: froxyPanelIn .28s cubic-bezier(.2,.78,.2,1) both;
+}
+
+.admin-status-dot,
+.status-dot,
+.live-dot,
+.provider-dot {
+  animation: froxyGlowPulse 2.8s ease-in-out infinite;
+}
+
+@media (max-width: 760px) {
+  .reveal,
+  .pro-reveal,
+  .section-reveal,
+  .ai-tools-hero,
+  .prompt-hero,
+  .support-hero,
+  .admin-card,
+  .admin-stat-card {
+    animation-duration: .38s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
