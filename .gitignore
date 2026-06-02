@@ -14,7 +14,6 @@ node_modules/
 .env
 .env.*
 !.env.example
-!.env.production
 
 # Secret key dumps
 .env.keys
@@ -36,6 +35,9 @@ backup_v*/
 backup_BROKEN*/
 deploy_clean_*/
 marketplace_backup_*/
+backups/
+live_backup_before_gateway_deploy_*/
+*.zip
 
 # Generated files
 tts_out/
@@ -49,6 +51,9 @@ generated/
 epin/
 _epin/
 _*/
+_*.js
+_*.json
+_*.txt
 *.bak*
 *.old
 *.tmp
@@ -62,6 +67,7 @@ debug-*.txt
 lh-report.json
 model_*results*.json
 scan_output.txt
+secret-scan-results.json
 new_tabs_injection.html
 old_auth.txt
 paste_session.json

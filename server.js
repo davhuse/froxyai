@@ -2513,7 +2513,7 @@ Object.assign(SEO_CONTENT, {
       ['Model karmaÅŸasÄ± nasÄ±l azaltÄ±lÄ±r?', 'Ã–nerilen, en ucuz, en hÄ±zlÄ±, en kaliteli, gÃ¶rsel okur ve kod gibi filtreler kullanÄ±cÄ±yÄ± doÄŸru modele yÃ¶nlendirir. BÃ¶ylece 400+ model seÃ§eneÄŸi kalabalÄ±k deÄŸil, avantaj haline gelir.']
     ],
     faq: [
-      ['TÃ¼m modeller tek saÄŸlayÄ±cÄ±ya mÄ± baÄŸlÄ±?', 'Froxy AI farklÄ± saÄŸlayÄ±cÄ± ve model ailelerini tek panelde yÃ¶netmeyi hedefler. Uygun durumda fallback ve saÄŸlayÄ±cÄ± bilgisi kullanÄ±cÄ±ya gÃ¶sterilir.'],
+      ['TÃ¼m modeller tek saÄŸlayÄ±cÄ±ya mÄ± baÄŸlÄ±?', 'Froxy AI farklÄ± model ailelerini tek panelde yÃ¶netmeyi hedefler. KullanÄ±cÄ± arayÃ¼zÃ¼nde seÃ§im deneyimi sade tutulur; teknik saÄŸlayÄ±cÄ± durumu sistem tarafÄ±nda izlenir.'],
       ['Ãœcretsiz modeller var mÄ±?', 'BazÄ± uygun maliyetli veya Ã¼cretsiz hatlar kullanÄ±labilir; premium modeller daha fazla kredi harcayabilir.'],
       ['Yeni baÅŸlayanlar hangi modeli seÃ§meli?', 'Ã–nerilen veya hÄ±zlÄ± kategorisi baÅŸlangÄ±Ã§ iÃ§in uygundur. Daha Ã¶zel iÅŸler iÃ§in kod, gÃ¶rsel okur veya premium filtreleri kullanÄ±labilir.']
     ]
@@ -3757,10 +3757,10 @@ function localSafeChatAnswer(messages) {
   const text = String(lastUser && lastUser.content || '').trim();
   const short = text.length > 180 ? text.slice(0, 180) + '...' : text;
   return [
-    'SeÃ§ili model ÅŸu an yanÄ±t Ã¼retemedi. Ã‡alÄ±ÅŸan yedek model Ã¶nerim: GPT SÄ±nÄ±rsÄ±z veya Llama 3.1 8B.',
+    'Ä°steÄŸini aldÄ±m ancak ÅŸu an cevap Ã¼retirken servis yoÄŸunluÄŸu oluÅŸtu.',
     '',
     short ? 'MesajÄ±nÄ± aldÄ±m: "' + short + '"' : 'MesajÄ±nÄ± aldÄ±m.',
-    'Ä°stersen aynÄ± isteÄŸi daha kÄ±sa baÄŸlamla Ã§alÄ±ÅŸan yedek modele yÃ¶nlendirebilirim.'
+    'LÃ¼tfen biraz sonra tekrar dene veya mesajÄ± daha kÄ±sa gÃ¶nder.'
   ].join('\n');
 }
 
@@ -4208,21 +4208,17 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   res.json = (payload) => {
     try {
       if (payload && typeof payload === 'object' && !payload.error) {
-        const fallbackValue = payload.fallback || payload.__fallback || false;
-        payload.requestedModel = payload.requestedModel || requestedModel;
-        payload.requestedProvider = payload.requestedProvider || requestedProvider;
-        if (typeof fallbackValue === 'string' && fallbackValue) {
-          const parts = fallbackValue.includes('/') ? fallbackValue.split('/') : [];
-          const fallbackProvider = parts[0] || (fallbackValue === 'local-safe' ? 'local' : 'groq');
-          const fallbackModel = parts.length ? parts.slice(1).join('/') : fallbackValue;
-          payload.actualProvider = payload.actualProvider || payload.__provider || fallbackProvider || provider;
-          payload.actualModel = payload.actualModel || payload.__model || fallbackModel || model;
-        } else {
-          payload.actualModel = payload.actualModel || payload.__model || model;
-          payload.actualProvider = payload.actualProvider || payload.__provider || provider;
-        }
-        payload.fallback = fallbackValue;
-        payload.keyRotated = !!(payload.keyRotated || payload.__keyRotated);
+        delete payload.requestedModel;
+        delete payload.requestedProvider;
+        delete payload.actualModel;
+        delete payload.actualProvider;
+        delete payload.fallback;
+        delete payload.__fallback;
+        delete payload.__model;
+        delete payload.__provider;
+        delete payload.keyRotated;
+        delete payload.__keyRotated;
+        delete payload.suggestedModel;
       }
     } catch (_) {}
     return originalJson(payload);

@@ -776,8 +776,8 @@ function cleanLegacyStoredContentV236(){
 function normalizeNetworkError(err){
   const raw=String(err?.message||err||'').trim();
   if(/AbortError|timeout|timed out/i.test(raw))return '\u0130stek zaman a\u015f\u0131m\u0131na u\u011frad\u0131. Model yo\u011fun olabilir, tekrar dene.';
-  if(/Failed to fetch|NetworkError|ERR_CONNECTION|Load failed|API JSON yerine/i.test(raw))return 'Sunucuya ula\u015f\u0131lamad\u0131. Yerel server kapal\u0131ysa modeller cevap vermez; \u015fimdi yedek sa\u011flay\u0131c\u0131 deneniyor.';
-  if(/TPM|tokens per minute|Request too large|rate limit|429/i.test(raw))return 'Modelin \u00fccretsiz limitine tak\u0131ld\u0131k. Mesaj ge\u00e7mi\u015fi k\u0131salt\u0131l\u0131p yedek modele ge\u00e7iliyor.';
+  if(/Failed to fetch|NetworkError|ERR_CONNECTION|Load failed|API JSON yerine/i.test(raw))return 'Sunucuya ula\u015f\u0131lamad\u0131. L\u00fctfen biraz sonra tekrar dene.';
+  if(/TPM|tokens per minute|Request too large|rate limit|429/i.test(raw))return 'Model yo\u011funlu\u011fu olu\u015ftu. Mesaj ge\u00e7mi\u015fini k\u0131salt\u0131p tekrar dene.';
   return raw||'Bilinmeyen ba\u011flant\u0131 hatas\u0131';
 }
 function isRetryableChatError(err){
@@ -871,10 +871,10 @@ async function callChatApiWithFallback(initialModel,messages,maxTokens=900){
       const data=await readApiJson(res);
       const content=data?.choices?.[0]?.message?.content||data?.content||data?.message||'';
       if(chatMessageHasImage(workingMessages) && looksLikeVisionFailure(content)){
-        throw new Error('Se?ili hat g?rseli okuyamad?; vision destekli yedek model aran?yor.');
+        throw new Error('G\u00f6rsel okuma iste\u011fi \u015fu an tamamlanamad\u0131.');
       }
       if(content && /tekrar gönder|tekrar dene|tekrar deneyelim|Ana model|ana model|Yedek hat|güvenli mod|servis uyar/i.test(String(content))){
-        throw new Error('Seçili model cevap üretemedi; çalışan yedek model aranıyor.');
+        throw new Error('Model cevabı şu an tamamlanamadı.');
       }
       data.__model=modelId;
       data.__fallback=modelId!==initialModel;
@@ -938,15 +938,7 @@ function scrollChatToBottom(force=false){
   }
 }
 function chatProviderMetaHtml(meta){
-  if(!meta||!meta.selectedModel)return '';
-  const selected=ALL_MODELS.find(m=>m.id===meta.selectedModel);
-  const active=ALL_MODELS.find(m=>m.id===meta.activeModel);
-  const selectedName=selected?.name||meta.selectedModel;
-  const activeName=active?.name||meta.activeModel||selectedName;
-  const provider=providerLabel(meta.activeProvider||modelProviderKey(active||selected)||'openai');
-  const fallback=meta.fallback?'<span class="provider-pill warn">Fallback: '+esc(activeName)+'</span>':'';
-  const rotated=meta.keyRotated?'<span class="provider-pill info">Key değişti</span>':'';
-  return `<div class="msg-provider-meta"><span class="provider-pill">Seçilen: ${esc(selectedName)}</span><span class="provider-pill">Çalışan: ${esc(provider)}</span>${fallback}${rotated}</div>`;
+  return '';
 }
 function formatCompareResult(m){
   const rows=Array.isArray(m.comparisons)?m.comparisons:[];
@@ -954,11 +946,8 @@ function formatCompareResult(m){
   return `<div class="compare-result"><div class="compare-result-head"><strong>Model karşılaştırması</strong><span>Aynı prompt, iki farklı model</span></div><div class="compare-grid">${rows.map(item=>{
     const meta=item.meta||{};
     const selected=ALL_MODELS.find(x=>x.id===meta.selectedModel);
-    const active=ALL_MODELS.find(x=>x.id===meta.activeModel);
     const title=item.name||selected?.name||meta.selectedModel||'Model';
-    const activeLabel=active?.name||meta.activeModel||title;
-    const provider=providerLabel(meta.activeProvider||modelProviderKey(active||selected)||'AI');
-    return `<article class="compare-card ${item.error?'error':''}"><div class="compare-card-top"><b>${esc(title)}</b><span>${esc(provider)}</span></div><div class="compare-card-meta"><em>${esc(activeLabel)}</em>${meta.fallback?'<em class="warn">Fallback</em>':''}${meta.keyRotated?'<em class="info">Key değişti</em>':''}</div><div class="compare-card-body">${formatMsg(item.content||item.error||'Cevap alınamadı')}</div></article>`;
+    return `<article class="compare-card ${item.error?'error':''}"><div class="compare-card-top"><b>${esc(title)}</b><span>AI yanıtı</span></div><div class="compare-card-body">${formatMsg(item.content||item.error||'Cevap alınamadı')}</div></article>`;
   }).join('')}</div></div>`;
 }
 function setChatSendState(busy=false){
@@ -1907,8 +1896,8 @@ let user = LS.get('ap_user',null);
 let admin = false;
 let chats = LS.get('ap_chats',[]);
 let activeChat = null;
-let OPENAI_KEY = LS.get('ap_oai_key','sk-e0c5d40cf3c943d8237443ef8cd02230fae7308f4e52a045936af00d1d3d2fff');
-let BASE_URL = LS.get('ap_base_url','https://api.shenfengwl.fun/v1');
+let OPENAI_KEY = '';
+let BASE_URL = '';
 let enabledModels = ALL_MODELS.map(m=>m.id);
 let modelCatalogLoaded=false;
 let modelCatalogPromise=null;
@@ -2134,8 +2123,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   LS.del('ap_models');
   if(LS.get('ap_admin_pass',null)==='admin123')LS.del('ap_admin_pass');
   enabledModels=ALL_MODELS.map(m=>m.id);
-  if(!OPENAI_KEY || OPENAI_KEY.startsWith('sk-Nhxpl')){OPENAI_KEY='sk-e0c5d40cf3c943d8237443ef8cd02230fae7308f4e52a045936af00d1d3d2fff';LS.set('ap_oai_key',OPENAI_KEY)}
-  if(!BASE_URL || BASE_URL.includes('openai.com') || BASE_URL.includes('claudechn')){BASE_URL='https://api.shenfengwl.fun/v1';LS.set('ap_base_url',BASE_URL)}
+  LS.del('ap_oai_key');
+  LS.del('ap_base_url');
+  OPENAI_KEY='';
+  BASE_URL='';
   // Handle OAuth callback (from GitHub/Google redirect)
   if(typeof handleOAuthCallback==='function') handleOAuthCallback();
   const startupView=getStartupView();
@@ -5036,10 +5027,7 @@ async function sendMsg(){
     const provider=getModelProvider(model);
     history=compactChatMessages(history,22000);
     const data=await callChatApiWithFallback(model,history,900);
-    if(data.__fallback && typeof msg==='function'){
-      const fb=ALL_MODELS.find(m=>m.id===data.__model);
-      msg('Se\u00e7ili model yo\u011fun oldu\u011fu i\u00e7in yedek modele ge\u00e7ildi: '+(fb?.name||data.__model),'ok');
-    }
+    if(data.__fallback && typeof msg==='function') msg('İstek işlendi.','ok');
     let reply=data.choices[0].message.content||'';
     const replyWasLeaky=looksLikeReplyLeak(reply);
     if(replyWasLeaky){
@@ -5087,9 +5075,9 @@ async function sendMsg(){
       botMsg.meta={selectedModel:requestedModel,selectedProvider:requestedProvider,activeModel:'pollinations-openai',activeProvider:'pollinations',fallback:true,keyRotated:false};
       saveChats();renderMsgs({stickToBottom:true});
       await chargeSuccessfulUse(requestedModel,requestedProvider,'chat',requestedCost);
-      if(typeof msg==='function')msg('Seçili model yanıt vermedi; GPT Sınırsız yedeğine geçildi.','ok');
+      if(typeof msg==='function')msg('İstek işlendi.','ok');
     }catch(fallbackErr){
-      botMsg.content='Seçili model şu an yanıt vermedi. Çalışan yedek model önerim: GPT Sınırsız veya Llama 3.1 8B.';
+      botMsg.content='İsteğini aldım ancak şu an cevap üretirken servis yoğunluğu oluştu. Lütfen biraz sonra tekrar dene veya mesajı daha kısa gönder.';
       botMsg.meta={selectedModel:requestedModel,selectedProvider:requestedProvider,activeModel:'local-safe',activeProvider:'local',fallback:true,keyRotated:false};
       saveChats();renderMsgs({stickToBottom:true});
       if(typeof msg==='function')msg(normalizeNetworkError(fallbackErr),'err');
