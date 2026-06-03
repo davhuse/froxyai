@@ -2583,6 +2583,10 @@ Object.assign(SEO_PAGES, {
     title: 'Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde',
     description: 'ChatGPT, Claude, Gemini, görsel üretim araçları ve AI ajanlarını tek hesapta kullan. Yeni üyeler 100 ücretsiz krediyle başlar, kart gerekmez.'
   },
+  '/dashboard': {
+    title: 'Froxy AI Dashboard - Tüm AI Araçları Tek Ekranda',
+    description: 'Model kullanımı, kredi akışı, sohbet, görsel üretim ve hazır AI araçlarını Froxy AI dashboard üzerinden tek ekranda yönet.'
+  },
   '/ai-araclar': {
     title: 'AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI',
     description: 'Yapay zeka sohbet, görsel üretim, kod, belge, ses ve hazır AI araçlarını tek panelde kullan.'
@@ -2654,6 +2658,118 @@ Object.assign(SEO_PAGES, {
 });
 
 Object.assign(SEO_CONTENT, {
+  '/sohbet': {
+    h1: 'AI sohbet paneli',
+    lead: 'Froxy AI sohbet paneli, ChatGPT, Claude, Gemini, Groq, OpenRouter ve farklı model ailelerini tek ekranda denemek için hazırlanmıştır. Kullanıcı model seçebilir, dosya veya görsel destekli akışları kullanabilir ve kredi sistemini tek panelden takip edebilir.',
+    sections: [
+      ['AI sohbet paneli ne işe yarar?', 'Tek bir sohbet ekranında farklı AI modellerine geçmek, aynı iş için kalite ve hız farkını test etmeyi kolaylaştırır. Froxy AI bu deneyimi Türkçe arayüz ve kredi sistemiyle sadeleştirir.'],
+      ['Kimler kullanabilir?', 'İçerik üreticileri, öğrenciler, yazılımcılar, ajanslar ve işletmeler günlük yazma, analiz, kod, planlama ve fikir üretimi işlerini tek panelden yönetebilir.'],
+      ['Ücretsiz başlangıç', 'Yeni üyeler 100 ücretsiz krediyle sohbet panelini deneyebilir. Kart bilgisi girmeden model seçimi ve temel AI sohbet akışları test edilebilir.']
+    ],
+    faq: [
+      ['AI sohbet paneli ücretsiz denenebilir mi?', 'Evet. Yeni üyeler 100 ücretsiz krediyle başlayabilir.'],
+      ['Farklı modeller arasında geçiş yapılabilir mi?', 'Evet. Froxy AI model seçici üzerinden farklı model aileleri tek panelde denenebilir.'],
+      ['Sohbet kredi harcar mı?', 'Seçilen modele ve işlem türüne göre kredi harcanabilir.']
+    ]
+  },
+  '/panel': {
+    h1: 'AI kontrol paneli',
+    lead: 'Froxy AI kontrol paneli, model kullanımı, kredi takibi, görsel üretim, hazır araçlar ve destek akışlarını tek ekranda toplamayı hedefler. Kullanıcılar AI iş akışlarını dağınık sekmeler yerine tek merkezden yönetebilir.',
+    sections: [
+      ['Kontrol panelinde neler var?', 'Kredi durumu, model erişimi, hızlı araçlar, görsel üretim, destek ve hesap bilgileri tek çalışma alanında görülebilir.'],
+      ['Neden tek panel?', 'Birden fazla AI sitesini takip etmek yerine tek panel kullanmak zaman kazandırır ve maliyet takibini kolaylaştırır.'],
+      ['Kimler için uygun?', 'Ajanslar, içerik ekipleri, e-ticaret kullanıcıları ve sık AI kullanan bireyler için daha düzenli bir çalışma ortamı sağlar.']
+    ],
+    faq: [
+      ['Panelden sohbete geçilebilir mi?', 'Evet. Sohbet, görsel üretim ve diğer araçlara panelden erişilebilir.'],
+      ['Kredi takibi yapılır mı?', 'Kullanıcı kredileri ve paket bilgileri panel deneyiminin parçasıdır.'],
+      ['Yeni kullanıcılar paneli deneyebilir mi?', 'Evet. 100 ücretsiz krediyle başlayabilirler.']
+    ]
+  },
+  '/dashboard': {
+    h1: 'Froxy AI dashboard',
+    lead: 'Froxy AI dashboard, kullanıcıların AI modellerini, kredi kullanımını, görsel üretim akışlarını ve hazır araçları tek profesyonel alanda yönetmesi için tasarlanmıştır.',
+    sections: [
+      ['Dashboard neden önemlidir?', 'AI kullanımında model seçimi, kredi tüketimi ve araçlara erişim ayrı ayrı dağılınca verim düşer. Dashboard bu bilgileri tek yerde toplar.'],
+      ['Kredi ve model görünürlüğü', 'Kullanıcı hangi paketi kullandığını, kredi bakiyesini ve temel AI araçlarına erişimini daha net görebilir.'],
+      ['İş akışı avantajı', 'Sohbet, görsel üretim, promptlar ve destek akışları arasında hızlı geçiş yapmak günlük üretimi hızlandırır.']
+    ],
+    faq: [
+      ['Dashboard herkese açık mı?', 'Dashboard kullanıcı deneyiminin parçasıdır; bazı alanlar giriş gerektirebilir.'],
+      ['Dashboard SEO için neden ayrı sayfa?', 'Kullanıcıların tek panel AI çalışma alanı aramalarına daha net cevap vermek için ayrı açıklanır.'],
+      ['Panel ile dashboard aynı mı?', 'Kullanımda benzer alanları ifade eder; canonical ve içerik sinyalleri sayfa özelinde net tutulur.']
+    ]
+  },
+  '/gorsel-uret': {
+    h1: 'AI görsel üretme ve fotoğraf düzenleme',
+    lead: 'Froxy AI görsel üretim ekranı, prompt ile yeni görsel oluşturma ve uygun modellerle fotoğraf düzenleme akışlarını tek panelde sunar. Kullanıcı kalite modunu, modelini ve görsel hedefini daha kontrollü seçebilir.',
+    sections: [
+      ['Görsel üretim nasıl çalışır?', 'Kullanıcı prompt yazar, model veya kalite modu seçer ve görsel üretim isteğini başlatır. Sonuçlar galeri veya geçmiş alanında takip edilebilir.'],
+      ['Fotoğraf düzenleme farkı', 'Görsel üretim sıfırdan çıktı üretirken fotoğraf düzenleme mevcut bir görseli prompt ile değiştirir. Bu yüzden düzenleme modunda edit destekli modeller kullanılır.'],
+      ['Hangi işler için uygundur?', 'Sosyal medya görselleri, reklam kreatifleri, ürün fikirleri, sunum görselleri ve marka taslakları için kullanılabilir.']
+    ],
+    faq: [
+      ['Görsel üretim kredi harcar mı?', 'Evet, seçilen modele ve kalite moduna göre kredi harcanabilir.'],
+      ['Fotoğraf düzenlemek için görsel yüklemek gerekir mi?', 'Evet. Düzenleme modunda referans fotoğraf yüklenir.'],
+      ['Ücretsiz krediyle görsel üretim denenebilir mi?', 'Başlangıç kredisi uygun modellerde test için kullanılabilir.']
+    ]
+  },
+  '/ai-araclar': {
+    h1: 'AI araçları merkezi',
+    lead: 'Froxy AI araçları merkezi; SEO, sosyal medya, kod, metin, marka, destek ve görsel üretim gibi sık kullanılan işleri hazır prompt ve doğru panel akışıyla hızlandırır.',
+    sections: [
+      ['Hazır AI araçları ne sağlar?', 'Kullanıcı boş prompt yazmak zorunda kalmadan belirli bir iş için hazırlanmış akışı seçebilir. Bu, özellikle pazarlama, içerik ve destek işlerinde hız kazandırır.'],
+      ['Tek panelde araç kullanımı', 'Sohbet modeli, görsel üretim ve hazır araçlar aynı hesapta birleştiğinde kullanıcı farklı siteler arasında geçiş yapmak zorunda kalmaz.'],
+      ['Kimler için faydalıdır?', 'Ajanslar, e-ticaret ekipleri, içerik üreticileri ve küçük işletmeler hazır araçlarla daha hızlı çıktı alabilir.']
+    ],
+    faq: [
+      ['AI araçları ücretsiz denenebilir mi?', 'Yeni üyeler 100 ücretsiz krediyle bazı araçları deneyebilir.'],
+      ['Araçlar sohbetle bağlantılı mı?', 'Birçok araç seçildiğinde ilgili prompt veya iş akışı sohbet ekranında çalıştırılabilir.'],
+      ['Teknik bilgi gerekir mi?', 'Hayır. Araçlar teknik olmayan kullanıcıların da hızlı başlaması için tasarlanır.']
+    ]
+  },
+  '/ai-ajanlar': {
+    h1: 'AI ajanlar ve görev odaklı asistanlar',
+    lead: 'Froxy AI ajanları, kod, SEO, destek, sosyal medya, analiz ve içerik gibi belirli görevler için hazırlanmış uzman asistan akışları sunar.',
+    sections: [
+      ['AI ajan nedir?', 'AI ajan, belirli bir görev için rolü, tonu ve çalışma biçimi önceden tanımlanmış yapay zeka asistanıdır.'],
+      ['Hangi alanlarda kullanılır?', 'Kod analizi, SEO içerik planı, müşteri destek taslağı, sosyal medya kampanyası, teklif metni ve araştırma özeti gibi işlerde kullanılabilir.'],
+      ['Froxy AI farkı', 'Ajanlar tek paneldeki modellerle birleştiğinde kullanıcı hem görev şablonundan hem de model çeşitliliğinden faydalanır.']
+    ],
+    faq: [
+      ['AI ajanlar ücretsiz denenebilir mi?', 'Başlangıç kredisiyle uygun ajan akışları test edilebilir.'],
+      ['Ajan seçince model de seçilir mi?', 'Kullanıcı ihtiyacına göre model seçebilir veya önerilen akışla başlayabilir.'],
+      ['Ajanlar işletmeler için uygun mu?', 'Evet. Tekrarlayan içerik, destek ve analiz işlerini hızlandırabilir.']
+    ]
+  },
+  '/fiyatlandirma': {
+    h1: 'Froxy AI fiyatlandırma ve kredi paketleri',
+    lead: 'Froxy AI fiyatlandırma yapısı, farklı AI modellerini tek kredi sistemiyle kullanmaya dayanır. Kullanıcılar sohbet, görsel üretim ve premium modeller için kredi paketlerini inceleyebilir.',
+    sections: [
+      ['Kredi paketi neden kullanılır?', 'Farklı modellerin maliyetleri değiştiği için tek bakiye üzerinden kullanım yapmak abonelik karmaşasını azaltır.'],
+      ['Yeni üyeler için başlangıç', 'Yeni üyeler 100 ücretsiz krediyle başlayabilir ve kart bilgisi girmeden paneli test edebilir.'],
+      ['Şeffaf kullanım', 'Kredi sistemi, model ve işlem türüne göre kullanım maliyetini daha anlaşılır hale getirmeyi hedefler.']
+    ],
+    faq: [
+      ['Kart bilgisi gerekir mi?', 'Ücretsiz deneme için kart bilgisi gerekmez.'],
+      ['Paketler ne işe yarar?', 'Paketler sohbet, görsel üretim ve diğer AI araçlarında kullanılabilecek kredi sağlar.'],
+      ['Kredi bitince ne olur?', 'Kullanıcı yeni paket alabilir veya daha uygun maliyetli modelleri tercih edebilir.']
+    ]
+  },
+  '/kayit': {
+    h1: 'Froxy AI kayıt ol ve 100 ücretsiz krediyle başla',
+    lead: 'Froxy AI kayıt sayfası, yeni kullanıcıların kart bilgisi girmeden 100 ücretsiz krediyle platformu denemesi için hazırlanmıştır. Kayıt sonrası sohbet, görsel üretim ve hazır AI araçları test edilebilir.',
+    sections: [
+      ['Kayıt sonrası ne olur?', 'Yeni üyenin hesabına başlangıç kredisi tanımlanır ve kullanıcı paneldeki temel AI araçlarını deneyebilir.'],
+      ['Kart bilgisi gerekli mi?', 'Hayır. Ücretsiz başlangıç için kart bilgisi gerekmez.'],
+      ['Neden önce deneme?', 'AI modelleri ve kullanım maliyetleri ihtiyaca göre değiştiği için kullanıcı önce platformu test edip sonra karar verebilir.']
+    ],
+    faq: [
+      ['Kayıt ücretsiz mi?', 'Evet. Yeni üyeler ücretsiz kayıt olup başlangıç kredisiyle deneyebilir.'],
+      ['100 kredi ne zaman tanımlanır?', 'Kayıt akışı tamamlandığında yeni üye hesabına başlangıç kredisi tanımlanır.'],
+      ['Temp mail kabul ediliyor mu?', 'Kötüye kullanımı azaltmak için geçici e-posta alanları engellenebilir.']
+    ]
+  },
   '/en-iyi-ai-araclari': {
     h1: 'En iyi AI araçları tek panelde',
     lead: 'En iyi AI aracı tek bir modelden ibaret değildir. Günlük işlerde sohbet modeli, görsel üretim aracı, kod yardımı, belge analizi ve hazır iş akışları gerekebilir. Froxy AI bu araçları tek panelde bir araya getirerek deneme sürecini kısaltır.',
@@ -2722,6 +2838,20 @@ Object.assign(SEO_CONTENT, {
       ['Yapay zeka araçları işletmeler için uygun mu?', 'Evet. İçerik, destek, analiz ve pazarlama gibi alanlarda işletmelere zaman kazandırabilir.'],
       ['Tek bir AI modeli yeterli mi?', 'Çoğu zaman hayır. Farklı işler için farklı modeller daha iyi sonuç verebilir.'],
       ['Froxy AI hangi vaadi sunuyor?', '400+ AI modelini ve farklı yapay zeka araçlarını tek panelde kullanma deneyimi sunar.']
+    ]
+  },
+  '/ai-model-karsilastirma': {
+    h1: 'AI model karşılaştırma',
+    lead: 'AI model karşılaştırma, aynı görevi farklı modellerle deneyerek kalite, hız ve kredi maliyeti açısından en uygun sonucu bulmayı sağlar. Froxy AI, ChatGPT, Claude, Gemini ve diğer model ailelerini tek panelde değerlendirmeyi kolaylaştırır.',
+    sections: [
+      ['Neden model karşılaştırma yapılır?', 'Her model aynı prompta farklı cevap verebilir. Kod, analiz, uzun metin, hızlı cevap veya yaratıcı üretim gibi işlerde model performansı değişir.'],
+      ['Kredi ve kalite dengesi', 'En pahalı model her zaman gerekli olmayabilir. Bazı işler için hızlı ve uygun maliyetli modeller yeterli olurken, kritik işlerde daha kaliteli modeller tercih edilebilir.'],
+      ['Tek panel avantajı', 'Farklı sağlayıcıları ayrı ayrı açmak yerine tek panelde model seçmek ve sonuçları değerlendirmek kullanıcıya zaman kazandırır.']
+    ],
+    faq: [
+      ['Hangi modeller karşılaştırılabilir?', 'Froxy AI panelinde sunulan uygun sohbet modelleri görev türüne göre karşılaştırılabilir.'],
+      ['Karşılaştırma kredi harcar mı?', 'Her model cevabı ayrı işlem olduğu için kredi harcayabilir.'],
+      ['Yeni başlayan hangi modeli seçmeli?', 'Önerilen, hızlı veya uygun maliyetli kategoriler başlangıç için iyi bir yoldur.']
     ]
   }
 });
