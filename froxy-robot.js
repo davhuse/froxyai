@@ -6,7 +6,7 @@
 
   var STORE_KEY = 'froxy_robot_widget_hidden_v1';
   var CHAT_KEY = 'froxy_robot_widget_chat_v2';
-  var CSS_VERSION = 'v337';
+  var CSS_VERSION = 'v338';
   var WELCOME = 'Merhaba, ben Froxy destek asistanı. Fiyat, kredi, giriş, görsel üretim ve teknik sorunlarda hızlıca yardımcı olurum.';
 
   function escapeHtml(value) {
@@ -92,8 +92,8 @@
       '      </div>',
       '      <div class="p-arm al" id="alH"><div class="cube c-arm">' + cubeFaces('') + '</div><div class="hnd"><i></i><i></i><i></i></div></div>',
       '      <div class="p-arm ar" id="arH"><div class="cube c-arm">' + cubeFaces('') + '</div><div class="hnd"><i></i><i></i><i></i></div></div>',
-      '      <div class="p-leg ll"><div class="cube c-leg">' + cubeFaces('') + '</div><div class="foot"></div></div>',
-      '      <div class="p-leg rl"><div class="cube c-leg">' + cubeFaces('') + '</div><div class="foot"></div></div>',
+      '      <div class="p-leg ll" id="llH"><div class="cube c-leg">' + cubeFaces('') + '</div><div class="foot"></div></div>',
+      '      <div class="p-leg rl" id="rlH"><div class="cube c-leg">' + cubeFaces('') + '</div><div class="foot"></div></div>',
       '    </div>',
       '  </div>',
       '  <div class="rshad" id="rshad"></div>',
@@ -125,7 +125,7 @@
     var $ = function (id) { return shadow.getElementById(id); };
     var rw = $('rw'), r3 = $('r3'), scene = $('scene'), speech = $('speech'), stxt = $('stxt');
     var stars = $('dstars'), canvas = $('pc'), ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
-    var pL = $('pL'), pR = $('pR'), headH = $('headH'), bodyH = $('bodyH'), alH = $('alH'), arH = $('arH'), antH = $('antH');
+    var pL = $('pL'), pR = $('pR'), headH = $('headH'), bodyH = $('bodyH'), alH = $('alH'), arH = $('arH'), antH = $('antH'), llH = $('llH'), rlH = $('rlH');
     var sov = $('sov'), spx = $('spx'), spm = $('spm'), sinp = $('sinp'), ssnd = $('ssnd'), frHide = $('frHide'), launcher = $('frLauncher'), rhint = $('rhint');
 
     var mx = window.innerWidth / 2, my = window.innerHeight / 2;
@@ -245,6 +245,7 @@
       armHit: ['Koluma dikkat.', 'Bu biraz gıdıklıyor.'],
       antHit: ['Sinyal tamam, anten çalışıyor.', 'Anten bağlantısı aktif.'],
       bodyClick: ['Destek panelini açıyorum.', 'Hemen yardımcı olayım.'],
+      legHit: ['Hop, ayaklar çalışıyor.', 'Zıplama modu aktif.'],
       multiHit: ['Tamam, biraz sakinleşelim.', 'Kısa bir mola iyi gelir.'],
       faint: ['Bir saniye toparlanıyorum.', 'Dünya biraz döndü.'],
       welcome: [WELCOME]
@@ -463,12 +464,12 @@
     document.addEventListener('touchmove', dragMove, { passive: false });
     document.addEventListener('touchend', dragEnd);
     scene.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSupport(); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); say('idle', 2200); playAn('wave'); }
     });
     scene.addEventListener('click', function () {
       if (wasDrag) { wasDrag = false; return; }
-      say('bodyClick', 1200);
-      window.setTimeout(openSupport, 250);
+      say('idle', 2200);
+      playAn('wave');
     });
     rw.addEventListener('wheel', function (e) {
       e.preventDefault();
@@ -490,6 +491,18 @@
     alH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag || isAn) return; clearStates(); r3.classList.add('hit-al'); say('armHit', 2200); var r = rw.getBoundingClientRect(); spawnP(r.left + 15, r.top + r.height / 2, '#3b82f6', 8); window.setTimeout(clearStates, 600); });
     arH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag || isAn) return; clearStates(); r3.classList.add('hit-ar'); say('armHit', 2200); var r = rw.getBoundingClientRect(); spawnP(r.left + r.width - 15, r.top + r.height / 2, '#3b82f6', 8); window.setTimeout(clearStates, 600); });
     antH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag || isAn) return; clearStates(); r3.classList.add('a-shake'); say('antHit', 2200); var r = antH.getBoundingClientRect(); spawnP(r.left + r.width / 2, r.top, '#22d3ee', 12, 'star'); window.setTimeout(clearStates, 600); });
+    [llH, rlH].forEach(function (leg, idx) {
+      if (!leg) return;
+      leg.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (wasDrag || isAn) return;
+        clearStates();
+        say('legHit', 2200);
+        playAn(idx === 0 ? 'jump' : 'jelly');
+        var r = leg.getBoundingClientRect();
+        spawnP(r.left + r.width / 2, r.bottom, '#22d3ee', 9, 'star');
+      });
+    });
     bodyH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag || isAn) return; clearStates(); r3.classList.add('st-happy'); say('bodyClick', 1400); var r = rw.getBoundingClientRect(); spawnP(r.left + r.width / 2, r.top + r.height / 2, '#7c3aed', 12, 'star'); window.setTimeout(function () { clearStates(); openSupport(); }, 420); });
 
     frHide.addEventListener('click', hideWidget);
