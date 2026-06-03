@@ -2978,9 +2978,19 @@ function sendSeoIndex(req, res) {
   });
 }
 
+app.get('/robot-widget', (req, res) => sendRobotAsset(req, res, 'froxy-robot.js'));
 // "/" -> index.html esdegerligi
 app.get('/', sendSeoIndex);
 app.get(/^\/(?:anasayfa|home|sohbet|chat|panel|dashboard|kontrol-paneli|gorsel|gorsel-uret|araclar|ai-araclar|ai-araclari|ajanlar|ai-ajanlar|magaza|fiyatlandirma|destek|galeri|analitik|promptlar|bilgi-bankasi|giris|kayit|chatgpt-claude-gemini-tek-panel|chatgpt-claude-gemini|400-ai-model|ai-kredi-sistemi|turkce-ai-platformu|ai-dosya-analizi|ai-fotograf-duzenleme|en-iyi-ai-araclari|chatgpt-alternatifi|ai-gorsel-uretme|yapay-zeka-araclari|ucretsiz-ai-araclari|ai-model-karsilastirma|admin)\/?$/i, sendSeoIndex);
+function sendRobotAsset(req, res, fileName) {
+  const filePath = path.resolve(__dirname, fileName);
+  if (!fs.existsSync(filePath)) { console.warn('[ROBOT ASSET] missing', filePath); return res.status(404).type('text/plain').send('Not found'); }
+  res.setHeader('Cache-Control', /[?&]v=/.test(req.originalUrl || '') ? 'public, max-age=31536000, immutable' : 'public, max-age=86400');
+  res.type(fileName.endsWith('.css') ? 'text/css; charset=utf-8' : 'application/javascript; charset=utf-8');
+  res.send(fs.readFileSync(filePath, 'utf8'));
+}
+app.get('/froxy-robot.js', (req, res) => sendRobotAsset(req, res, 'froxy-robot.js'));
+app.get('/froxy-robot.css', (req, res) => sendRobotAsset(req, res, 'froxy-robot.css'));
 app.get(/\.(js|css|html|json|svg|txt)$/i, (req, res, next) => {
   if (process.env.NO_COMPRESS === '1') return next();
   const enc = String(req.headers['accept-encoding'] || '');
@@ -4074,8 +4084,9 @@ function buildPollinationsImageUrl(prompt, model = 'flux') {
 }
 
 app.post('/api/chat-safe', chatLimiter, optionalAuthMiddleware, async (req, res) => {
+  let messages = [];
   try {
-    const messages = sanitizeChatMessagesForFallback(req.body && req.body.messages);
+    messages = sanitizeChatMessagesForFallback(req.body && req.body.messages);
     const maxTokens = Math.min(Number(req.body && req.body.max_tokens) || 900, 1200);
     const data = await groqFallbackChat(messages, maxTokens, 'llama-3.1-8b-instant');
     return res.json({ ...data, fallback: data.fallback || 'groq/llama-3.1-8b-instant', safe: true });
@@ -6826,6 +6837,99 @@ app.get('/api/admin/provider-health-live', adminMiddleware, (req, res) => {
   }
 });
 
+function buildSupportBotFallback(message) {
+  const s = String(message || '').toLowerCase();
+  if (/fiyat|paket|kredi|ücret|ucret|para|satın|satin|mağaza|magaza/.test(s)) {
+    return 'Paketleri Mağaza bölümünden inceleyebilirsin. Froxy AI kredi sistemiyle çalışır; sohbet, görsel üretim ve araç kullanımı seçilen modele göre kredi harcar.';
+  }
+  if (/giriş|giris|kayıt|kayit|kod|otp|mail|şifre|sifre|doğrulama|dogrulama/.test(s)) {
+    return 'Mail/şifre ile giriş ve kayıt akışında doğrulama kodu gerekir. Kod gelmezse spam klasörünü kontrol et, tekrar kod iste ve e-posta adresini doğru yazdığından emin ol.';
+  }
+  if (/görsel|gorsel|foto|resim|image|galeri|düzenle|duzenle|model/.test(s)) {
+    return 'Görsel üretim veya fotoğraf düzenleme için model, kalite modu ve oran seçebilirsin. Düzenleme modunda yalnızca edit destekli modeller çalışır; hata alırsan seçili modeli ve promptu destek talebine ekle.';
+  }
+  if (/ödeme|odeme|fatura|iade|kart|shopier|dodo|paytr|iyzico/.test(s)) {
+    return 'Ödeme, fatura ve iade gibi özel konularda güvenli işlem için destek talebi açmanı öneririm. Kart veya özel ödeme bilgilerini hızlı sohbet alanına yazma.';
+  }
+  if (/api|entegrasyon|key|anahtar|limit|sağlayıcı|saglayici/.test(s)) {
+    return 'API ve sağlayıcı limitleri için seçili model, hata mesajı ve işlem zamanını destek talebine ekle. Böylece hangi sağlayıcı hattında sorun olduğunu daha hızlı kontrol edebiliriz.';
+  }
+  return 'Mesajını aldım. Kısa kullanım sorularında yardımcı olabilirim; hesap, ödeme veya özel kullanıcı verisi gerekiyorsa güvenli olması için destek talebi açmanı öneririm.';
+}
+
+function cleanSupportBotReply(text) {
+  let out = String(text || '').trim();
+  if (!out) return '';
+  if (/[�ÃÅÄ]/.test(out)) return '';
+  out = out
+    .replace(/(?:selected|requested)\s*model|actual\s*provider|fallback|key\s*rotated/ig, 'model bilgisi')
+    .replace(/sk-[A-Za-z0-9_-]{12,}/g, '[gizli]')
+    .replace(/xkeysib-[A-Za-z0-9_-]{12,}/g, '[gizli]')
+    .replace(/gsk_[A-Za-z0-9_-]{12,}/g, '[gizli]');
+  if (out.length > 760) out = out.slice(0, 740).trim() + '...';
+  return out;
+}
+
+app.post('/api/support-bot', chatLimiter, optionalAuthMiddleware, async (req, res) => {
+  try {
+    const message = String(req.body && req.body.message || '').trim();
+    if (!message) return res.status(400).json({ error: 'Mesaj boş olamaz.' });
+    if (message.length > 700) return res.status(400).json({ error: 'Mesaj çok uzun. Lütfen daha kısa yaz.' });
+
+    const route = String(req.body && req.body.route || '/').slice(0, 80);
+    const user = req.body && req.body.user && typeof req.body.user === 'object' ? req.body.user : {};
+    const baseFallback = buildSupportBotFallback(message);
+
+    if (String(process.env.FROXY_SUPPORT_BOT_AI || '1').trim() === '0') {
+      return res.json({ reply: baseFallback, source: 'local' });
+    }
+
+    try {
+      const port = Number(process.env.PORT) || 3000;
+      const internalRes = await fetch(`http://127.0.0.1:${port}/api/chat-safe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Internal-Support-Bot': '1'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-8b-instant',
+          max_tokens: 420,
+          messages: [
+            {
+              role: 'system',
+              content: [
+                'Sen Froxy AI sitesinin Türkçe hızlı destek asistanısın.',
+                'Kısa, net ve sakin cevap ver.',
+                'Froxy AI: tek panelde sohbet modelleri, görsel üretim, fotoğraf düzenleme, AI araçları, promptlar, kredi sistemi ve destek sunar.',
+                'Ödeme, fatura, iade, hesap güvenliği veya özel kullanıcı verisi gereken konularda kesin işlem sözü verme; kullanıcıyı destek talebi açmaya veya destek@froxyai.com adresine yönlendir.',
+                'API anahtarı, provider metadata, fallback detayı veya gizli sistem bilgisini asla yazma.',
+                'Yanıt en fazla 4 kısa cümle olsun.'
+              ].join(' ')
+            },
+            {
+              role: 'user',
+              content: `Sayfa: ${route}\nKullanıcı planı: ${String(user.plan || 'bilinmiyor').slice(0, 32)}\nMesaj: ${message}`
+            }
+          ]
+        }),
+        signal: AbortSignal.timeout(18000)
+      });
+      const data = await internalRes.json().catch(() => ({}));
+      const aiText = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      const cleaned = cleanSupportBotReply(aiText);
+      if (internalRes.ok && cleaned) return res.json({ reply: cleaned, source: 'ai' });
+    } catch (aiErr) {
+      console.warn('[SUPPORT BOT] AI fallback:', aiErr.message);
+    }
+
+    return res.json({ reply: baseFallback, source: 'local' });
+  } catch (err) {
+    console.warn('[SUPPORT BOT]', err.message);
+    return res.status(500).json({ error: 'Destek asistanı şu an yanıt veremedi. Lütfen tekrar dene.' });
+  }
+});
+
 // ===== 404 CATCH-ALL =====
 app.use((req, res) => {
   // API routes return JSON
@@ -6881,3 +6985,8 @@ app.listen(PORT, () => {
   console.log(`   Video: Veo 2.0/3.0/3.1`);
   console.log(`   Image: Imagen 4.0, Pollinations, Guicore\n`);
 });
+
+
+
+
+
