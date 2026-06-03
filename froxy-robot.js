@@ -6,7 +6,7 @@
 
   var STORE_KEY = 'froxy_robot_widget_hidden_v1';
   var CHAT_KEY = 'froxy_robot_widget_chat_v2';
-  var CSS_VERSION = 'v338';
+  var CSS_VERSION = 'v340';
   var WELCOME = 'Merhaba, ben Froxy destek asistanı. Fiyat, kredi, giriş, görsel üretim ve teknik sorunlarda hızlıca yardımcı olurum.';
 
   function escapeHtml(value) {
@@ -325,9 +325,10 @@
       e.preventDefault();
       if (Math.abs(c.clientX - dsx) > 5 || Math.abs(c.clientY - dsy) > 5) wasDrag = true;
       var x = c.clientX - dox, y = c.clientY - doy;
-      rw.style.left = Math.max(0, Math.min(x, window.innerWidth - rw.offsetWidth)) + 'px';
-      rw.style.top = Math.max(0, Math.min(y, window.innerHeight - rw.offsetHeight)) + 'px';
-      rw.style.right = 'auto'; rw.style.bottom = 'auto';
+      host.style.left = Math.max(0, Math.min(x, window.innerWidth - rw.offsetWidth)) + 'px';
+      host.style.top = Math.max(0, Math.min(y, window.innerHeight - rw.offsetHeight)) + 'px';
+      host.style.right = 'auto';
+      host.style.bottom = 'auto';
       var now = Date.now();
       dragHist.push({ x: c.clientX, y: c.clientY, t: now });
       dragHist = dragHist.filter(function (p) { return now - p.t < 500; });
@@ -530,7 +531,9 @@
 
     restoreMessages();
     if (isHidden()) launcher.classList.add('on');
-    window.setTimeout(function () { say('welcome', 5200); }, 900);
+    if (!/^\/(sohbet|chat)$/i.test(location.pathname || '')) {
+      window.setTimeout(function () { say('welcome', 3600); }, 1600);
+    }
     window.setInterval(function () {
       if (!supOpen && !drag && !isAn && !host.classList.contains('fr-hidden')) {
         playAn(Math.random() > 0.5 ? 'wave' : 'jelly');
