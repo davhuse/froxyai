@@ -2576,6 +2576,170 @@ Object.assign(SEO_CONTENT, {
   }
 });
 
+// SEO text hardening: keep crawler-facing Turkish copy clean even if older
+// generated blocks above contain mojibake or ASCII-only Turkish.
+Object.assign(SEO_PAGES, {
+  '/': {
+    title: 'Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde',
+    description: 'ChatGPT, Claude, Gemini, görsel üretim araçları ve AI ajanlarını tek hesapta kullan. Yeni üyeler 100 ücretsiz krediyle başlar, kart gerekmez.'
+  },
+  '/ai-araclar': {
+    title: 'AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI',
+    description: 'Yapay zeka sohbet, görsel üretim, kod, belge, ses ve hazır AI araçlarını tek panelde kullan.'
+  },
+  '/ai-ajanlar': {
+    title: 'AI Ajanlar - Görev Odaklı Yapay Zeka Asistanları | Froxy AI',
+    description: 'İçerik, analiz, kod, pazarlama ve otomasyon için AI ajanlarıyla daha hızlı çalış.'
+  },
+  '/fiyatlandirma': {
+    title: 'Froxy AI Fiyatlandırma - Kredi Paketleri ve 100 Ücretsiz Kredi',
+    description: 'ChatGPT, Claude, Gemini, görsel üretim ve AI araçları için Froxy AI kredi paketlerini incele. Kayıt olan yeni üyeler 100 kredi alır.'
+  },
+  '/kayit': {
+    title: 'Froxy AI Kayıt Ol - 100 Ücretsiz Kredi',
+    description: 'Froxy AI hesabını oluştur, kart bilgisi girmeden 100 ücretsiz krediyle 400+ AI modelini tek panelde dene.'
+  },
+  '/chatgpt-claude-gemini-tek-panel': {
+    title: 'ChatGPT, Claude ve Gemini Tek Panelde | Froxy AI',
+    description: 'ChatGPT, Claude, Gemini ve 400+ AI modelini tek hesapta kullan. Sekme değiştirmeden sohbet et, görsel üret ve araçları çalıştır.'
+  },
+  '/chatgpt-claude-gemini': {
+    title: 'ChatGPT, Claude ve Gemini Karşılaştırma Paneli | Froxy AI',
+    description: 'ChatGPT, Claude ve Gemini modellerini tek panelde dene; hız, kalite, kredi maliyeti ve kullanım alanına göre doğru modeli seç.'
+  },
+  '/400-ai-model': {
+    title: '400+ AI Modeli Tek Hesapta - Froxy AI Model Paneli',
+    description: 'OpenAI, Claude, Gemini, Groq, OpenRouter ve görsel AI modellerini tek kredi sistemiyle kullan. Froxy AI ile 100 kredi ücretsiz başla.'
+  },
+  '/ai-kredi-sistemi': {
+    title: 'AI Kredi Sistemi Nedir? ChatGPT ve Görsel AI Kullanımı | Froxy AI',
+    description: 'Froxy AI kredi sistemiyle farklı AI modellerini tek bakiyeden kullan. Sohbet, görsel üretim ve premium modellerde kredi mantığını öğren.'
+  },
+  '/turkce-ai-platformu': {
+    title: 'Türkçe AI Platformu - ChatGPT, Claude, Gemini Tek Panelde | Froxy AI',
+    description: 'Türkçe arayüzle AI sohbet, görsel üretim, promptlar, dosya analizi ve AI araçlarını tek panelde kullan. Froxy AI 100 krediyle denenebilir.'
+  },
+  '/ai-dosya-analizi': {
+    title: 'AI Dosya Analizi - PDF, Görsel ve Belge Okuma | Froxy AI',
+    description: 'PDF, metin ve görselleri AI ile analiz et. Froxy AI, dosya okuyan modelleri ve sohbet araçlarını tek panelde toplar.'
+  },
+  '/ai-fotograf-duzenleme': {
+    title: 'AI Fotoğraf Düzenleme - Yapay Zeka ile Görsel Edit | Froxy AI',
+    description: 'Fotoğraf yükle, yapay zeka ile düzenle, stil değiştir ve görsel üretim modellerini tek panelde dene. Froxy AI ile hızlı başla.'
+  },
+  '/en-iyi-ai-araclari': {
+    title: 'En İyi AI Araçları - 400+ Yapay Zeka Modeli | Froxy AI',
+    description: 'Sohbet, görsel, kod, belge ve pazarlama için en iyi AI araçlarını tek panelde toplayan Froxy AI platformunu keşfet.'
+  },
+  '/chatgpt-alternatifi': {
+    title: 'ChatGPT Alternatifi AI Platformu | Froxy AI',
+    description: 'ChatGPT alternatifi arayanlar için Claude, Gemini, Mistral ve 400+ AI modelini tek hesapta kullanma çözümü.'
+  },
+  '/ai-gorsel-uretme': {
+    title: 'AI Görsel Üretme Rehberi ve Aracı | Froxy AI',
+    description: 'Yapay zeka ile görsel üretmek için prompt yaz, farklı görsel modellerini dene ve tek panelden sonuç al.'
+  },
+  '/yapay-zeka-araclari': {
+    title: 'Yapay Zeka Araçları - Tek Panelde AI Platformu | Froxy AI',
+    description: 'Yapay zeka araçları, AI sohbet modelleri, görsel üretim ve ajanları tek panelde kullan.'
+  },
+  '/ucretsiz-ai-araclari': {
+    title: 'Ücretsiz AI Araçları - 100 Krediyle Dene | Froxy AI',
+    description: 'Ücretsiz AI araçları arayanlar için Froxy AI yeni üyelere 100 kredi verir. ChatGPT, Claude, Gemini ve daha fazlasını dene.'
+  },
+  '/ai-model-karsilastirma': {
+    title: 'AI Model Karşılaştırma - ChatGPT, Claude, Gemini | Froxy AI',
+    description: 'ChatGPT, Claude, Gemini ve diğer AI modellerini tek panelde deneyerek ihtiyacına en uygun modeli seç.'
+  }
+});
+
+Object.assign(SEO_CONTENT, {
+  '/en-iyi-ai-araclari': {
+    h1: 'En iyi AI araçları tek panelde',
+    lead: 'En iyi AI aracı tek bir modelden ibaret değildir. Günlük işlerde sohbet modeli, görsel üretim aracı, kod yardımı, belge analizi ve hazır iş akışları gerekebilir. Froxy AI bu araçları tek panelde bir araya getirerek deneme sürecini kısaltır.',
+    sections: [
+      ['AI araçları hangi işlerde kullanılır?', 'Yapay zeka araçları reklam metni yazma, blog fikri bulma, kod düzenleme, belge özetleme, sosyal medya başlığı hazırlama, görsel üretme ve müşteri destek taslakları oluşturma gibi birçok işte kullanılır.'],
+      ['Tek panel avantajı', 'Farklı sitelerde hesap açmak, kredi takip etmek ve model seçmek yerine tek panel kullanmak daha pratiktir. Froxy AI sohbet, görsel üretim ve hazır araçları aynı deneyimde toplar.'],
+      ['Doğru AI aracını seçmek', 'Sadece popüler olan modeli kullanmak yerine aynı görevi birden fazla modelle deneyip kalite, hız ve maliyet açısından karşılaştırmak daha sağlıklı sonuç verir.']
+    ],
+    faq: [
+      ['Froxy AI ücretsiz denenebilir mi?', 'Evet. Yeni hesaplar 100 ücretsiz krediyle başlar.'],
+      ['Hangi AI araçları var?', 'Sohbet, görsel üretim, belge analizi, kod yardımı, prompt araçları ve AI ajanları gibi farklı araçlar tek panelde sunulur.'],
+      ['Tek panel kullanmak ne kazandırır?', 'Model ve araçlar arasında hızlı geçiş sağlar, abonelik karmaşasını azaltır ve kredi takibini kolaylaştırır.']
+    ]
+  },
+  '/chatgpt-alternatifi': {
+    h1: 'ChatGPT alternatifi AI platformu',
+    lead: 'ChatGPT güçlü bir modeldir, ancak her iş için tek seçenek değildir. Claude, Gemini, Mistral, DeepSeek ve farklı model aileleri bazı görevlerde daha uygun olabilir. Froxy AI, ChatGPT alternatifi arayan kullanıcılara tek panelden çok model deneme imkanı verir.',
+    sections: [
+      ['Neden ChatGPT alternatifi aranır?', 'Kimi kullanıcılar uzun metinlerde daha düzenli cevap, kimi kullanıcılar kodda farklı yaklaşım, kimi kullanıcılar da maliyet ve hız avantajı arar. Alternatif modelleri denemek tek modele bağlı kalmadan daha iyi sonuca ulaşmayı sağlar.'],
+      ['Froxy AI nasıl fark yaratır?', 'Froxy AI sadece bir sohbet ekranı değildir. Farklı model ailelerini, görsel araçları, hazır promptları ve AI ajanlarını tek arayüzde sunar.'],
+      ['Kimler kullanmalı?', 'İçerik ekipleri, yazılımcılar, öğrenciler ve işletmeler ChatGPT alternatifi modelleri test ederek daha esnek bir yapay zeka çalışma düzeni kurabilir.']
+    ],
+    faq: [
+      ['Froxy AI ChatGPT yerine kullanılır mı?', 'Evet, ChatGPT benzeri modellerle birlikte farklı alternatifleri de tek panelde denemek için kullanılabilir.'],
+      ['Claude ve Gemini de var mı?', 'Froxy AI, farklı sağlayıcılardan çok sayıda modeli tek panelde sunmayı hedefler.'],
+      ['Ücretsiz kredi ne işe yarar?', '100 krediyle paneli test edebilir, ilk sohbet ve araçları deneyebilirsiniz.']
+    ]
+  },
+  '/ai-gorsel-uretme': {
+    h1: 'AI görsel üretme aracı',
+    lead: 'AI görsel üretme, yazdığın promptu görsele dönüştüren yapay zeka modelleriyle çalışır. Froxy AI, görsel üretim araçlarını sohbet ve diğer AI modelleriyle aynı panelde birleştirerek fikirden görsele daha hızlı geçmeni sağlar.',
+    sections: [
+      ['AI görsel nasıl üretilir?', 'Önce ne istediğini anlatan bir prompt yazarsın. Stil, renk, oran, konu ve detay seviyesi sonucu belirler. Froxy AI panelinde promptunu girerek farklı görsel üretim akışlarını deneyebilirsin.'],
+      ['Kimler için faydalı?', 'Sosyal medya içerik üreticileri, reklam hazırlayanlar, e-ticaret sahipleri, sunum hazırlayanlar ve tasarım fikri arayan herkes AI görsel üretimden faydalanabilir.'],
+      ['Daha iyi sonuç için ipuçları', 'Promptta konu, ortam, stil, renk paleti ve kullanım amacını net belirtmek gerekir. Örneğin sadece teknoloji görseli yerine karanlık premium SaaS paneli, cyan ve mor neon vurgular gibi açık bir tarif daha iyi sonuç verir.']
+    ],
+    faq: [
+      ['AI görsel üretmek için tasarım bilmek gerekir mi?', 'Hayır. İyi bir prompt yazmak genelde yeterlidir; denemelerle sonuç iyileşir.'],
+      ['Görsel üretim kredi harcar mı?', 'Evet, seçilen model ve işleme göre kredi harcanır.'],
+      ['Froxy AI ile reklam görseli hazırlanabilir mi?', 'Evet. Ürün, hedef kitle ve stil bilgisiyle reklam odaklı görseller üretilebilir.']
+    ]
+  },
+  '/ucretsiz-ai-araclari': {
+    h1: 'Ücretsiz AI araçları ve 100 başlangıç kredisi',
+    lead: 'Froxy AI, yeni üyelere 100 ücretsiz başlangıç kredisi vererek ChatGPT, Claude, Gemini, görsel üretim ve hazır AI araçlarını kart bilgisi girmeden deneme imkanı sunar.',
+    sections: [
+      ['100 ücretsiz kredi ne işe yarar?', 'Başlangıç kredisiyle sohbet, görsel üretim ve hazır araçlar test edilebilir. Böylece kullanıcı platformun kendisine uygun olup olmadığını ödeme yapmadan görebilir.'],
+      ['Ücretsiz deneme neden önemli?', 'AI araçlarında kalite, hız ve maliyet modele göre değişir. Ücretsiz kredi, farklı modelleri deneyip doğru kullanım tarzını bulmayı kolaylaştırır.'],
+      ['Froxy AI ile tek panel deneyimi', 'Farklı AI siteleri arasında geçiş yapmak yerine tek hesapla birçok aracı denemek daha hızlı ve daha anlaşılır bir deneyim sağlar.']
+    ],
+    faq: [
+      ['Kart bilgisi gerekiyor mu?', 'Hayır. Ücretsiz deneme için kart bilgisi gerekmez.'],
+      ['100 ücretsiz kredi nasıl kullanılır?', 'Kayıt olan yeni üyelerin hesabına başlangıç kredisi tanımlanır. Bu krediyle sohbet, görsel üretim ve hazır araçlar denenebilir.'],
+      ['Ücretsiz kredi bitince ne olur?', 'Kullanıcı isterse kredi paketi satın alabilir veya uygun maliyetli modellerle devam edebilir.']
+    ]
+  },
+  '/yapay-zeka-araclari': {
+    h1: 'Yapay zeka araçları ve AI platformu',
+    lead: 'Yapay zeka araçları artık sadece sohbet botlarından oluşmuyor. Metin üretimi, kod yardımı, görsel üretme, belge okuma, özetleme, pazarlama ve otomasyon gibi işler için farklı araçlar gerekiyor. Froxy AI bu araçları tek panelde toplamaya odaklanır.',
+    sections: [
+      ['Hangi yapay zeka araçları önemli?', 'Sohbet modelleri fikir üretme ve yazma işlerinde kullanılır. Kod araçları geliştirme sürecini hızlandırır. Görsel araçlar reklam ve sosyal medya üretimini destekler. Belge araçları uzun metinleri özetler ve analiz eder.'],
+      ['Tek panel neden daha verimli?', 'Farklı AI siteleri arasında geçiş yapmak, abonelikleri takip etmek ve hangi modelin neye iyi geldiğini hatırlamak zordur. Tek panel bu karmaşayı azaltır.'],
+      ['Froxy AI ile başlama', 'Yeni kullanıcılar 100 ücretsiz krediyle hesap oluşturup sohbet, model seçimi ve görsel üretim gibi temel akışları deneyebilir.']
+    ],
+    faq: [
+      ['Yapay zeka araçları işletmeler için uygun mu?', 'Evet. İçerik, destek, analiz ve pazarlama gibi alanlarda işletmelere zaman kazandırabilir.'],
+      ['Tek bir AI modeli yeterli mi?', 'Çoğu zaman hayır. Farklı işler için farklı modeller daha iyi sonuç verebilir.'],
+      ['Froxy AI hangi vaadi sunuyor?', '400+ AI modelini ve farklı yapay zeka araçlarını tek panelde kullanma deneyimi sunar.']
+    ]
+  }
+});
+
+const SEO_CLEAN_REPLACEMENTS = [
+  ['gÃ¶rsel', 'görsel'], ['GÃ¶rsel', 'Görsel'], ['Ã¼cretsiz', 'ücretsiz'], ['Ãœcretsiz', 'Ücretsiz'],
+  ['baÅŸ', 'baş'], ['BaÅŸ', 'Baş'], ['araÃ§', 'araç'], ['AraÃ§', 'Araç'], ['TÃ¼rkÃ§e', 'Türkçe'],
+  ['Ã§', 'ç'], ['Ã‡', 'Ç'], ['Ä±', 'ı'], ['Ä°', 'İ'], ['ÄŸ', 'ğ'], ['Äž', 'Ğ'], ['ÅŸ', 'ş'], ['Åž', 'Ş'],
+  ['Ã¶', 'ö'], ['Ã–', 'Ö'], ['Ã¼', 'ü'], ['Ãœ', 'Ü'], ['Ã§', 'ç'], ['Ã‡', 'Ç'],
+  ['â€™', '’'], ['â€œ', '“'], ['â€�', '”'], ['â€', '”']
+];
+
+function cleanSeoText(value) {
+  let out = String(value || '');
+  for (const [from, to] of SEO_CLEAN_REPLACEMENTS) out = out.split(from).join(to);
+  return out;
+}
+
 const SEO_RELATED_LINKS = [
   ['ChatGPT Claude Gemini tek panel', '/chatgpt-claude-gemini-tek-panel'],
   ['400+ AI modeli', '/400-ai-model'],
@@ -2615,7 +2779,11 @@ function seoRouteKey(reqPath) {
 
 function sendSeoIndex(req, res) {
   const key = seoRouteKey(req.path);
-  const meta = SEO_PAGES[key] || SEO_PAGES['/'];
+  const rawMeta = SEO_PAGES[key] || SEO_PAGES['/'];
+  const meta = {
+    title: cleanSeoText(rawMeta.title),
+    description: cleanSeoText(rawMeta.description)
+  };
   const canonical = key === '/' ? 'https://froxyai.com' : `https://froxyai.com${key}`;
   fs.readFile(path.join(staticRoot, 'index.html'), 'utf8', (err, html) => {
     if (err) return res.sendFile('index.html', { root: staticRoot });
@@ -2630,10 +2798,16 @@ function sendSeoIndex(req, res) {
       .replace(/<meta name="twitter:description" content="[^"]*">/i, `<meta name="twitter:description" content="${escapeHtmlAttr(meta.description)}">`);
     const content = SEO_CONTENT[key];
     if (content) {
-      const sections = (content.sections || []).map(([heading, body]) => `<section><h2>${escapeHtmlText(heading)}</h2><p>${escapeHtmlText(body)}</p></section>`).join('');
-      const faq = (content.faq || []).map(([q, a]) => `<details><summary>${escapeHtmlText(q)}</summary><p>${escapeHtmlText(a)}</p></details>`).join('');
-      const related = SEO_RELATED_LINKS.filter(([, href]) => href !== key).slice(0, 6).map(([label, href]) => `<a href="${href}" style="color:#67e8f9;font-weight:800;text-decoration:none;border:1px solid rgba(103,232,249,.24);border-radius:999px;padding:8px 12px;background:rgba(15,23,42,.72)">${escapeHtmlText(label)}</a>`).join('');
-      const faqEntities = (content.faq || []).map(([q, a]) => ({
+      const cleanContent = {
+        h1: cleanSeoText(content.h1),
+        lead: cleanSeoText(content.lead),
+        sections: (content.sections || []).map(([heading, body]) => [cleanSeoText(heading), cleanSeoText(body)]),
+        faq: (content.faq || []).map(([q, a]) => [cleanSeoText(q), cleanSeoText(a)])
+      };
+      const sections = cleanContent.sections.map(([heading, body]) => `<section><h2>${escapeHtmlText(heading)}</h2><p>${escapeHtmlText(body)}</p></section>`).join('');
+      const faq = cleanContent.faq.map(([q, a]) => `<details><summary>${escapeHtmlText(q)}</summary><p>${escapeHtmlText(a)}</p></details>`).join('');
+      const related = SEO_RELATED_LINKS.filter(([, href]) => href !== key).slice(0, 6).map(([label, href]) => `<a href="${href}" style="color:#67e8f9;font-weight:800;text-decoration:none;border:1px solid rgba(103,232,249,.24);border-radius:999px;padding:8px 12px;background:rgba(15,23,42,.72)">${escapeHtmlText(cleanSeoText(label))}</a>`).join('');
+      const faqEntities = cleanContent.faq.map(([q, a]) => ({
         '@type': 'Question',
         name: String(q || ''),
         acceptedAnswer: { '@type': 'Answer', text: String(a || '') }
@@ -2643,8 +2817,8 @@ function sendSeoIndex(req, res) {
         '@graph': [
           {
             '@type': 'Article',
-            headline: content.h1,
-            description: content.lead,
+            headline: cleanContent.h1,
+            description: cleanContent.lead,
             mainEntityOfPage: canonical,
             publisher: { '@type': 'Organization', name: 'Froxy AI', url: 'https://froxyai.com' },
             inLanguage: 'tr-TR'
@@ -2657,15 +2831,15 @@ function sendSeoIndex(req, res) {
             '@type': 'BreadcrumbList',
             itemListElement: [
               { '@type': 'ListItem', position: 1, name: 'Froxy AI', item: 'https://froxyai.com' },
-              { '@type': 'ListItem', position: 2, name: content.h1, item: canonical }
+              { '@type': 'ListItem', position: 2, name: cleanContent.h1, item: canonical }
             ]
           }
         ]
       };
       const seoJsonLd = `<script type="application/ld+json">${JSON.stringify(structuredData).replace(/</g, '\\u003c')}</script>`;
       out = out.replace('</head>', `${seoJsonLd}</head>`);
-      out = out.replace(/<h1>[\s\S]*?<\/h1>/i, `<h1>${escapeHtmlText(content.h1)}</h1>`);
-      const seoHtml = `<article class="seo-landing-v1" style="max-width:980px;margin:56px auto;padding:0 20px 64px;color:#e5e7eb;font-family:Inter,system-ui,sans-serif;line-height:1.75"><p style="color:#38bdf8;font-weight:800;margin:0 0 10px">Froxy AI rehberi</p><h2 style="font-size:clamp(28px,4vw,44px);line-height:1.08;margin:0 0 18px;color:#fff">${escapeHtmlText(content.h1)}</h2><p style="font-size:18px;color:#cbd5e1;max-width:860px">${escapeHtmlText(content.lead)}</p>${sections}<section><h2>SÄ±k sorulan sorular</h2>${faq}</section><section><h2>Froxy AI ile dene</h2><p>ChatGPT, Claude, Gemini, gÃ¶rsel AI ve 400+ AI modelini tek panelde denemek iÃ§in Ã¼cretsiz hesap oluÅŸturabilir, 100 baÅŸlangÄ±Ã§ kredisiyle ilk AI iÅŸ akÄ±ÅŸÄ±nÄ± test edebilirsin.</p><p><a href="/kayit" style="color:#67e8f9;font-weight:800">100 Ã¼cretsiz krediyle kayÄ±t ol</a></p></section><nav aria-label="Ä°lgili SEO sayfalarÄ±" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">${related}</nav></article>`;
+      out = out.replace(/<h1>[\s\S]*?<\/h1>/i, `<h1>${escapeHtmlText(cleanContent.h1)}</h1>`);
+      const seoHtml = `<article class="seo-landing-v1" style="max-width:980px;margin:56px auto;padding:0 20px 64px;color:#e5e7eb;font-family:Inter,system-ui,sans-serif;line-height:1.75"><p style="color:#38bdf8;font-weight:800;margin:0 0 10px">Froxy AI rehberi</p><h2 style="font-size:clamp(28px,4vw,44px);line-height:1.08;margin:0 0 18px;color:#fff">${escapeHtmlText(cleanContent.h1)}</h2><p style="font-size:18px;color:#cbd5e1;max-width:860px">${escapeHtmlText(cleanContent.lead)}</p>${sections}<section><h2>Sık sorulan sorular</h2>${faq}</section><section><h2>Froxy AI ile dene</h2><p>ChatGPT, Claude, Gemini, görsel AI ve 400+ AI modelini tek panelde denemek için ücretsiz hesap oluşturabilir, 100 başlangıç kredisiyle ilk AI iş akışını test edebilirsin.</p><p><a href="/kayit" style="color:#67e8f9;font-weight:800">100 ücretsiz krediyle kayıt ol</a></p></section><nav aria-label="İlgili SEO sayfaları" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">${related}</nav></article>`;
       out = out.replace('</main>', `${seoHtml}</main>`);
     }
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
