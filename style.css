@@ -29493,3 +29493,179 @@ button,.btn,.ah-btn,.tool-chip,.chat-task-chip,.mp-cat,.mp-sort button,.img-qual
     transition-duration: .01ms !important;
   }
 }
+
+/* v341: Growth tools surface */
+#ptab-tools .growth-tools-hero-v341 {
+  position: relative !important;
+  overflow: hidden !important;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, .72fr) !important;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(34, 211, 238, .13), transparent 32%),
+    radial-gradient(circle at 86% 8%, rgba(139, 92, 246, .18), transparent 30%),
+    linear-gradient(135deg, rgba(7, 13, 25, .96), rgba(13, 18, 35, .88)) !important;
+  border-color: rgba(96, 165, 250, .2) !important;
+}
+
+#ptab-tools .growth-tools-hero-v341 .ai-tool-runbar {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 18px 60px rgba(2,6,23,.28) !important;
+}
+
+.growth-lab-preview-v341 {
+  position: relative;
+  min-height: 270px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, .14);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, .76), rgba(2, 6, 23, .58)),
+    repeating-linear-gradient(90deg, rgba(148,163,184,.045) 0 1px, transparent 1px 34px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+  isolation: isolate;
+}
+
+.growth-lab-preview-v341:before {
+  content: "";
+  position: absolute;
+  inset: 52px 22px auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, .5), transparent);
+  animation: growthScanV341 3.2s ease-in-out infinite;
+}
+
+.growth-lab-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8ea0b8;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.growth-lab-top span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.growth-lab-top span:nth-child(2) { background: #f59e0b; }
+.growth-lab-top span:nth-child(3) { background: #22c55e; }
+.growth-lab-top b { margin-left: auto; }
+
+.growth-lab-card {
+  margin-top: 28px;
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(15,23,42,.86), rgba(30,41,59,.58));
+  border: 1px solid rgba(96, 165, 250, .18);
+}
+
+.growth-lab-card small {
+  display: block;
+  color: #22d3ee;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.growth-lab-card strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 22px;
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+
+.growth-lab-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.growth-lab-grid i {
+  min-height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(2, 6, 23, .48);
+  border: 1px solid rgba(148, 163, 184, .12);
+  color: #cbd5e1;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.growth-lab-line {
+  height: 8px;
+  margin-top: 18px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, .82);
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, .1);
+}
+
+.growth-lab-line span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22d3ee, #8b5cf6);
+  animation: growthLineV341 2.6s ease-in-out infinite;
+}
+
+#ptab-tools .growth-tools-grid-v341 .ai-tool-card {
+  min-height: 214px !important;
+}
+
+#ptab-tools .growth-featured-tool {
+  border-color: color-mix(in srgb, var(--tool-accent) 36%, rgba(148,163,184,.14)) !important;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--tool-accent) 11%, rgba(15,23,42,.74)), rgba(6,11,22,.72)) !important;
+}
+
+#ptab-tools .growth-featured-tool .tool-card-top span {
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--tool-accent), rgba(139, 92, 246, .9)) !important;
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--tool-accent) 24%, transparent) !important;
+}
+
+#ptab-tools .growth-featured-tool h4 {
+  color: #f8fafc !important;
+}
+
+@keyframes growthScanV341 {
+  0%, 100% { opacity: .15; transform: translateY(0); }
+  50% { opacity: .9; transform: translateY(150px); }
+}
+
+@keyframes growthLineV341 {
+  0%, 100% { transform: translateX(-12%); }
+  50% { transform: translateX(152%); }
+}
+
+@media (max-width: 920px) {
+  #ptab-tools .growth-tools-hero-v341 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .growth-lab-preview-v341 {
+    min-height: 230px;
+  }
+}
+
+@media (max-width: 640px) {
+  #ptab-tools .growth-tools-hero-v341 {
+    padding: 20px !important;
+  }
+
+  .growth-lab-preview-v341 {
+    display: none;
+  }
+
+  #ptab-tools .growth-tools-grid-v341 .ai-tool-card {
+    min-height: 0 !important;
+  }
+}
