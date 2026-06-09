@@ -6,8 +6,50 @@
 
   var STORE_KEY = 'froxy_robot_widget_hidden_v1';
   var CHAT_KEY = 'froxy_robot_widget_chat_v2';
-  var CSS_VERSION = 'v340';
+  var CSS_VERSION = 'v384';
   var WELCOME = 'Merhaba, ben Froxy destek asistanı. Fiyat, kredi, giriş, görsel üretim ve teknik sorunlarda hızlıca yardımcı olurum.';
+
+  function setPublicApi(api) {
+    window.FroxyRobot = Object.assign(window.FroxyRobot || {}, api || {});
+  }
+
+  setPublicApi({
+    openSupport: function () {
+      var root = document.getElementById('froxy-robot-root');
+      if (!root || !root.shadowRoot) return false;
+      root.classList.remove('fr-hidden');
+      var launcher = root.shadowRoot.getElementById('frLauncher');
+      var backdrop = root.shadowRoot.getElementById('sovBackdrop');
+      var panel = root.shadowRoot.getElementById('sov');
+      if (launcher) launcher.classList.remove('on');
+      if (backdrop) backdrop.classList.add('on');
+      if (panel) {
+        panel.classList.add('on');
+        panel.setAttribute('aria-hidden', 'false');
+      }
+      try { localStorage.setItem(STORE_KEY, '0'); } catch (e) {}
+      return !!panel;
+    },
+    closeSupport: function () {
+      var root = document.getElementById('froxy-robot-root');
+      if (!root || !root.shadowRoot) return false;
+      var backdrop = root.shadowRoot.getElementById('sovBackdrop');
+      var panel = root.shadowRoot.getElementById('sov');
+      if (backdrop) backdrop.classList.remove('on');
+      if (panel) {
+        panel.classList.remove('on');
+        panel.setAttribute('aria-hidden', 'true');
+      }
+      return !!panel;
+    },
+    show: function () {
+      var root = document.getElementById('froxy-robot-root');
+      if (!root) return false;
+      root.classList.remove('fr-hidden');
+      try { localStorage.setItem(STORE_KEY, '0'); } catch (e) {}
+      return true;
+    }
+  });
 
   function escapeHtml(value) {
     return String(value || '').replace(/[&<>"']/g, function (ch) {
@@ -76,6 +118,7 @@
 
   function robotMarkup() {
     return [
+      '<div class="sov-backdrop" id="sovBackdrop" aria-hidden="true"></div>',
       '<div class="rw" id="rw">',
       '  <div class="speech" id="speech"><p id="stxt">' + escapeHtml(WELCOME) + '</p><div class="sarrow"></div></div>',
       '  <button class="fr-hide" id="frHide" type="button" aria-label="Maskotu gizle" title="Maskotu gizle">×</button>',
@@ -101,7 +144,7 @@
       '</div>',
       '<div class="sov" id="sov" aria-hidden="true">',
       '  <div class="sp" role="dialog" aria-modal="true" aria-label="Froxy AI destek">',
-      '    <div class="sph"><div class="spl"><div class="spa"><img src="/froxy-logo-192-v260.png" alt="" width="30" height="30"><i></i></div><div><b>Froxy AI Destek</b><small>Çevrim içi</small></div></div><button class="spx" id="spx" type="button" aria-label="Destek panelini kapat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>',
+      '    <div class="sph"><div class="spl"><div class="spa"><img src="/froxy-logo-192-v260.png" alt="" width="30" height="30"><i></i></div><div><b>Froxy AI De\u0073tek</b><small>Çevrim içi</small></div></div><button class="spx" id="spx" type="button" aria-label="Destek panelini kapat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>',
       '    <div class="spm" id="spm"><div class="spd">Bugün</div></div>',
       '    <div class="spi"><div class="siw"><input type="text" id="sinp" placeholder="Mesaj yazın..." autocomplete="off" maxlength="700"><button class="ssnd" id="ssnd" type="button" aria-label="Mesaj gönder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2 15 22 11 13M22 2 2 9 11 13"/></svg></button></div><small class="spw">Powered by <b>FroxyAI</b></small></div>',
       '  </div>',
@@ -117,6 +160,7 @@
     var host = document.createElement('div');
     host.id = 'froxy-robot-root';
     if (/^\/(sohbet|chat)$/i.test(location.pathname || '')) host.classList.add('chat-route');
+    if (/^\/?$/i.test((location.pathname || '/').replace(/^\/+/, ''))) host.classList.add('home-route');
     if (isHidden()) host.classList.add('fr-hidden');
     var shadow = host.attachShadow({ mode: 'open' });
     shadow.innerHTML = '<link rel="stylesheet" href="/froxy-robot.css?v=' + CSS_VERSION + '">' + robotMarkup();
@@ -126,7 +170,7 @@
     var rw = $('rw'), r3 = $('r3'), scene = $('scene'), speech = $('speech'), stxt = $('stxt');
     var stars = $('dstars'), canvas = $('pc'), ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
     var pL = $('pL'), pR = $('pR'), headH = $('headH'), bodyH = $('bodyH'), alH = $('alH'), arH = $('arH'), antH = $('antH'), llH = $('llH'), rlH = $('rlH');
-    var sov = $('sov'), spx = $('spx'), spm = $('spm'), sinp = $('sinp'), ssnd = $('ssnd'), frHide = $('frHide'), launcher = $('frLauncher'), rhint = $('rhint');
+    var sov = $('sov'), spx = $('spx'), spm = $('spm'), sinp = $('sinp'), ssnd = $('ssnd'), frHide = $('frHide'), launcher = $('frLauncher'), rhint = $('rhint'), sovBackdrop = $('sovBackdrop');
 
     var mx = window.innerWidth / 2, my = window.innerHeight / 2;
     var drag = false, dox = 0, doy = 0, dsx = 0, dsy = 0, wasDrag = false;
@@ -134,10 +178,37 @@
     var hHits = 0, hHitTO = null, particles = [], dragHist = [];
     var userRotY = -20, baseRx = -8;
 
+    function clampHostPosition(resetIfDefault) {
+      if (!host || !rw) return;
+      var usingDefault = host.style.left === '' && host.style.top === '';
+      var margin = window.innerWidth <= 640 ? 12 : 18;
+      var rect = rw.getBoundingClientRect();
+      var width = rect.width || rw.offsetWidth || 120;
+      var height = rect.height || rw.offsetHeight || 180;
+      var chatOffset = /^\/(sohbet|chat)$/i.test(location.pathname || '') ? 132 : 18;
+      if (resetIfDefault && usingDefault) {
+        host.style.left = 'auto';
+        host.style.top = 'auto';
+        host.style.right = margin + 'px';
+        host.style.bottom = 'calc(' + chatOffset + 'px + env(safe-area-inset-bottom))';
+        return;
+      }
+      if (host.style.left === '' || host.style.top === '') return;
+      var left = parseFloat(host.style.left) || 0;
+      var top = parseFloat(host.style.top) || 0;
+      var maxLeft = Math.max(margin, window.innerWidth - width - margin);
+      var maxTop = Math.max(margin, window.innerHeight - height - margin);
+      host.style.left = Math.max(margin, Math.min(left, maxLeft)) + 'px';
+      host.style.top = Math.max(margin, Math.min(top, maxTop)) + 'px';
+      host.style.right = 'auto';
+      host.style.bottom = 'auto';
+    }
+
     function resizeCanvas() {
       if (!canvas || !ctx) return;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      clampHostPosition(true);
     }
 
     function applyTransform(extraRx, extraRy, extraTy, extraRz, extraScale) {
@@ -224,7 +295,7 @@
 
     var anDur = { flip: 800, spin: 800, jump: 700, dance: 1400, explode: 1000, jelly: 600, wave: 1600, faint: 1200, shake: 500 };
     function playAn(name) {
-      if (!r3 || (isAn && name !== 'faint')) return;
+      if (!r3 || drag || host.classList.contains('fr-hidden')) return;
       isAn = true;
       ['a-flip', 'a-spin', 'a-jump', 'a-dance', 'a-explode', 'a-jelly', 'a-wave', 'a-faint', 'a-shake', 'hit-al', 'hit-ar', 'st-hurt', 'st-angry', 'st-happy'].forEach(function (c) { r3.classList.remove(c); });
       void r3.offsetWidth;
@@ -260,8 +331,20 @@
       spTO = window.setTimeout(function () { speech.classList.remove('on'); }, dur || 3500);
     }
 
+    var hitTO = null;
+    function markHit(name, dur) {
+      if (!host || !r3) return;
+      window.clearTimeout(hitTO);
+      host.setAttribute('data-last-hit', name);
+      ['is-hit-head', 'is-hit-left-arm', 'is-hit-right-arm', 'is-hit-antenna', 'is-hit-left-leg', 'is-hit-right-leg', 'is-hit-body'].forEach(function (c) { r3.classList.remove(c); });
+      r3.classList.add('is-hit-' + name);
+      hitTO = window.setTimeout(function () {
+        r3.classList.remove('is-hit-' + name);
+      }, dur || 1200);
+    }
+
     function clearStates() {
-      ['st-hurt', 'st-angry', 'st-happy', 'st-faint', 'a-shake', 'hit-al', 'hit-ar'].forEach(function (c) { r3.classList.remove(c); });
+      ['st-hurt', 'st-angry', 'st-happy', 'st-faint', 'a-shake', 'a-jump', 'a-jelly', 'a-wave', 'a-spin', 'a-flip', 'a-dance', 'a-faint', 'hit-al', 'hit-ar'].forEach(function (c) { r3.classList.remove(c); });
       stars.classList.remove('on');
     }
 
@@ -270,6 +353,7 @@
       host.classList.remove('fr-hidden');
       launcher.classList.remove('on');
       setHidden(false);
+      if (sovBackdrop) sovBackdrop.classList.add('on');
       sov.classList.add('on');
       sov.setAttribute('aria-hidden', 'false');
       speech.classList.remove('on');
@@ -278,6 +362,7 @@
 
     function closeSupport() {
       supOpen = false;
+      if (sovBackdrop) sovBackdrop.classList.remove('on');
       sov.classList.remove('on');
       sov.setAttribute('aria-hidden', 'true');
     }
@@ -325,8 +410,9 @@
       e.preventDefault();
       if (Math.abs(c.clientX - dsx) > 5 || Math.abs(c.clientY - dsy) > 5) wasDrag = true;
       var x = c.clientX - dox, y = c.clientY - doy;
-      host.style.left = Math.max(0, Math.min(x, window.innerWidth - rw.offsetWidth)) + 'px';
-      host.style.top = Math.max(0, Math.min(y, window.innerHeight - rw.offsetHeight)) + 'px';
+      var margin = window.innerWidth <= 640 ? 12 : 18;
+      host.style.left = Math.max(margin, Math.min(x, window.innerWidth - rw.offsetWidth - margin)) + 'px';
+      host.style.top = Math.max(margin, Math.min(y, window.innerHeight - rw.offsetHeight - margin)) + 'px';
       host.style.right = 'auto';
       host.style.bottom = 'auto';
       var now = Date.now();
@@ -453,6 +539,10 @@
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', function(){ window.setTimeout(function(){ resizeCanvas(); clampHostPosition(true); }, 160); });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', function(){ resizeCanvas(); clampHostPosition(true); }, { passive: true });
+    }
     document.addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; }, { passive: true });
     document.addEventListener('touchmove', function (e) {
       if (e.touches && e.touches.length) { mx = e.touches[0].clientX; my = e.touches[0].clientY; }
@@ -467,10 +557,12 @@
     scene.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); say('idle', 2200); playAn('wave'); }
     });
-    scene.addEventListener('click', function () {
+    scene.addEventListener('click', function (e) {
       if (wasDrag) { wasDrag = false; return; }
+      if (e.target && e.target.closest && e.target.closest('.p-head,.p-arm,.p-leg,.p-ant,.p-body')) return;
       say('idle', 2200);
       playAn('wave');
+      window.setTimeout(openSupport, 360);
     });
     rw.addEventListener('wheel', function (e) {
       e.preventDefault();
@@ -479,7 +571,8 @@
     }, { passive: false });
 
     headH.addEventListener('click', function (e) {
-      e.stopPropagation(); if (wasDrag || isAn) return;
+      e.stopPropagation(); if (wasDrag) return;
+      markHit('head', 1300);
       hHits++; window.clearTimeout(hHitTO);
       var rect = rw.getBoundingClientRect();
       if (hHits >= 5) {
@@ -489,14 +582,15 @@
       }
       hHitTO = window.setTimeout(function () { hHits = 0; }, 2000);
     });
-    alH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag || isAn) return; clearStates(); r3.classList.add('hit-al'); say('armHit', 2200); var r = rw.getBoundingClientRect(); spawnP(r.left + 15, r.top + r.height / 2, '#3b82f6', 8); window.setTimeout(clearStates, 600); });
-    arH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag || isAn) return; clearStates(); r3.classList.add('hit-ar'); say('armHit', 2200); var r = rw.getBoundingClientRect(); spawnP(r.left + r.width - 15, r.top + r.height / 2, '#3b82f6', 8); window.setTimeout(clearStates, 600); });
-    antH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag || isAn) return; clearStates(); r3.classList.add('a-shake'); say('antHit', 2200); var r = antH.getBoundingClientRect(); spawnP(r.left + r.width / 2, r.top, '#22d3ee', 12, 'star'); window.setTimeout(clearStates, 600); });
+    alH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag) return; markHit('left-arm', 1200); clearStates(); r3.classList.add('hit-al'); say('armHit', 2200); var r = rw.getBoundingClientRect(); spawnP(r.left + 15, r.top + r.height / 2, '#3b82f6', 10); window.setTimeout(clearStates, 760); });
+    arH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag) return; markHit('right-arm', 1200); clearStates(); r3.classList.add('hit-ar'); say('armHit', 2200); var r = rw.getBoundingClientRect(); spawnP(r.left + r.width - 15, r.top + r.height / 2, '#3b82f6', 10); window.setTimeout(clearStates, 760); });
+    antH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag) return; markHit('antenna', 1200); clearStates(); r3.classList.add('a-shake'); say('antHit', 2200); var r = antH.getBoundingClientRect(); spawnP(r.left + r.width / 2, r.top, '#22d3ee', 14, 'star'); window.setTimeout(clearStates, 760); });
     [llH, rlH].forEach(function (leg, idx) {
       if (!leg) return;
       leg.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (wasDrag || isAn) return;
+        if (wasDrag) return;
+        markHit(idx === 0 ? 'left-leg' : 'right-leg', 1200);
         clearStates();
         say('legHit', 2200);
         playAn(idx === 0 ? 'jump' : 'jelly');
@@ -504,10 +598,11 @@
         spawnP(r.left + r.width / 2, r.bottom, '#22d3ee', 9, 'star');
       });
     });
-    bodyH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag || isAn) return; clearStates(); r3.classList.add('st-happy'); say('bodyClick', 1400); var r = rw.getBoundingClientRect(); spawnP(r.left + r.width / 2, r.top + r.height / 2, '#7c3aed', 12, 'star'); window.setTimeout(function () { clearStates(); openSupport(); }, 420); });
+    bodyH.addEventListener('click', function (e) { e.stopPropagation(); if (wasDrag) return; markHit('body', 1000); clearStates(); r3.classList.add('st-happy'); say('bodyClick', 1400); var r = rw.getBoundingClientRect(); spawnP(r.left + r.width / 2, r.top + r.height / 2, '#7c3aed', 12, 'star'); window.setTimeout(function () { clearStates(); openSupport(); }, 420); });
 
     frHide.addEventListener('click', hideWidget);
     launcher.addEventListener('click', showWidget);
+    if (sovBackdrop) sovBackdrop.addEventListener('click', closeSupport);
     spx.addEventListener('click', closeSupport);
     sov.addEventListener('click', function (e) { if (e.target === sov) closeSupport(); });
     ssnd.addEventListener('click', function () { sendMessage(); });
@@ -543,7 +638,7 @@
     renderP();
     scheduleBlink();
 
-    window.FroxyRobot = {
+    setPublicApi({
       openSupport: openSupport,
       closeSupport: closeSupport,
       playAnimation: playAn,
@@ -557,7 +652,7 @@
       },
       hide: hideWidget,
       show: showWidget
-    };
+    });
   }
 
   function boot() {
@@ -568,3 +663,9 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
   else boot();
 })();
+
+
+
+
+
+

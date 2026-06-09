@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
 const path = require('path');
@@ -44,28 +44,28 @@ try {
 const app = express();
 app.set('trust proxy', 1);
 
-// ===== PERFORMANS & GÃœVENLÄ°K =====
-// gzip/br ile metin (JS/CSS/HTML/JSON) yanÄ±tlarÄ± 3-5Ã— kÃ¼Ã§Ã¼lÃ¼r; LCP ve FCP skoru yÃ¼kselir.
+// ===== PERFORMANS & GÜVENLİK =====
+  // gzip/br ile metin (JS/CSS/HTML/JSON) yanıtları 3-5x küçülür; LCP ve FCP skoru yükselir.
 app.use(compression({
   level: 6,
-  threshold: 1024, // 1 KB altÄ± yanÄ±tlarÄ± sÄ±kÄ±ÅŸtÄ±rma
+  threshold: 1024, // 1 KB altı yanıtları sıkıştırma
   filter: (req, res) => {
-    // Zaten sÄ±kÄ±ÅŸtÄ±rÄ±lmÄ±ÅŸ medya tiplerini atla
+    // Zaten sıkıştırılmış medya tiplerini atla
     const type = res.getHeader('Content-Type') || '';
     if (/^image\/(jpeg|png|webp|avif)|^video\//.test(type)) return false;
     return compression.filter(req, res);
   }
 }));
 
-// CORS whitelisting: varsayÄ±lan olarak prod domain + localhost.
-// Ä°htiyaÃ§ halinde env ile geniÅŸletilebilir: CORS_ORIGINS="https://a.com,https://b.com"
+// CORS whitelisting: varsayılan olarak prod domain + localhost.
+// İhtiyaç halinde env ile genişletilebilir: CORS_ORIGINS="https://a.com,https://b.com"
 const DEFAULT_ORIGINS = ['https://froxyai.com', 'https://www.froxyai.com', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:4177', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:4177'];
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
   : DEFAULT_ORIGINS);
 app.use(cors({
   origin: (origin, cb) => {
-    // Same-origin / server-to-server isteklerde origin yoktur - geÃ§
+    // Same-origin / server-to-server isteklerde origin yoktur - geç
     if (!origin) return cb(null, true);
     try {
       const u = new URL(origin);
@@ -77,7 +77,7 @@ app.use(cors({
   credentials: true,
 }));
 
-// Temel gÃ¼venlik baÅŸlÄ±klarÄ± (helmet kurmadan minimum set)
+// Temel güvenlik başlıkları (helmet kurmadan minimum set)
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -403,11 +403,15 @@ try {
 
 // Daily limits per plan
 const DAILY_LIMITS = {
-  free:       { chat: 10, image: 3 },
-  starter:    { chat: 200, image: 50 },
-  popular:    { chat: 500, image: 150 },
-  pro:        { chat: 1500, image: 400 },
-  business:   { chat: 5000, image: 1500 },
+  free: { chat: 10, image: 3 },
+  starter: { chat: 200, image: 50 },
+  popular: { chat: 500, image: 150 },
+  pro: { chat: 1500, image: 400 },
+  creator: { chat: 1500, image: 400 },
+  developer: { chat: 2000, image: 600 },
+  power: { chat: 5000, image: 1500 },
+  agency_start: { chat: 5000, image: 2000 },
+  business: { chat: 5000, image: 1500 },
   enterprise: { chat: 999999, image: 999999 }
 };
 
@@ -416,11 +420,11 @@ function getDailyLimits(plan) {
 }
 
 const SHOPIER_PACKAGE_CATALOG = {
-  starter: { productId: '47408136', name: 'Baslangic', label: 'BaÅŸlangÄ±Ã§', credits: 5000, price: 129.99 },
-  popular: { productId: '47408138', name: 'Populer', label: 'PopÃ¼ler', credits: 15000, price: 249.99 },
+  starter: { productId: '47408136', name: 'Baslangic', label: 'Başlangıç', credits: 5000, price: 129.99 },
+  popular: { productId: '47408138', name: 'Populer', label: 'Popüler', credits: 15000, price: 249.99 },
   pro: { productId: '47408141', name: 'Profesyonel', label: 'Profesyonel', credits: 50000, price: 449.99 },
-  developer: { productId: '47408145', name: 'Gelistirici', label: 'GeliÅŸtirici', credits: 100000, price: 599.99 },
-  business: { productId: '47408149', name: 'Isletme', label: 'Ä°ÅŸletme', credits: 150000, price: 799.99 },
+  developer: { productId: '47408145', name: 'Gelistirici', label: 'Geliştirici', credits: 100000, price: 599.99 },
+  business: { productId: '47408149', name: 'Isletme', label: 'İşletme', credits: 150000, price: 799.99 },
   enterprise: { productId: '47408150', name: 'Kurumsal', label: 'Kurumsal', credits: 500000, price: 1499.99 }
 };
 const SHOPIER_PRODUCT_TO_PLAN = Object.fromEntries(Object.entries(SHOPIER_PACKAGE_CATALOG).map(([plan, pack]) => [pack.productId, plan]));
@@ -547,13 +551,13 @@ function resetDailyIfNeeded(userId) {
 function checkDailyLimit(userId, type) {
   resetDailyIfNeeded(userId);
   const user = db.prepare('SELECT plan, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(userId);
-  if (!user) return { allowed: false, reason: 'KullanÄ±cÄ± bulunamadÄ±' };
+  if (!user) return { allowed: false, reason: 'Kullan\u0131c\u0131 bulunamad\u0131' };
   const limits = getDailyLimits(user.plan || 'free');
   if (type === 'chat' && user.daily_chat_count >= limits.chat) {
-    return { allowed: false, reason: 'Gunluk mesaj limitinize ulastiniz (' + limits.chat + '/' + limits.chat + '). Paketinizi yukseltebilirsiniz.' };
+    return { allowed: false, reason: 'G\u00fcnl\u00fck mesaj limitinize ula\u015ft\u0131n\u0131z (' + limits.chat + '/' + limits.chat + '). Paketinizi y\u00fckseltebilirsiniz.' };
   }
   if (type === 'image' && user.daily_image_count >= limits.image) {
-    return { allowed: false, reason: 'Gunluk gorsel limitinize ulastiniz (' + limits.image + '/' + limits.image + '). Paketinizi yukseltebilirsiniz.' };
+    return { allowed: false, reason: 'G\u00fcnl\u00fck g\u00f6rsel limitinize ula\u015ft\u0131n\u0131z (' + limits.image + '/' + limits.image + '). Paketinizi y\u00fckseltebilirsiniz.' };
   }
   return { allowed: true };
 }
@@ -637,7 +641,7 @@ function issueUserToken(row) {
 
 function upsertOAuthUser({ provider, email, name }) {
   const cleanEmail = String(email || '').trim().toLowerCase();
-  if (!cleanEmail) throw new Error('OAuth e-posta bilgisi alÄ±namadÄ±.');
+  if (!cleanEmail) throw new Error('OAuth e-posta bilgisi alınamadı.');
   const usernameBase = String(name || cleanEmail.split('@')[0] || provider || 'user').trim().slice(0, 36) || 'user';
   let row = db.prepare('SELECT * FROM users WHERE lower(email) = ?').get(cleanEmail);
   if (!row) {
@@ -672,21 +676,21 @@ function oauthSuccessRedirect(returnTo, provider, profile, auth) {
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 dakika
   max: 20,
-  message: { error: 'Ã‡ok fazla istek gÃ¶nderildi. LÃ¼tfen 15 dakika sonra tekrar deneyin.' },
+  message: { error: 'Çok fazla istek gönderildi. Lütfen 15 dakika sonra tekrar deneyin.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 dakika
   max: 30,
-  message: { error: 'Ã‡ok hÄ±zlÄ± istek gÃ¶nderiyorsunuz. LÃ¼tfen biraz bekleyin.' },
+  message: { error: 'Çok hızlı istek gönderiyorsunuz. Lütfen biraz bekleyin.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 const generalLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 60,
-  message: { error: 'Ä°stek limiti aÅŸÄ±ldÄ±.' },
+  message: { error: 'İstek limiti aşıldı.' },
 });
 const trackLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -964,7 +968,7 @@ function applyShopierPayment(req, payload) {
     const row = db.prepare('SELECT * FROM shopier_payments WHERE payment_id = ?').get(paymentId);
     if (row && row.status === 'applied') return { already: true, user: db.prepare('SELECT id, username, email, credits, plan FROM users WHERE id = ?').get(row.user_id) };
     const before = db.prepare('SELECT credits FROM users WHERE id = ?').get(userId);
-    if (!before) throw new Error('KullanÄ±cÄ± bulunamadÄ±');
+    if (!before) throw new Error('Kullanıcı bulunamadı');
     db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(plan, pack.credits, userId);
     recordShopierPayment({ payload, paymentId, orderId, plan, pack, userId, verified: true, status: 'applied' });
     db.prepare('UPDATE shopier_payments SET applied_at = CURRENT_TIMESTAMP WHERE payment_id = ?').run(paymentId);
@@ -1391,7 +1395,7 @@ app.post('/api/register', authLimiter, async (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
-  // Stateless JWT â€” client token'Ä± silmeli. Cookie varsa temizle.
+  // Stateless JWT â€” client token'ı silmeli. Cookie varsa temizle.
   try {
     res.clearCookie('token');
     res.clearCookie('ap_token');
@@ -1404,13 +1408,13 @@ app.post('/api/login', authLimiter, async (req, res) => {
   if(!email || !password) return res.status(400).json({error: 'Eksik bilgi'});
   try {
     const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    if(!user || !bcrypt.compareSync(password, user.password)) return res.status(401).json({error: 'HatalÄ± e-posta veya ÅŸifre'});
+    if(!user || !bcrypt.compareSync(password, user.password)) return res.status(401).json({error: 'Hatalı e-posta veya şifre'});
     if(user.is_blocked) {
       if(user.block_until && new Date(user.block_until).getTime() <= Date.now()) {
         db.prepare('UPDATE users SET is_blocked = 0, blocked_at = NULL, block_until = NULL, block_reason = NULL WHERE id = ?').run(user.id);
       } else {
-        const until = user.block_until ? ` Yasak bitiÅŸi: ${user.block_until}` : '';
-        return res.status(403).json({error: 'HesabÄ±nÄ±z bloke edilmiÅŸtir.' + until});
+        const until = user.block_until ? ` Yasak bitişi: ${user.block_until}` : '';
+        return res.status(403).json({error: 'Hesabınız bloke edilmiştir.' + until});
       }
     }
     if (isForceAdminEmail(email)) syncForceAdminEmail(email);
@@ -1585,7 +1589,7 @@ app.get('/api/leaderboard', (req, res) => {
       ORDER BY spentCredits DESC, u.created_at ASC
       LIMIT ?
     `).all(limit).map(row => ({
-      username: row.username || 'KullanÄ±cÄ±',
+      username: row.username || 'Kullanıcı',
       plan: row.plan || 'free',
       spentCredits: Number(row.spentCredits || 0)
     }));
@@ -1653,7 +1657,7 @@ app.get('/api/admin/users', adminMiddleware, (req, res) => {
 // PUT /api/admin/users/:id/credits
 app.put('/api/admin/users/:id/credits', adminMiddleware, (req, res) => {
   const { amount } = req.body;
-  if(typeof amount !== 'number') return res.status(400).json({error: 'GeÃ§erli miktar girin'});
+  if(typeof amount !== 'number') return res.status(400).json({error: 'Ge\u00e7erli miktar girin'});
   try {
     db.prepare('UPDATE users SET credits = MAX(0, credits + ?) WHERE id = ?').run(amount, req.params.id);
     const u = db.prepare('SELECT id, username, credits FROM users WHERE id = ?').get(req.params.id);
@@ -1666,7 +1670,7 @@ app.put('/api/admin/users/:id/credits', adminMiddleware, (req, res) => {
 app.put('/api/admin/users/:id/plan', adminMiddleware, (req, res) => {
   const allowedPlans = ['free','starter','popular','pro','creator','developer','power','agency_start','business','enterprise'];
   const { plan, credits } = req.body;
-  if(!allowedPlans.includes(plan)) return res.status(400).json({error: 'GeÃ§erli paket seÃ§in'});
+  if(!allowedPlans.includes(plan)) return res.status(400).json({error: 'Ge\u00e7erli paket se\u00e7in'});
   try {
     if(typeof credits === 'number') {
       db.prepare('UPDATE users SET plan = ?, credits = MAX(0, ?) WHERE id = ?').run(plan, credits, req.params.id);
@@ -1686,7 +1690,7 @@ app.put('/api/admin/users/:id/block', adminMiddleware, (req, res) => {
     if(block) {
       const blockUntil = permanent ? null : until;
       db.prepare('UPDATE users SET is_blocked = 1, blocked_at = CURRENT_TIMESTAMP, block_until = ?, block_reason = ? WHERE id = ?').run(blockUntil, reason || null, req.params.id);
-      logActivity(req.user.id, permanent ? 'permanent_ban' : 'temp_ban', `User ${req.params.id}: ${reason || '-'} ${blockUntil || 'kalÄ±cÄ±'}`);
+      logActivity(req.user.id, permanent ? 'permanent_ban' : 'temp_ban', `User ${req.params.id}: ${reason || '-'} ${blockUntil || 'kal\u0131c\u0131'}`);
     } else {
       db.prepare('UPDATE users SET is_blocked = 0, blocked_at = NULL, block_until = NULL, block_reason = NULL WHERE id = ?').run(req.params.id);
       logActivity(req.user.id, 'unblock_user', `User ${req.params.id}`);
@@ -1783,7 +1787,7 @@ app.post('/api/admin/shopier-sync-orders', adminMiddleware, async (req, res) => 
     logActivity(req.user.id, 'shopier_sync_orders', `${orders.length} siparis kontrol edildi`);
     res.json({ success: true, checked: orders.length, results });
   } catch(e) {
-    res.status(e.status || 500).json({ error: e.message || 'Shopier sipariÅŸleri alÄ±namadÄ±.' });
+    res.status(e.status || 500).json({ error: e.message || 'Shopier siparişleri alınamadı.' });
   }
 });
 
@@ -1801,7 +1805,7 @@ app.post('/api/admin/shopier-register-webhook', adminMiddleware, async (req, res
     logActivity(req.user.id, 'shopier_register_webhook', callbackUrl);
     res.json({ success: true, webhook: api.data || api.raw, url: callbackUrl });
   } catch(e) {
-    res.status(e.status || 500).json({ error: e.message || 'Shopier webhook oluÅŸturulamadÄ±.' });
+    res.status(e.status || 500).json({ error: e.message || 'Shopier webhook oluşturulamadı.' });
   }
 });
 
@@ -1809,7 +1813,7 @@ app.post('/api/admin/shopier-register-webhook', adminMiddleware, async (req, res
 app.post('/api/shopier/start', authMiddleware, (req, res) => {
   const plan = String(req.body.plan || 'starter').trim();
   const pack = SHOPIER_PACKAGE_CATALOG[plan];
-  if (!pack) return res.status(400).json({ error: 'GeÃ§erli paket seÃ§in.' });
+  if (!pack) return res.status(400).json({ error: 'Geçerli paket seçin.' });
   const fallbackUrl = SHOPIER_STATIC_URLS[plan] || 'https://www.shopier.com/froxyai';
   const apiKey = process.env.SHOPIER_API_KEY;
   const apiSecret = process.env.SHOPIER_API_SECRET;
@@ -1818,15 +1822,15 @@ app.post('/api/shopier/start', authMiddleware, (req, res) => {
   }
   try {
     const user = db.prepare('SELECT id, username, email FROM users WHERE id = ?').get(req.user.id);
-    if (!user) return res.status(404).json({ error: 'KullanÄ±cÄ± bulunamadÄ±.' });
+    if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
     const random = crypto.randomBytes(8).toString('hex');
     const platformOrderId = `FRX-${user.id}-${plan}-${Date.now()}-${random.slice(0, 6)}`;
     const total = Number(pack.price).toFixed(2);
     const currency = 'TRY';
     const signatureBase = random + platformOrderId + total + currency;
     const signature = crypto.createHmac('sha256', apiSecret).update(signatureBase).digest('base64');
-    const [firstName, ...lastParts] = String(user.username || 'Froxy AI KullanÄ±cÄ±sÄ±').trim().split(/\s+/);
-    const lastName = lastParts.join(' ') || 'KullanÄ±cÄ±';
+    const [firstName, ...lastParts] = String(user.username || 'Froxy AI Kullanıcısı').trim().split(/\s+/);
+    const lastName = lastParts.join(' ') || 'Kullanıcı';
     const frontend = process.env.FRONTEND_ORIGIN || 'https://froxyai.com';
     const fields = {
       API_key: apiKey,
@@ -1864,10 +1868,10 @@ app.post('/api/shopier/start', authMiddleware, (req, res) => {
     });
     logActivity(user.id, 'shopier_payment_started', `${platformOrderId}: ${plan}`);
     const inputs = Object.entries(fields).map(([k, v]) => `<input type="hidden" name="${String(k).replace(/"/g, '&quot;')}" value="${String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}">`).join('');
-    const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Shopier'e yÃ¶nlendiriliyor</title></head><body><form id="shopier-form" method="post" action="https://www.shopier.com/ShowProduct/api_pay4.php">${inputs}</form><script>document.getElementById('shopier-form').submit();setTimeout(function(){location.href=${JSON.stringify(frontend)}},12000);<\/script></body></html>`;
+    const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Shopier'e yönlendiriliyor</title></head><body><form id="shopier-form" method="post" action="https://www.shopier.com/ShowProduct/api_pay4.php">${inputs}</form><script>document.getElementById('shopier-form').submit();setTimeout(function(){location.href=${JSON.stringify(frontend)}},12000);<\/script></body></html>`;
     res.json({ fallback: false, action: 'https://www.shopier.com/ShowProduct/api_pay4.php', fields, html, platform_order_id: platformOrderId });
   } catch(e) {
-    res.status(500).json({ error: 'Shopier Ã¶deme baÅŸlatÄ±lamadÄ±: ' + e.message, fallback_url: fallbackUrl });
+    res.status(500).json({ error: 'Shopier ödeme başlatılamadı: ' + e.message, fallback_url: fallbackUrl });
   }
 });
 
@@ -1957,7 +1961,7 @@ app.get('/api/shopier/callback', handleShopierCallback);
 // POST /api/admin/announce
 app.post('/api/admin/announce', adminMiddleware, (req, res) => {
   const { title, body, type } = req.body;
-  if(!title || !body) return res.status(400).json({error: 'BaÅŸlÄ±k ve iÃ§erik gerekli'});
+  if(!title || !body) return res.status(400).json({error: 'Başlık ve içerik gerekli'});
   try {
     const r = db.prepare('INSERT INTO announcements (title, body, type) VALUES (?, ?, ?)').run(title, body, type || 'info');
     logActivity(req.user.id, 'announce', title);
@@ -2045,12 +2049,12 @@ app.post('/api/redeem-code', authMiddleware, (req, res) => {
 });
 
 // POST /api/admin/make-admin-by-email (bootstrapping)
-// GÃœVENLIK: ADMIN_BOOTSTRAP_SECRET env degiskeni olmadan calismaz
+// GÜVENLIK: ADMIN_BOOTSTRAP_SECRET env degiskeni olmadan calismaz
 app.post('/api/admin/make-admin-by-email', (req, res) => {
   const bootstrapSecret = process.env.ADMIN_BOOTSTRAP_SECRET;
   if (!bootstrapSecret) return res.status(403).json({error: 'Bootstrap devre disi. ADMIN_BOOTSTRAP_SECRET env ayarlanmali.'});
   const { secret, email } = req.body;
-  if(secret !== bootstrapSecret) return res.status(403).json({error: 'GeÃ§ersiz secret'});
+  if(secret !== bootstrapSecret) return res.status(403).json({error: 'Geçersiz secret'});
   try {
     const r = db.prepare('UPDATE users SET is_admin = 1 WHERE email = ?').run(email);
     logActivity(0, 'bootstrap_admin', `Email: ${email}`);
@@ -2069,13 +2073,13 @@ app.post('/api/forgot-password', authLimiter, (req, res) => {
       const token = crypto.randomBytes(32).toString('hex');
       const expires = new Date(Date.now() + 3600000).toISOString(); // 1 saat
       db.prepare('INSERT INTO reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)').run(user.id, token, expires);
-      // Production'da token'Ä± loglamÄ±yoruz; dev'de debug iÃ§in yazÄ±yoruz.
+      // Production'da token'ı loglamıyoruz; dev'de debug için yazıyoruz.
       // Reset token console'a yazilmaz; sadece dev response icinde doner.
-      const payload = { success: true, message: 'Åifre sÄ±fÄ±rlama baÄŸlantÄ±sÄ± e-postanÄ±za gÃ¶nderildi.' };
+      const payload = { success: true, message: 'Şifre sıfırlama bağlantısı e-postanıza gönderildi.' };
       if (process.env.NODE_ENV !== 'production') payload.dev_token = token;
       res.json(payload);
     } else {
-      res.json({ success: true, message: 'Åifre sÄ±fÄ±rlama baÄŸlantÄ±sÄ± e-postanÄ±za gÃ¶nderildi.' });
+      res.json({ success: true, message: 'Şifre sıfırlama bağlantısı e-postanıza gönderildi.' });
     }
   } catch(e) {
     res.status(500).json({error: e.message});
@@ -2084,16 +2088,16 @@ app.post('/api/forgot-password', authLimiter, (req, res) => {
 
 app.post('/api/reset-password', authLimiter, (req, res) => {
   const { token, password } = req.body;
-  if(!token || !password) return res.status(400).json({error: 'Token ve ÅŸifre gerekli'});
-  if(password.length < 6) return res.status(400).json({error: 'Åifre en az 6 karakter olmalÄ±'});
+  if(!token || !password) return res.status(400).json({error: 'Token ve şifre gerekli'});
+  if(password.length < 6) return res.status(400).json({error: 'Şifre en az 6 karakter olmalı'});
   try {
     const rt = db.prepare('SELECT * FROM reset_tokens WHERE token = ? AND used = 0').get(token);
-    if(!rt) return res.status(400).json({error: 'GeÃ§ersiz veya kullanÄ±lmÄ±ÅŸ token'});
-    if(new Date(rt.expires_at) < new Date()) return res.status(400).json({error: 'Token sÃ¼resi dolmuÅŸ'});
+    if(!rt) return res.status(400).json({error: 'Ge?ersiz veya kullan?lm?? token'});
+    if(new Date(rt.expires_at) < new Date()) return res.status(400).json({error: 'Token s?resi dolmu?'});
     const hash = bcrypt.hashSync(password, 10);
     db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hash, rt.user_id);
     db.prepare('UPDATE reset_tokens SET used = 1 WHERE id = ?').run(rt.id);
-    res.json({ success: true, message: 'Åifreniz baÅŸarÄ±yla sÄ±fÄ±rlandÄ±.' });
+    res.json({ success: true, message: 'Şifreniz başarıyla sıfırlandı.' });
   } catch(e) {
     res.status(500).json({error: e.message});
   }
@@ -2102,23 +2106,23 @@ app.post('/api/reset-password', authLimiter, (req, res) => {
 // ===== PROFILE =====
 app.put('/api/profile', authMiddleware, (req, res) => {
   const { username } = req.body;
-  if(!username || username.trim().length < 2) return res.status(400).json({error: 'GeÃ§erli bir kullanÄ±cÄ± adÄ± girin'});
+  if(!username || username.trim().length < 2) return res.status(400).json({error: 'Geçerli bir kullanıcı adı girin'});
   try {
     db.prepare('UPDATE users SET username = ? WHERE id = ?').run(username.trim(), req.user.id);
     const user = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(req.user.id);
     res.json({ user });
   } catch(e) {
-    res.status(400).json({error: 'Bu kullanÄ±cÄ± adÄ± zaten kullanÄ±mda'});
+    res.status(400).json({error: 'Bu kullanıcı adı zaten kullanımda'});
   }
 });
 
 app.post('/api/change-password', authMiddleware, authLimiter, (req, res) => {
   const { oldPassword, newPassword } = req.body;
   if(!oldPassword || !newPassword) return res.status(400).json({error: 'Eksik bilgi'});
-  if(newPassword.length < 6) return res.status(400).json({error: 'Yeni ÅŸifre en az 6 karakter olmalÄ±'});
+  if(newPassword.length < 6) return res.status(400).json({error: 'Şifre en az 6 karakter olmalı'});
   try {
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
-    if(!bcrypt.compareSync(oldPassword, user.password)) return res.status(401).json({error: 'Mevcut ÅŸifre hatalÄ±'});
+    if(!bcrypt.compareSync(oldPassword, user.password)) return res.status(401).json({error: 'Mevcut şifre hatalı'});
     const hash = bcrypt.hashSync(newPassword, 10);
     db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hash, req.user.id);
     res.json({ success: true });
@@ -2168,7 +2172,7 @@ app.get('/api/me', authMiddleware, (req, res) => {
   try {
     resetDailyIfNeeded(req.user.id);
     const user = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(req.user.id);
-    if(!user) return res.status(404).json({error: 'KullanÄ±cÄ± bulunamadÄ±'});
+    if(!user) return res.status(404).json({error: 'Kullanıcı bulunamadı'});
     const limits = getDailyLimits(user.plan || 'free');
     res.json({ user, limits });
   } catch(e) {
@@ -2197,7 +2201,7 @@ app.get('/api/documents', authMiddleware, (req, res) => {
 
 app.post('/api/documents', authMiddleware, (req, res) => {
   const { filename, content } = req.body;
-  if(!filename || !content) return res.status(400).json({error: 'Dosya adÄ± ve iÃ§eriÄŸi gerekli'});
+  if(!filename || !content) return res.status(400).json({error: 'Dosya adı ve içeriği gerekli'});
   try {
     // Basic chunking: save as one big row for simplicity, or chunk it. We'll save as one row.
     const stmt = db.prepare('INSERT INTO documents (user_id, filename, content) VALUES (?, ?, ?)');
@@ -2431,147 +2435,147 @@ const SEO_CONTENT = {
 Object.assign(SEO_PAGES, {
   '/': {
     title: 'Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde',
-    description: 'ChatGPT, Claude, Gemini, gÃ¶rsel Ã¼retim araÃ§larÄ± ve AI ajanlarÄ±nÄ± tek hesapta kullan. Yeni Ã¼yeler 100 Ã¼cretsiz krediyle baÅŸlar, kart gerekmez.'
+    description: 'ChatGPT, Claude, Gemini, görsel üretim araçları ve AI ajanlarını tek hesapta kullan. Yeni üyeler 100 ücretsiz krediyle başlar, kart gerekmez.'
   },
   '/sohbet': {
     title: 'AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 400+ Model | Froxy AI',
-    description: 'Tek panelden ChatGPT, Claude, Gemini, Groq ve OpenRouter modelleriyle TÃ¼rkÃ§e AI sohbet et. Froxy AI hesabÄ±nÄ± 100 Ã¼cretsiz krediyle dene.'
+    description: 'Tek panelden ChatGPT, Claude, Gemini, Groq ve OpenRouter modelleriyle Türkçe AI sohbet et. Froxy AI hesabını 100 ücretsiz krediyle dene.'
   },
   '/gorsel-uret': {
-    title: 'AI GÃ¶rsel Ãœretme ve FotoÄŸraf DÃ¼zenleme AracÄ± | Froxy AI',
-    description: 'Promptla gÃ¶rsel Ã¼ret, fotoÄŸraf dÃ¼zenle ve farklÄ± gÃ¶rsel AI modellerini tek panelde dene. Yeni Ã¼yeler 100 Ã¼cretsiz krediyle baÅŸlar.'
+    title: 'AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI',
+    description: 'Promptla görsel üret, fotoğraf düzenle ve farklı görsel AI modellerini tek panelde dene. Yeni üyeler 100 ücretsiz krediyle başlar.'
   },
   '/fiyatlandirma': {
-    title: 'Froxy AI FiyatlandÄ±rma - Kredi Paketleri ve 100 Ãœcretsiz Kredi',
-    description: 'ChatGPT, Claude, Gemini, gÃ¶rsel Ã¼retim ve AI araÃ§larÄ± iÃ§in Froxy AI kredi paketlerini incele. KayÄ±t olan yeni Ã¼yeler 100 kredi alÄ±r.'
+    title: 'Froxy AI Fiyatlandırma - Kredi Paketleri ve 100 Ücretsiz Kredi',
+    description: 'ChatGPT, Claude, Gemini, görsel üretim ve AI araçları için Froxy AI kredi paketlerini incele. Kayıt olan yeni üyeler 100 kredi alır.'
   },
   '/chatgpt-claude-gemini-tek-panel': {
     title: 'ChatGPT, Claude ve Gemini Tek Panelde | Froxy AI',
-    description: 'ChatGPT, Claude, Gemini ve 400+ AI modelini tek hesapta kullan. Sekme deÄŸiÅŸtirmeden sohbet et, gÃ¶rsel Ã¼ret ve araÃ§larÄ± Ã§alÄ±ÅŸtÄ±r.'
+    description: 'ChatGPT, Claude, Gemini ve 400+ AI modelini tek hesapta kullan. Sekme değiştirmeden sohbet et, görsel üret ve araçları çalıştır.'
   },
   '/chatgpt-claude-gemini': {
-    title: 'ChatGPT Claude Gemini KarÅŸÄ±laÅŸtÄ±rma ve Tek Panel KullanÄ±m | Froxy AI',
-    description: 'ChatGPT, Claude ve Gemini modellerini tek panelde dene; hÄ±z, kalite, kredi maliyeti ve kullanÄ±m alanÄ±na gÃ¶re doÄŸru modeli seÃ§.'
+    title: 'ChatGPT Claude Gemini Karşılaştırma ve Tek Panel Kullanım | Froxy AI',
+    description: 'ChatGPT, Claude ve Gemini modellerini tek panelde dene; hız, kalite, kredi maliyeti ve kullanım alanına göre doğru modeli seç.'
   },
   '/400-ai-model': {
     title: '400+ AI Modeli Tek Hesapta - Froxy AI Model Paneli',
-    description: 'OpenAI, Claude, Gemini, Groq, OpenRouter ve gÃ¶rsel AI modellerini tek kredi sistemiyle kullan. Froxy AI ile 100 kredi Ã¼cretsiz baÅŸla.'
+    description: 'OpenAI, Claude, Gemini, Groq, OpenRouter ve görsel AI modellerini tek kredi sistemiyle kullan. Froxy AI ile 100 kredi ücretsiz başla.'
   },
   '/ai-kredi-sistemi': {
-    title: 'AI Kredi Sistemi Nedir? ChatGPT ve GÃ¶rsel AI KullanÄ±mÄ± | Froxy AI',
-    description: 'Froxy AI kredi sistemiyle farklÄ± AI modellerini tek bakiyeden kullan. Sohbet, gÃ¶rsel Ã¼retim ve premium modellerde kredi mantÄ±ÄŸÄ±nÄ± Ã¶ÄŸren.'
+    title: 'AI Kredi Sistemi Nedir? ChatGPT ve Görsel AI Kullanımı | Froxy AI',
+    description: 'Froxy AI kredi sistemiyle farklı AI modellerini tek bakiyeden kullan. Sohbet, görsel üretim ve premium modellerde kredi mantığını öğren.'
   },
   '/turkce-ai-platformu': {
-    title: 'TÃ¼rkÃ§e AI Platformu - ChatGPT, Claude, Gemini Tek Panelde | Froxy AI',
-    description: 'TÃ¼rkÃ§e arayÃ¼zle AI sohbet, gÃ¶rsel Ã¼retim, promptlar, dosya analizi ve AI araÃ§larÄ±nÄ± tek panelde kullan. Froxy AI 100 krediyle denenebilir.'
+    title: 'Türkçe AI Platformu - ChatGPT, Claude, Gemini Tek Panelde | Froxy AI',
+    description: 'Türkçe arayüzle AI sohbet, görsel üretim, promptlar, dosya analizi ve AI araçlarını tek panelde kullan. Froxy AI 100 krediyle denenebilir.'
   },
   '/ai-dosya-analizi': {
-    title: 'AI Dosya Analizi - PDF, GÃ¶rsel ve Belge Okuma | Froxy AI',
-    description: 'PDF, metin ve gÃ¶rselleri AI ile analiz et. Froxy AI, dosya okuyan modelleri ve sohbet araÃ§larÄ±nÄ± tek panelde toplar.'
+    title: 'AI Dosya Analizi - PDF, Görsel ve Belge Okuma | Froxy AI',
+    description: 'PDF, metin ve görselleri AI ile analiz et. Froxy AI, dosya okuyan modelleri ve sohbet araçlarını tek panelde toplar.'
   },
   '/ai-fotograf-duzenleme': {
-    title: 'AI FotoÄŸraf DÃ¼zenleme - Yapay Zeka ile GÃ¶rsel Edit | Froxy AI',
-    description: 'FotoÄŸraf yÃ¼kle, yapay zeka ile dÃ¼zenle, stil deÄŸiÅŸtir ve gÃ¶rsel Ã¼retim modellerini tek panelde dene. Froxy AI ile hÄ±zlÄ± baÅŸla.'
+    title: 'AI Fotoğraf Düzenleme - Yapay Zeka ile Görsel Edit | Froxy AI',
+    description: 'Fotoğraf yükle, yapay zeka ile düzenle, stil değiştir ve görsel üretim modellerini tek panelde dene. Froxy AI ile hızlı başla.'
   }
 });
 
 Object.assign(SEO_CONTENT, {
   '/chatgpt-claude-gemini-tek-panel': {
     h1: 'ChatGPT, Claude ve Gemini tek panelde',
-    lead: 'Froxy AI, farklÄ± AI abonelikleri ve sekmeler arasÄ±nda kaybolmadan Ã§alÄ±ÅŸmak isteyenler iÃ§in hazÄ±rlanmÄ±ÅŸ tek panel yapay zeka platformudur. ChatGPT, Claude, Gemini, Groq, OpenRouter ve gÃ¶rsel AI modellerini tek hesapta deneyebilir, 100 Ã¼cretsiz baÅŸlangÄ±Ã§ kredisiyle kart bilgisi girmeden baÅŸlayabilirsin.',
+    lead: 'Froxy AI, farklı AI abonelikleri ve sekmeler arasında kaybolmadan çalışmak isteyenler için hazırlanmış tek panel yapay zeka platformudur. ChatGPT, Claude, Gemini, Groq, OpenRouter ve görsel AI modellerini tek hesapta deneyebilir, 100 ücretsiz başlangıç kredisiyle kart bilgisi girmeden başlayabilirsin.',
     sections: [
-      ['Tek panel neden daha hÄ±zlÄ±dÄ±r?', 'AyrÄ± ayrÄ± AI sitelerine girip hesap, abonelik ve kullanÄ±m limitlerini takip etmek zaman kaybettirir. Froxy AI modelleri tek arayÃ¼zde toplar; kullanÄ±cÄ± gÃ¶revine gÃ¶re model seÃ§er, kredi maliyetini gÃ¶rÃ¼r ve aynÄ± panelden sohbet, gÃ¶rsel Ã¼retim veya hazÄ±r araÃ§ Ã§alÄ±ÅŸtÄ±rÄ±r.'],
-      ['Hangi iÅŸler iÃ§in kullanÄ±lÄ±r?', 'Ä°Ã§erik Ã¼retimi, kod analizi, belge Ã¶zeti, gÃ¶rsel fikir, sosyal medya metni, mÃ¼ÅŸteri desteÄŸi ve araÅŸtÄ±rma gibi gÃ¼nlÃ¼k iÅŸlerde farklÄ± modeller farklÄ± sonuÃ§ verir. Tek panel kullanmak, her iÅŸ iÃ§in en uygun modeli daha hÄ±zlÄ± bulmayÄ± saÄŸlar.'],
-      ['Froxy AI ile baÅŸlangÄ±Ã§', 'KayÄ±t olan yeni Ã¼yelerin hesabÄ±na 100 Ã¼cretsiz kredi tanÄ±mlanÄ±r. Bu krediyle sohbet, gÃ¶rsel Ã¼retim ve hazÄ±r AI araÃ§larÄ±nÄ± test edebilir; kart bilgisi girmeden platformun sana uygun olup olmadÄ±ÄŸÄ±nÄ± gÃ¶rebilirsin.']
+      ['Tek panel neden daha hızlıdır?', 'Ayrı ayrı AI sitelerine girip hesap, abonelik ve kullanım limitlerini takip etmek zaman kaybettirir. Froxy AI modelleri tek arayüzde toplar; kullanıcı görevine göre model seçer, kredi maliyetini görür ve aynı panelden sohbet, görsel üretim veya hazır araç çalıştırır.'],
+      ['Hangi işler için kullanılır?', 'İçerik üretimi, kod analizi, belge özeti, görsel fikir, sosyal medya metni, müşteri desteği ve araştırma gibi günlük işlerde farklı modeller farklı sonuç verir. Tek panel kullanmak, her iş için en uygun modeli daha hızlı bulmayı sağlar.'],
+      ['Froxy AI ile başlangıç', 'Kayıt olan yeni üyelerin hesabına 100 ücretsiz kredi tanımlanır. Bu krediyle sohbet, görsel üretim ve hazır AI araçlarını test edebilir; kart bilgisi girmeden platformun sana uygun olup olmadığını görebilirsin.']
     ],
     faq: [
-      ['ChatGPT, Claude ve Gemini aynÄ± hesapta kullanÄ±labilir mi?', 'Froxy AI farklÄ± model ailelerini tek panelde sunar. KullanÄ±cÄ± model seÃ§ip aynÄ± Ã§alÄ±ÅŸma alanÄ±ndan farklÄ± AI deneyimleri alabilir.'],
-      ['Ãœcretsiz deneme iÃ§in kart gerekir mi?', 'HayÄ±r. Yeni Ã¼yeler 100 Ã¼cretsiz krediyle baÅŸlayabilir ve deneme iÃ§in kart bilgisi gerekmez.'],
-      ['Froxy AI ayrÄ± ayrÄ± aboneliklerden nasÄ±l farklÄ±?', 'Froxy AI, farklÄ± modelleri kredi sistemiyle tek panelde kullandÄ±rÄ±r. BÃ¶ylece platformlar arasÄ±nda geÃ§iÅŸ yapmak ve ayrÄ± abonelikleri yÃ¶netmek zorunda kalmazsÄ±n.']
+      ['ChatGPT, Claude ve Gemini aynı hesapta kullanılabilir mi?', 'Froxy AI farklı model ailelerini tek panelde sunar. Kullanıcı model seçip aynı çalışma alanından farklı AI deneyimleri alabilir.'],
+      ['Ücretsiz deneme için kart gerekir mi?', 'Hayır. Yeni üyeler 100 ücretsiz krediyle başlayabilir ve deneme için kart bilgisi gerekmez.'],
+      ['Froxy AI ayrı ayrı aboneliklerden nasıl farklı?', 'Froxy AI, farklı modelleri kredi sistemiyle tek panelde kullandırır. Böylece platformlar arasında geçiş yapmak ve ayrı abonelikleri yönetmek zorunda kalmazsın.']
     ]
   },
   '/chatgpt-claude-gemini': {
-    h1: 'ChatGPT, Claude ve Gemini karÅŸÄ±laÅŸtÄ±rma paneli',
-    lead: 'Her AI modeli aynÄ± iÅŸi aynÄ± kalitede yapmaz. ChatGPT hÄ±zlÄ± fikir ve genel Ã¼retimde, Claude uzun metin ve dÃ¼zenli cevaplarda, Gemini Ã§ok modlu iÅŸlerde Ã¶ne Ã§Ä±kabilir. Froxy AI, bu modelleri tek panelde deneyerek iÅŸine en uygun seÃ§eneÄŸi bulmanÄ± kolaylaÅŸtÄ±rÄ±r.',
+    h1: 'ChatGPT, Claude ve Gemini karşılaştırma paneli',
+    lead: 'Her AI modeli aynı işi aynı kalitede yapmaz. ChatGPT hızlı fikir ve genel üretimde, Claude uzun metin ve düzenli cevaplarda, Gemini çok modlu işlerde öne çıkabilir. Froxy AI, bu modelleri tek panelde deneyerek işine en uygun seçeneği bulmanı kolaylaştırır.',
     sections: [
-      ['Model seÃ§imi nasÄ±l yapÄ±lmalÄ±?', 'Kod, metin, analiz, gÃ¶rsel okuma veya hÄ±zlÄ± cevap gibi gÃ¶revler farklÄ± model Ã¶zellikleri ister. Froxy AI model seÃ§icide hÄ±z, kalite, kredi maliyeti ve yetenek rozetleriyle karar vermeyi kolaylaÅŸtÄ±rÄ±r.'],
-      ['Tek promptu farklÄ± modellerde denemek', 'AynÄ± isteÄŸi farklÄ± modellerle denemek kalite farkÄ±nÄ± gÃ¶rmenin en pratik yoludur. BÃ¶ylece tek bir saÄŸlayÄ±cÄ±ya baÄŸlÄ± kalmadan iÅŸine en uygun yanÄ±tÄ± seÃ§ebilirsin.'],
-      ['Kimler iÃ§in uygundur?', 'Ajanslar, iÃ§erik ekipleri, Ã¶ÄŸrenciler, yazÄ±lÄ±mcÄ±lar ve kÃ¼Ã§Ã¼k iÅŸletmeler tek panel Ã¼zerinden farklÄ± modelleri deneyerek maliyeti ve zamanÄ± daha iyi yÃ¶netebilir.']
+      ['Model seçimi nasıl yapılmalı?', 'Kod, metin, analiz, görsel okuma veya hızlı cevap gibi görevler farklı model özellikleri ister. Froxy AI model seçicide hız, kalite, kredi maliyeti ve yetenek rozetleriyle karar vermeyi kolaylaştırır.'],
+      ['Tek promptu farklı modellerde denemek', 'Aynı isteği farklı modellerle denemek kalite farkını görmenin en pratik yoludur. Böylece tek bir sağlayıcıya bağlı kalmadan işine en uygun yanıtı seçebilirsin.'],
+      ['Kimler için uygundur?', 'Ajanslar, içerik ekipleri, öğrenciler, yazılımcılar ve küçük işletmeler tek panel üzerinden farklı modelleri deneyerek maliyeti ve zamanı daha iyi yönetebilir.']
     ],
     faq: [
-      ['En iyi model hangisi?', 'Tek bir en iyi model yoktur. En iyi seÃ§im, gÃ¶reve ve bÃ¼tÃ§eye gÃ¶re deÄŸiÅŸir.'],
-      ['Froxy AI model maliyetini gÃ¶sterir mi?', 'Model ve iÅŸlem tÃ¼rÃ¼ne gÃ¶re kredi maliyeti kullanÄ±cÄ±ya gÃ¶sterilebilir.'],
-      ['KarÅŸÄ±laÅŸtÄ±rma yapmak iÃ§in teknik bilgi gerekir mi?', 'HayÄ±r. Model seÃ§ici ve hazÄ±r araÃ§lar teknik olmayan kullanÄ±cÄ±larÄ±n da hÄ±zlÄ± baÅŸlamasÄ± iÃ§in tasarlanmÄ±ÅŸtÄ±r.']
+      ['En iyi model hangisi?', 'Tek bir en iyi model yoktur. En iyi seçim, göreve ve bütçeye göre değişir.'],
+      ['Froxy AI model maliyetini gösterir mi?', 'Model ve işlem türüne göre kredi maliyeti kullanıcıya gösterilebilir.'],
+      ['Karşılaştırma yapmak için teknik bilgi gerekir mi?', 'Hayır. Model seçici ve hazır araçlar teknik olmayan kullanıcıların da hızlı başlaması için tasarlanmıştır.']
     ]
   },
   '/400-ai-model': {
     h1: '400+ AI modeli tek hesapta',
-    lead: 'Froxy AI, farklÄ± saÄŸlayÄ±cÄ±larÄ±n sohbet, kod, analiz, gÃ¶rsel Ã¼retim ve gÃ¶rsel okuma modellerini tek panelde toplar. AmaÃ§, kullanÄ±cÄ±ya Ã§ok seÃ§enek sunarken seÃ§im sÃ¼recini karmaÅŸÄ±k hale getirmeden doÄŸru modeli hÄ±zlÄ±ca buldurmaktÄ±r.',
+    lead: 'Froxy AI, farklı sağlayıcıların sohbet, kod, analiz, görsel üretim ve görsel okuma modellerini tek panelde toplar. Amaç, kullanıcıya çok seçenek sunarken seçim sürecini karmaşık hale getirmeden doğru modeli hızlıca buldurmaktır.',
     sections: [
-      ['Neden Ã§ok model gerekli?', 'Bir model kodda iyi olabilir, baÅŸka bir model uzun metinde daha gÃ¼Ã§lÃ¼ olabilir, bir baÅŸkasÄ± gÃ¶rsel okuma veya hÄ±zlÄ± cevapta avantaj saÄŸlayabilir. Ã‡ok model desteÄŸi, tek modele baÄŸÄ±mlÄ±lÄ±ÄŸÄ± azaltÄ±r.'],
-      ['Kredi sistemi nasÄ±l yardÄ±mcÄ± olur?', 'FarklÄ± abonelikler yerine tek kredi bakiyesiyle kullanÄ±m yapmak maliyet takibini kolaylaÅŸtÄ±rÄ±r. KullanÄ±cÄ± ihtiyacÄ± kadar kullanÄ±r ve hangi modelin ne kadar kredi harcadÄ±ÄŸÄ±nÄ± gÃ¶rebilir.'],
-      ['Model karmaÅŸasÄ± nasÄ±l azaltÄ±lÄ±r?', 'Ã–nerilen, en ucuz, en hÄ±zlÄ±, en kaliteli, gÃ¶rsel okur ve kod gibi filtreler kullanÄ±cÄ±yÄ± doÄŸru modele yÃ¶nlendirir. BÃ¶ylece 400+ model seÃ§eneÄŸi kalabalÄ±k deÄŸil, avantaj haline gelir.']
+      ['Neden çok model gerekli?', 'Bir model kodda iyi olabilir, başka bir model uzun metinde daha güçlü olabilir, bir başkası görsel okuma veya hızlı cevapta avantaj sağlayabilir. Çok model desteği, tek modele bağımlılığı azaltır.'],
+      ['Kredi sistemi nasıl yardımcı olur?', 'Farklı abonelikler yerine tek kredi bakiyesiyle kullanım yapmak maliyet takibini kolaylaştırır. Kullanıcı ihtiyacı kadar kullanır ve hangi modelin ne kadar kredi harcadığını görebilir.'],
+      ['Model karmaşası nasıl azaltılır?', 'Önerilen, en ucuz, en hızlı, en kaliteli, görsel okur ve kod gibi filtreler kullanıcıyı doğru modele yönlendirir. Böylece 400+ model seçeneği kalabalık değil, avantaj haline gelir.']
     ],
     faq: [
-      ['TÃ¼m modeller tek saÄŸlayÄ±cÄ±ya mÄ± baÄŸlÄ±?', 'Froxy AI farklÄ± model ailelerini tek panelde yÃ¶netmeyi hedefler. KullanÄ±cÄ± arayÃ¼zÃ¼nde seÃ§im deneyimi sade tutulur; teknik saÄŸlayÄ±cÄ± durumu sistem tarafÄ±nda izlenir.'],
-      ['Ãœcretsiz modeller var mÄ±?', 'BazÄ± uygun maliyetli veya Ã¼cretsiz hatlar kullanÄ±labilir; premium modeller daha fazla kredi harcayabilir.'],
-      ['Yeni baÅŸlayanlar hangi modeli seÃ§meli?', 'Ã–nerilen veya hÄ±zlÄ± kategorisi baÅŸlangÄ±Ã§ iÃ§in uygundur. Daha Ã¶zel iÅŸler iÃ§in kod, gÃ¶rsel okur veya premium filtreleri kullanÄ±labilir.']
+      ['Tüm modeller tek sağlayıcıya mı bağlı?', 'Froxy AI farklı model ailelerini tek panelde yönetmeyi hedefler. Kullanıcı arayüzünde seçim deneyimi sade tutulur; teknik sağlayıcı durumu sistem tarafında izlenir.'],
+      ['Ücretsiz modeller var mı?', 'Bazı uygun maliyetli veya ücretsiz hatlar kullanılabilir; premium modeller daha fazla kredi harcayabilir.'],
+      ['Yeni başlayanlar hangi modeli seçmeli?', 'Önerilen veya hızlı kategorisi başlangıç için uygundur. Daha özel işler için kod, görsel okur veya premium filtreleri kullanılabilir.']
     ]
   },
   '/ai-kredi-sistemi': {
     h1: 'AI kredi sistemi nedir?',
-    lead: 'AI kredi sistemi, farklÄ± model ve araÃ§larÄ± tek bakiye Ã¼zerinden kullanmayÄ± saÄŸlar. Froxy AIâ€™da sohbet, gÃ¶rsel Ã¼retim, dosya analizi ve premium modeller iÅŸlem tÃ¼rÃ¼ne gÃ¶re kredi harcayabilir. Yeni Ã¼yeler 100 Ã¼cretsiz krediyle sistemi test edebilir.',
+    lead: 'AI kredi sistemi, farklı model ve araçları tek bakiye üzerinden kullanmayı sağlar. Froxy AIâ€™da sohbet, görsel üretim, dosya analizi ve premium modeller işlem türüne göre kredi harcayabilir. Yeni üyeler 100 ücretsiz krediyle sistemi test edebilir.',
     sections: [
-      ['Kredi sistemi neden kullanÄ±lÄ±r?', 'FarklÄ± AI modellerinin maliyetleri aynÄ± deÄŸildir. Kredi sistemi, kullanÄ±cÄ±ya tek abonelik yerine kullandÄ±ÄŸÄ± modele ve iÅŸleme gÃ¶re daha esnek bir deneyim sunar.'],
-      ['Hangi iÅŸlemler kredi harcar?', 'Sohbet cevaplarÄ±, gÃ¶rsel Ã¼retim, fotoÄŸraf dÃ¼zenleme, dosya analizi ve premium model kullanÄ±mÄ± kredi harcayabilir. Ucuz ve hÄ±zlÄ± modeller daha dÃ¼ÅŸÃ¼k krediyle Ã§alÄ±ÅŸabilir.'],
-      ['KullanÄ±cÄ± iÃ§in avantajÄ± nedir?', 'Kredi sistemi sayesinde kullanÄ±cÄ± farklÄ± modelleri deneyebilir, bÃ¼tÃ§esini kontrol eder ve tek platformdan kullanÄ±m geÃ§miÅŸini takip edebilir.']
+      ['Kredi sistemi neden kullanılır?', 'Farklı AI modellerinin maliyetleri aynı değildir. Kredi sistemi, kullanıcıya tek abonelik yerine kullandığı modele ve işleme göre daha esnek bir deneyim sunar.'],
+      ['Hangi işlemler kredi harcar?', 'Sohbet cevapları, görsel üretim, fotoğraf düzenleme, dosya analizi ve premium model kullanımı kredi harcayabilir. Ucuz ve hızlı modeller daha düşük krediyle çalışabilir.'],
+      ['Kullanıcı için avantajı nedir?', 'Kredi sistemi sayesinde kullanıcı farklı modelleri deneyebilir, bütçesini kontrol eder ve tek platformdan kullanım geçmişini takip edebilir.']
     ],
     faq: [
-      ['100 Ã¼cretsiz kredi nasÄ±l kullanÄ±lÄ±r?', 'KayÄ±t olan yeni Ã¼yelerin hesabÄ±na baÅŸlangÄ±Ã§ kredisi tanÄ±mlanÄ±r. Bu krediyle sohbet, gÃ¶rsel Ã¼retim ve hazÄ±r araÃ§lar denenebilir.'],
-      ['Kredi bitince ne olur?', 'KullanÄ±cÄ± yeni paket satÄ±n alabilir veya daha dÃ¼ÅŸÃ¼k maliyetli modelleri tercih edebilir.'],
-      ['Her model aynÄ± kredi mi harcar?', 'HayÄ±r. Model kalitesi, saÄŸlayÄ±cÄ± maliyeti ve iÅŸlem tÃ¼rÃ¼ne gÃ¶re kredi tÃ¼ketimi deÄŸiÅŸebilir.']
+      ['100 ücretsiz kredi nasıl kullanılır?', 'Kayıt olan yeni üyelerin hesabına başlangıç kredisi tanımlanır. Bu krediyle sohbet, görsel üretim ve hazır araçlar denenebilir.'],
+      ['Kredi bitince ne olur?', 'Kullanıcı yeni paket satın alabilir veya daha düşük maliyetli modelleri tercih edebilir.'],
+      ['Her model aynı kredi mi harcar?', 'Hayır. Model kalitesi, sağlayıcı maliyeti ve işlem türüne göre kredi tüketimi değişebilir.']
     ]
   },
   '/turkce-ai-platformu': {
-    h1: 'TÃ¼rkÃ§e AI platformu',
-    lead: 'Froxy AI, TÃ¼rkÃ§e kullanÄ±cÄ± deneyimiyle farklÄ± yapay zeka modellerini tek panelde sunar. Sohbet, gÃ¶rsel Ã¼retim, prompt ÅŸablonlarÄ±, AI araÃ§larÄ±, dosya analizi ve destek sistemi tek hesapta toplanÄ±r.',
+    h1: 'Türkçe AI platformu',
+    lead: 'Froxy AI, Türkçe kullanıcı deneyimiyle farklı yapay zeka modellerini tek panelde sunar. Sohbet, görsel üretim, prompt şablonları, AI araçları, dosya analizi ve destek sistemi tek hesapta toplanır.',
     sections: [
-      ['TÃ¼rkÃ§e arayÃ¼z neden Ã¶nemlidir?', 'AI araÃ§larÄ±nÄ±n Ã§oÄŸu Ä°ngilizce odaklÄ±dÄ±r. TÃ¼rkÃ§e arayÃ¼z, model seÃ§imi, kredi takibi, hata mesajlarÄ± ve destek sÃ¼reÃ§lerini daha anlaÅŸÄ±lÄ±r hale getirir.'],
-      ['Kimler kullanabilir?', 'Ä°Ã§erik Ã¼reticileri, Ã¶ÄŸrenciler, ajanslar, e-ticaret ekipleri, yazÄ±lÄ±mcÄ±lar ve kÃ¼Ã§Ã¼k iÅŸletmeler TÃ¼rkÃ§e panel Ã¼zerinden AI iÅŸ akÄ±ÅŸlarÄ±nÄ± daha hÄ±zlÄ± yÃ¶netebilir.'],
-      ['SatÄ±ÅŸ ve iÅŸ Ã¼retimi iÃ§in avantaj', 'HazÄ±r promptlar, araÃ§lar ve model seÃ§ici sayesinde kullanÄ±cÄ± boÅŸ ekrana bakmak yerine doÄŸrudan iÅŸ sonucuna odaklanÄ±r.']
+      ['Türkçe arayüz neden önemlidir?', 'AI araçlarının çoğu İngilizce odaklıdır. Türkçe arayüz, model seçimi, kredi takibi, hata mesajları ve destek süreçlerini daha anlaşılır hale getirir.'],
+      ['Kimler kullanabilir?', 'İçerik üreticileri, öğrenciler, ajanslar, e-ticaret ekipleri, yazılımcılar ve küçük işletmeler Türkçe panel üzerinden AI iş akışlarını daha hızlı yönetebilir.'],
+      ['Satış ve iş üretimi için avantaj', 'Hazır promptlar, araçlar ve model seçici sayesinde kullanıcı boş ekrana bakmak yerine doğrudan iş sonucuna odaklanır.']
     ],
     faq: [
-      ['Froxy AI TÃ¼rkÃ§e cevap verir mi?', 'SeÃ§ilen model desteklediÄŸi sÃ¼rece TÃ¼rkÃ§e sohbet ve iÃ§erik Ã¼retimi yapÄ±labilir.'],
-      ['Destek TÃ¼rkÃ§e mi?', 'Destek akÄ±ÅŸÄ± TÃ¼rkÃ§e kullanÄ±cÄ±lar dÃ¼ÅŸÃ¼nÃ¼lerek hazÄ±rlanÄ±r.'],
-      ['Kart bilgisi gerekir mi?', 'Ãœcretsiz baÅŸlangÄ±Ã§ kredisi iÃ§in kart bilgisi gerekmez.']
+      ['Froxy AI Türkçe cevap verir mi?', 'Seçilen model desteklediği sürece Türkçe sohbet ve içerik üretimi yapılabilir.'],
+      ['Destek Türkçe mi?', 'Destek akışı Türkçe kullanıcılar düşünülerek hazırlanır.'],
+      ['Kart bilgisi gerekir mi?', 'Ücretsiz başlangıç kredisi için kart bilgisi gerekmez.']
     ]
   },
   '/ai-dosya-analizi': {
     h1: 'AI dosya analizi',
-    lead: 'Froxy AI ile dosya, metin ve gÃ¶rsel iÃ§erikleri AI sohbet akÄ±ÅŸÄ±na dahil etmek hedeflenir. KullanÄ±cÄ± belge Ã¶zetleme, metin analizi, gÃ¶rsel yorumlama ve Ã§Ä±ktÄ± Ã¼retme iÅŸlerini tek panelden yÃ¶netebilir.',
+    lead: 'Froxy AI ile dosya, metin ve görsel içerikleri AI sohbet akışına dahil etmek hedeflenir. Kullanıcı belge özetleme, metin analizi, görsel yorumlama ve çıktı üretme işlerini tek panelden yönetebilir.',
     sections: [
-      ['Dosya analizi hangi iÅŸlerde kullanÄ±lÄ±r?', 'PDF Ã¶zetleme, teklif metni Ã§Ä±karma, rapor analizi, kod dosyasÄ± inceleme, gÃ¶rsel yorumlama ve mÃ¼ÅŸteri dokÃ¼manÄ± deÄŸerlendirme gibi iÅŸlerde kullanÄ±labilir.'],
-      ['GÃ¶rsel okuma neden ayrÄ± bir yetenektir?', 'Her model gÃ¶rsel veya dosya okuyamaz. Bu nedenle model seÃ§icide gÃ¶rsel okur ve dosya desteÄŸi gibi rozetler kullanÄ±cÄ±ya doÄŸru modeli seÃ§tirir.'],
-      ['Tek panel avantajÄ±', 'DosyayÄ± yÃ¼kleyip sohbet, Ã¶zet, aksiyon planÄ± veya gÃ¶rsel Ã¼retim fikri Ã¼retmek aynÄ± Ã§alÄ±ÅŸma alanÄ±nda yapÄ±labilir.']
+      ['Dosya analizi hangi işlerde kullanılır?', 'PDF özetleme, teklif metni çıkarma, rapor analizi, kod dosyası inceleme, görsel yorumlama ve müşteri dokümanı değerlendirme gibi işlerde kullanılabilir.'],
+      ['Görsel okuma neden ayrı bir yetenektir?', 'Her model görsel veya dosya okuyamaz. Bu nedenle model seçicide görsel okur ve dosya desteği gibi rozetler kullanıcıya doğru modeli seçtirir.'],
+      ['Tek panel avantajı', 'Dosyayı yükleyip sohbet, özet, aksiyon planı veya görsel üretim fikri üretmek aynı çalışma alanında yapılabilir.']
     ],
     faq: [
-      ['Her model dosya okuyabilir mi?', 'HayÄ±r. Dosya veya gÃ¶rsel okuma destekleyen modeller seÃ§ilmelidir.'],
-      ['PDF Ã¶zeti Ã§Ä±karÄ±labilir mi?', 'Uygun dosya akÄ±ÅŸÄ± ve modelle PDF veya metin iÃ§eriÄŸi Ã¶zetlenebilir.'],
-      ['Dosya analizi kredi harcar mÄ±?', 'Ä°ÅŸlem tÃ¼rÃ¼ ve modele gÃ¶re kredi harcayabilir.']
+      ['Her model dosya okuyabilir mi?', 'Hayır. Dosya veya görsel okuma destekleyen modeller seçilmelidir.'],
+      ['PDF özeti çıkarılabilir mi?', 'Uygun dosya akışı ve modelle PDF veya metin içeriği özetlenebilir.'],
+      ['Dosya analizi kredi harcar mı?', 'İşlem türü ve modele göre kredi harcayabilir.']
     ]
   },
   '/ai-fotograf-duzenleme': {
-    h1: 'AI fotoÄŸraf dÃ¼zenleme',
-    lead: 'AI fotoÄŸraf dÃ¼zenleme, yÃ¼klenen bir gÃ¶rseli prompt ile deÄŸiÅŸtirme veya iyileÅŸtirme sÃ¼recidir. Froxy AIâ€™da gÃ¶rsel Ã¼retim ve fotoÄŸraf dÃ¼zenleme ayrÄ± modlar olarak dÃ¼ÅŸÃ¼nÃ¼lÃ¼r; dÃ¼zenleme modunda yalnÄ±zca uygun modeller gÃ¶sterilir.',
+    h1: 'AI fotoğraf düzenleme',
+    lead: 'AI fotoğraf düzenleme, yüklenen bir görseli prompt ile değiştirme veya iyileştirme sürecidir. Froxy AIâ€™da görsel üretim ve fotoğraf düzenleme ayrı modlar olarak düşünülür; düzenleme modunda yalnızca uygun modeller gösterilir.',
     sections: [
-      ['FotoÄŸraf dÃ¼zenleme ile neler yapÄ±labilir?', 'Arka plan deÄŸiÅŸtirme, Ã¼rÃ¼n fotoÄŸrafÄ± iyileÅŸtirme, stil dÃ¶nÃ¼ÅŸÃ¼mÃ¼, nesne ekleme veya Ã§Ä±karma ve gÃ¶rsel varyasyon Ã¼retme gibi iÅŸlemler yapÄ±labilir.'],
-      ['Neden her model gÃ¶sterilmemeli?', 'BazÄ± modeller sadece sÄ±fÄ±rdan gÃ¶rsel Ã¼retir, bazÄ±larÄ± ise referans fotoÄŸraf dÃ¼zenleyebilir. KullanÄ±cÄ± deneyimi iÃ§in dÃ¼zenleme modunda yalnÄ±zca edit destekli modellerin gÃ¶rÃ¼nmesi gerekir.'],
-      ['E-ticaret ve sosyal medya kullanÄ±mÄ±', 'ÃœrÃ¼n gÃ¶rselleri, reklam kreatifleri, sosyal medya postlarÄ± ve kampanya gÃ¶rselleri iÃ§in AI fotoÄŸraf dÃ¼zenleme hÄ±zlÄ± bir baÅŸlangÄ±Ã§ saÄŸlar.']
+      ['Fotoğraf düzenleme ile neler yapılabilir?', 'Arka plan değiştirme, ürün fotoğrafı iyileştirme, stil dönüşümü, nesne ekleme veya çıkarma ve görsel varyasyon üretme gibi işlemler yapılabilir.'],
+      ['Neden her model gösterilmemeli?', 'Bazı modeller sadece sıfırdan görsel üretir, bazıları ise referans fotoğraf düzenleyebilir. Kullanıcı deneyimi için düzenleme modunda yalnızca edit destekli modellerin görünmesi gerekir.'],
+      ['E-ticaret ve sosyal medya kullanımı', 'Ürün görselleri, reklam kreatifleri, sosyal medya postları ve kampanya görselleri için AI fotoğraf düzenleme hızlı bir başlangıç sağlar.']
     ],
     faq: [
-      ['FotoÄŸraf dÃ¼zenleme iÃ§in gÃ¶rsel yÃ¼klemek gerekir mi?', 'Evet. DÃ¼zenleme modunda referans gÃ¶rsel yÃ¼klenir ve prompt ile nasÄ±l deÄŸiÅŸeceÄŸi anlatÄ±lÄ±r.'],
-      ['GÃ¶rsel Ã¼retim ile fotoÄŸraf dÃ¼zenleme aynÄ± ÅŸey mi?', 'HayÄ±r. GÃ¶rsel Ã¼retim sÄ±fÄ±rdan Ã§Ä±ktÄ± Ã¼retir; fotoÄŸraf dÃ¼zenleme mevcut gÃ¶rseli deÄŸiÅŸtirir.'],
-      ['DÃ¼zenleme kredi harcar mÄ±?', 'SeÃ§ilen modele ve iÅŸleme gÃ¶re kredi harcayabilir.']
+      ['Fotoğraf düzenleme için görsel yüklemek gerekir mi?', 'Evet. Düzenleme modunda referans görsel yüklenir ve prompt ile nasıl değişeceği anlatılır.'],
+      ['Görsel üretim ile fotoğraf düzenleme aynı şey mi?', 'Hayır. Görsel üretim sıfırdan çıktı üretir; fotoğraf düzenleme mevcut görseli değiştirir.'],
+      ['Düzenleme kredi harcar mı?', 'Seçilen modele ve işleme göre kredi harcayabilir.']
     ]
   }
 });
@@ -2857,11 +2861,11 @@ Object.assign(SEO_CONTENT, {
 });
 
 const SEO_CLEAN_REPLACEMENTS = [
-  ['gÃ¶rsel', 'görsel'], ['GÃ¶rsel', 'Görsel'], ['Ã¼cretsiz', 'ücretsiz'], ['Ãœcretsiz', 'Ücretsiz'],
-  ['baÅŸ', 'baş'], ['BaÅŸ', 'Baş'], ['araÃ§', 'araç'], ['AraÃ§', 'Araç'], ['TÃ¼rkÃ§e', 'Türkçe'],
-  ['Ã§', 'ç'], ['Ã‡', 'Ç'], ['Ä±', 'ı'], ['Ä°', 'İ'], ['ÄŸ', 'ğ'], ['Äž', 'Ğ'], ['ÅŸ', 'ş'], ['Åž', 'Ş'],
-  ['Ã¶', 'ö'], ['Ã–', 'Ö'], ['Ã¼', 'ü'], ['Ãœ', 'Ü'], ['Ã§', 'ç'], ['Ã‡', 'Ç'],
-  ['â€™', '’'], ['â€œ', '“'], ['â€�', '”'], ['â€', '”']
+  ['görsel', 'görsel'], ['Görsel', 'Görsel'], ['ücretsiz', 'ücretsiz'], ['Ücretsiz', 'Ücretsiz'],
+  ['baş', 'baş'], ['Baş', 'Baş'], ['araç', 'araç'], ['Araç', 'Araç'], ['Türkçe', 'Türkçe'],
+  ['ç', 'ç'], ['Ç', 'Ç'], ['ı', 'ı'], ['İ', 'İ'], ['ğ', 'ğ'], ['Ğ', 'Ğ'], ['ş', 'ş'], ['Ş', 'Ş'],
+  ['ö', 'ö'], ['Ö', 'Ö'], ['ü', 'ü'], ['Ü', 'Ü'], ['ç', 'ç'], ['Ç', 'Ç'],
+  ['â€™', '’'], ['â€œ', '“'], ['â€', '”']
 ];
 
 function cleanSeoText(value) {
@@ -2874,12 +2878,12 @@ const SEO_RELATED_LINKS = [
   ['ChatGPT Claude Gemini tek panel', '/chatgpt-claude-gemini-tek-panel'],
   ['400+ AI modeli', '/400-ai-model'],
   ['AI kredi sistemi', '/ai-kredi-sistemi'],
-  ['TÃ¼rkÃ§e AI platformu', '/turkce-ai-platformu'],
+  ['Türkçe AI platformu', '/turkce-ai-platformu'],
   ['AI dosya analizi', '/ai-dosya-analizi'],
-  ['AI fotoÄŸraf dÃ¼zenleme', '/ai-fotograf-duzenleme'],
+  ['AI fotoğraf düzenleme', '/ai-fotograf-duzenleme'],
   ['ChatGPT alternatifi', '/chatgpt-alternatifi'],
-  ['AI gÃ¶rsel Ã¼retme', '/ai-gorsel-uretme'],
-  ['Yapay zeka araÃ§larÄ±', '/yapay-zeka-araclari']
+  ['AI görsel üretme', '/ai-gorsel-uretme'],
+  ['Yapay zeka araçları', '/yapay-zeka-araclari']
 ];
 
 function escapeHtmlAttr(value) {
@@ -2979,6 +2983,7 @@ function sendSeoIndex(req, res) {
 }
 
 app.get('/robot-widget', (req, res) => sendRobotAsset(req, res, 'froxy-robot.js'));
+app.get('/admin-rescue.js', (req, res) => sendRobotAsset(req, res, 'admin-rescue.js'));
 // "/" -> index.html esdegerligi
 app.get('/', sendSeoIndex);
 app.get(/^\/(?:anasayfa|home|sohbet|chat|panel|dashboard|kontrol-paneli|gorsel|gorsel-uret|araclar|ai-araclar|ai-araclari|ajanlar|ai-ajanlar|magaza|fiyatlandirma|destek|galeri|analitik|promptlar|bilgi-bankasi|giris|kayit|chatgpt-claude-gemini-tek-panel|chatgpt-claude-gemini|400-ai-model|ai-kredi-sistemi|turkce-ai-platformu|ai-dosya-analizi|ai-fotograf-duzenleme|en-iyi-ai-araclari|chatgpt-alternatifi|ai-gorsel-uretme|yapay-zeka-araclari|ucretsiz-ai-araclari|ai-model-karsilastirma|admin)\/?$/i, sendSeoIndex);
@@ -3068,10 +3073,11 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
 
 function publicBaseUrl(req) {
-  const configured = process.env.PUBLIC_BASE_URL || process.env.API_PUBLIC_URL || '';
+  const configured = process.env.PUBLIC_BASE_URL || process.env.API_PUBLIC_URL || process.env.FRONTEND_ORIGIN || '';
   if (configured) return configured.replace(/\/+$/, '');
   const proto = (req.get('x-forwarded-proto') || req.protocol || 'https').split(',')[0].trim();
-  return `${proto}://${req.get('host')}`;
+  const host = req.get('host');
+  return `${proto}://${host}`;
 }
 
 function oauthReturnTo(req) {
@@ -3242,7 +3248,7 @@ const GOOGLE_API_KEY = fromEnv('GOOGLE_API_KEY', fromEnv('GEMINI_API_KEY', ''));
 const OPENAI_IMAGE_KEYS = (fromEnv('OPENAI_IMAGE_KEYS') || fromEnv('OPENAI_IMAGE_KEY') || fromEnv('OPENAI_API_KEY') || '')
   .split(',')
   .map(k => k.trim())
-  .filter(Boolean);
+  .filter(k => /^sk-(?:proj-)?[A-Za-z0-9_-]{20,}$/.test(k));
 let _openaiImageKeyIndex = 0;
 function getOpenAIImageKey() {
   if (!OPENAI_IMAGE_KEYS.length) return '';
@@ -3255,13 +3261,14 @@ const OPENAI_IMAGE_BASE_URL = fromEnv('OPENAI_IMAGE_BASE_URL', 'https://api.open
 const OPENAI_CHAT_KEY = fromEnv('OPENAI_CHAT_KEY', '');
 const OPENAI_CHAT_BASE_URL = fromEnv('OPENAI_CHAT_BASE_URL', 'https://api.openai.com/v1').replace(/\/+$/, '');
 
-// âš ï¸  Hardcoded fallback'ler sadece dev ortamÄ± iÃ§indir.
-// Production'da .env iÃ§inde tanÄ±mlayÄ±n â€” bu deÄŸerler git'e giderse sÄ±zar.
+// âš ï¸  Hardcoded fallback'ler sadece dev ortamı içindir.
+// Production'da .env içinde tanımlayın â€” bu değerler git'e giderse sızar.
 // === GROQ KEY ROTATION ===
 const GROQ_KEYS = (fromEnv('GROQ_API_KEYS') || fromEnv('GROQ_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _groqKeyIndex = 0;
-function getGroqKey() { return GROQ_KEYS[_groqKeyIndex % GROQ_KEYS.length]; }
+function getGroqKey() { return GROQ_KEYS.length ? GROQ_KEYS[_groqKeyIndex % GROQ_KEYS.length] : ''; }
 function rotateGroqKey() {
+  if (!GROQ_KEYS.length) return '';
   _groqKeyIndex = (_groqKeyIndex + 1) % GROQ_KEYS.length;
   console.log('[GROQ] Key rotated -> index ' + _groqKeyIndex + '/' + GROQ_KEYS.length);
   return getGroqKey();
@@ -3269,12 +3276,13 @@ function rotateGroqKey() {
 let GROQ_KEY = getGroqKey();
 
 // === OPENROUTER KEY ROTATION ===
-// Birden fazla key tanÄ±mla â€” biri 429 verdiÄŸinde otomatik diÄŸerine geÃ§er.
-// .env'de virgÃ¼lle ayÄ±r: OPENROUTER_API_KEYS=key1,key2,key3
+// Birden fazla key tanımla â€” biri 429 verdiğinde otomatik diğerine geçer.
+// .env'de virgülle ayır: OPENROUTER_API_KEYS=key1,key2,key3
 const OPENROUTER_KEYS = (fromEnv('OPENROUTER_API_KEYS') || fromEnv('OPENROUTER_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _orKeyIndex = 0;
-function getOpenRouterKey() { return OPENROUTER_KEYS[_orKeyIndex % OPENROUTER_KEYS.length]; }
+function getOpenRouterKey() { return OPENROUTER_KEYS.length ? OPENROUTER_KEYS[_orKeyIndex % OPENROUTER_KEYS.length] : ''; }
 function rotateOpenRouterKey() {
+  if (!OPENROUTER_KEYS.length) return '';
   _orKeyIndex = (_orKeyIndex + 1) % OPENROUTER_KEYS.length;
   console.log(`[OPENROUTER] Key rotated -> index ${_orKeyIndex}/${OPENROUTER_KEYS.length}`);
   return getOpenRouterKey();
@@ -3286,22 +3294,23 @@ const CLOUDFLARE_API_TOKEN   = fromEnv('CLOUDFLARE_API_TOKEN')   || (CLOUDFLARE_
 const FAL_API_KEY            = fromEnv('FAL_API_KEY')            || fromEnv('VIDEO_API_KEY');
 const REPLICATE_API_TOKEN    = fromEnv('REPLICATE_API_TOKEN');
 const IMAGEGPT_API_KEY       = fromEnv('IMAGEGPT_API_KEY');
+const POLLINATIONS_API_KEY   = fromEnv('POLLINATIONS_API_KEY') || fromEnv('POLLINATIONS_KEY');
 const VIDU_API_KEY           = fromEnv('VIDU_API_KEY');
 
-// ===== YENÄ° SAÄLAYICILAR =====
+// ===== YENİ SAÄLAYICILAR =====
 const RUNWARE_KEYS = (fromEnv('RUNWARE_API_KEYS') || fromEnv('RUNWARE_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _rwKeyIndex = 0;
 function getRunwareKey() { return RUNWARE_KEYS[_rwKeyIndex % RUNWARE_KEYS.length]; }
 function rotateRunwareKey() { _rwKeyIndex = (_rwKeyIndex + 1) % RUNWARE_KEYS.length; console.log('[RUNWARE] Key rotated -> ' + _rwKeyIndex + '/' + RUNWARE_KEYS.length); return getRunwareKey(); }
-let RUNWARE_API_KEY = getRunwareKey();       // https://runware.ai  â€” Ã¼cretsiz tier var
+let RUNWARE_API_KEY = getRunwareKey();       // https://runware.ai  â€” ücretsiz tier var
 const STABILITY_KEYS = (fromEnv('STABILITY_API_KEYS') || fromEnv('STABILITY_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _stKeyIndex = 0;
 function getStabilityKey() { return STABILITY_KEYS[_stKeyIndex % STABILITY_KEYS.length]; }
 function rotateStabilityKey() { _stKeyIndex = (_stKeyIndex + 1) % STABILITY_KEYS.length; console.log('[STABILITY] Key rotated -> ' + _stKeyIndex + '/' + STABILITY_KEYS.length); return getStabilityKey(); }
 let STABILITY_API_KEY = getStabilityKey();     // https://stability.ai â€” free credits
-const CHUTES_API_KEY      = fromEnv('CHUTES_API_KEY');        // https://chutes.ai   â€” 200 req/gÃ¼n Ã¼cretsiz
+const CHUTES_API_KEY      = fromEnv('CHUTES_API_KEY');        // https://chutes.ai   â€” 200 req/gün ücretsiz
 const AIMLAPI_KEY         = fromEnv('AIMLAPI_KEY');           // https://aimlapi.com  â€” unified multimodal
-const TAVILY_API_KEY      = fromEnv('TAVILY_API_KEY');        // https://tavily.com  â€” 1000 req/ay Ã¼cretsiz
+const TAVILY_API_KEY      = fromEnv('TAVILY_API_KEY');        // https://tavily.com  â€” 1000 req/ay ücretsiz
 const BRAVE_SEARCH_KEY    = fromEnv('BRAVE_SEARCH_KEY');      // https://brave.com/search/api â€” 2000 req/ay
 const WAVESPEED_API_KEY   = fromEnv('WAVESPEED_API_KEY');     // https://wavespeed.ai â€” Kling/Wan/Seedance
 const COMETAPI_KEY        = fromEnv('COMETAPI_KEY');          // https://cometapi.com â€” multi-model free key
@@ -3309,14 +3318,14 @@ const COMETAPI_KEY        = fromEnv('COMETAPI_KEY');          // https://cometap
 // === TOGETHER AI KEY ROTATION ===
 const TOGETHER_KEYS = (fromEnv('TOGETHER_API_KEYS') || fromEnv('TOGETHER_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _togKeyIndex = 0;
-function getTogetherKey() { return TOGETHER_KEYS[_togKeyIndex % TOGETHER_KEYS.length]; }
-function rotateTogetherKey() { _togKeyIndex = (_togKeyIndex + 1) % TOGETHER_KEYS.length; console.log('[TOGETHER] Key rotated -> ' + _togKeyIndex + '/' + TOGETHER_KEYS.length); return getTogetherKey(); }
+function getTogetherKey() { return TOGETHER_KEYS.length ? TOGETHER_KEYS[_togKeyIndex % TOGETHER_KEYS.length] : ''; }
+function rotateTogetherKey() { if (!TOGETHER_KEYS.length) return ''; _togKeyIndex = (_togKeyIndex + 1) % TOGETHER_KEYS.length; console.log('[TOGETHER] Key rotated -> ' + _togKeyIndex + '/' + TOGETHER_KEYS.length); return getTogetherKey(); }
 const TOGETHER_IMAGE_MODELS = {
   'together-juggernaut-flux': { model: 'Rundiffusion/Juggernaut-Lightning-Flux', width: 720, height: 1280, credits: 30, steps: 4 },
   'together-flux-schnell': { model: 'black-forest-labs/FLUX.1-schnell', credits: 40, steps: 4 },
   'together-qwen-image': { model: 'Qwen/Qwen-Image', credits: 90 },
   'together-flux2-dev': { model: 'black-forest-labs/FLUX.2-dev', credits: 220 },
-  'together-imagen4-fast': { model: 'google/imagen-4.0-fast', credits: 300 },
+  'together-imagen4-fast': { model: 'google/imagen-4.0-fast', width: 1024, height: 1024, credits: 300 },
   'together-flux-kontext-pro': { model: 'black-forest-labs/FLUX.1-kontext-pro', credits: 600 },
   'together-flux2-pro': { model: 'black-forest-labs/FLUX.2-pro', credits: 450 },
   'together-gemini-flash-image': { model: 'google/flash-image-2.5', credits: 600 },
@@ -3327,8 +3336,8 @@ const TOGETHER_IMAGE_MODELS = {
 // === FREEMODEL.DEV KEY ROTATION (gpt-5.5/5.4 icin) ===
 const FREEMODEL_KEYS = (fromEnv('FREEMODEL_API_KEYS') || fromEnv('FREEMODEL_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _fmKeyIndex = 0;
-function getFreemodelKey() { return FREEMODEL_KEYS[_fmKeyIndex % FREEMODEL_KEYS.length]; }
-function rotateFreemodelKey() { _fmKeyIndex = (_fmKeyIndex + 1) % FREEMODEL_KEYS.length; console.log('[FREEMODEL] Key rotated -> ' + _fmKeyIndex + '/' + FREEMODEL_KEYS.length); return getFreemodelKey(); }
+function getFreemodelKey() { return FREEMODEL_KEYS.length ? FREEMODEL_KEYS[_fmKeyIndex % FREEMODEL_KEYS.length] : ''; }
+function rotateFreemodelKey() { if (!FREEMODEL_KEYS.length) return ''; _fmKeyIndex = (_fmKeyIndex + 1) % FREEMODEL_KEYS.length; console.log('[FREEMODEL] Key rotated -> ' + _fmKeyIndex + '/' + FREEMODEL_KEYS.length); return getFreemodelKey(); }
 let FREEMODEL_KEY = getFreemodelKey();
 
 const GUICORE_BASE = fromEnv('GUICORE_BASE_URL', 'https://api.guicore.com/v1');
@@ -3352,7 +3361,7 @@ const PROVIDERS = {
   huggingface:   { key: fromEnv('HF_TOKEN'), base: 'https://router.huggingface.co/v1' },
   cloudflare:    { key: CLOUDFLARE_API_TOKEN, base: 'https://api.cloudflare.com/client/v4/accounts/' + (CLOUDFLARE_ACCOUNT_ID || '') + '/ai/v1' },
   deepseek_direct: { key: fromEnv('DEEPSEEK_API_KEY'), base: 'https://api.deepseek.com' },
-  // Yeni saÄŸlayÄ±cÄ±lar
+  // Yeni sağlayıcılar
   chutes:    { key: CHUTES_API_KEY,  base: 'https://llm.chutes.ai/v1' },
   aimlapi:   { key: AIMLAPI_KEY,     base: 'https://api.aimlapi.com/v1' },
 };
@@ -3385,6 +3394,35 @@ function isQuotaLikeStatus(status, text = '') {
   const t = String(text || '').toLowerCase();
   return status === 401 || status === 402 || status === 403 || status === 429 ||
     /rate.?limit|too many requests|quota|insufficient|credit|billing|limit exceeded|resource_exhausted|exceeded/i.test(t);
+}
+
+function isProviderKeyFailure(status, text = '') {
+  const t = String(text || '').toLowerCase();
+  return isQuotaLikeStatus(status, text) ||
+    (status === 400 && /organization.*restricted|restricted|invalid.*key|unauthorized|user not found|account|free account|usage limit/i.test(t));
+}
+
+function chooseChatFallbackProvider() {
+  if (PROVIDERS.groq?.key) return 'groq';
+  if (PROVIDERS.openrouter?.key) return 'openrouter';
+  if (PROVIDERS.openai?.key) return 'openai';
+  if (PROVIDERS.aimlapi?.key) return 'aimlapi';
+  return 'pollinations';
+}
+
+function applyChatFallbackProvider(providerName) {
+  const fallbackProvider = providerName || chooseChatFallbackProvider();
+  let fallbackModel = 'pollinations-openai';
+  if (fallbackProvider === 'groq') fallbackModel = 'llama-3.1-8b-instant';
+  else if (fallbackProvider === 'openrouter') fallbackModel = 'meta-llama/llama-3.1-8b-instruct:free';
+  else if (fallbackProvider === 'openai') fallbackModel = 'gpt-4o-mini';
+  else if (fallbackProvider === 'aimlapi') fallbackModel = 'gpt-4o-mini';
+  return {
+    provider: fallbackProvider,
+    p: PROVIDERS[fallbackProvider] || PROVIDERS.pollinations,
+    key: PROVIDERS[fallbackProvider]?.key || '',
+    model: fallbackModel
+  };
 }
 
 function inferProviderFromModel(model) {
@@ -3539,7 +3577,7 @@ async function callGoogleDirectChat({ model, messages, max_tokens, apiKey: apiKe
   });
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(json.error?.message || `Google Direct API hatasÄ± (${response.status})`);
+    throw new Error(json.error?.message || `Google Direct API hatası (${response.status})`);
   }
   const parts = json.candidates?.[0]?.content?.parts || [];
   const text = parts.map(p => p.text || '').join('').trim();
@@ -3566,11 +3604,11 @@ async function callGoogleDirectImage({ model, prompt, apiKey: apiKeyOverride }) 
   });
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(json.error?.message || `Google Image API hatasÄ± (${response.status})`);
+    throw new Error(json.error?.message || `Google Image API hatası (${response.status})`);
   }
   const parts = json.candidates?.[0]?.content?.parts || [];
   const imagePart = parts.find(p => p.inlineData?.data);
-  if (!imagePart) throw new Error('Google gÃ¶rsel yanÄ±tÄ± alÄ±namadÄ±');
+  if (!imagePart) throw new Error('Google görsel yanıtı alınamadı');
   const fs = require('fs');
   const genDir = GENERATED_DIR;
   if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
@@ -3622,9 +3660,9 @@ function saveImageGalleryRecord({ userId, url, prompt, model, provider, mode = '
 function parseDataImage(input) {
   const raw = String(input || '');
   const match = /^data:(image\/(?:png|jpeg|jpg|webp));base64,([a-z0-9+/=\r\n]+)$/i.exec(raw);
-  if (!match) throw new Error('DÃ¼zenleme iÃ§in PNG, JPG veya WEBP data URL gerekli.');
+  if (!match) throw new Error('Düzenleme için PNG, JPG veya WEBP data URL gerekli.');
   const buffer = Buffer.from(match[2].replace(/\s/g, ''), 'base64');
-  if (!buffer.length || buffer.length > 12 * 1024 * 1024) throw new Error('Referans gÃ¶rsel boyutu geÃ§ersiz veya Ã§ok bÃ¼yÃ¼k.');
+  if (!buffer.length || buffer.length > 12 * 1024 * 1024) throw new Error('Referans görsel boyutu geçersiz veya çok büyük.');
   const ext = match[1].includes('webp') ? 'webp' : match[1].includes('png') ? 'png' : 'jpg';
   return { mime: match[1].replace('jpg', 'jpeg'), buffer, ext };
 }
@@ -3860,9 +3898,9 @@ function fallbackImageReferenceSnippets(query) {
 
 function shouldResearchImagePrompt(prompt) {
   const p = String(prompt || '');
-  if (/\b(webden|internetten|araÅŸtÄ±r|referans|benzet|karakter|film|dizi|oyun|anime|Ã¼nlÃ¼|marka|logo)\b/i.test(p)) return true;
-  const words = p.match(/\b[A-ZÃ‡ÄÄ°Ã–ÅÃœ][\wÃ‡ÄÄ°Ã–ÅÃœÃ§ÄŸÄ±Ã¶ÅŸÃ¼-]{2,}\b/g) || [];
-  return words.some(w => !/^(Bir|Bana|Lutfen|LÃ¼tfen|Generate|Create|Draw|Ciz|Ã‡iz)$/i.test(w));
+  if (/\b(webden|internetten|araştır|referans|benzet|karakter|film|dizi|oyun|anime|ünlü|marka|logo)\b/i.test(p)) return true;
+  const words = p.match(/\b[A-ZÇÄİÖÅÜ][\wÇÄİÖÅÜçğıöşü-]{2,}\b/g) || [];
+  return words.some(w => !/^(Bir|Bana|Lutfen|Lütfen|Generate|Create|Draw|Ciz|Çiz)$/i.test(w));
 }
 
 async function buildImagePromptForQuality(originalPrompt, model, options = {}) {
@@ -3874,7 +3912,7 @@ async function buildImagePromptForQuality(originalPrompt, model, options = {}) {
     'respect the user requested colors, age, clothing, and scene details exactly'
   ];
   const negatives = 'Avoid: wrong hair color, extra fingers, deformed anatomy, blurry subject, unreadable text, random logos, watermark.';
-  const styleHint = /sarÄ±ÅŸÄ±n|sarisin|blonde/i.test(lower)
+  const styleHint = /sarışın|sarisin|blonde/i.test(lower)
     ? 'The main subject must have clearly blonde hair, not brown or black.'
     : '';
   const researchEnabled = options.research !== false && shouldResearchImagePrompt(raw);
@@ -3914,17 +3952,27 @@ function stripProviderNotice(text) {
     .trim();
 }
 
+function repairTurkishQuestionMojibake(text) {
+  return String(text || '')
+    .replace(/\?al\?{2,}p/gi, '\u00e7al\u0131\u015f\u0131p')
+    .replace(/\?al\?mad\?{2,}n\?/gi, '\u00e7al\u0131\u015fmad\u0131\u011f\u0131n\u0131')
+    .replace(/\?al\?{2,}yor/gi, '\u00e7al\u0131\u015f\u0131yor')
+    .replace(/\?al\?{2,}an/gi, '\u00e7al\u0131\u015fan')
+    .replace(/\?al\?{2,}ma/gi, '\u00e7al\u0131\u015fma')
+    .replace(/\?al\?{2,}/gi, '\u00e7al\u0131\u015f');
+}
+
 function cleanServerAssistantReply(text) {
   let s = stripProviderNotice(text);
   if (!s) return '';
   s = s.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<reasoning>[\s\S]*?<\/reasoning>/gi, '').trim();
   // EMOJI/MOJIBAKE TEMIZLIGI - bozuk karakterler, gunes â˜€, replacement char vs.
   s = s.replace(/\u2600/g, '').replace(/\uFFFD/g, '');
-  s = s.replace(/ÄŸÅ¸[^ .,!?]{0,3}/g, '').replace(/Ã¢[^ .,!?]{0,2}/g, '');
+  s = s.replace(/ğÅ¸[^ .,!?]{0,3}/g, '').replace(/Ã¢[^ .,!?]{0,2}/g, '');
   const quoted = s.match(/Just\s+[""]([^""]+)[""]/i);
   if (quoted && quoted[1]) s = quoted[1].trim();
   const lower = s.toLowerCase();
-  const markers = ['provide that.', 'just that.', 'okay.', 'final answer:', 'answer:', 'cevap:', 'yanÄ±t:'];
+  const markers = ['provide that.', 'just that.', 'okay.', 'final answer:', 'answer:', 'cevap:', 'yanıt:'];
   let markerIdx = -1;
   let markerLen = 0;
   for (const marker of markers) {
@@ -3947,16 +3995,16 @@ function cleanServerAssistantReply(text) {
   if (cleanSentences.length && cleanSentences.length !== sentences.length) s = cleanSentences.slice(-2).join(' ');
   s = s
     .replace(/\bUser:\s*[""][\s\S]*?[""]\s*/gi, '')
-    .replace(/\bMeans:\s*[\s\S]*?(?=(Just|Provide|Cevap|YanÄ±t|Merhaba|$))/gi, '')
-    .replace(/\bThey want[\s\S]*?(?=(Just|Provide|Cevap|YanÄ±t|Merhaba|$))/gi, '')
-    .replace(/^(Just|Just that|Provide that|Cevap|YanÄ±t)\s*[:.-]?\s*/i, '')
+    .replace(/\bMeans:\s*[\s\S]*?(?=(Just|Provide|Cevap|Yanıt|Merhaba|$))/gi, '')
+    .replace(/\bThey want[\s\S]*?(?=(Just|Provide|Cevap|Yanıt|Merhaba|$))/gi, '')
+    .replace(/^(Just|Just that|Provide that|Cevap|Yanıt)\s*[:.-]?\s*/i, '')
     .replace(/^["'""\s]+|["'""\s]+$/g, '')
     .trim();
   if (false && s.includes('"')) {
     const tail = s.split('"').map(x => x.trim()).filter(Boolean).pop();
     if (tail && tail.length < 180 && !/we need|the user|instruction|means/i.test(tail)) s = tail;
   }
-  return s;
+  return repairTurkishQuestionMojibake(s);
 }
 
 function looksLikeUpstreamErrorContent(text) {
@@ -3986,8 +4034,9 @@ function parseStreamContent(raw) {
 }
 
 async function groqFallbackChat(messages, maxTokens, fallbackModel = 'llama-3.1-8b-instant') {
+  if (!GROQ_KEY) throw new Error('Groq API key tanımlı değil');
   const fbPayload = JSON.stringify({ model: fallbackModel, messages, max_tokens: maxTokens || 2000, stream: false });
-  const fbResult = await new Promise((resolve, reject) => {
+  const requestGroqFallback = (activeKey) => new Promise((resolve, reject) => {
     const fbOpts = {
       hostname: 'api.groq.com',
       port: 443,
@@ -3997,7 +4046,7 @@ async function groqFallbackChat(messages, maxTokens, fallbackModel = 'llama-3.1-
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(fbPayload),
         'Accept': 'application/json',
-        'Authorization': 'Bearer ' + GROQ_KEY
+        'Authorization': 'Bearer ' + activeKey
       }
     };
     const fbReq = https.request(fbOpts, (resp) => {
@@ -4010,6 +4059,17 @@ async function groqFallbackChat(messages, maxTokens, fallbackModel = 'llama-3.1-
     fbReq.write(fbPayload);
     fbReq.end();
   });
+  let fbResult = await requestGroqFallback(GROQ_KEY);
+  if (GROQ_KEYS.length > 1 && isProviderKeyFailure(fbResult.status, fbResult.data)) {
+    const attempts = GROQ_KEYS.length - 1;
+    for (let attempt = 0; attempt < attempts; attempt++) {
+      const nextKey = rotateGroqKey();
+      if (!nextKey) continue;
+      console.log(`[GROQ] Fallback key failed (${fbResult.status}); retry ${attempt + 1}/${attempts}`);
+      fbResult = await requestGroqFallback(nextKey);
+      if (!isProviderKeyFailure(fbResult.status, fbResult.data)) break;
+    }
+  }
 
   if (fbResult.data.includes('data: ')) {
     const fbContent = parseStreamContent(fbResult.data).content;
@@ -4028,14 +4088,14 @@ async function groqFallbackChat(messages, maxTokens, fallbackModel = 'llama-3.1-
     return { ...fbJson, fallback: 'groq/' + fallbackModel };
   }
   if (fbJson.error && fallbackModel !== 'llama-3.1-8b-instant') {
-    // Groq 429 ise key rotate et
-    if (fbResult.status === 429 || (fbJson.error?.message || '').includes('rate')) {
+    // Groq key havuzu varsa kısıtlı/limitli keyden diğerine geç.
+    if (isProviderKeyFailure(fbResult.status, fbResult.data)) {
       GROQ_KEY = rotateGroqKey();
       PROVIDERS.groq.key = GROQ_KEY;
     }
     return groqFallbackChat(messages, maxTokens, 'llama-3.1-8b-instant');
   }
-  throw new Error(fbJson.error?.message || 'Groq fallback boÅŸ yanÄ±t dÃ¶ndÃ¼rdÃ¼');
+  throw new Error(fbJson.error?.message || 'Groq fallback boş yanıt döndürdü');
 }
 
 function sanitizeChatMessagesForFallback(messages) {
@@ -4049,8 +4109,8 @@ function sanitizeChatMessagesForFallback(messages) {
         .join('\n');
     }
     content = String(content || '');
-    if (content.startsWith('__IMG__')) content = '[GÃ¶rsel Ã¼retildi]';
-    content = content.replace(/data:image\/[^;\s]+;base64,[^\s]+/g, '[GÃ¶rsel verisi]');
+    if (content.startsWith('__IMG__')) content = '[Görsel üretildi]';
+    content = content.replace(/data:image\/[^;\s]+;base64,[^\s]+/g, '[Görsel verisi]');
     return {
       role: ['system', 'assistant', 'user'].includes(m && m.role) ? m.role : 'user',
       content: content.slice(0, 2500)
@@ -4058,29 +4118,26 @@ function sanitizeChatMessagesForFallback(messages) {
   }).filter(m => m.content.trim());
 
   while (cleaned.length && cleaned[0].role === 'assistant') cleaned.shift();
-  if (!cleaned.some(m => m.role === 'user')) cleaned.push({ role: 'user', content: 'KÄ±sa TÃ¼rkÃ§e cevap ver.' });
+  if (!cleaned.some(m => m.role === 'user')) cleaned.push({ role: 'user', content: 'Kısa Türkçe cevap ver.' });
   cleaned.unshift({
     role: 'system',
-    content: 'Sen Froxy AI iÃ§inde Ã§alÄ±ÅŸan TÃ¼rkÃ§e asistansÄ±n. Daima TÃ¼rkÃ§e, net ve yardÄ±mcÄ± cevap ver. Ham provider hatasÄ± veya servis uyarÄ±sÄ± gÃ¶sterme.'
+    content: 'Sen Froxy AI içinde çalışan Türkçe asistansın. Daima Türkçe, net ve yardımcı cevap ver. Ham provider hatası veya servis uyarısı gösterme.'
   });
   return cleaned;
 }
 
 function localSafeChatAnswer(messages) {
-  const lastUser = (Array.isArray(messages) ? messages : []).filter(m => m && m.role === 'user').pop();
-  const text = String(lastUser && lastUser.content || '').trim();
-  const short = text.length > 180 ? text.slice(0, 180) + '...' : text;
   return [
-    'Ä°steÄŸini aldÄ±m ancak ÅŸu an cevap Ã¼retirken servis yoÄŸunluÄŸu oluÅŸtu.',
+    'Bu model \u015fu an cevap veremedi.',
     '',
-    short ? 'MesajÄ±nÄ± aldÄ±m: "' + short + '"' : 'MesajÄ±nÄ± aldÄ±m.',
-    'LÃ¼tfen biraz sonra tekrar dene veya mesajÄ± daha kÄ±sa gÃ¶nder.'
+    'Mesaj\u0131n\u0131 ald\u0131m; servis yo\u011funlu\u011fu veya limit nedeniyle cevap tamamlanamad\u0131.',
+    'Farkl\u0131 bir model se\u00e7ip tekrar deneyebilir veya biraz sonra yeniden g\u00f6nderebilirsin.'
   ].join('\n');
 }
 
 function buildPollinationsImageUrl(prompt, model = 'flux') {
   const seed = Date.now() + Math.floor(Math.random() * 9999);
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(String(prompt || 'AI gÃ¶rsel'))}?model=${encodeURIComponent(model)}&width=1024&height=1024&nologo=true&seed=${seed}`;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(String(prompt || 'AI görsel'))}?model=${encodeURIComponent(model)}&width=1024&height=1024&nologo=true&seed=${seed}`;
 }
 
 app.post('/api/chat-safe', chatLimiter, optionalAuthMiddleware, async (req, res) => {
@@ -4096,7 +4153,7 @@ app.post('/api/chat-safe', chatLimiter, optionalAuthMiddleware, async (req, res)
       choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }],
       usage: { total_tokens: 32 },
       fallback: 'local-safe',
-      suggestedModel: 'GPT SÄ±nÄ±rsÄ±z',
+      suggestedModel: 'GPT Sınırsız',
       safe: true
     });
   }
@@ -4171,9 +4228,9 @@ app.get('/api/model-catalog', async (req, res) => {
       console.warn('[MODEL CATALOG] Together skipped:', tErr.message);
     }
     
-    // Cloudflare ve NVIDIA modellerini de listeye ekle (test edilmiÅŸ Ã§alÄ±ÅŸan modeller)
+    // Cloudflare ve NVIDIA modellerini de listeye ekle (test edilmiş çalışan modeller)
     const extraModels = [
-      // Cloudflare Workers AI (10K req/gÃ¼n ÃœCRETSÄ°Z, yenileniyor)
+      // Cloudflare Workers AI (10K req/gün ÜCRETSİZ, yenileniyor)
       { id: 'openrouter/free', name: 'OpenRouter Free Auto', tier: 'free', provider: 'openrouter', cat: 'qualityfree', remote: true },
       { id: 'deepseek/deepseek-r1:free', name: 'DeepSeek R1 Free', tier: 'free', provider: 'openrouter', cat: 'qualityfree', remote: true },
       { id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast', name: 'Llama 3.3 70B (Cloudflare)', tier: 'free', provider: 'cloudflare', cat: 'qualityfree', remote: true },
@@ -4243,25 +4300,25 @@ app.get('/api/health', (req, res) => {
       { count: pool.length, rotation: pool.length > 1 }
     ])),
     videoProviders: {
-      cloudflare: Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN),
+      cloudflare: Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN && fromEnv('CLOUDFLARE_WORKERS_AI_ENABLED') === '1'),
       fal: Boolean(FAL_API_KEY),
       replicate: Boolean(REPLICATE_API_TOKEN),
       vidu: Boolean(VIDU_API_KEY),
       wavespeed: Boolean(WAVESPEED_API_KEY),
-      pollinations: Boolean(fromEnv('POLLINATIONS_KEY')),
+      pollinations: Boolean(POLLINATIONS_API_KEY),
       gemini_veo: Boolean(GEMINI_KEYS.length > 0),
       hf_ltx: Boolean(fromEnv('HF_TOKEN'))
     },
     imageProviders: {
       openai_image: Boolean(OPENAI_IMAGE_KEYS.length > 0),
-      cloudflare: Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN),
+      cloudflare: Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN && fromEnv('CLOUDFLARE_WORKERS_AI_ENABLED') === '1'),
       runware: Boolean(RUNWARE_API_KEY),
       stability: Boolean(STABILITY_API_KEY),
       aimlapi: Boolean(AIMLAPI_KEY),
       together: Boolean(getTogetherKey()),
       imagegpt: Boolean(IMAGEGPT_API_KEY),
       gemini_imagen: Boolean(GEMINI_KEYS.length > 0),
-      pollinations: true // anahtarsÄ±z Ã§alÄ±ÅŸÄ±r (image iÃ§in hala)
+      pollinations: Boolean(POLLINATIONS_API_KEY)
     },
     searchProviders: {
       tavily: Boolean(TAVILY_API_KEY),
@@ -4271,9 +4328,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ===== CANLI MODEL CHECK (gÃ¶rsel + chat kÃ¼Ã§Ã¼k ping) =====
-// KullanÄ±cÄ± panelden tÄ±klayÄ±nca tÃ¼m saÄŸlayÄ±cÄ±larÄ± gerÃ§ekten test eder.
-// Her saÄŸlayÄ±cÄ±ya 1 kÃ¼Ã§Ã¼k istek atar; 10sn timeout iÃ§inde baÅŸarÄ±lÄ±yÄ± "OK" sayar.
+// ===== CANLI MODEL CHECK (görsel + chat küçük ping) =====
+// Kullanıcı panelden tıklayınca tüm sağlayıcıları gerçekten test eder.
+// Her sağlayıcıya 1 küçük istek atar; 10sn timeout içinde başarılıyı "OK" sayar.
 app.get('/api/model-check', async (req, res) => {
   const startAll = Date.now();
 
@@ -4291,11 +4348,11 @@ app.get('/api/model-check', async (req, res) => {
     }
   }
 
-  // --- CHAT saÄŸlayÄ±cÄ±larÄ± (kÃ¼Ã§Ã¼k ping) ---
+  // --- CHAT sağlayıcıları (küçük ping) ---
   const chatPing = [];
   for (const [name, p] of Object.entries(PROVIDERS)) {
     if (!p.key || p.key === 'none') continue;
-    if (name === 'image' || name === 'pollinations') continue; // farklÄ± uÃ§
+    if (name === 'image' || name === 'pollinations') continue; // farklı uç
     // chat/completions minimum istek
     chatPing.push(tryCheck('chat:' + name, async (signal) => {
       const r = await fetch((p.base || '') + '/chat/completions', {
@@ -4304,12 +4361,12 @@ app.get('/api/model-check', async (req, res) => {
         headers: { 'Authorization': `Bearer ${p.key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'test', messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 })
       });
-      // 4xx (model yok/yetki) = provider yaÅŸÄ±yor, 5xx veya timeout = Ã¶lÃ¼
+      // 4xx (model yok/yetki) = provider yaşıyor, 5xx veya timeout = ölü
       if (r.status >= 500) throw new Error('HTTP ' + r.status);
       return 'reachable (' + r.status + ')';
     }));
   }
-  // Gemini direct (farklÄ± uÃ§)
+  // Gemini direct (farklı uç)
   if (GEMINI_KEYS.length > 0) {
     chatPing.push(tryCheck('chat:gemini_direct', async (signal) => {
       const key = getGeminiKey();
@@ -4319,16 +4376,16 @@ app.get('/api/model-check', async (req, res) => {
       return (j.models ? j.models.length : 0) + ' model mevcut';
     }));
   }
-  // Pollinations chat (anahtarsÄ±z)
+  // Pollinations chat (anahtarsız)
   chatPing.push(tryCheck('chat:pollinations', async (signal) => {
     const r = await fetch('https://text.pollinations.ai/openai/models', { signal });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return 'reachable';
   }));
 
-  // --- GÃ–RSEL saÄŸlayÄ±cÄ±larÄ± (kÃ¼Ã§Ã¼k metadata sorgusu; gerÃ§ek gÃ¶rsel Ã¼retmez) ---
+  // --- GÖRSEL sağlayıcıları (küçük metadata sorgusu; gerçek görsel üretmez) ---
   const imgPing = [];
-  // Pollinations image (anahtarsÄ±z)
+  // Pollinations image (anahtarsız)
   imgPing.push(tryCheck('image:pollinations', async (signal) => {
     const r = await fetch('https://image.pollinations.ai/models', { signal });
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -4491,14 +4548,14 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   let { messages, model, max_tokens, provider, apiKey: bodyApiKey, baseUrl: bodyBaseUrl } = req.body;
   if (!messages) return res.status(400).json({ error: { message: 'Messages array required' } });
   
-  // === SYSTEM PROMPT INJECTION: TÃ¼rkÃ§e, kaliteli, emoji ile bozuk yanÄ±t verme ===
+  // === SYSTEM PROMPT INJECTION: Turkce, kaliteli, emoji ile bozuk yanit verme ===
   if (Array.isArray(messages) && messages.length > 0) {
     const hasSystem = messages.some(m => m && m.role === 'system');
     if (!hasSystem) {
       messages = [
         {
           role: 'system',
-          content: 'Sen Froxy AI asistanÄ±sÄ±n. Daima TÃ¼rkÃ§e, doÄŸal ve akÄ±cÄ± cÃ¼mlelerle cevap ver. KullanÄ±cÄ±nÄ±n duygusuna empati gÃ¶ster ama cÃ¼mlelerin sonuna emoji, yÄ±ldÄ±z veya gereksiz simge koyma. Bozuk karakter, mojibake, garip semboller veya placeholder kullanma. YanÄ±tlarÄ±n aÃ§Ä±k, profesyonel ve insan gibi olsun. "AnladÄ±m" gibi kalÄ±p ifadelerden kaÃ§Ä±n, doÄŸrudan konuya gir.'
+          content: 'Sen Froxy AI asistan\u0131s\u0131n. Daima T\u00fcrk\u00e7e, do\u011fal ve ak\u0131c\u0131 c\u00fcmlelerle cevap ver. Kullan\u0131c\u0131n\u0131n duygusuna empati g\u00f6ster ama c\u00fcmlelerin sonuna emoji, y\u0131ld\u0131z veya gereksiz simge koyma. Bozuk karakter, mojibake, garip semboller veya placeholder kullanma. Yan\u0131tlar\u0131n a\u00e7\u0131k, profesyonel ve insan gibi olsun. "Anlad\u0131m" gibi kal\u0131p ifadelerden ka\u00e7\u0131n, do\u011frudan konuya gir.'
         },
         ...messages
       ];
@@ -4510,7 +4567,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
         if (!String(existing).includes('Froxy AI')) {
           messages[sysIdx] = {
             role: 'system',
-            content: existing + '\n\nÃ–NEMLÄ°: CÃ¼mle sonlarÄ±na emoji veya yÄ±ldÄ±z gibi gereksiz simge koyma. Bozuk karakter veya mojibake kullanma. TÃ¼rkÃ§e cevap ver, doÄŸal ve akÄ±cÄ± yaz.'
+            content: existing + '\n\n\u00d6NEML\u0130: C\u00fcmle sonlar\u0131na emoji veya y\u0131ld\u0131z gibi gereksiz simge koyma. Bozuk karakter veya mojibake kullanma. T\u00fcrk\u00e7e cevap ver, do\u011fal ve ak\u0131c\u0131 yaz.'
           };
         }
       }
@@ -4552,7 +4609,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
     } else {
       return res.status(400).json({
         error: {
-          message: 'Bu model gÃ¶rsel okuyamÄ±yor. GÃ¶rsel yÃ¼klemek iÃ§in Gemini/vision destekli bir model seÃ§ veya Railway Variables iÃ§ine GEMINI_API_KEY ekle.'
+          message: 'Bu model g\u00f6rsel okuyam\u0131yor. G\u00f6rsel y\u00fcklemek i\u00e7in Gemini/vision destekli bir model se\u00e7 veya Railway Variables i\u00e7ine GEMINI_API_KEY ekle.'
         }
       });
     }
@@ -4580,14 +4637,14 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   if (provider === 'google-direct' || provider === 'google_direct') {
     try {
       const googleReply = await callGoogleDirectChat({ model, messages, max_tokens, apiKey: bodyApiKey });
-      if (!googleReply.choices?.[0]?.message?.content) throw new Error('Google Direct boÅŸ yanÄ±t dÃ¶ndÃ¼rdÃ¼');
+      if (!googleReply.choices?.[0]?.message?.content) throw new Error('Google Direct bo\u015f yan\u0131t d\u00f6nd\u00fcrd\u00fc');
       return res.json(googleReply);
     } catch (err) {
       console.warn('[GOOGLE_DIRECT_CHAT]', err.message);
       if (hasInlineImage) {
         return res.status(502).json({
           error: {
-            message: 'GÃ¶rsel okuma hattÄ± ÅŸu anda cevap veremedi. FotoÄŸrafÄ± gÃ¶remeyen metin modeline dÃ¼ÅŸÃ¼rmedim; lÃ¼tfen tekrar dene veya baÅŸka bir vision model seÃ§.'
+            message: 'G\u00f6rsel okuma hatt\u0131 \u015fu anda cevap veremedi. Foto\u011fraf\u0131 g\u00f6remeyen metin modeline d\u00fc\u015f\u00fcrmedim; l\u00fctfen tekrar dene veya ba\u015fka bir vision model se\u00e7.'
           }
         });
       }
@@ -4604,9 +4661,11 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   // === AUTO-REROUTE: providers without keys -> working alternatives ===
   const noKeyProviders = ['cerebras','sambanova','nvidia','fireworks','huggingface','deepseek_direct','together','xai'];
   if (noKeyProviders.includes(provider) && !key) {
-    console.log(`[REROUTE] ${provider} has no key -> Groq`);
-    p = PROVIDERS.groq;
-    key = p.key;
+    const fallback = applyChatFallbackProvider();
+    console.log(`[REROUTE] ${provider} has no key -> ${fallback.provider}`);
+    provider = fallback.provider;
+    p = fallback.p;
+    key = fallback.key;
     // Map model to best Groq equivalent
     const groqRemap = {
       'gpt-oss-120b': 'openai/gpt-oss-120b',
@@ -4633,22 +4692,34 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
       'deepseek-chat-direct': 'openai/gpt-oss-120b',
       'deepseek-reasoner-direct': 'llama-3.3-70b-versatile'
     };
-    if (groqRemap[model]) model = groqRemap[model];
+    if (provider === 'groq' && groqRemap[model]) model = groqRemap[model];
+    else if (provider !== 'groq') model = fallback.model;
   }
   if (provider === 'mistral' && !key) {
-    console.log(`[REROUTE] Mistral has no key -> OpenRouter`);
-    p = PROVIDERS.openrouter;
-    key = p.key;
+    const fallback = applyChatFallbackProvider(PROVIDERS.openrouter?.key ? 'openrouter' : undefined);
+    console.log(`[REROUTE] Mistral has no key -> ${fallback.provider}`);
+    provider = fallback.provider;
+    p = fallback.p;
+    key = fallback.key;
     const mistralRemap = {
       'mistral-small-latest': 'mistralai/mistral-nemo:free',
       'ministral-8b-latest': 'mistralai/mistral-nemo:free'
     };
-    if (mistralRemap[model]) model = mistralRemap[model];
+    if (provider === 'openrouter' && mistralRemap[model]) model = mistralRemap[model];
+    else if (provider !== 'mistral') model = fallback.model;
   }
 
   // === CEREBRAS MODEL VALIDATION ===
   if (provider === 'cerebras' && key) {
-    const validCerebras = ['llama3.1-8b', 'llama-3.3-70b', 'qwen-2.5-coder-32b', 'deepseek-r1-distill-llama-70b'];
+    const cerebrasRemap = {
+      'llama3.1-8b': 'gpt-oss-120b',
+      'llama-3.3-70b': 'gpt-oss-120b',
+      'deepseek-r1-distill-llama-70b': 'gpt-oss-120b',
+      'cerebras-gpt-oss-120b': 'gpt-oss-120b',
+      'qwen-2.5-coder-32b': 'zai-glm-4.7'
+    };
+    if (cerebrasRemap[model]) model = cerebrasRemap[model];
+    const validCerebras = ['gpt-oss-120b', 'zai-glm-4.7'];
     if (!validCerebras.includes(model)) {
       console.log(`[REROUTE] Cerebras model "${model}" not available -> Groq`);
       provider = 'groq'; p = PROVIDERS.groq; key = p.key;
@@ -4670,14 +4741,23 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
     if (sambaRemap[model]) model = sambaRemap[model];
   }
 
+  // === TOGETHER MODEL REMAP ===
+  if (provider === 'together' && key) {
+    const togetherRemap = {
+      'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free': 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+      'deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free': 'deepseek-ai/DeepSeek-R1-Distill-Llama-70B'
+    };
+    if (togetherRemap[model]) model = togetherRemap[model];
+  }
+
   if (provider !== 'pollinations' && !key) {
-    const fallbackProvider = PROVIDERS.groq?.key ? 'groq' : 'pollinations';
+    const selectedFallback = applyChatFallbackProvider();
+    const fallbackProvider = selectedFallback.provider;
     console.log(`[REROUTE] ${provider || 'default'} key missing -> ${fallbackProvider}`);
     provider = fallbackProvider;
-    p = PROVIDERS[fallbackProvider];
-    key = p.key;
-    if (fallbackProvider === 'groq') model = 'llama-3.1-8b-instant';
-    else model = 'pollinations-openai';
+    p = selectedFallback.p;
+    key = selectedFallback.key;
+    model = selectedFallback.model;
   }
   
   let url = p.base + '/chat/completions';
@@ -4742,7 +4822,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   if (!supportsVision || provider === 'pollinations') {
     messages = messages.map(m => {
       if (Array.isArray(m.content)) {
-        return { ...m, content: m.content.map(c => c.type === 'text' ? c.text : '[KullanÄ±cÄ± bir resim gÃ¶nderdi ancak bu model resim okuyamÄ±yor]').join('\n') };
+        return { ...m, content: m.content.map(c => c.type === 'text' ? c.text : '[Kullanıcı bir resim gönderdi ancak bu model resim okuyamıyor]').join('\n') };
       }
       return m;
     });
@@ -4782,11 +4862,12 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
       }
     }
     
-    provider = 'groq';
-    p = PROVIDERS.groq;
-    key = GROQ_KEY;
-    model = 'openai/gpt-oss-20b';
-    url = p.base + '/chat/completions';
+    const fallback = applyChatFallbackProvider();
+    provider = fallback.provider;
+    p = fallback.p;
+    key = fallback.key;
+    model = fallback.provider === 'groq' ? 'openai/gpt-oss-20b' : fallback.model;
+    url = provider === 'pollinations' ? 'https://text.pollinations.ai/openai' : p.base + '/chat/completions';
   }
 
   // Apply Groq fallback
@@ -4841,15 +4922,15 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   try {
     let result = await makeChatRequest(key);
     const keyPool = providerKeyPool(provider);
-    if (!bodyApiKey && !isPollinations && keyPool.length > 1 && isQuotaLikeStatus(result.status, result.data)) {
-      const attempts = Math.min(keyPool.length - 1, 4);
+    if (!bodyApiKey && !isPollinations && keyPool.length > 1 && isProviderKeyFailure(result.status, result.data)) {
+      const attempts = keyPool.length - 1;
       for (let attempt = 0; attempt < attempts; attempt++) {
         const nextKey = rotateProviderKey(provider);
         if (!nextKey || nextKey === key) continue;
         key = nextKey;
-        console.log(`[KEY_RETRY] ${provider}/${model} quota-like ${result.status}; retry ${attempt + 1}/${attempts} with rotated key`);
+        console.log(`[KEY_RETRY] ${provider}/${model} provider-key failure ${result.status}; retry ${attempt + 1}/${attempts} with rotated key`);
         const retryResult = await makeChatRequest(key);
-        if (!isQuotaLikeStatus(retryResult.status, retryResult.data)) {
+        if (!isProviderKeyFailure(retryResult.status, retryResult.data)) {
           result = retryResult;
           result.keyRotated = true;
           break;
@@ -4911,7 +4992,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
       }
       if (json.choices?.[0]?.message?.content) {
         json.choices[0].message.content = cleanServerAssistantReply(json.choices[0].message.content);
-        // Strip reasoning/thinking fields â€” frontend'e sÄ±zmasÄ±n
+        // Strip reasoning/thinking fields â€” frontend'e sızmasın
         if (json.choices[0].message.reasoning) delete json.choices[0].message.reasoning;
         if (json.choices[0].message.reasoning_content) delete json.choices[0].message.reasoning_content;
         if (looksLikeUpstreamErrorContent(json.choices[0].message.content) && GROQ_KEY && (provider !== 'groq' || model !== 'llama-3.1-8b-instant')) {
@@ -5018,7 +5099,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
           console.log(`[FALLBACK] Secondary Groq fallback ${fallbackModel} -> llama-3.1-8b-instant`);
           return res.json(await groqFallbackChat(messages, max_tokens, 'llama-3.1-8b-instant'));
         }
-        return res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 48 }, fallback: 'local-safe', suggestedModel: 'GPT SÄ±nÄ±rsÄ±z' });
+        return res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 48 }, fallback: 'local-safe', suggestedModel: 'GPT Sınırsız' });
       }
       
       if (json.error) {
@@ -5027,7 +5108,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
           console.log(`[FALLBACK] ${provider}/${model} error -> Groq Llama 3.1 8B: ${errMsg}`);
           return res.json(await groqFallbackChat(messages, max_tokens, 'llama-3.1-8b-instant'));
         }
-        return res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 42 }, fallback: 'local-safe', suggestedModel: 'GPT SÄ±nÄ±rsÄ±z' });
+        return res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 42 }, fallback: 'local-safe', suggestedModel: 'GPT Sınırsız' });
       }
       // Handle non-standard error formats (e.g. Cerebras {message, type, code} without .error wrapper)
       if (!json.choices && (json.message || json.code || json.type === 'not_found_error' || json.type === 'invalid_request_error')) {
@@ -5036,7 +5117,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
           console.log(`[FALLBACK] ${provider}/${model} non-standard error -> Groq Llama 3.1 8B: ${errMsg2}`);
           return res.json(await groqFallbackChat(messages, max_tokens, 'llama-3.1-8b-instant'));
         }
-        return res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 42 }, fallback: 'local-safe', suggestedModel: 'GPT SÄ±nÄ±rsÄ±z' });
+        return res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 42 }, fallback: 'local-safe', suggestedModel: 'GPT Sınırsız' });
       }
       return res.json(json);
     } catch {
@@ -5049,7 +5130,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
         console.log(`[FALLBACK] Invalid response from ${provider}/${model} -> Groq Llama 3.1 8B`);
         return res.json(await groqFallbackChat(messages, max_tokens, 'llama-3.1-8b-instant'));
       }
-      return res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 40 }, fallback: 'local-safe', suggestedModel: 'GPT SÄ±nÄ±rsÄ±z' });
+      return res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 40 }, fallback: 'local-safe', suggestedModel: 'GPT Sınırsız' });
     }
   } catch (err) {
     console.error('[ERROR]', err.message);
@@ -5061,7 +5142,7 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
         console.error('[FALLBACK ERROR]', fbErr.message);
       }
     }
-    res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 36 }, fallback: 'local-safe', suggestedModel: 'GPT SÄ±nÄ±rsÄ±z' });
+    res.json({ choices: [{ message: { role: 'assistant', content: localSafeChatAnswer(messages) } }], usage: { total_tokens: 36 }, fallback: 'local-safe', suggestedModel: 'GPT Sınırsız' });
   }
 });
 
@@ -5070,7 +5151,7 @@ app.post('/api/search', chatLimiter, async (req, res) => {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: 'Query required' });
 
-  // â”€â”€ 1) TAVILY (1000 req/ay Ã¼cretsiz â€” en kaliteli sonuÃ§lar) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ 1) TAVILY (1000 req/ay ücretsiz â€” en kaliteli sonuçlar) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (TAVILY_API_KEY) {
     try {
       const tvRes = await fetch('https://api.tavily.com/search', {
@@ -5083,7 +5164,7 @@ app.post('/api/search', chatLimiter, async (req, res) => {
         const results = tvData.results.map(r => ({
           title: r.title, url: r.url, snippet: r.content?.slice(0, 300) || ''
         }));
-        if (tvData.answer) results.unshift({ title: 'Ã–zet', url: '', snippet: tvData.answer, isAnswer: true });
+        if (tvData.answer) results.unshift({ title: 'Özet', url: '', snippet: tvData.answer, isAnswer: true });
         console.log(`[SEARCH] Tavily: ${results.length} results for "${query.slice(0,40)}"`);
         return res.json({ results, query, provider: 'tavily' });
       }
@@ -5092,7 +5173,7 @@ app.post('/api/search', chatLimiter, async (req, res) => {
     }
   }
 
-  // â”€â”€ 2) BRAVE SEARCH (2000 req/ay Ã¼cretsiz) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ 2) BRAVE SEARCH (2000 req/ay ücretsiz) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (BRAVE_SEARCH_KEY) {
     try {
       const brRes = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=6&text_decorations=false`, {
@@ -5111,7 +5192,7 @@ app.post('/api/search', chatLimiter, async (req, res) => {
     }
   }
 
-  // â”€â”€ 3) DUCKDUCKGO (anahtarsÄ±z fallback) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ 3) DUCKDUCKGO (anahtarsız fallback) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
@@ -5128,7 +5209,7 @@ app.post('/api/search', chatLimiter, async (req, res) => {
     });
     clearTimeout(timeout);
 
-    if (!ddgRes.ok) throw new Error('DDG yanÄ±t vermedi: ' + ddgRes.status);
+    if (!ddgRes.ok) throw new Error('DDG yanıt vermedi: ' + ddgRes.status);
 
     const html = await ddgRes.text();
 
@@ -5160,17 +5241,17 @@ app.post('/api/search', chatLimiter, async (req, res) => {
     res.json({ results, query });
   } catch (err) {
     console.error('[SEARCH ERROR]', err.message);
-    res.status(500).json({ error: err.name === 'AbortError' ? 'Arama zaman aÅŸÄ±mÄ±na uÄŸradÄ±' : err.message, results: [] });
+    res.status(500).json({ error: err.name === 'AbortError' ? 'Arama zaman aşımına uğradı' : err.message, results: [] });
   }
 });
 
-// ===== URL FETCH / JINA READER (RAG iÃ§in URL â†’ Markdown) =====
-// Jina Reader: https://r.jina.ai/<url> â€” anahtarsÄ±z, Ã¼cretsiz
+// ===== URL FETCH / JINA READER (RAG için URL â†’ Markdown) =====
+// Jina Reader: https://r.jina.ai/<url> â€” anahtarsız, ücretsiz
 app.post('/api/fetch', chatLimiter, async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'URL gerekli' });
-  // GÃ¼venlik: sadece http/https
-  if (!/^https?:\/\//i.test(url)) return res.status(400).json({ error: 'GeÃ§ersiz URL' });
+  // Güvenlik: sadece http/https
+  if (!/^https?:\/\//i.test(url)) return res.status(400).json({ error: 'Geçersiz URL' });
   try {
     const jinaUrl = `https://r.jina.ai/${url}`;
     const ctrl = new AbortController();
@@ -5187,7 +5268,7 @@ app.post('/api/fetch', chatLimiter, async (req, res) => {
     res.json({ content: trimmed, url, provider: 'jina' });
   } catch (err) {
     console.error('[FETCH ERROR]', err.message);
-    res.status(500).json({ error: err.name === 'AbortError' ? 'URL yÃ¼kleme zaman aÅŸÄ±mÄ±' : err.message });
+    res.status(500).json({ error: err.name === 'AbortError' ? 'URL yükleme zaman aşımı' : err.message });
   }
 });
 
@@ -5201,7 +5282,7 @@ app.post('/api/tts', chatLimiter, async (req, res) => {
 
   // Strip emojis, markdown, HTML and extra whitespace
   let cleanText = text
-    .replace(/```[\s\S]*?```/g, ' kod bloÄŸu ')   // code blocks
+    .replace(/```[\s\S]*?```/g, ' kod bloğu ')   // code blocks
     .replace(/`[^`]+`/g, ' ')                      // inline code
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')       // markdown links
     .replace(/<[^>]+>/g, '')                        // HTML tags
@@ -5264,7 +5345,7 @@ app.post('/api/tts', chatLimiter, async (req, res) => {
     // Use client-specified voice if it's an Edge Neural voice, else auto-detect
     let edgeVoice = voice && voice.includes('Neural') ? voice : null;
     if (!edgeVoice) {
-      const hasTurkish = /[Ã§ÄŸÄ±Ã¶ÅŸÃ¼Ã‡ÄÄ°Ã–ÅÃœ]/.test(cleanText) || /\b(bir|bu|ve|iÃ§in|ile|ya|da|mi|ne|ben|sen|biz|siz)\b/i.test(cleanText);
+      const hasTurkish = /[çğıöşüÇÄİÖÅÜ]/.test(cleanText) || /\b(bir|bu|ve|için|ile|ya|da|mi|ne|ben|sen|biz|siz)\b/i.test(cleanText);
       edgeVoice = hasTurkish ? 'tr-TR-EmelNeural' : 'en-US-JennyNeural';
     }
 
@@ -5291,7 +5372,7 @@ app.post('/api/tts', chatLimiter, async (req, res) => {
     console.warn('[TTS] Edge TTS failed:', edgeErr.message);
   }
 
-  res.status(503).json({ error: 'TTS servisleri ÅŸu an kullanÄ±lamÄ±yor, tarayÄ±cÄ± sesi kullanÄ±lacak.' });
+  res.status(503).json({ error: 'TTS servisleri şu an kullanılamıyor, tarayıcı sesi kullanılacak.' });
 });
 
 
@@ -5310,8 +5391,8 @@ function createLocalImageFallback(prompt, reason = '') {
   <g fill="none" stroke="#ffffff" stroke-opacity=".08">${Array.from({length:12},(_,i)=>`<path d="M0 ${120+i*72}H1024"/>`).join('')}${Array.from({length:12},(_,i)=>`<path d="M${120+i*72} 0V1024"/>`).join('')}</g>
   <circle cx="512" cy="388" r="126" fill="#020617" fill-opacity=".34" stroke="#67e8f9" stroke-opacity=".32" stroke-width="2"/>
   <path d="M438 398h148M438 452h104M468 316h88a56 56 0 0 1 56 56v122l-70-42h-74a56 56 0 0 1-56-56v-24a56 56 0 0 1 56-56Z" fill="none" stroke="#e0f2fe" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="512" y="620" fill="#f8fafc" font-family="Arial, sans-serif" font-size="46" font-weight="800" text-anchor="middle">GÃ¶rsel sÄ±raya alÄ±ndÄ±</text>
-  <text x="512" y="684" fill="#bae6fd" font-family="Arial, sans-serif" font-size="28" text-anchor="middle">SaÄŸlayÄ±cÄ± yoÄŸun olduÄŸu iÃ§in gÃ¼venli Ã¶nizleme oluÅŸturuldu.</text>
+  <text x="512" y="620" fill="#f8fafc" font-family="Arial, sans-serif" font-size="46" font-weight="800" text-anchor="middle">Görsel sıraya alındı</text>
+  <text x="512" y="684" fill="#bae6fd" font-family="Arial, sans-serif" font-size="28" text-anchor="middle">Sağlayıcı yoğun olduğu için güvenli önizleme oluşturuldu.</text>
   <foreignObject x="162" y="730" width="700" height="130"><div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Arial,sans-serif;color:#dbeafe;text-align:center;font-size:24px;line-height:1.4">${clean}</div></foreignObject>
   ${reason ? `<text x="512" y="922" fill="#94a3b8" font-family="Arial, sans-serif" font-size="20" text-anchor="middle">${String(reason).replace(/[<>&"']/g,'').slice(0,120)}</text>` : ''}
 </svg>`;
@@ -5345,7 +5426,7 @@ app.post('/api/image/edit', chatLimiter, optionalAuthMiddleware, async (req, res
   const imageSize = resolveImageSize(req.body || {});
   prompt = String(prompt || '').trim();
   if (!prompt) return res.status(400).json({ error: 'Prompt required' });
-  if (!image) return res.status(400).json({ error: 'DÃ¼zenleme iÃ§in referans fotoÄŸraf gerekli.' });
+  if (!image) return res.status(400).json({ error: 'Düzenleme için referans fotoğraf gerekli.' });
   const overrideKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
   let requestedModel = String(model || 'auto-quality');
   const isAuto = requestedModel === 'auto-quality';
@@ -5378,7 +5459,7 @@ app.post('/api/image/edit', chatLimiter, optionalAuthMiddleware, async (req, res
       }
     }
     if (!out) {
-      return res.status(400).json({ error: 'Bu model fotoÄŸraf dÃ¼zenleyemiyor. GPT Image veya Gemini/Nano Banana seÃ§.' });
+      return res.status(400).json({ error: 'Bu model fotoğraf düzenleyemiyor. GPT Image veya Gemini/Nano Banana seç.' });
     }
     const galleryId = saveImageGalleryRecord({
       userId: req.user?.id,
@@ -5392,7 +5473,7 @@ app.post('/api/image/edit', chatLimiter, optionalAuthMiddleware, async (req, res
     return res.json({ ...out, prompt, mode: 'edit', galleryId, warning: errors[0] || undefined });
   } catch (err) {
     errors.push(err.message);
-    return res.status(502).json({ error: 'FotoÄŸraf dÃ¼zenleme baÅŸarÄ±sÄ±z: ' + errors.join(' | ') });
+    return res.status(502).json({ error: 'Fotoğraf düzenleme başarısız: ' + errors.join(' | ') });
   }
 });
 
@@ -5408,9 +5489,9 @@ app.get('/api/gallery', optionalAuthMiddleware, (req, res) => {
 });
 
 app.post('/api/gallery', optionalAuthMiddleware, (req, res) => {
-  if (!req.user?.id) return res.status(401).json({ error: 'Galeri kaydÄ± iÃ§in giriÅŸ gerekli.' });
+  if (!req.user?.id) return res.status(401).json({ error: 'Galeri kaydı için giriş gerekli.' });
   const { url, prompt, model, provider, mode, sourceImageUrl } = req.body || {};
-  if (!isSafeGeneratedUrl(url)) return res.status(400).json({ error: 'GeÃ§ersiz veya kÄ±rÄ±k gÃ¶rsel URL.' });
+  if (!isSafeGeneratedUrl(url)) return res.status(400).json({ error: 'Geçersiz veya kırık görsel URL.' });
   const existing = db.prepare('SELECT id FROM image_gallery WHERE user_id = ? AND url = ?').get(req.user.id, url);
   if (existing) return res.json({ ok: true, id: existing.id });
   const id = saveImageGalleryRecord({ userId: req.user.id, url, prompt, model, provider, mode: mode || 'generate', sourceImageUrl });
@@ -5439,6 +5520,15 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
   
   let imgModel = model || 'flux';
   const overrideKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
+  const originalImageModel = String(imgModel || '').toLowerCase();
+  const legacyImageAliasesNoFallback = new Set(['pollinations', 'gptimage', 'wan-image', 'qwen-image', 'klein', 'zimage', 'sana', 'turbo', 'flux-realism', 'flux-anime', 'flux-3d']);
+  if (legacyImageAliasesNoFallback.has(originalImageModel)) {
+    return res.status(400).json({
+      error: 'Bu eski görsel model adı artık başka modele yönlendirilmiyor. Lütfen listeden çalışan bir görsel modeli seç.',
+      model: imgModel,
+      ok: false
+    });
+  }
 
   // Alias misrouted "free" model names to actual provider models
   // (driven by which API keys are configured in the environment).
@@ -5446,11 +5536,12 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
   // the dispatcher did not recognise them; mapping them to existing branches
   // ensures the configured providers are actually used.
   const IMG_MODEL_ALIASES = {
-    // KaldÄ±rÄ±lan modeller artÄ±k frontend'te yok, ama gÃ¼venlik iÃ§in:
-    'gptimage':   'flux',          // Cloudflare SDXL'e dÃ¼ÅŸer
-    'wan-image':  'flux',          // Cloudflare SDXL'e dÃ¼ÅŸer
-    'qwen-image': 'flux',          // Cloudflare SDXL'e dÃ¼ÅŸer
-    'klein':      'flux',          // Cloudflare SDXL'e dÃ¼ÅŸer
+    // Kaldırılan modeller artık frontend'te yok, ama güvenlik için:
+    'pollinations': 'flux',
+    'gptimage':   'flux',          // Cloudflare SDXL'e düşer
+    'wan-image':  'flux',          // Cloudflare SDXL'e düşer
+    'qwen-image': 'flux',          // Cloudflare SDXL'e düşer
+    'klein':      'flux',          // Cloudflare SDXL'e düşer
     'zimage':     'cf-sdxl'        // Cloudflare SDXL
   };
   if (IMG_MODEL_ALIASES[imgModel]) {
@@ -5468,10 +5559,11 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
 
   if (imgModel === 'auto-quality' || !imgModel) {
     const mode = String(qualityMode || 'quality').toLowerCase();
-    if (mode === 'cheap') imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : (CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN ? 'cf-sdxl' : 'flux');
-    else if (mode === 'fast') imgModel = (CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN) ? 'cf-sdxl' : (TOGETHER_KEYS.length ? 'together-flux-schnell' : 'flux');
-    else if (mode === 'premium') imgModel = OPENAI_IMAGE_KEYS.length ? 'openai-gpt-image-2' : ((GEMINI_KEYS.length || GOOGLE_API_KEY || overrideKey) ? 'gemini-2.5-flash-image' : (TOGETHER_KEYS.length ? 'together-flux-kontext-pro' : 'cf-sdxl'));
-    else imgModel = (GEMINI_KEYS.length || GOOGLE_API_KEY || overrideKey) ? 'gemini-2.5-flash-image' : ((OPENAI_IMAGE_KEYS.length) ? 'openai-gpt-image-2' : 'cf-sdxl');
+    if (mode === 'cheap') imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
+    else if (mode === 'fast') imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
+    else if (mode === 'premium') imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
+    else imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
+    model = imgModel;
   }
 
   if (imgModel === 'style-dalle3') {
@@ -5485,14 +5577,16 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       console.log(`[IMAGE] OpenAI saved: ${out.url}`);
       return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
     } catch (err) {
-      console.warn('[IMAGE FALLBACK] OpenAI failed:', err.message);
+      console.warn('[IMAGE] OpenAI failed:', err.message);
       if (model !== 'auto-quality') {
-        imageMeta.requestedProvider = 'openai';
-        imageMeta.requestedModel = normalizeOpenAIImageModel(imgModel);
-        imageMeta.warning = 'OpenAI image kanali gecici yanit vermedi; gercek Cloudflare SDXL gorseli donduruldu.';
-        imgModel = 'cf-sdxl';
+        return res.status(502).json({
+          error: 'Seçili OpenAI görsel modeli şu an yanıt vermedi: ' + err.message,
+          model: imgModel,
+          provider: 'openai',
+          ok: false
+        });
       }
-      if (model === 'auto-quality') imgModel = (GEMINI_KEYS.length || GOOGLE_API_KEY || overrideKey) ? 'gemini-2.5-flash-image' : 'cf-sdxl';
+      if (model === 'auto-quality') imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
     }
   }
 
@@ -5526,28 +5620,31 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       const url = saveGeneratedImageBuffer(Buffer.from(b64, 'base64'), 'imagen', 'png');
       return res.json({ url, prompt, model: modelId, provider: 'gemini-imagen', ...imageMeta });
     } catch (err) {
-      console.warn('[IMAGE FALLBACK] Imagen failed:', err.message);
+      console.warn('[IMAGE] Imagen failed:', err.message);
       if (model !== 'auto-quality') {
         return res.status(502).json({
-          error: 'SeÃ§ili Google gÃ¶rsel modeli ÅŸu an yanÄ±t vermedi: ' + err.message,
+          error: 'Seçili Google görsel modeli şu an yanıt vermedi: ' + err.message,
           model: imgModel,
-          provider: imgModel.startsWith('gemini-') ? 'google-direct-image' : 'gemini-imagen'
+          provider: imgModel.startsWith('gemini-') ? 'google-direct-image' : 'gemini-imagen',
+          ok: false
         });
       }
-      imgModel = 'cf-sdxl';
+      imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
     }
   }
 
-  // â”€â”€ RUNWARE â€” DEVRE DIÅI (key expired, gereksiz gecikme yaratÄ±yor) â”€â”€
+  // â”€â”€ RUNWARE â€” DEVRE DIÅI (key expired, gereksiz gecikme yaratıyor) â”€â”€
   if (imgModel === 'runware-flux' || imgModel === 'runware-sdxl') {
-    console.log('[IMAGE] Runware disabled (key expired), falling back to flux');
-    imgModel = 'flux';
+    return res.status(503).json({ error: 'Seçili Runware görsel modeli şu an devre dışı; başka modele yönlendirme yapılmadı.', model: imgModel, provider: 'runware', ok: false });
   }
 
   // â”€â”€ STABILITY AI (Stable Image Core â€” free credits) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (imgModel === 'stability-core' || imgModel === 'stability-ultra') {
     const stabilityKey = overrideKey || STABILITY_API_KEY;
     if (!stabilityKey) {
+      if (model !== 'auto-quality') {
+        return res.status(503).json({ error: 'Seçili Stability modeli için API key tanımlı değil.', model: imgModel, provider: 'stability', ok: false });
+      }
       imgModel = 'flux';
     } else try {
       const stEndpoint = imgModel === 'stability-ultra'
@@ -5573,16 +5670,22 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       console.log(`[IMAGE] Stability saved: /generated/${fileName}`);
       return res.json({ url: `/generated/${fileName}`, prompt, provider: 'stability', ...imageMeta });
     } catch (err) {
-      console.warn('[IMAGE FALLBACK] Stability failed:', err.message, 'â†’ Pollinations');
+      console.warn('[IMAGE] Stability failed:', err.message);
+      if (model !== 'auto-quality') {
+        return res.status(502).json({ error: 'Seçili Stability modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'stability', ok: false });
+      }
       imgModel = 'flux';
     }
   }
 
-  // â”€â”€ TOGETHER AI â€” Flux-1-schnell (Ã¼cretsiz tier) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ TOGETHER AI â€” Flux-1-schnell (ücretsiz tier) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (imgModel === 'together-flux' || TOGETHER_IMAGE_MODELS[imgModel]) {
     const togetherKey = overrideKey || getTogetherKey();
     if (!togetherKey) {
-      imgModel = 'cf-sdxl';
+      if (model !== 'auto-quality') {
+        return res.status(503).json({ error: 'Seçili Together görsel modeli için API key tanımlı değil.', model: imgModel, provider: 'together', ok: false });
+      }
+      imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
     } else try {
       const togetherCfg = TOGETHER_IMAGE_MODELS[imgModel] || { model: 'black-forest-labs/FLUX.1-schnell', credits: 120, steps: 4 };
       const tRes = await fetch('https://api.together.xyz/v1/images/generations', {
@@ -5593,9 +5696,9 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       const tData = await tRes.json();
       if (!tRes.ok) throw new Error(tData.error?.message || 'Together image error');
       const imgUrl = tData.data?.[0]?.url;
-      if (!imgUrl) throw new Error('Together URL boÅŸ');
+      if (!imgUrl) throw new Error('Together URL boş');
       const dlRes = await fetch(imgUrl);
-      if (!dlRes.ok) throw new Error('Together gÃ¶rsel indirilemedi (' + dlRes.status + ')');
+      if (!dlRes.ok) throw new Error('Together görsel indirilemedi (' + dlRes.status + ')');
       const buf = Buffer.from(await dlRes.arrayBuffer());
       const genDir = GENERATED_DIR;
       if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
@@ -5604,23 +5707,25 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       console.log(`[IMAGE] Together ${togetherCfg.model} saved: /generated/${fileName}`);
       return res.json({ url: `/generated/${fileName}`, prompt, model: togetherCfg.model, provider: 'together', ...imageMeta });
     } catch (err) {
-      console.warn('[IMAGE FALLBACK] Together failed:', err.message, '-> Cloudflare Workers AI');
+      console.warn('[IMAGE] Together failed:', err.message);
       if (model !== 'auto-quality') {
-        return res.status(502).json({ error: 'SeÃ§ili Together gÃ¶rsel modeli ÅŸu an yanÄ±t vermedi: ' + err.message, model: imgModel, provider: 'together' });
+        return res.status(502).json({ error: 'Seçili Together görsel modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'together', ok: false });
       }
-      imgModel = 'cf-sdxl';
+      imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
     }
   }
 
-  // â”€â”€ AIML API â€” DEVRE DIÅI (key expired, gereksiz gecikme yaratÄ±yor) â”€â”€
+  // â”€â”€ AIML API â€” DEVRE DIÅI (key expired, gereksiz gecikme yaratıyor) â”€â”€
   if (imgModel === 'aiml-flux' || imgModel === 'aiml-nano') {
-    console.log('[IMAGE] AIML disabled (key expired), falling back to flux');
-    imgModel = 'flux';
+    return res.status(503).json({ error: 'Seçili AIML görsel modeli şu an devre dışı; başka modele yönlendirme yapılmadı.', model: imgModel, provider: 'aimlapi', ok: false });
   }
 
   if (imgModel === 'imagegpt-free') {
     const imageGptKey = overrideKey || IMAGEGPT_API_KEY;
     if (!imageGptKey) {
+      if (model !== 'auto-quality') {
+        return res.status(503).json({ error: 'Seçili ImageGPT modeli için API key tanımlı değil.', model: imgModel, provider: 'imagegpt', ok: false });
+      }
       imgModel = 'flux';
     } else try {
       const igRes = await fetch('https://api.imagegpt.online/generate/text-image', {
@@ -5639,15 +5744,15 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       const igData = await igRes.json().catch(() => ({}));
       if (!igRes.ok || !igData.url) throw new Error(igData.error?.message || igData.message || 'ImageGPT image error');
       const dlRes = await fetch(igData.url, { signal: AbortSignal.timeout(60000) });
-      if (!dlRes.ok) throw new Error('ImageGPT gÃ¶rsel indirilemedi (' + dlRes.status + ')');
+      if (!dlRes.ok) throw new Error('ImageGPT görsel indirilemedi (' + dlRes.status + ')');
       const buf = Buffer.from(await dlRes.arrayBuffer());
-      if (buf.length < 1000) throw new Error('ImageGPT boÅŸ gÃ¶rsel dÃ¶ndÃ¼rdÃ¼');
+      if (buf.length < 1000) throw new Error('ImageGPT boş görsel döndürdü');
       const url = saveGeneratedImageBuffer(buf, 'imagegpt', 'png');
       return res.json({ url, prompt, model: 'imagegpt-free', provider: 'imagegpt', creditsDeducted: igData.creditsDeducted, taskId: igData.taskId, ...imageMeta });
     } catch (err) {
-      console.warn('[IMAGE FALLBACK] ImageGPT failed:', err.message, '-> Pollinations Flux');
+      console.warn('[IMAGE] ImageGPT failed:', err.message);
       if (model !== 'auto-quality') {
-        return res.status(502).json({ error: 'SeÃ§ili ImageGPT modeli ÅŸu an yanÄ±t vermedi: ' + err.message, model: imgModel, provider: 'imagegpt' });
+        return res.status(502).json({ error: 'Seçili ImageGPT modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'imagegpt', ok: false });
       }
       imgModel = 'flux';
     }
@@ -5656,8 +5761,11 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
   // 0) CLOUDFLARE WORKERS AI (low-cost/free allocation)
   if (imgModel === 'cf-sdxl') {
     if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
+      if (model !== 'auto-quality') {
+        return res.status(503).json({ error: 'Seçili Cloudflare SDXL modeli için API key tanımlı değil.', model: imgModel, provider: 'cloudflare', ok: false });
+      }
       imgModel = 'flux';
-      console.log('[IMAGE FALLBACK] Cloudflare credentials missing, falling back to Pollinations Flux');
+      console.log('[IMAGE] Cloudflare credentials missing; auto-quality will try another real provider');
     } else try {
       const cfUrl = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0`;
       const response = await fetch(cfUrl, {
@@ -5688,17 +5796,21 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       return res.json({ url: `/generated/${fileName}`, prompt, provider: 'cloudflare', ...imageMeta });
     } catch (err) {
       console.error('[IMAGE ERROR (Cloudflare)]', err.message);
+      if (model !== 'auto-quality') {
+        return res.status(502).json({ error: 'Seçili Cloudflare SDXL modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'cloudflare', ok: false });
+      }
       imgModel = 'flux';
-      console.log('[IMAGE FALLBACK] Cloudflare failed, falling back to Pollinations Flux');
+      console.log('[IMAGE] Cloudflare failed; auto-quality will try another real provider');
     }
   }
 
-  // 1) POLLINATIONS (Ãœcretsiz Modeller ve Stiller) â€” retry + model rotation
+  // 1) POLLINATIONS (Ücretsiz Modeller ve Stiller) â€” retry + model rotation
   if (['flux', 'turbo', 'sana', 'zimage', 'klein', 'gptimage', 'wan-image', 'qwen-image', 'flux-realism', 'flux-anime', 'flux-3d'].includes(imgModel) || imgModel.startsWith('style-')) {
     let finalPrompt = prompt;
+    const allowLegacyImageProviderFallback = false;
     
-    // === CLOUDFLARE WORKERS AI PRIMARY (12s, 10K/gÃ¼n ÃœCRETSÄ°Z, YENÄ°LENÄ°YOR) ===
-    if (CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN && (imgModel === 'flux' || imgModel.startsWith('style-'))) {
+    // === CLOUDFLARE WORKERS AI PRIMARY (12s, 10K/gün ÜCRETSİZ, YENİLENİYOR) ===
+    if (allowLegacyImageProviderFallback && CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN && (imgModel === 'flux' || imgModel.startsWith('style-'))) {
       try {
         const styleAddOn = imgModel.startsWith('style-') ? ({
           'style-midjourney': ', in the style of Midjourney V6, highly detailed, masterpiece',
@@ -5737,9 +5849,9 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       }
     }
     
-    // === SHENFENG gpt-image-2 PRIMARY (HD, stabil, Ã¼cretsiz) ===
+    // === SHENFENG gpt-image-2 PRIMARY (HD, stabil, ücretsiz) ===
     const SHEN_KEY_IMG = process.env.SHENFENG_OPENAI_KEY || process.env.SHENFENG_IMAGE_KEY || '';
-    if (imgModel === 'flux' || imgModel.startsWith('style-')) {
+    if (allowLegacyImageProviderFallback && (imgModel === 'flux' || imgModel.startsWith('style-'))) {
       try {
         const styleAddOn = imgModel.startsWith('style-') ? ({
           'style-midjourney': ', in the style of Midjourney V6, highly detailed, masterpiece',
@@ -5798,19 +5910,28 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       if (styles[imgModel]) finalPrompt += styles[imgModel];
     }
 
-    // Model rotation: 429 gelirse farklÄ± seed ile tekrar dene
+    // Model rotation: 429 gelirse farklı seed ile tekrar dene
     const MAX_RETRIES = 2;
     let lastErr = null;
+    if (!POLLINATIONS_API_KEY) {
+      return res.status(503).json({
+        error: 'Pollinations görsel modeli için POLLINATIONS_API_KEY gerekli. Yeni Pollinations API artık token istiyor.',
+        model: finalModel,
+        provider: 'pollinations',
+        ok: false
+      });
+    }
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
-        const seed = Date.now() + attempt * 7777 + Math.floor(Math.random() * 99999);
-        const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?model=${encodeURIComponent(finalModel)}&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
+        const seed = Math.floor((Date.now() + attempt * 7777 + Math.floor(Math.random() * 99999)) % 2147483647);
+        const imgUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}?model=${encodeURIComponent(finalModel)}&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
+        const timeout = setTimeout(() => controller.abort(), 30000);
         const response = await fetch(imgUrl, {
           signal: controller.signal,
           headers: {
+            'Authorization': `Bearer ${POLLINATIONS_API_KEY}`,
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Referer': 'https://froxyai.com/',
             'Accept': 'image/avif,image/webp,image/jpeg,image/png,image/*'
@@ -5826,10 +5947,10 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
         if (!response.ok) throw new Error(`Pollinations HTTP ${response.status}`);
 
         const ct = response.headers.get('content-type') || '';
-        if (!ct.includes('image')) throw new Error(`image yerine ${ct} dÃ¶ndÃ¼`);
+        if (!ct.includes('image')) throw new Error(`image yerine ${ct} döndü`);
 
         const buffer = Buffer.from(await response.arrayBuffer());
-        if (buffer.length < 1000) throw new Error(`Ã§ok kÃ¼Ã§Ã¼k yanÄ±t (${buffer.length} bytes)`);
+        if (buffer.length < 1000) throw new Error(`çok küçük yanıt (${buffer.length} bytes)`);
 
         const genDir = GENERATED_DIR;
         if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
@@ -5847,8 +5968,8 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
         if (attempt < MAX_RETRIES - 1) await new Promise(r => setTimeout(r, 500));
       }
     }
-    // Pollinations retry de baÅŸarÄ±sÄ±z oldu - Cloudflare Workers AI SDXL'e hÄ±zlÄ±ca dÃ¼ÅŸ
-    if (CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN) {
+    // Pollinations retry başarısızsa yalnızca auto-quality için başka gerçek sağlayıcı denenir.
+    if (allowLegacyImageProviderFallback && model === 'auto-quality' && CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN) {
       try {
         console.log(`[IMAGE] Pollinations failed. Falling back to Cloudflare Workers AI for model: ${imgModel}`);
         const styleAddOn = imgModel.startsWith('style-') ? ({
@@ -5878,23 +5999,19 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
           if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
           const fileName = `cf_${Date.now()}.png`;
           fs.writeFileSync(path.join(genDir, fileName), buf);
-          console.log(`[IMAGE] Cloudflare fallback saved: /generated/${fileName} (Pollinations fallback success)`);
-          return res.json({ url: `/generated/${fileName}`, prompt: fallbackPrompt, model: imgModel, provider: 'cloudflare-fallback', ...imageMeta });
+          console.log(`[IMAGE] Cloudflare auto-quality saved: /generated/${fileName}`);
+          return res.json({ url: `/generated/${fileName}`, prompt: fallbackPrompt, model: imgModel, provider: 'cloudflare-auto-quality', ...imageMeta });
         }
       } catch (cfErr) {
         console.warn('[IMAGE] Cloudflare fallback failed:', cfErr.message);
       }
     }
-    // Son Ã§are: SVG placeholder
-    const svgUrl = createLocalImageFallback(finalPrompt, 'GÃ¶rsel saÄŸlayÄ±cÄ±sÄ± yoÄŸun, tekrar deneyin');
-    return res.json({
-      url: svgUrl,
+    return res.status(502).json({
+      error: 'Seçili görsel sağlayıcısı şu an yanıt vermedi: ' + (lastErr?.message || 'bilinmeyen hata'),
       prompt: finalPrompt,
       model: finalModel,
-      provider: 'local-svg',
-      fallback: 'local-svg',
-      ...imageMeta,
-      warning: 'TÃ¼m gÃ¶rsel saÄŸlayÄ±cÄ±larÄ± ÅŸu an yoÄŸun. LÃ¼tfen 30-60 saniye bekleyip tekrar deneyin.'
+      provider: 'pollinations',
+      ok: false
     });
   }
 
@@ -5934,53 +6051,26 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       imageUrl = match[1];
     } else {
       if (content.startsWith('http')) imageUrl = content.trim();
-      else throw new Error('API geÃ§erli bir resim linki dÃ¶ndÃ¼rmedi: ' + content.substring(0, 40));
+      else throw new Error('API geçerli bir resim linki döndürmedi: ' + content.substring(0, 40));
     }
 
     res.json({ url: imageUrl, prompt });
   } catch (err) {
     console.error('[IMAGE ERROR (Guicore)]', err.message);
-    // Pollinations server Ã¼zerinden indir
-    try {
-      const seed = Date.now() + Math.floor(Math.random() * 99999);
-      const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 60000);
-      const polRes = await fetch(polUrl, {
-        signal: ctrl.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Referer': 'https://froxyai.com/',
-          'Accept': 'image/*'
-        }
-      });
-      clearTimeout(t);
-      if (polRes.ok) {
-        const ct = polRes.headers.get('content-type') || '';
-        if (ct.includes('image')) {
-          const buf = Buffer.from(await polRes.arrayBuffer());
-          if (buf.length >= 1000) {
-            const genDir = GENERATED_DIR;
-            if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
-            const fileName = `gc_fb_${Date.now()}.jpg`;
-            fs.writeFileSync(path.join(genDir, fileName), buf);
-            return res.json({ url: `/generated/${fileName}`, prompt, provider: 'pollinations-flux', fallback: 'pollinations-flux', ...imageMeta });
-          }
-        }
-      }
-    } catch (fbErr) {
-      console.warn('[IMAGE Guicore FB] Pollinations failed:', fbErr.message);
-    }
-    // SVG placeholder
-    const svgUrl = createLocalImageFallback(prompt, 'GÃ¶rsel saÄŸlayÄ±cÄ±sÄ± yoÄŸun');
-    return res.json({ url: svgUrl, prompt, provider: 'local-svg', warning: 'GÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi.' });
+    return res.status(502).json({
+      error: 'Seçili görsel sağlayıcısı şu an yanıt vermedi: ' + err.message,
+      prompt,
+      model: imgModel,
+      provider: 'guicore-image',
+      ok: false
+    });
   }
 });
 
 // === IMAGE PROXY: Pollinations'a server uzerinden istek at ===
 // Browser src='/api/img-proxy?prompt=...' -> server pollinations'a gider, gorseli getirir, cache'ler.
 
-// Request throttling: aynÄ± anda en fazla 2 Pollinations isteÄŸi, diÄŸerleri sÄ±raya girer
+// Request throttling: aynı anda en fazla 2 Pollinations isteği, diğerleri sıraya girer
 let _pollinationsActive = 0;
 const _pollinationsQueue = [];
 const POLLINATIONS_MAX_CONCURRENT = 2;
@@ -6070,16 +6160,8 @@ app.get('/api/img-proxy', async (req, res) => {
     return res.send(buf);
   } catch (err) {
     console.warn('[IMG-PROXY] Final failure:', err.message);
+    return res.status(503).json({ error: err.message || 'Görsel üretilemedi, lütfen tekrar deneyin.' });
   }
-  
-  // Fallback: SVG placeholder
-  const fbPath = createLocalImageFallback(String(prompt).slice(0,160), 'SaÄŸlayÄ±cÄ± yoÄŸun, tekrar deneyin');
-  const svgFile = path.join(__dirname, fbPath.replace(/^\//, ''));
-  if (fs.existsSync(svgFile)) {
-    res.set('Content-Type', 'image/svg+xml');
-    return res.send(fs.readFileSync(svgFile));
-  }
-  res.status(503).send('Image temporarily unavailable');
 });
 
 // Video generation endpoint - Real Gemini Veo API
@@ -6087,9 +6169,9 @@ app.post('/api/video', chatLimiter, async (req, res) => {
   const { prompt, model } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Prompt gerekli' });
 
-  // â”€â”€ POLLINATIONS VIDEO (ltx-2 Ã¼cretsiz, seedance/veo paralÄ±) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ POLLINATIONS VIDEO (ltx-2 ücretsiz, seedance/veo paralı) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Yeni endpoint: https://image.pollinations.ai/prompt/{prompt}?model=<videoModel>
-  // Ãœcretsiz eriÅŸim iÃ§in sk_ anahtarÄ± gerekli; yoksa anonim dener (pk_ limiti).
+  // Ücretsiz erişim için sk_ anahtarı gerekli; yoksa anonim dener (pk_ limiti).
   if (['pollinations-video', 'ltx-2', 'nova-reel', 'seedance-lite', 'wan-fast'].includes(model)) {
     try {
       const polKey = fromEnv('POLLINATIONS_KEY') || fromEnv('POLLINATIONS_API_KEY');
@@ -6109,7 +6191,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       const ct = polRes.headers.get('content-type') || '';
       if (!ct.includes('video')) {
         const errText = await polRes.text().catch(() => '');
-        throw new Error(`Pollinations video yerine ${ct} dÃ¶ndÃ¼: ${errText.slice(0, 200)}`);
+        throw new Error(`Pollinations video yerine ${ct} döndü: ${errText.slice(0, 200)}`);
       }
       const buf = Buffer.from(await polRes.arrayBuffer());
       const genDir = GENERATED_DIR;
@@ -6120,11 +6202,11 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       return res.json({ url: `/generated/${fileName}`, prompt, provider: 'pollinations', model: polModel });
     } catch (err) {
       console.warn('[VIDEO] Pollinations failed:', err.message);
-      return res.status(503).json({ error: 'Pollinations video ÅŸu an kullanÄ±lamÄ±yor: ' + err.message + '. LÃ¼tfen baÅŸka bir model deneyin veya POLLINATIONS_KEY .env iÃ§inde tanÄ±mlayÄ±n.' });
+      return res.status(503).json({ error: 'Pollinations video şu an kullanılamıyor: ' + err.message + '. Lütfen başka bir model deneyin veya POLLINATIONS_KEY .env içinde tanımlayın.' });
     }
   }
 
-  // â”€â”€ HUGGINGFACE LTX-VIDEO (Ã¼cretsiz tier, HF_TOKEN ile) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ HUGGINGFACE LTX-VIDEO (ücretsiz tier, HF_TOKEN ile) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (model === 'ltx-video' || model === 'hf-ltx') {
     const hfKey = fromEnv('HF_TOKEN');
     try {
@@ -6136,13 +6218,13 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       });
       if (!hfRes.ok) {
         const errText = await hfRes.text();
-        // Model yÃ¼klenmiyorsa aÃ§Ä±klayÄ±cÄ± mesaj
-        if (hfRes.status === 503) throw new Error('Model HuggingFace Ã¼zerinde cold-start yapÄ±yor. 20 saniye sonra tekrar deneyin.');
-        if (hfRes.status === 404) throw new Error('LTX-Video HuggingFace free tier\'da ÅŸu an mevcut deÄŸil. Wavespeed Wan veya Pollinations LTX-2 deneyin.');
+        // Model yüklenmiyorsa açıklayıcı mesaj
+        if (hfRes.status === 503) throw new Error('Model HuggingFace üzerinde cold-start yapıyor. 20 saniye sonra tekrar deneyin.');
+        if (hfRes.status === 404) throw new Error('LTX-Video HuggingFace free tier\'da şu an mevcut değil. Wavespeed Wan veya Pollinations LTX-2 deneyin.');
         throw new Error(`HF ${hfRes.status}: ${errText.slice(0, 200)}`);
       }
       const ct = hfRes.headers.get('content-type') || '';
-      if (!ct.includes('video')) throw new Error(`HF video yerine ${ct} dÃ¶ndÃ¼`);
+      if (!ct.includes('video')) throw new Error(`HF video yerine ${ct} döndü`);
       const buf = Buffer.from(await hfRes.arrayBuffer());
       const genDir = GENERATED_DIR;
       if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
@@ -6159,7 +6241,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
   // â”€â”€ WAVESPEED AI (Kling / Wan / Seedance â€” free trial) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (['wavespeed-kling', 'wavespeed-wan', 'wavespeed-seedance'].includes(model)) {
     if (!WAVESPEED_API_KEY) {
-      return res.status(503).json({ error: 'WAVESPEED_API_KEY gerekli. https://wavespeed.ai Ã¼zerinden Ã¼cretsiz key alÄ±n.' });
+      return res.status(503).json({ error: 'WAVESPEED_API_KEY gerekli. https://wavespeed.ai üzerinden ücretsiz key alın.' });
     }
     const wsModelMap = {
       'wavespeed-kling':     'wavespeed-ai/kling-v2.1-pro/text-to-video',
@@ -6174,7 +6256,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
         body: JSON.stringify({ prompt, duration: 5, aspect_ratio: '16:9', enable_safety_checker: true })
       });
       const startData = await startRes.json();
-      if (!startRes.ok) throw new Error(startData.message || startData.error || 'Wavespeed baÅŸlatÄ±lamadÄ±');
+      if (!startRes.ok) throw new Error(startData.message || startData.error || 'Wavespeed başlatılamadı');
       const predId = startData.data?.id;
       if (!predId) throw new Error('Wavespeed prediction ID yok');
 
@@ -6190,9 +6272,9 @@ app.post('/api/video', chatLimiter, async (req, res) => {
           if (!videoUrl) throw new Error('Wavespeed video URL yok');
           return res.json({ url: videoUrl, prompt, model, provider: 'wavespeed' });
         }
-        if (status === 'failed') throw new Error(pollData.data?.error || 'Wavespeed baÅŸarÄ±sÄ±z');
+        if (status === 'failed') throw new Error(pollData.data?.error || 'Wavespeed başarısız');
       }
-      throw new Error('Wavespeed zaman aÅŸÄ±mÄ±');
+      throw new Error('Wavespeed zaman aşımı');
     } catch (err) {
       console.error('[VIDEO] Wavespeed error:', err.message);
       return res.status(500).json({ error: err.message });
@@ -6201,7 +6283,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
 
   // Handle new video agents (Seedance, CapCut)
   if (['capcut-bro', 'kling-v1'].includes(model)) {
-    return res.status(403).json({ error: `${model.toUpperCase()} ajanÄ± iÃ§in ÅŸu anda API kota limitine ulaÅŸÄ±ldÄ± veya entegrasyon aÅŸamasÄ±nda. LÃ¼tfen daha sonra tekrar deneyin.` });
+    return res.status(403).json({ error: `${model.toUpperCase()} ajanı için şu anda API kota limitine ulaşıldı veya entegrasyon aşamasında. Lütfen daha sonra tekrar deneyin.` });
   }
 
   // Map UI model names to Veo model IDs
@@ -6345,23 +6427,23 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       return res.status(503).json({ error: 'Seedance 2.0 icin FAL_API_KEY veya REPLICATE_API_TOKEN gerekli.' });
     }
 
-    // 1. GerÃ§ek API anahtarÄ± kontrolÃ¼.
-    // Ä°leride saÄŸlam bir video API'si (Ã¶r. Fal.ai, Luma, HuggingFace) satÄ±n alÄ±nÄ±rsa buradan baÄŸlanÄ±r.
+    // 1. Gerçek API anahtarı kontrolü.
+    // İleride sağlam bir video API'si (ör. Fal.ai, Luma, HuggingFace) satın alınırsa buradan bağlanır.
     const VIDEO_API_KEY = FAL_API_KEY; 
     if (VIDEO_API_KEY) {
       console.log(`[VIDEO] Starting generation via Fal.ai (Luma) for: "${prompt.substring(0, 50)}"`);
-      // 1. Fal.ai Ã¼zerinden video oluÅŸturma isteÄŸini baÅŸlat (Luma Dream Machine)
+      // 1. Fal.ai üzerinden video oluşturma isteğini başlat (Luma Dream Machine)
       const startRes = await fetch('https://queue.fal.run/fal-ai/luma-dream-machine', {
         method: 'POST',
         headers: { 'Authorization': `Key ${VIDEO_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: prompt, aspect_ratio: "16:9" })
       });
       const startData = await startRes.json();
-      if (!startRes.ok) throw new Error(startData.detail || 'Video baÅŸlatÄ±lamadÄ±');
+      if (!startRes.ok) throw new Error(startData.detail || 'Video başlatılamadı');
       
       const reqId = startData.request_id;
       
-      // 2. Ä°ÅŸlemin bitmesini bekle (polling)
+      // 2. İşlemin bitmesini bekle (polling)
       for (let i = 0; i < 30; i++) { // Max 150 saniye
         await new Promise(r => setTimeout(r, 5000));
         const checkRes = await fetch(`https://queue.fal.run/fal-ai/luma-dream-machine/requests/${reqId}/status`, {
@@ -6370,7 +6452,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
         const checkData = await checkRes.json();
         
         if (checkData.status === 'COMPLETED') {
-          // 3. TamamlandÄ±ysa sonucu Ã§ek
+          // 3. Tamamlandıysa sonucu çek
           const resultRes = await fetch(`https://queue.fal.run/fal-ai/luma-dream-machine/requests/${reqId}`, {
             headers: { 'Authorization': `Key ${VIDEO_API_KEY}` }
           });
@@ -6382,19 +6464,19 @@ app.post('/api/video', chatLimiter, async (req, res) => {
           console.log(`[VIDEO] Fal.ai Queue: ${checkData.status}...`);
           continue;
         }
-        throw new Error('Video Ã¼retimi baÅŸarÄ±sÄ±z: ' + checkData.status);
+        throw new Error('Video üretimi başarısız: ' + checkData.status);
       }
-      throw new Error('Video Ã¼retim zaman aÅŸÄ±mÄ±na uÄŸradÄ±');
+      throw new Error('Video üretim zaman aşımına uğradı');
     }
 
-    // â”€â”€ GEMINI VEO (Google Direct) â€” gerÃ§ek Ã§aÄŸrÄ± â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    // veoModels mapping'i yukarÄ±da tanÄ±mlÄ±. Gemini API long-running operation dÃ¶ndÃ¼rÃ¼r.
+    // â”€â”€ GEMINI VEO (Google Direct) â€” gerçek çağrı â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // veoModels mapping'i yukarıda tanımlı. Gemini API long-running operation döndürür.
     if (veoModels[model]) {
       const apiKey = getGeminiKey();
       if (!apiKey) {
-        return res.status(503).json({ error: 'Veo iÃ§in GEMINI_API_KEYS .env iÃ§inde tanÄ±mlÄ± olmalÄ±.' });
+        return res.status(503).json({ error: 'Veo için GEMINI_API_KEYS .env içinde tanımlı olmalı.' });
       }
-      console.log(`[VIDEO] Veo ${modelId} baÅŸlatÄ±lÄ±yor...`);
+      console.log(`[VIDEO] Veo ${modelId} başlatılıyor...`);
       const startRes = await fetch(`${baseUrl}/models/${modelId}:predictLongRunning?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -6407,12 +6489,12 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       if (!startRes.ok) {
         const msg = startData.error?.message || `HTTP ${startRes.status}`;
         if (/quota|billing|PERMISSION_DENIED/i.test(msg)) {
-          return res.status(402).json({ error: `Veo Ã¼cretli bir modeldir. Google AI Studio hesabÄ±nÄ±zda faturalandÄ±rma aktif olmalÄ±. Detay: ${msg.slice(0, 200)}` });
+          return res.status(402).json({ error: `Veo ücretli bir modeldir. Google AI Studio hesabınızda faturalandırma aktif olmalı. Detay: ${msg.slice(0, 200)}` });
         }
-        throw new Error('Veo baÅŸlatma: ' + msg);
+        throw new Error('Veo başlatma: ' + msg);
       }
       const opName = startData.name;
-      if (!opName) throw new Error('Veo operation name dÃ¶nmedi');
+      if (!opName) throw new Error('Veo operation name dönmedi');
 
       // Long-running operation poll
       let opResult = null;
@@ -6422,13 +6504,13 @@ app.post('/api/video', chatLimiter, async (req, res) => {
         const opData = await opRes.json();
         if (opData.done) { opResult = opData; break; }
       }
-      if (!opResult) throw new Error('Veo zaman aÅŸÄ±mÄ± (5 dk)');
+      if (!opResult) throw new Error('Veo zaman aşımı (5 dk)');
       if (opResult.error) throw new Error('Veo hata: ' + (opResult.error.message || JSON.stringify(opResult.error)));
 
       // Video URI al ve indir
       const videoUri = opResult.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri
         || opResult.response?.generatedVideos?.[0]?.video?.uri;
-      if (!videoUri) throw new Error('Veo video URI dÃ¶nmedi');
+      if (!videoUri) throw new Error('Veo video URI dönmedi');
 
       const dlRes = await fetch(`${videoUri}&key=${apiKey}`);
       if (!dlRes.ok) throw new Error('Veo video indirme: ' + dlRes.status);
@@ -6441,9 +6523,9 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       return res.json({ url: `/generated/${fileName}`, prompt, model, provider: 'gemini-veo' });
     }
 
-    // GerÃ§ek anahtar yoksa net bir hata dÃ¶n.
+    // Gerçek anahtar yoksa net bir hata dön.
     return res.status(503).json({ 
-      error: 'Bu video modeli iÃ§in gerekli API key bulunamadÄ±. Desteklenen modeller: ltx-2 / nova-reel (POLLINATIONS_KEY), wavespeed-* (WAVESPEED_API_KEY), veo-3 (GEMINI_API_KEYS + billing), seedance-2 (FAL_API_KEY veya REPLICATE_API_TOKEN), vidu-* (VIDU_API_KEY).'
+      error: 'Bu video modeli için gerekli API key bulunamadı. Desteklenen modeller: ltx-2 / nova-reel (POLLINATIONS_KEY), wavespeed-* (WAVESPEED_API_KEY), veo-3 (GEMINI_API_KEYS + billing), seedance-2 (FAL_API_KEY veya REPLICATE_API_TOKEN), vidu-* (VIDU_API_KEY).'
     });
   } catch (err) {
     console.error('[VIDEO ERROR]', err.message);
@@ -6495,7 +6577,7 @@ app.post('/api/imagen', chatLimiter, async (req, res) => {
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || 'Imagen API hatasÄ±');
+    if (!response.ok) throw new Error(data.error?.message || 'Imagen API hatası');
 
     if (data.predictions?.[0]?.bytesBase64Encoded) {
       const fs = require('fs');
@@ -6506,41 +6588,15 @@ app.post('/api/imagen', chatLimiter, async (req, res) => {
       return res.json({ url: `/generated/${fileName}`, prompt, model: modelId, provider: 'gemini-imagen', ...imageMeta });
     }
 
-    throw new Error('Imagen yanÄ±tÄ± beklenen formatta deÄŸil');
+    throw new Error('Imagen yanıtı beklenen formatta değil');
   } catch (err) {
     console.error('[IMAGEN ERROR]', err.message);
-    // Pollinations fallback - server Ã¼zerinden indir
-    try {
-      const seed = Date.now() + Math.floor(Math.random() * 99999);
-      const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 60000);
-      const polRes = await fetch(polUrl, {
-        signal: ctrl.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Referer': 'https://froxyai.com/',
-          'Accept': 'image/*'
-        }
-      });
-      clearTimeout(t);
-      if (polRes.ok) {
-        const ct = polRes.headers.get('content-type') || '';
-        if (ct.includes('image')) {
-          const buf = Buffer.from(await polRes.arrayBuffer());
-          if (buf.length >= 1000) {
-            const genDir = GENERATED_DIR;
-            if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
-            const fileName = `imagen_fb_${Date.now()}.jpg`;
-            fs.writeFileSync(path.join(genDir, fileName), buf);
-            return res.json({ url: `/generated/${fileName}`, prompt, fallback: 'pollinations-flux', warning: err.message, ...imageMeta });
-          }
-        }
-      }
-    } catch (fbErr) {
-      console.warn('[IMAGEN FALLBACK] Pollinations also failed:', fbErr.message);
-    }
-    res.status(503).json({ error: 'GÃ¶rsel Ã¼retimi ÅŸu an kullanÄ±lamÄ±yor: ' + err.message });
+    res.status(503).json({
+      error: 'Görsel üretimi şu an kullanılamıyor: ' + err.message,
+      provider: 'gemini-imagen',
+      model: model || 'imagen-4-fast',
+      ok: false
+    });
   }
 });
 
@@ -6635,7 +6691,7 @@ app.post('/api/deduct-credit', authMiddleware, (req, res) => {
   }
   
   const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
-  if (!user) return res.status(404).json({ error: 'KullanÄ±cÄ± bulunamadÄ±' });
+  if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
   if (user.credits < cost) return res.status(402).json({ error: 'Yetersiz kredi', required: cost, remaining: user.credits });
   
   db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);
@@ -6677,7 +6733,7 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
   }
   
   const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
-  if (!user) return res.status(404).json({ error: 'KullanÄ±cÄ± bulunamadÄ±' });
+  if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
   if (user.credits < cost) return res.status(402).json({ error: 'Yetersiz kredi', required: cost, remaining: user.credits });
   
   db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);
@@ -6857,10 +6913,30 @@ function buildSupportBotFallback(message) {
   return 'Mesajını aldım. Kısa kullanım sorularında yardımcı olabilirim; hesap, ödeme veya özel kullanıcı verisi gerekiyorsa güvenli olması için destek talebi açmanı öneririm.';
 }
 
+function buildSupportBotFallbackClean(message) {
+  const s = String(message || '').toLowerCase();
+  if (/fiyat|paket|kredi|ucret|\u00fccret|para|satin|sat\u0131n|magaza|ma\u011faza/.test(s)) {
+    return 'Paketleri Ma\u011faza b\u00f6l\u00fcm\u00fcnden inceleyebilirsin. Froxy AI kredi sistemiyle \u00e7al\u0131\u015f\u0131r; sohbet, g\u00f6rsel \u00fcretim ve ara\u00e7 kullan\u0131m\u0131 se\u00e7ilen modele g\u00f6re kredi harcar.';
+  }
+  if (/giris|giri\u015f|kayit|kay\u0131t|kod|otp|mail|sifre|\u015fifre|dogrulama|do\u011frulama/.test(s)) {
+    return 'Giri\u015f ve kay\u0131t ak\u0131\u015f\u0131nda do\u011frulama kodu gerekebilir. Kod gelmezse spam klas\u00f6r\u00fcn\u00fc kontrol et, tekrar kod iste ve e-posta adresini do\u011fru yazd\u0131\u011f\u0131ndan emin ol.';
+  }
+  if (/gorsel|g\u00f6rsel|foto|resim|image|galeri|duzenle|d\u00fczenle|model/.test(s)) {
+    return 'G\u00f6rsel \u00fcretim veya foto\u011fraf d\u00fczenleme i\u00e7in model, kalite modu ve oran se\u00e7ebilirsin. D\u00fczenleme modunda yaln\u0131zca edit destekli modeller \u00e7al\u0131\u015f\u0131r; hata al\u0131rsan se\u00e7ili modeli ve promptu destek talebine ekle.';
+  }
+  if (/odeme|\u00f6deme|fatura|iade|kart|shopier|dodo|paytr|iyzico/.test(s)) {
+    return '\u00d6deme, fatura ve iade gibi \u00f6zel konularda g\u00fcvenli i\u015flem i\u00e7in destek talebi a\u00e7man\u0131 \u00f6neririm. Kart veya \u00f6zel \u00f6deme bilgilerini h\u0131zl\u0131 sohbet alan\u0131na yazma.';
+  }
+  if (/api|entegrasyon|key|anahtar|limit|saglayici|sa\u011flay\u0131c\u0131/.test(s)) {
+    return 'API ve sa\u011flay\u0131c\u0131 limitleri i\u00e7in se\u00e7ili model, hata mesaj\u0131 ve i\u015flem zaman\u0131n\u0131 destek talebine ekle. B\u00f6ylece hangi sa\u011flay\u0131c\u0131 hatt\u0131nda sorun oldu\u011funu daha h\u0131zl\u0131 kontrol edebiliriz.';
+  }
+  return 'Mesaj\u0131n\u0131 ald\u0131m. K\u0131sa kullan\u0131m sorular\u0131nda yard\u0131mc\u0131 olabilirim; hesap, \u00f6deme veya \u00f6zel kullan\u0131c\u0131 verisi gerekiyorsa g\u00fcvenli olmas\u0131 i\u00e7in destek talebi a\u00e7man\u0131 \u00f6neririm.';
+}
+
 function cleanSupportBotReply(text) {
   let out = String(text || '').trim();
   if (!out) return '';
-  if (/[�ÃÅÄ]/.test(out)) return '';
+  if (/[\uFFFD\u00c3\u00c5\u00c4]/.test(out)) return '';
   out = out
     .replace(/(?:selected|requested)\s*model|actual\s*provider|fallback|key\s*rotated/ig, 'model bilgisi')
     .replace(/sk-[A-Za-z0-9_-]{12,}/g, '[gizli]')
@@ -6878,7 +6954,7 @@ app.post('/api/support-bot', chatLimiter, optionalAuthMiddleware, async (req, re
 
     const route = String(req.body && req.body.route || '/').slice(0, 80);
     const user = req.body && req.body.user && typeof req.body.user === 'object' ? req.body.user : {};
-    const baseFallback = buildSupportBotFallback(message);
+    const baseFallback = buildSupportBotFallbackClean(message);
 
     if (String(process.env.FROXY_SUPPORT_BOT_AI || '1').trim() === '0') {
       return res.json({ reply: baseFallback, source: 'local' });
@@ -6937,13 +7013,13 @@ app.use((req, res) => {
     return res.status(404).json({ error: 'Endpoint bulunamadi: ' + req.path });
   }
   
-  // All other routes â€” beautiful 404 page
+  // All other routes - beautiful 404 page
   res.status(404).send(`<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>404 â€” Froxy AI</title>
+  <title>404 - Froxy AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
   <style>
@@ -6967,9 +7043,9 @@ app.use((req, res) => {
   <div class="orb orb-2"></div>
   <div class="container">
     <div class="code">404</div>
-    <h2>Sayfa Bulunamadi</h2>
-    <p>Aradiginiz sayfa tasindi, silindi veya hic var olmadi. Ana sayfaya donerek devam edebilirsiniz.</p>
-    <a href="/" class="btn">â† Ana Sayfaya Don</a>
+    <h2>Sayfa Bulunamadı</h2>
+    <p>Aradığınız sayfa taşındı, silindi veya hiç var olmadı. Ana sayfaya dönerek devam edebilirsiniz.</p>
+    <a href="/" class="btn">Ana Sayfaya Dön</a>
   </div>
 </body>
 </html>`);
