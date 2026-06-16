@@ -1396,6 +1396,7 @@ async function checkAuth() {
     const data = await readApiJson(res);
     if (res.ok && data.user) {
       authUser = data.user;
+      if(typeof applyClientForceAdmin==='function')applyClientForceAdmin(authUser);
       authUser.plan = normalizePlanId(authUser.plan || 'free');
       syncAuthUserToLocal();
       localStorage.setItem('saas_user', JSON.stringify(authUser));
@@ -4117,7 +4118,7 @@ function providerBrandAssetUrl(key){
     openrouter:'/provider-logos/openrouter.svg',
     deepseek:'/provider-logos/deepseek.svg',
     qwen:'/provider-logos/qwen.svg',
-    meta:'/provider-logos/generic.svg',
+    meta:'/provider-logos/meta.svg',
     mistral:'/provider-logos/mistral.svg',
     nvidia:'/provider-logos/nvidia.svg',
     cloudflare:'/provider-logos/cloudflare.svg',
@@ -7172,11 +7173,18 @@ function renderPrompts(cat='all'){
     const grad = promptColors[i % promptColors.length];
     const key=promptKey(p);
     const isFav=favs.includes(key);
-    return `<div class="card prompt-card" onclick="usePrompt('${esc(p.prompt).replace(/'/g,"\\\\'")}')" >
+    return `<div class="card prompt-card" onclick="usePrompt('${esc(p.prompt).replace(/'/g,"\\'")}')" style="--prompt-accent: ${grad.split(',')[0]}">
+    <div class="prompt-card-shine"></div>
     <button class="prompt-fav-btn ${isFav?'on':''}" onclick="return togglePromptFavorite('${jsStr(key)}',event)" title="${isFav?'Favoriden çıkar':'Favoriye ekle'}">★</button>
-    <div class="persona-icon-3d" style="background:linear-gradient(135deg,${grad});width:52px;height:52px;border-radius:14px;margin:0 auto 10px">${iconSvg(iconForEmoji(p.icon),24)}</div>
-    <h3>${p.title}</h3><p>${p.desc}</p>
-    <div style="margin-top:10px;font-size:11px;color:var(--accent2)">Tıkla → Sohbete ekle</div>
+    <div class="prompt-icon-container">
+      <div class="persona-icon-3d" style="background:linear-gradient(135deg,${grad})">${iconSvg(iconForEmoji(p.icon),24)}</div>
+    </div>
+    <h3>${p.title}</h3>
+    <p>${p.desc}</p>
+    <div class="prompt-card-foot">
+      <span>Tıkla → Sohbete ekle</span>
+      <button class="prompt-use-btn" onclick="event.stopPropagation(); usePrompt('${esc(p.prompt).replace(/'/g,"\\'")}')">Kullan</button>
+    </div>
   </div>`;
   }).join('');
   upgradeEmojiFigures(grid);
@@ -16388,8 +16396,14 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
       }
       authToken=token;
       authUser=data.user||data;
-      if(authUser){localStorage.setItem('saas_user',JSON.stringify(authUser));user={...(user||{}),...authUser,isAdmin:!!authUser.is_admin};LS.set('ap_user',user);}
+      if(authUser){
+        if(typeof applyClientForceAdmin==='function')applyClientForceAdmin(authUser);
+        localStorage.setItem('saas_user',JSON.stringify(authUser));
+        user={...(user||{}),...authUser,isAdmin:!!(authUser.is_admin||isAdminEmailV433(authUser.email))};
+        LS.set('ap_user',user);
+      }
       admin=!!(authUser?.is_admin||isAdminEmailV433(authUser?.email));
+      if(admin && typeof cleanAdminAuthState==='function') cleanAdminAuthState();
       return {ok:admin,status:res.status,user:authUser};
     }catch(e){return {ok:false,status:0,error:e.message}}
   }
@@ -16737,46 +16751,141 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     if(!sel||!trigger)return false;
     safe(()=>typeof syncImageModelOptionsForMode==='function'&&syncImageModelOptionsForMode(false));
     closeStablePicker();
-    const rect=trigger.getBoundingClientRect();
-    const margin=12;
-    const width=Math.min(Math.max(rect.width,320),Math.max(320,window.innerWidth-margin*2));
-    const left=Math.min(Math.max(margin,rect.left),window.innerWidth-width-margin);
-    const spaceBelow=window.innerHeight-rect.bottom-margin;
-    const spaceAbove=rect.top-margin;
-    const maxHeight=Math.max(260,Math.min(440,Math.max(spaceBelow,spaceAbove)));
-    const top=spaceBelow>=260?rect.bottom+8:Math.max(margin,rect.top-maxHeight-8);
-    const menu=document.createElement('div');
-    menu.className='img-model-stable-menu-v432 img-model-stable-menu-v434';
-    menu.style.left=left+'px';
-    menu.style.top=top+'px';
-    menu.style.width=width+'px';
-    menu.style.maxHeight=maxHeight+'px';
-    const groups=Array.from(sel.querySelectorAll('optgroup'));
-    const renderOptions=(options)=>options.filter(opt=>!opt.hidden).map(opt=>{
-      const value=opt.value||'';
-      const disabled=!!opt.disabled;
-      const selected=sel.value===value;
-      return '<button type="button" class="img-model-stable-option '+(selected?'selected':'')+'" data-value="'+escHtml(value)+'" '+(disabled?'disabled aria-disabled="true"':'')+'>'+
-        logoHtml(value)+
-        '<span class="img-model-stable-option-body"><strong>'+escHtml(fixText(opt.textContent||value))+'</strong><small>'+escHtml(optionCostText(opt)||'Gorsel modeli')+'</small></span>'+
-      '</button>';
-    }).join('');
-    let body='';
-    if(groups.length){
-      body=groups.map(group=>{
-        const html=renderOptions(Array.from(group.querySelectorAll('option')));
-        if(!html)return '';
-        return '<div class="img-model-stable-group">'+escHtml(fixText(group.label||'Modeller'))+'</div>'+html;
+    
+    // Create overlay
+    const overlay=document.createElement('div');
+    overlay.className='img-model-stable-menu-v432 img-model-stable-menu-v434 img-model-modal-overlay';
+    
+    // Read options
+    const allOptions=Array.from(sel.querySelectorAll('option')).filter(o=>!o.hidden);
+    
+    // Determine which categories are present based on active options
+    const activeCats=new Set(['all']);
+    allOptions.forEach(opt=>{
+      const prov=providerForImageModel(opt.value);
+      if(prov==='openai') activeCats.add('openai');
+      else if(prov==='gemini') activeCats.add('gemini');
+      else if(prov==='cloudflare') activeCats.add('cloudflare');
+      else if(prov==='together') activeCats.add('flux');
+      else if(prov==='generic') activeCats.add('local');
+    });
+    
+    const catLabels={
+      all:'Tümü',
+      flux:'FLUX Modelleri',
+      openai:'DALL-E / OpenAI',
+      gemini:'Google Gemini',
+      cloudflare:'Cloudflare',
+      local:'Yerel / Diğer'
+    };
+    
+    let currentCat='all';
+    let currentSearch='';
+    
+    overlay.innerHTML=`
+      <div class="img-model-modal-card">
+        <div class="img-model-modal-header">
+          <div class="img-model-modal-title">
+            <span>Görsel Modeli Seçimi</span>
+            <h3>Yapay Zeka Motoru</h3>
+          </div>
+          <button type="button" class="img-model-modal-close" aria-label="Kapat">&times;</button>
+        </div>
+        
+        <div class="img-model-modal-search-bar">
+          <div class="img-model-search-input-wrapper">
+            <span class="img-model-search-icon">🔍</span>
+            <input type="text" id="img-model-search" placeholder="Model veya sağlayıcı ara..." autocomplete="off" />
+          </div>
+        </div>
+        
+        <div class="img-model-modal-tabs" id="img-model-cats"></div>
+        <div class="img-model-modal-list" id="img-model-list"></div>
+      </div>
+    `;
+    
+    const catsContainer=overlay.querySelector('#img-model-cats');
+    const listContainer=overlay.querySelector('#img-model-list');
+    const searchInput=overlay.querySelector('#img-model-search');
+    
+    function updateList(){
+      const term=currentSearch.toLowerCase().trim();
+      const filtered=allOptions.filter(opt=>{
+        const val=opt.value.toLowerCase();
+        const text=opt.textContent.toLowerCase();
+        const prov=providerForImageModel(opt.value);
+        
+        // Tab filtering
+        if(currentCat==='openai'&&prov!=='openai') return false;
+        if(currentCat==='gemini'&&prov!=='gemini') return false;
+        if(currentCat==='cloudflare'&&prov!=='cloudflare') return false;
+        if(currentCat==='flux'&&prov!=='together') return false;
+        if(currentCat==='local'&&prov!=='generic') return false;
+        
+        // Search filtering
+        if(term){
+          return val.includes(term) || text.includes(term);
+        }
+        return true;
+      });
+      
+      if(!filtered.length){
+        listContainer.innerHTML='<div class="img-model-empty">Eşleşen model bulunamadı.</div>';
+        return;
+      }
+      
+      listContainer.innerHTML=filtered.map(opt=>{
+        const value=opt.value||'';
+        const disabled=!!opt.disabled;
+        const selected=sel.value===value;
+        const cost=optionCostText(opt)||'Görsel modeli';
+        
+        return `<button type="button" class="img-model-card-item ${selected?'selected':''} ${disabled?'disabled':''}" data-value="${escHtml(value)}" ${disabled?'disabled aria-disabled="true"':''}>
+          <div class="img-model-card-logo-wrap">
+            ${logoHtml(value)}
+          </div>
+          <div class="img-model-card-body">
+            <strong>${escHtml(fixText(opt.textContent||value))}</strong>
+            <small>${escHtml(cost)}</small>
+          </div>
+          ${selected?'<div class="img-model-card-check">✓</div>':''}
+        </button>`;
       }).join('');
-    }else{
-      body=renderOptions(Array.from(sel.options||[]));
     }
-    menu.innerHTML='<div class="img-model-stable-head"><strong>Model Secimi</strong><button type="button" aria-label="Kapat">x</button></div><div class="img-model-stable-list">'+body+'</div>';
-    menu.querySelector('.img-model-stable-head button')?.addEventListener('click',closeStablePicker);
-    menu.addEventListener('click',function(e){
-      const btn=e.target&&e.target.closest&&e.target.closest('.img-model-stable-option[data-value]');
-      if(!btn||btn.disabled||btn.getAttribute('aria-disabled')==='true')return;
-      const value=btn.getAttribute('data-value')||'';
+    
+    function updateTabs(){
+      const catsArray=Array.from(activeCats);
+      catsContainer.innerHTML=catsArray.map(c=>{
+        const label=catLabels[c]||c;
+        const active=currentCat===c;
+        return `<button type="button" class="img-model-cat-tab ${active?'active':''}" data-cat="${c}">${label}</button>`;
+      }).join('');
+    }
+    
+    // Initial Render
+    updateTabs();
+    updateList();
+    
+    // Events
+    overlay.querySelector('.img-model-modal-close').addEventListener('click',closeStablePicker);
+    
+    catsContainer.addEventListener('click',function(e){
+      const btn=e.target.closest('.img-model-cat-tab');
+      if(!btn)return;
+      currentCat=btn.dataset.cat;
+      updateTabs();
+      updateList();
+    });
+    
+    searchInput.addEventListener('input',function(e){
+      currentSearch=e.target.value;
+      updateList();
+    });
+    
+    listContainer.addEventListener('click',function(e){
+      const btn=e.target.closest('.img-model-card-item');
+      if(!btn||btn.classList.contains('disabled'))return;
+      const value=btn.dataset.value||'';
       if(!value)return;
       sel.value=value;
       safe(()=>typeof rememberImageModelChoice==='function'&&rememberImageModelChoice(value,'stable-picker-v434'));
@@ -16785,7 +16894,13 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
       paintImagePickerTriggerV434();
       closeStablePicker();
     });
-    document.body.appendChild(menu);
+    
+    // Overlay click to close
+    overlay.addEventListener('click',function(e){
+      if(e.target===overlay)closeStablePicker();
+    });
+    
+    document.body.appendChild(overlay);
     document.body.classList.add('img-model-stable-open-v434');
     document.querySelectorAll('.img-model-picker-panel').forEach(panel=>panel.style.display='none');
     return true;
@@ -16898,7 +17013,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     const currentAuthUser=(typeof authUser!=='undefined'&&authUser)||window.authUser||null;
     const currentUser=(typeof user!=='undefined'&&user)||window.user||null;
     const hasToken=!!currentToken;
-    const isAdmin=!!((typeof admin!=='undefined'&&admin) || currentAuthUser?.is_admin || currentUser?.isAdmin || currentUser?.is_admin);
+    const isAdmin=!!((typeof admin!=='undefined'&&admin) || currentAuthUser?.is_admin || currentUser?.isAdmin || currentUser?.is_admin || (currentAuthUser&&isAdminEmailV433(currentAuthUser.email)) || (currentUser&&isAdminEmailV433(currentUser.email)));
     const dash=root.querySelector('#at-dashboard')||root;
     let host=root.querySelector('#admin-auth-clean-v434');
     if(hasToken&&isAdmin){
