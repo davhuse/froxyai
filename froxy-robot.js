@@ -6,7 +6,7 @@
 
   var STORE_KEY = 'froxy_robot_widget_hidden_v1';
   var CHAT_KEY = 'froxy_robot_widget_chat_v2';
-  var CSS_VERSION = 'v384';
+  var CSS_VERSION = 'v383';
   var WELCOME = 'Merhaba, ben Froxy destek asistanı. Fiyat, kredi, giriş, görsel üretim ve teknik sorunlarda hızlıca yardımcı olurum.';
 
   function setPublicApi(api) {
@@ -155,6 +155,8 @@
   }
 
   function mount() {
+    // Admin route'unda robot widget'ı mount etme
+    if (/^\/admin/i.test(location.pathname || '')) return;
     if (document.getElementById('froxy-robot-root')) return;
 
     var host = document.createElement('div');
@@ -656,6 +658,7 @@
   }
 
   function boot() {
+    if (/^\/admin/i.test(location.pathname || '')) return;
     var delay = window.matchMedia && window.matchMedia('(max-width: 720px)').matches ? 1100 : 700;
     window.setTimeout(mount, delay);
   }

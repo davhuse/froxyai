@@ -119,3 +119,6 @@ button,input{font-family:inherit}
     overflow:hidden!important;
   }
 }
+
+/* Admin route: hide robot widget completely */
+:host-context(body[data-route="admin"]) { display: none !important; }

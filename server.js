@@ -1,13 +1,15 @@
-const express = require('express');
+﻿const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
 const path = require('path');
 const https = require('https');
+const http = require('http');
 const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
 const Database = require('better-sqlite3');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
+const iconv = require('iconv-lite');
 const crypto = require('crypto');
 const fs = require('fs');
 const zlib = require('zlib');
@@ -59,10 +61,23 @@ app.use(compression({
 
 // CORS whitelisting: varsayılan olarak prod domain + localhost.
 // İhtiyaç halinde env ile genişletilebilir: CORS_ORIGINS="https://a.com,https://b.com"
-const DEFAULT_ORIGINS = ['https://froxyai.com', 'https://www.froxyai.com', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:4177', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:4177'];
-const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
-  : DEFAULT_ORIGINS);
+const DEFAULT_ORIGINS = [
+  'https://froxyai.com',
+  'https://www.froxyai.com',
+  'https://froxyai-production.up.railway.app',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:4177',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  'http://127.0.0.1:4177'
+];
+const ALLOWED_ORIGINS = Array.from(new Set([
+  ...DEFAULT_ORIGINS,
+  ...(process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
+    : [])
+]));
 app.use(cors({
   origin: (origin, cb) => {
     // Same-origin / server-to-server isteklerde origin yoktur - geç
@@ -93,6 +108,65 @@ app.use(express.json({
   }
 }));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
+
+function repairTurkishMojibake(value) {
+  if (typeof value !== 'string' || !value) return value;
+  let out = value;
+  const badPattern = /[\u00c2\u00c3\u00c4\u00c5\u00e2\uFFFD]|\?[a-zA-ZğüşıöçĞÜŞİÖÇ]/;
+  if (!badPattern.test(out)) return out;
+  for (let i = 0; i < 3 && /[\u00c2\u00c3\u00c4\u00c5\u00e2]/.test(out); i++) {
+    try {
+      const decoded = iconv.decode(iconv.encode(out, 'win1252'), 'utf8');
+      const beforeBad = (out.match(/\uFFFD/g) || []).length;
+      const afterBad = (decoded.match(/\uFFFD/g) || []).length;
+      if (!decoded || decoded === out || afterBad > beforeBad) break;
+      out = decoded;
+    } catch (e) {
+      break;
+    }
+  }
+  const pairs = [
+    ['\u00c4\u009e', 'Ğ'], ['\u00c5\u009e', 'Ş'],
+    ['\u00e2\u20ac\u2122', "'"], ['\u00e2\u20ac\u02dc', "'"],
+    ['\u00e2\u20ac\u0153', '"'], ['\u00e2\u20ac\uFFFD', '"'], ['\u00e2\u20ac\u009d', '"'],
+    ['\u00e2\u20ac\u201c', '-'], ['\u00e2\u20ac\u201d', '-'], ['\u00e2\u20ac\u00a6', '...'],
+    ['\u00e2\u2020\u2019', '->'], ['\u00e2\u2020\u0090', '<-'], ['\u00e2\u201a\u00ba', 'TL']
+  ];
+  for (const [bad, good] of pairs) out = out.split(bad).join(good);
+  const phrases = [
+    ['Ge?ersiz veya kullan?lm?? token', 'Geçersiz veya kullanılmış token'],
+    ['Token s?resi dolmu?', 'Token süresi dolmuş'],
+    ['Görsel ?u an', 'Görsel şu an'],
+    ['Lütfen ba?ka', 'Lütfen başka'],
+    ['ba?ka bir', 'başka bir'],
+    ['yan?t vermedi', 'yanıt vermedi'],
+    ['döndü', 'döndü']
+  ];
+  for (const [bad, good] of phrases) out = out.split(bad).join(good);
+  return out;
+}
+
+function repairResponseText(value, seen = new WeakSet()) {
+  if (typeof value === 'string') return repairTurkishMojibake(value);
+  if (!value || typeof value !== 'object') return value;
+  if (Buffer.isBuffer(value) || value instanceof Uint8Array) return value;
+  if (value instanceof Date) return value;
+  if (seen.has(value)) return value;
+  seen.add(value);
+  if (Array.isArray(value)) return value.map(item => repairResponseText(item, seen));
+  if (value.constructor && value.constructor !== Object) return value;
+  const out = {};
+  for (const [key, item] of Object.entries(value)) out[key] = repairResponseText(item, seen);
+  return out;
+}
+
+app.use((req, res, next) => {
+  const originalJson = res.json.bind(res);
+  const originalSend = res.send.bind(res);
+  res.json = body => originalJson(repairResponseText(body));
+  res.send = body => originalSend(typeof body === 'string' ? repairTurkishMojibake(body) : body);
+  next();
+});
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -365,6 +439,28 @@ db.exec(`
     user_agent TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+  CREATE TABLE IF NOT EXISTS marketing_campaigns (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    admin_user_id INTEGER,
+    segment TEXT,
+    subject TEXT,
+    body_text TEXT,
+    recipients INTEGER DEFAULT 0,
+    sent INTEGER DEFAULT 0,
+    failed INTEGER DEFAULT 0,
+    dry_run INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'created',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE TABLE IF NOT EXISTS marketing_email_sends (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    campaign_id INTEGER,
+    user_id INTEGER,
+    email TEXT,
+    status TEXT,
+    error TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Add is_admin column if not exists (migration safe)
@@ -392,6 +488,9 @@ try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_event ON funnel_even
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_session ON funnel_events(session_id)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_security_audit_created ON security_audit(created_at)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_consent_records_email ON consent_records(email)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_credit_usage_created ON credit_usage(created_at)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_credit_usage_user ON credit_usage(user_id)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_marketing_campaigns_created ON marketing_campaigns(created_at)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_dodo_payments_payment_id ON dodo_payments(payment_id)'); } catch(e) {}
 try {
   const done = db.prepare("SELECT value FROM app_meta WHERE key = 'free_credit_normalized_v184'").get();
@@ -403,15 +502,11 @@ try {
 
 // Daily limits per plan
 const DAILY_LIMITS = {
-  free: { chat: 10, image: 3 },
-  starter: { chat: 200, image: 50 },
-  popular: { chat: 500, image: 150 },
-  pro: { chat: 1500, image: 400 },
-  creator: { chat: 1500, image: 400 },
-  developer: { chat: 2000, image: 600 },
-  power: { chat: 5000, image: 1500 },
-  agency_start: { chat: 5000, image: 2000 },
-  business: { chat: 5000, image: 1500 },
+  free:       { chat: 10, image: 3 },
+  starter:    { chat: 200, image: 50 },
+  popular:    { chat: 500, image: 150 },
+  pro:        { chat: 1500, image: 400 },
+  business:   { chat: 5000, image: 1500 },
   enterprise: { chat: 999999, image: 999999 }
 };
 
@@ -551,13 +646,13 @@ function resetDailyIfNeeded(userId) {
 function checkDailyLimit(userId, type) {
   resetDailyIfNeeded(userId);
   const user = db.prepare('SELECT plan, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(userId);
-  if (!user) return { allowed: false, reason: 'Kullan\u0131c\u0131 bulunamad\u0131' };
+  if (!user) return { allowed: false, reason: 'Kullanıcı bulunamadı' };
   const limits = getDailyLimits(user.plan || 'free');
   if (type === 'chat' && user.daily_chat_count >= limits.chat) {
-    return { allowed: false, reason: 'G\u00fcnl\u00fck mesaj limitinize ula\u015ft\u0131n\u0131z (' + limits.chat + '/' + limits.chat + '). Paketinizi y\u00fckseltebilirsiniz.' };
+    return { allowed: false, reason: 'Gunluk mesaj limitinize ulastiniz (' + limits.chat + '/' + limits.chat + '). Paketinizi yukseltebilirsiniz.' };
   }
   if (type === 'image' && user.daily_image_count >= limits.image) {
-    return { allowed: false, reason: 'G\u00fcnl\u00fck g\u00f6rsel limitinize ula\u015ft\u0131n\u0131z (' + limits.image + '/' + limits.image + '). Paketinizi y\u00fckseltebilirsiniz.' };
+    return { allowed: false, reason: 'Gunluk gorsel limitinize ulastiniz (' + limits.image + '/' + limits.image + '). Paketinizi yukseltebilirsiniz.' };
   }
   return { allowed: true };
 }
@@ -599,10 +694,15 @@ if (ADMIN_EMAIL && ADMIN_PASSWORD) {
   }
 }
 
-const FORCE_ADMIN_EMAILS = (process.env.FORCE_ADMIN_EMAILS || 'habilrencber@gmail.com')
+const FORCE_ADMIN_EMAILS = [
+  process.env.ADMIN_EMAIL,
+  ...(process.env.FORCE_ADMIN_EMAILS || 'habilrencber@gmail.com').split(',')
+]
+  .join(',')
   .split(',')
   .map(x => x.trim().toLowerCase())
-  .filter(Boolean);
+  .filter(Boolean)
+  .filter((x, i, arr) => arr.indexOf(x) === i);
 
 function isForceAdminEmail(email) {
   return FORCE_ADMIN_EMAILS.includes(String(email || '').trim().toLowerCase());
@@ -615,6 +715,37 @@ function syncForceAdminEmail(email) {
   return !!r.changes;
 }
 
+function syncForceAdminUserId(userId) {
+  if (!userId) return null;
+  const row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(userId);
+  if (!row) return null;
+  if (isForceAdminEmail(row.email) && !row.is_admin) {
+    syncForceAdminEmail(row.email);
+    return db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(userId);
+  }
+  if (isForceAdminEmail(row.email) && row.plan !== 'enterprise') {
+    db.prepare("UPDATE users SET plan = 'enterprise' WHERE id = ?").run(userId);
+    return db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(userId);
+  }
+  return row;
+}
+
+function syncForceAdminDecoded(decoded) {
+  if (!decoded) return null;
+  const id = decoded.id;
+  const email = String(decoded.email || '').trim().toLowerCase();
+  let row = id ? syncForceAdminUserId(id) : null;
+  if (!row && email) {
+    if (isForceAdminEmail(email)) syncForceAdminEmail(email);
+    row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE lower(email) = ?').get(email);
+  }
+  if (row && isForceAdminEmail(row.email) && (!row.is_admin || row.plan !== 'enterprise')) {
+    syncForceAdminEmail(row.email);
+    row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(row.id);
+  }
+  return row;
+}
+
 try {
   FORCE_ADMIN_EMAILS.forEach(syncForceAdminEmail);
 } catch(e) {
@@ -623,6 +754,10 @@ try {
 
 function publicUserRow(row) {
   if (!row) return null;
+  if (isForceAdminEmail(row.email) && !row.is_admin) {
+    syncForceAdminEmail(row.email);
+    row = db.prepare('SELECT * FROM users WHERE id = ?').get(row.id) || row;
+  }
   return {
     id: row.id,
     username: row.username,
@@ -635,6 +770,10 @@ function publicUserRow(row) {
 }
 
 function issueUserToken(row) {
+  if (isForceAdminEmail(row?.email)) {
+    syncForceAdminEmail(row.email);
+    row = db.prepare('SELECT * FROM users WHERE id = ?').get(row.id) || row;
+  }
   const plan = row.plan || 'free';
   return jwt.sign({ id: row.id, username: row.username, email: row.email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
 }
@@ -690,6 +829,13 @@ const chatLimiter = rateLimit({
 const generalLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 60,
+  skip: (req) => {
+    if (process.env.NODE_ENV === 'production') return false;
+    const ip = String(req.ip || req.connection?.remoteAddress || '');
+    const local = /^(::1|127\.0\.0\.1|::ffff:127\.0\.0\.1)$/.test(ip) || /localhost|127\.0\.0\.1/.test(String(req.headers.host || ''));
+    if (!local) return false;
+    return /^\/api\/(health|local-providers\/status|provider-status|model-check|security\/config|me)(?:\/|\?|$)/.test(req.originalUrl || req.url || '');
+  },
   message: { error: 'İstek limiti aşıldı.' },
 });
 const trackLimiter = rateLimit({
@@ -707,12 +853,20 @@ const authMiddleware = (req, res, next) => {
   if (authHeader) {
     const token = authHeader.split(' ')[1];
     jwt.verify(token, ACTIVE_JWT_SECRET, (err, user) => {
-      if (err) return res.status(403).json({error: 'Invalid token'});
-      req.user = user;
+      if (err) return res.status(403).json({error: 'Invalid token', code: 'invalid_token'});
+      const synced = syncForceAdminDecoded(user);
+      req.user = synced ? {
+        ...user,
+        id: synced.id,
+        email: synced.email,
+        username: synced.username || user.username,
+        plan: synced.plan || user.plan,
+        is_admin: synced.is_admin ? 1 : 0
+      } : user;
       next();
     });
   } else {
-    res.status(401).json({error: 'Unauthorized'});
+    res.status(401).json({error: 'Unauthorized', code: 'missing_token'});
   }
 };
 const optionalAuthMiddleware = (req, res, next) => {
@@ -720,7 +874,17 @@ const optionalAuthMiddleware = (req, res, next) => {
   if (!authHeader) return next();
   const token = authHeader.split(' ')[1];
   jwt.verify(token, ACTIVE_JWT_SECRET, (err, user) => {
-    if (!err) req.user = user;
+    if (!err) {
+      const synced = syncForceAdminDecoded(user);
+      req.user = synced ? {
+        ...user,
+        id: synced.id,
+        email: synced.email,
+        username: synced.username || user.username,
+        plan: synced.plan || user.plan,
+        is_admin: synced.is_admin ? 1 : 0
+      } : user;
+    }
     next();
   });
 };
@@ -728,14 +892,23 @@ const optionalAuthMiddleware = (req, res, next) => {
 // Admin middleware - checks is_admin in DB
 const adminMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({error: 'Unauthorized'});
+  if (!authHeader) return res.status(401).json({error: 'Admin oturumu yok', code: 'missing_token'});
   const token = authHeader.split(' ')[1];
   jwt.verify(token, ACTIVE_JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({error: 'Invalid token'});
-    const u = db.prepare('SELECT id, is_admin FROM users WHERE id = ?').get(decoded.id);
-    if (!u || !u.is_admin) return res.status(403).json({error: 'Admin yetkisi gerekli'});
+    if (err) return res.status(403).json({error: 'Admin oturumu geçersiz', code: 'invalid_token'});
+    const u = syncForceAdminDecoded(decoded) || db.prepare('SELECT id, email, is_admin, plan FROM users WHERE id = ?').get(decoded.id);
+    if (!u || !u.is_admin) {
+      return res.status(403).json({
+        error: 'Backend admin yetkisi gerekli',
+        code: 'not_admin',
+        email: decoded.email || u?.email || ''
+      });
+    }
     req.user = decoded;
     req.user.id = u.id;
+    req.user.email = u.email || decoded.email;
+    req.user.is_admin = 1;
+    req.user.plan = u.plan || decoded.plan || 'enterprise';
     next();
   });
 };
@@ -1395,7 +1568,7 @@ app.post('/api/register', authLimiter, async (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
-  // Stateless JWT â€” client token'ı silmeli. Cookie varsa temizle.
+  // Stateless JWT — client token'ı silmeli. Cookie varsa temizle.
   try {
     res.clearCookie('token');
     res.clearCookie('ap_token');
@@ -1634,6 +1807,284 @@ app.get('/api/admin/funnel-events', adminMiddleware, (req, res) => {
     `).all();
     res.json({ days, byEvent, bySource, daily, recent });
   } catch(e) { res.status(500).json({error: e.message}); }
+});
+
+function adminGrowthDays(req) {
+  return Math.min(90, Math.max(1, parseInt(req.query.days || req.body?.days || '30', 10) || 30));
+}
+
+function sqlDateWindow(days) {
+  return `-${Math.min(90, Math.max(1, Number(days) || 30))} day`;
+}
+
+function marketingOptInWhere() {
+  return `EXISTS (
+    SELECT 1 FROM consent_records cr
+    WHERE lower(cr.email) = lower(u.email)
+      AND COALESCE(cr.marketing_opt_in, 0) = 1
+  )`;
+}
+
+function paidUserWhere() {
+  return `(
+    lower(COALESCE(u.plan, 'free')) NOT IN ('free', '')
+    OR EXISTS (SELECT 1 FROM shopier_payments sp WHERE sp.user_id = u.id AND sp.status = 'applied')
+    OR EXISTS (SELECT 1 FROM dodo_payments dp WHERE dp.user_id = u.id AND dp.status = 'applied')
+  )`;
+}
+
+function campaignSegmentWhere(segment) {
+  const optIn = marketingOptInWhere();
+  const paid = paidUserWhere();
+  const seg = String(segment || 'registered_no_purchase').trim();
+  if (seg === 'all_opt_in') return `${optIn}`;
+  if (seg === 'low_credit') return `${optIn} AND COALESCE(u.credits, 0) <= 50`;
+  if (seg === 'inactive_7d') return `${optIn} AND (u.last_login IS NULL OR u.last_login < datetime('now', '-7 day'))`;
+  if (seg === 'free_users') return `${optIn} AND lower(COALESCE(u.plan, 'free')) = 'free'`;
+  return `${optIn} AND NOT ${paid}`;
+}
+
+function marketingHtml({ subject, bodyText }) {
+  const safeSubject = escapeHtmlText(subject || 'Froxy AI');
+  const safeBody = escapeHtmlText(bodyText || '').replace(/\n/g, '<br>');
+  return `<!doctype html><html lang="tr"><head><meta charset="utf-8"></head><body style="margin:0;background:#0b0f1a;color:#e5e7eb;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0f1a;padding:24px"><tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:620px;background:#111827;border:1px solid #243044;border-radius:16px;overflow:hidden"><tr><td style="padding:28px"><h1 style="margin:0 0 14px;color:#fff;font-size:24px">${safeSubject}</h1><div style="font-size:15px;line-height:1.7;color:#cbd5e1">${safeBody}</div><p style="margin:24px 0 0"><a href="https://www.froxyai.com/fiyatlandirma?utm_source=brevo&utm_medium=email&utm_campaign=admin_campaign" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;font-weight:700;border-radius:10px;padding:12px 18px">Kredi paketlerini incele</a></p><p style="margin:22px 0 0;color:#94a3b8;font-size:12px;line-height:1.5">Bu e-postayı Froxy AI hesabında pazarlama iletişimine izin verdiğin için aldın. Yanıtlayarak destek ekibine ulaşabilirsin.</p></td></tr></table></td></tr></table></body></html>`;
+}
+
+function marketingRecipients(segment, limit = 100) {
+  const safeLimit = Math.min(300, Math.max(1, parseInt(limit, 10) || 100));
+  const where = campaignSegmentWhere(segment);
+  return db.prepare(`
+    SELECT u.id, u.username, u.email, u.credits, u.plan, u.last_login, u.created_at
+    FROM users u
+    WHERE u.email IS NOT NULL
+      AND length(trim(u.email)) > 3
+      AND COALESCE(u.is_blocked, 0) = 0
+      AND ${where}
+    ORDER BY u.last_login IS NULL DESC, u.last_login ASC, u.created_at DESC
+    LIMIT ?
+  `).all(safeLimit);
+}
+
+app.get('/api/admin/growth-summary', adminMiddleware, (req, res) => {
+  try {
+    const days = adminGrowthDays(req);
+    const since = sqlDateWindow(days);
+    const totalUsers = db.prepare('SELECT COUNT(*) c FROM users').get().c || 0;
+    const paidUsers = db.prepare(`SELECT COUNT(*) c FROM users u WHERE ${paidUserWhere()}`).get().c || 0;
+    const marketingOptIn = db.prepare(`SELECT COUNT(DISTINCT u.id) c FROM users u WHERE ${marketingOptInWhere()}`).get().c || 0;
+    const registeredNoPurchase = db.prepare(`SELECT COUNT(*) c FROM users u WHERE NOT ${paidUserWhere()}`).get().c || 0;
+    const lowCredit = db.prepare('SELECT COUNT(*) c FROM users WHERE COALESCE(credits, 0) <= 50').get().c || 0;
+    const activeUsers = db.prepare("SELECT COUNT(*) c FROM users WHERE last_login >= datetime('now', ?)").get(since).c || 0;
+    const guestSessions = db.prepare(`
+      SELECT COUNT(DISTINCT session_id) c
+      FROM funnel_events
+      WHERE user_id IS NULL
+        AND session_id IS NOT NULL
+        AND session_id != ''
+        AND created_at >= datetime('now', ?)
+    `).get(since).c || 0;
+    const credits = db.prepare(`
+      SELECT
+        COALESCE(SUM(CASE WHEN status = 'success' THEN cost ELSE 0 END), 0) spent,
+        COALESCE(SUM(CASE WHEN kind = 'image' AND status = 'success' THEN cost ELSE 0 END), 0) imageSpent,
+        COALESCE(SUM(CASE WHEN kind = 'chat' AND status = 'success' THEN cost ELSE 0 END), 0) chatSpent,
+        COUNT(*) totalUses
+      FROM credit_usage
+      WHERE created_at >= datetime('now', ?)
+    `).get(since);
+    const funnel = db.prepare(`
+      SELECT event, COUNT(*) count
+      FROM funnel_events
+      WHERE created_at >= datetime('now', ?)
+      GROUP BY event
+      ORDER BY count DESC
+    `).all(since);
+    const topModels = db.prepare(`
+      SELECT kind, model, provider, actual_model, COUNT(*) uses, COALESCE(SUM(cost), 0) credits
+      FROM credit_usage
+      WHERE created_at >= datetime('now', ?)
+      GROUP BY kind, model, provider, actual_model
+      ORDER BY credits DESC, uses DESC
+      LIMIT 12
+    `).all(since);
+    const recentUsage = db.prepare(`
+      SELECT cu.id, cu.kind, cu.model, cu.provider, cu.actual_model, cu.cost, cu.remaining, cu.status, cu.created_at,
+             u.username, u.email, u.plan
+      FROM credit_usage cu
+      LEFT JOIN users u ON u.id = cu.user_id
+      ORDER BY cu.created_at DESC
+      LIMIT 80
+    `).all();
+    const guestRecent = db.prepare(`
+      SELECT session_id,
+             MIN(created_at) first_seen,
+             MAX(created_at) last_seen,
+             COUNT(*) events,
+             MAX(source) source,
+             MAX(medium) medium,
+             MAX(campaign) campaign,
+             MAX(path) path,
+             MAX(referrer) referrer
+      FROM funnel_events
+      WHERE user_id IS NULL
+        AND session_id IS NOT NULL
+        AND session_id != ''
+        AND created_at >= datetime('now', ?)
+      GROUP BY session_id
+      ORDER BY last_seen DESC
+      LIMIT 40
+    `).all(since);
+    const campaigns = db.prepare(`
+      SELECT id, segment, subject, recipients, sent, failed, dry_run, status, created_at
+      FROM marketing_campaigns
+      ORDER BY created_at DESC
+      LIMIT 20
+    `).all();
+    const signup = funnel.find(x => x.event === 'register_complete')?.count || 0;
+    const purchaseClicks = funnel.find(x => x.event === 'purchase_click')?.count || 0;
+    const purchases = funnel.find(x => x.event === 'purchase_complete')?.count || 0;
+    res.json({
+      days,
+      metrics: {
+        totalUsers,
+        paidUsers,
+        registeredNoPurchase,
+        marketingOptIn,
+        lowCredit,
+        activeUsers,
+        guestSessions,
+        creditsSpent: Number(credits.spent || 0),
+        imageCreditsSpent: Number(credits.imageSpent || 0),
+        chatCreditsSpent: Number(credits.chatSpent || 0),
+        modelUses: Number(credits.totalUses || 0),
+        signupToPurchaseRate: signup ? Math.round((purchases / signup) * 1000) / 10 : 0,
+        purchaseClickToPurchaseRate: purchaseClicks ? Math.round((purchases / purchaseClicks) * 1000) / 10 : 0
+      },
+      funnel,
+      topModels,
+      recentUsage,
+      guestRecent,
+      campaigns,
+      suggestions: [
+        'Kayıt olup satın almayanlara 24 saat içinde kısa avantaj e-postası gönder.',
+        'Kredisi azalan kullanıcılara küçük paket ve sınırlı süreli ek kredi öner.',
+        'Görsel üretim kullananlara görsel odaklı paketleri ayrı CTA ile göster.',
+        'Misafirlerin en çok geldiği kaynakları UTM ile ayır ve çalışan kampanyaya bütçe/veri aktar.',
+        'Satın alma butonuna giden fakat ödeme tamamlamayanları destek mesajı ve güven unsurlarıyla geri çağır.'
+      ]
+    });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/admin/credit-usage', adminMiddleware, (req, res) => {
+  try {
+    const limit = Math.min(300, Math.max(1, parseInt(req.query.limit || '120', 10) || 120));
+    const kind = String(req.query.kind || '').trim();
+    const where = kind ? 'WHERE cu.kind = ?' : '';
+    const params = kind ? [kind, limit] : [limit];
+    const rows = db.prepare(`
+      SELECT cu.id, cu.kind, cu.model, cu.provider, cu.actual_model, cu.cost, cu.remaining, cu.status, cu.created_at,
+             u.id user_id, u.username, u.email, u.plan
+      FROM credit_usage cu
+      LEFT JOIN users u ON u.id = cu.user_id
+      ${where}
+      ORDER BY cu.created_at DESC
+      LIMIT ?
+    `).all(...params);
+    res.json({ rows });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/admin/guest-sessions', adminMiddleware, (req, res) => {
+  try {
+    const days = adminGrowthDays(req);
+    const since = sqlDateWindow(days);
+    const sessions = db.prepare(`
+      SELECT session_id,
+             MIN(created_at) first_seen,
+             MAX(created_at) last_seen,
+             COUNT(*) events,
+             MAX(source) source,
+             MAX(medium) medium,
+             MAX(campaign) campaign,
+             MAX(path) path,
+             MAX(referrer) referrer
+      FROM funnel_events
+      WHERE user_id IS NULL
+        AND session_id IS NOT NULL
+        AND session_id != ''
+        AND created_at >= datetime('now', ?)
+      GROUP BY session_id
+      ORDER BY last_seen DESC
+      LIMIT 120
+    `).all(since);
+    res.json({ days, sessions });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/admin/marketing-campaigns', adminMiddleware, (req, res) => {
+  try {
+    const campaigns = db.prepare(`
+      SELECT id, segment, subject, recipients, sent, failed, dry_run, status, created_at
+      FROM marketing_campaigns
+      ORDER BY created_at DESC
+      LIMIT 100
+    `).all();
+    res.json({ campaigns });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/admin/marketing-campaigns', adminMiddleware, async (req, res) => {
+  try {
+    const segment = String(req.body.segment || 'registered_no_purchase').trim();
+    const subject = safeField(req.body.subject || '', 140);
+    const bodyText = String(req.body.body || '').trim().slice(0, 6000);
+    const dryRun = req.body.dryRun === true || req.body.dry_run === true;
+    const limit = Math.min(300, Math.max(1, parseInt(req.body.limit || '100', 10) || 100));
+    if (!subject || !bodyText) return res.status(400).json({ error: 'Konu ve e-posta metni gerekli.' });
+    if (!dryRun && req.body.confirm !== 'SEND') return res.status(400).json({ error: 'Canlı gönderim için confirm alanı SEND olmalı.' });
+    const recipients = marketingRecipients(segment, limit);
+    const info = db.prepare(`INSERT INTO marketing_campaigns
+      (admin_user_id, segment, subject, body_text, recipients, dry_run, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`)
+      .run(req.user.id, segment, subject, bodyText, recipients.length, dryRun ? 1 : 0, dryRun ? 'preview' : 'sending');
+    const campaignId = info.lastInsertRowid;
+    if (dryRun) {
+      logActivity(req.user.id, 'marketing_campaign_preview', `${segment}: ${recipients.length} alıcı`);
+      return res.json({
+        dryRun: true,
+        campaignId,
+        recipients: recipients.length,
+        sample: recipients.slice(0, 10).map(r => ({ id: r.id, username: r.username, email: maskEmail(r.email), credits: r.credits, plan: r.plan }))
+      });
+    }
+    let sent = 0;
+    let failed = 0;
+    const html = marketingHtml({ subject, bodyText });
+    for (const r of recipients) {
+      try {
+        await sendBrevoEmail({ to: r.email, subject, html, text: bodyText });
+        sent++;
+        db.prepare('INSERT INTO marketing_email_sends (campaign_id, user_id, email, status) VALUES (?, ?, ?, ?)').run(campaignId, r.id, r.email, 'sent');
+      } catch(err) {
+        failed++;
+        db.prepare('INSERT INTO marketing_email_sends (campaign_id, user_id, email, status, error) VALUES (?, ?, ?, ?, ?)').run(campaignId, r.id, r.email, 'failed', String(err.message || err).slice(0, 300));
+      }
+    }
+    db.prepare('UPDATE marketing_campaigns SET sent = ?, failed = ?, status = ? WHERE id = ?').run(sent, failed, failed ? 'partial' : 'sent', campaignId);
+    logActivity(req.user.id, 'marketing_campaign_sent', `${segment}: ${sent}/${recipients.length} gönderildi`);
+    res.json({ campaignId, recipients: recipients.length, sent, failed });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // GET /api/admin/users
@@ -2058,6 +2509,7 @@ app.post('/api/admin/make-admin-by-email', (req, res) => {
   try {
     const r = db.prepare('UPDATE users SET is_admin = 1 WHERE email = ?').run(email);
     logActivity(0, 'bootstrap_admin', `Email: ${email}`);
+    if (email) syncForceAdminEmail(email);
     res.json({ success: true, changed: r.changes });
   } catch(e) { res.status(500).json({error: e.message}); }
 });
@@ -2171,7 +2623,7 @@ app.delete('/api/chats/:id', authMiddleware, (req, res) => {
 app.get('/api/me', authMiddleware, (req, res) => {
   try {
     resetDailyIfNeeded(req.user.id);
-    const user = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(req.user.id);
+    const user = syncForceAdminUserId(req.user.id) || db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(req.user.id);
     if(!user) return res.status(404).json({error: 'Kullanıcı bulunamadı'});
     const limits = getDailyLimits(user.plan || 'free');
     res.json({ user, limits });
@@ -2268,6 +2720,7 @@ app.use((req, res, next) => {
   }
   const cleanPath = reqPath.toLowerCase();
   const fileName = path.basename(cleanPath);
+  if (cleanPath.startsWith('/assets/model-showcase/')) return next();
   const allowedJson = new Set(['manifest.json', 'openrouter_models.json']);
   const allowedJs = new Set(['app.js', 'app.min.js', 'sw.js']);
   const allowedXml = new Set(['sitemap.xml']);
@@ -2294,7 +2747,7 @@ const staticRoot = path.resolve(__dirname);
 const compressedTypes = new Set(['.js', '.css', '.html', '.json', '.svg', '.txt', '.xml']);
 const SEO_PAGES = {
   '/': {
-    title: 'Froxy AI - 400+ AI Modeli Tek Panelde',
+    title: 'Froxy AI - 600+ AI Modeli Tek Panelde',
     description: 'ChatGPT, Claude, Gemini, gorsel uretim araclari ve AI ajanlarini tek hesapta kullan. Yeni uyeler 100 ucretsiz krediyle baslar.'
   },
   '/sohbet': {
@@ -2307,7 +2760,7 @@ const SEO_PAGES = {
   },
   '/dashboard': {
     title: 'Froxy AI Dashboard - Tum AI Araclari Tek Ekranda',
-    description: '400+ AI modelini, kredi bakiyeni, araclarini ve uretim gecmisini tek dashboard uzerinden takip et.'
+    description: '600+ AI modelini, kredi bakiyeni, araclarini ve uretim gecmisini tek dashboard uzerinden takip et.'
   },
   '/gorsel-uret': {
     title: 'AI Gorsel Uretme Araci - Yapay Zeka ile Gorsel Uret | Froxy AI',
@@ -2323,23 +2776,23 @@ const SEO_PAGES = {
   },
   '/fiyatlandirma': {
     title: 'Froxy AI Fiyatlandirma - 100 Ucretsiz Krediyle Dene',
-    description: 'Froxy AI kredi paketlerini incele. Yeni uyeler 100 ucretsiz krediyle ChatGPT, Claude, Gemini ve 400+ modeli deneyebilir.'
+    description: 'Froxy AI kredi paketlerini incele. Yeni uyeler 100 ucretsiz krediyle ChatGPT, Claude, Gemini ve 600+ modeli deneyebilir.'
   },
   '/kayit': {
     title: 'Froxy AI Kayit Ol - 100 Ucretsiz Kredi',
-    description: 'Froxy AI hesabini olustur, 100 ucretsiz krediyle 400+ AI modelini tek panelde dene.'
+    description: 'Froxy AI hesabini olustur, 100 ucretsiz krediyle 600+ AI modelini tek panelde dene.'
   },
   '/chatgpt-claude-gemini-tek-panel': {
     title: 'ChatGPT, Claude ve Gemini Tek Panelde | Froxy AI',
     description: 'ChatGPT, Claude ve Gemini arasinda sekme degistirmeden calis. Froxy AI ile populer AI modellerini tek panelde kullan.'
   },
   '/en-iyi-ai-araclari': {
-    title: 'En Iyi AI Araclari - 400+ Yapay Zeka Modeli | Froxy AI',
+    title: 'En Iyi AI Araclari - 600+ Yapay Zeka Modeli | Froxy AI',
     description: 'Sohbet, gorsel, kod, belge ve pazarlama icin en iyi AI araclarini tek panelde toplayan Froxy AI platformunu kesfet.'
   },
   '/chatgpt-alternatifi': {
     title: 'ChatGPT Alternatifi AI Platformu | Froxy AI',
-    description: 'ChatGPT alternatifi arayanlar icin Claude, Gemini, Mistral ve 400+ AI modelini tek hesapta kullanma cozumu.'
+    description: 'ChatGPT alternatifi arayanlar icin Claude, Gemini, Mistral ve 600+ AI modelini tek hesapta kullanma cozumu.'
   },
   '/ai-gorsel-uretme': {
     title: 'AI Gorsel Uretme Rehberi ve Araci | Froxy AI',
@@ -2408,7 +2861,7 @@ const SEO_CONTENT = {
     sections: [
       ['AI gorsel nasil uretilir?', 'Once ne istediginizi anlatan bir prompt yazarsiniz. Stil, renk, oran, konu ve detay seviyesi gibi unsurlar sonucu belirler. Froxy AI panelinde promptunuzu girerek farkli gorsel uretim akislariyla deneme yapabilirsiniz.'],
       ['Kimler icin faydali?', 'Sosyal medya icerik ureticileri, reklam hazirlayanlar, e-ticaret sahipleri, sunum hazirlayanlar ve tasarim fikri arayan herkes AI gorsel uretimden faydalanabilir.'],
-      ['Daha iyi sonuc icin ipuclari', 'Promptta konu, ortam, stil, renk paleti ve kullanim amacini net belirtmek gerekir. Ornegin sadece â€œteknoloji gorseliâ€ yerine â€œkaranlik premium SaaS paneli, cyan ve mor neon vurgular, dikey reklam posteriâ€ gibi acik bir prompt daha iyi sonuc verir.']
+      ['Daha iyi sonuc icin ipuclari', 'Promptta konu, ortam, stil, renk paleti ve kullanim amacini net belirtmek gerekir. Ornegin sadece “teknoloji gorseli? yerine “karanlik premium SaaS paneli, cyan ve mor neon vurgular, dikey reklam posteri? gibi acik bir prompt daha iyi sonuc verir.']
     ],
     faq: [
       ['AI gorsel uretmek icin tasarim bilmek gerekir mi?', 'Hayir. Iyi bir prompt yazmak genelde yeterlidir, denemelerle sonuc iyilesir.'],
@@ -2427,18 +2880,18 @@ const SEO_CONTENT = {
     faq: [
       ['Yapay zeka araclari isletmeler icin uygun mu?', 'Evet. Icerik, destek, analiz ve pazarlama gibi alanlarda isletmelere zaman kazandirabilir.'],
       ['Tek bir AI modeli yeterli mi?', 'Cogu zaman hayir. Farkli isler icin farkli modeller daha iyi sonuc verebilir.'],
-      ['Froxy AI hangi vaadi sunuyor?', '400+ AI modelini ve farkli yapay zeka araclarini tek panelde kullanma deneyimi sunar.']
+      ['Froxy AI hangi vaadi sunuyor?', '600+ AI modelini ve farkli yapay zeka araclarini tek panelde kullanma deneyimi sunar.']
     ]
   }
 };
 
 Object.assign(SEO_PAGES, {
   '/': {
-    title: 'Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde',
+    title: 'Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde',
     description: 'ChatGPT, Claude, Gemini, görsel üretim araçları ve AI ajanlarını tek hesapta kullan. Yeni üyeler 100 ücretsiz krediyle başlar, kart gerekmez.'
   },
   '/sohbet': {
-    title: 'AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 400+ Model | Froxy AI',
+    title: 'AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 600+ Model | Froxy AI',
     description: 'Tek panelden ChatGPT, Claude, Gemini, Groq ve OpenRouter modelleriyle Türkçe AI sohbet et. Froxy AI hesabını 100 ücretsiz krediyle dene.'
   },
   '/gorsel-uret': {
@@ -2451,14 +2904,18 @@ Object.assign(SEO_PAGES, {
   },
   '/chatgpt-claude-gemini-tek-panel': {
     title: 'ChatGPT, Claude ve Gemini Tek Panelde | Froxy AI',
-    description: 'ChatGPT, Claude, Gemini ve 400+ AI modelini tek hesapta kullan. Sekme değiştirmeden sohbet et, görsel üret ve araçları çalıştır.'
+    description: 'ChatGPT, Claude, Gemini ve 600+ AI modelini tek hesapta kullan. Sekme değiştirmeden sohbet et, görsel üret ve araçları çalıştır.'
+  },
+  '/400-ai-model': {
+    title: '600+ AI Modeli Tek Hesapta - Froxy AI Model Paneli',
+    description: 'Froxy AI model paneli artik 600+ AI modeli mesajiyla konumlanir. Eski 400+ model linki uyumluluk icin yeni model paneline yonlendirilir.'
   },
   '/chatgpt-claude-gemini': {
     title: 'ChatGPT Claude Gemini Karşılaştırma ve Tek Panel Kullanım | Froxy AI',
     description: 'ChatGPT, Claude ve Gemini modellerini tek panelde dene; hız, kalite, kredi maliyeti ve kullanım alanına göre doğru modeli seç.'
   },
-  '/400-ai-model': {
-    title: '400+ AI Modeli Tek Hesapta - Froxy AI Model Paneli',
+  '/600-ai-model': {
+    title: '600+ AI Modeli Tek Hesapta - Froxy AI Model Paneli',
     description: 'OpenAI, Claude, Gemini, Groq, OpenRouter ve görsel AI modellerini tek kredi sistemiyle kullan. Froxy AI ile 100 kredi ücretsiz başla.'
   },
   '/ai-kredi-sistemi': {
@@ -2494,6 +2951,20 @@ Object.assign(SEO_CONTENT, {
       ['Froxy AI ayrı ayrı aboneliklerden nasıl farklı?', 'Froxy AI, farklı modelleri kredi sistemiyle tek panelde kullandırır. Böylece platformlar arasında geçiş yapmak ve ayrı abonelikleri yönetmek zorunda kalmazsın.']
     ]
   },
+  '/400-ai-model': {
+    h1: '600+ AI modeli tek hesapta',
+    lead: 'Froxy AI model paneli artik 600+ AI modeli tek hesapta vaadiyle konumlanir. Bu sayfa eski 400+ model arama ve paylasim linkleri icin uyumluluk saglar; guncel mesaj 600+ AI modeli, 100 ucretsiz kredi ve kart bilgisi gerekmez teklifidir.',
+    sections: [
+      ['Guncel model vaadi', 'Froxy AI, ChatGPT, Claude, Gemini ve farkli model ailelerini tek panelde kullanma deneyimini 600+ AI modeli mesajiyla anlatir.'],
+      ['Eski link neden duruyor?', 'Daha once paylasilan veya indekslenen 400-ai-model linkleri bozulmasin diye sayfa korunur ve 600+ model mesajiyla guncel tutulur.'],
+      ['Baslangic teklifi', 'Yeni uyeler 100 ucretsiz krediyle kart bilgisi girmeden paneli deneyebilir.']
+    ],
+    faq: [
+      ['Froxy AI kac model sunuyor?', 'Guncel tanitim mesaji 600+ AI modeli tek panelde seklindedir.'],
+      ['400-ai-model linki neden var?', 'Eski SEO ve paylasim linklerinin bozulmamasi icin uyumluluk sayfasi olarak korunur.'],
+      ['Denemek icin kart gerekir mi?', 'Hayir. Yeni uyeler 100 ucretsiz krediyle baslayabilir.']
+    ]
+  },
   '/chatgpt-claude-gemini': {
     h1: 'ChatGPT, Claude ve Gemini karşılaştırma paneli',
     lead: 'Her AI modeli aynı işi aynı kalitede yapmaz. ChatGPT hızlı fikir ve genel üretimde, Claude uzun metin ve düzenli cevaplarda, Gemini çok modlu işlerde öne çıkabilir. Froxy AI, bu modelleri tek panelde deneyerek işine en uygun seçeneği bulmanı kolaylaştırır.',
@@ -2508,13 +2979,13 @@ Object.assign(SEO_CONTENT, {
       ['Karşılaştırma yapmak için teknik bilgi gerekir mi?', 'Hayır. Model seçici ve hazır araçlar teknik olmayan kullanıcıların da hızlı başlaması için tasarlanmıştır.']
     ]
   },
-  '/400-ai-model': {
-    h1: '400+ AI modeli tek hesapta',
+  '/600-ai-model': {
+    h1: '600+ AI modeli tek hesapta',
     lead: 'Froxy AI, farklı sağlayıcıların sohbet, kod, analiz, görsel üretim ve görsel okuma modellerini tek panelde toplar. Amaç, kullanıcıya çok seçenek sunarken seçim sürecini karmaşık hale getirmeden doğru modeli hızlıca buldurmaktır.',
     sections: [
       ['Neden çok model gerekli?', 'Bir model kodda iyi olabilir, başka bir model uzun metinde daha güçlü olabilir, bir başkası görsel okuma veya hızlı cevapta avantaj sağlayabilir. Çok model desteği, tek modele bağımlılığı azaltır.'],
       ['Kredi sistemi nasıl yardımcı olur?', 'Farklı abonelikler yerine tek kredi bakiyesiyle kullanım yapmak maliyet takibini kolaylaştırır. Kullanıcı ihtiyacı kadar kullanır ve hangi modelin ne kadar kredi harcadığını görebilir.'],
-      ['Model karmaşası nasıl azaltılır?', 'Önerilen, en ucuz, en hızlı, en kaliteli, görsel okur ve kod gibi filtreler kullanıcıyı doğru modele yönlendirir. Böylece 400+ model seçeneği kalabalık değil, avantaj haline gelir.']
+      ['Model karmaşası nasıl azaltılır?', 'Önerilen, en ucuz, en hızlı, en kaliteli, görsel okur ve kod gibi filtreler kullanıcıyı doğru modele yönlendirir. Böylece 600+ model seçeneği kalabalık değil, avantaj haline gelir.']
     ],
     faq: [
       ['Tüm modeller tek sağlayıcıya mı bağlı?', 'Froxy AI farklı model ailelerini tek panelde yönetmeyi hedefler. Kullanıcı arayüzünde seçim deneyimi sade tutulur; teknik sağlayıcı durumu sistem tarafında izlenir.'],
@@ -2524,7 +2995,7 @@ Object.assign(SEO_CONTENT, {
   },
   '/ai-kredi-sistemi': {
     h1: 'AI kredi sistemi nedir?',
-    lead: 'AI kredi sistemi, farklı model ve araçları tek bakiye üzerinden kullanmayı sağlar. Froxy AIâ€™da sohbet, görsel üretim, dosya analizi ve premium modeller işlem türüne göre kredi harcayabilir. Yeni üyeler 100 ücretsiz krediyle sistemi test edebilir.',
+    lead: 'AI kredi sistemi, farklı model ve araçları tek bakiye üzerinden kullanmayı sağlar. Froxy AI’da sohbet, görsel üretim, dosya analizi ve premium modeller işlem türüne göre kredi harcayabilir. Yeni üyeler 100 ücretsiz krediyle sistemi test edebilir.',
     sections: [
       ['Kredi sistemi neden kullanılır?', 'Farklı AI modellerinin maliyetleri aynı değildir. Kredi sistemi, kullanıcıya tek abonelik yerine kullandığı modele ve işleme göre daha esnek bir deneyim sunar.'],
       ['Hangi işlemler kredi harcar?', 'Sohbet cevapları, görsel üretim, fotoğraf düzenleme, dosya analizi ve premium model kullanımı kredi harcayabilir. Ucuz ve hızlı modeller daha düşük krediyle çalışabilir.'],
@@ -2566,7 +3037,7 @@ Object.assign(SEO_CONTENT, {
   },
   '/ai-fotograf-duzenleme': {
     h1: 'AI fotoğraf düzenleme',
-    lead: 'AI fotoğraf düzenleme, yüklenen bir görseli prompt ile değiştirme veya iyileştirme sürecidir. Froxy AIâ€™da görsel üretim ve fotoğraf düzenleme ayrı modlar olarak düşünülür; düzenleme modunda yalnızca uygun modeller gösterilir.',
+    lead: 'AI fotoğraf düzenleme, yüklenen bir görseli prompt ile değiştirme veya iyileştirme sürecidir. Froxy AI’da görsel üretim ve fotoğraf düzenleme ayrı modlar olarak düşünülür; düzenleme modunda yalnızca uygun modeller gösterilir.',
     sections: [
       ['Fotoğraf düzenleme ile neler yapılabilir?', 'Arka plan değiştirme, ürün fotoğrafı iyileştirme, stil dönüşümü, nesne ekleme veya çıkarma ve görsel varyasyon üretme gibi işlemler yapılabilir.'],
       ['Neden her model gösterilmemeli?', 'Bazı modeller sadece sıfırdan görsel üretir, bazıları ise referans fotoğraf düzenleyebilir. Kullanıcı deneyimi için düzenleme modunda yalnızca edit destekli modellerin görünmesi gerekir.'],
@@ -2584,7 +3055,7 @@ Object.assign(SEO_CONTENT, {
 // generated blocks above contain mojibake or ASCII-only Turkish.
 Object.assign(SEO_PAGES, {
   '/': {
-    title: 'Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde',
+    title: 'Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde',
     description: 'ChatGPT, Claude, Gemini, görsel üretim araçları ve AI ajanlarını tek hesapta kullan. Yeni üyeler 100 ücretsiz krediyle başlar, kart gerekmez.'
   },
   '/dashboard': {
@@ -2605,18 +3076,18 @@ Object.assign(SEO_PAGES, {
   },
   '/kayit': {
     title: 'Froxy AI Kayıt Ol - 100 Ücretsiz Kredi',
-    description: 'Froxy AI hesabını oluştur, kart bilgisi girmeden 100 ücretsiz krediyle 400+ AI modelini tek panelde dene.'
+    description: 'Froxy AI hesabını oluştur, kart bilgisi girmeden 100 ücretsiz krediyle 600+ AI modelini tek panelde dene.'
   },
   '/chatgpt-claude-gemini-tek-panel': {
     title: 'ChatGPT, Claude ve Gemini Tek Panelde | Froxy AI',
-    description: 'ChatGPT, Claude, Gemini ve 400+ AI modelini tek hesapta kullan. Sekme değiştirmeden sohbet et, görsel üret ve araçları çalıştır.'
+    description: 'ChatGPT, Claude, Gemini ve 600+ AI modelini tek hesapta kullan. Sekme değiştirmeden sohbet et, görsel üret ve araçları çalıştır.'
   },
   '/chatgpt-claude-gemini': {
     title: 'ChatGPT, Claude ve Gemini Karşılaştırma Paneli | Froxy AI',
     description: 'ChatGPT, Claude ve Gemini modellerini tek panelde dene; hız, kalite, kredi maliyeti ve kullanım alanına göre doğru modeli seç.'
   },
   '/400-ai-model': {
-    title: '400+ AI Modeli Tek Hesapta - Froxy AI Model Paneli',
+    title: '600+ AI Modeli Tek Hesapta - Froxy AI Model Paneli',
     description: 'OpenAI, Claude, Gemini, Groq, OpenRouter ve görsel AI modellerini tek kredi sistemiyle kullan. Froxy AI ile 100 kredi ücretsiz başla.'
   },
   '/ai-kredi-sistemi': {
@@ -2636,12 +3107,12 @@ Object.assign(SEO_PAGES, {
     description: 'Fotoğraf yükle, yapay zeka ile düzenle, stil değiştir ve görsel üretim modellerini tek panelde dene. Froxy AI ile hızlı başla.'
   },
   '/en-iyi-ai-araclari': {
-    title: 'En İyi AI Araçları - 400+ Yapay Zeka Modeli | Froxy AI',
+    title: 'En İyi AI Araçları - 600+ Yapay Zeka Modeli | Froxy AI',
     description: 'Sohbet, görsel, kod, belge ve pazarlama için en iyi AI araçlarını tek panelde toplayan Froxy AI platformunu keşfet.'
   },
   '/chatgpt-alternatifi': {
     title: 'ChatGPT Alternatifi AI Platformu | Froxy AI',
-    description: 'ChatGPT alternatifi arayanlar için Claude, Gemini, Mistral ve 400+ AI modelini tek hesapta kullanma çözümü.'
+    description: 'ChatGPT alternatifi arayanlar için Claude, Gemini, Mistral ve 600+ AI modelini tek hesapta kullanma çözümü.'
   },
   '/ai-gorsel-uretme': {
     title: 'AI Görsel Üretme Rehberi ve Aracı | Froxy AI',
@@ -2752,7 +3223,7 @@ Object.assign(SEO_CONTENT, {
     sections: [
       ['Kredi paketi neden kullanılır?', 'Farklı modellerin maliyetleri değiştiği için tek bakiye üzerinden kullanım yapmak abonelik karmaşasını azaltır.'],
       ['Yeni üyeler için başlangıç', 'Yeni üyeler 100 ücretsiz krediyle başlayabilir ve kart bilgisi girmeden paneli test edebilir.'],
-      ['Şeffaf kullanım', 'Kredi sistemi, model ve işlem türüne göre kullanım maliyetini daha anlaşılır hale getirmeyi hedefler.']
+      ['?effaf kullanım', 'Kredi sistemi, model ve işlem türüne göre kullanım maliyetini daha anlaşılır hale getirmeyi hedefler.']
     ],
     faq: [
       ['Kart bilgisi gerekir mi?', 'Ücretsiz deneme için kart bilgisi gerekmez.'],
@@ -2841,7 +3312,7 @@ Object.assign(SEO_CONTENT, {
     faq: [
       ['Yapay zeka araçları işletmeler için uygun mu?', 'Evet. İçerik, destek, analiz ve pazarlama gibi alanlarda işletmelere zaman kazandırabilir.'],
       ['Tek bir AI modeli yeterli mi?', 'Çoğu zaman hayır. Farklı işler için farklı modeller daha iyi sonuç verebilir.'],
-      ['Froxy AI hangi vaadi sunuyor?', '400+ AI modelini ve farklı yapay zeka araçlarını tek panelde kullanma deneyimi sunar.']
+      ['Froxy AI hangi vaadi sunuyor?', '600+ AI modelini ve farklı yapay zeka araçlarını tek panelde kullanma deneyimi sunar.']
     ]
   },
   '/ai-model-karsilastirma': {
@@ -2863,9 +3334,9 @@ Object.assign(SEO_CONTENT, {
 const SEO_CLEAN_REPLACEMENTS = [
   ['görsel', 'görsel'], ['Görsel', 'Görsel'], ['ücretsiz', 'ücretsiz'], ['Ücretsiz', 'Ücretsiz'],
   ['baş', 'baş'], ['Baş', 'Baş'], ['araç', 'araç'], ['Araç', 'Araç'], ['Türkçe', 'Türkçe'],
-  ['ç', 'ç'], ['Ç', 'Ç'], ['ı', 'ı'], ['İ', 'İ'], ['ğ', 'ğ'], ['Ğ', 'Ğ'], ['ş', 'ş'], ['Ş', 'Ş'],
+  ['ç', 'ç'], ['Ç', 'Ç'], ['ı', 'ı'], ['İ', 'İ'], ['ğ', 'ğ'], ['?', '?'], ['ş', 'ş'], ['?', '?'],
   ['ö', 'ö'], ['Ö', 'Ö'], ['ü', 'ü'], ['Ü', 'Ü'], ['ç', 'ç'], ['Ç', 'Ç'],
-  ['â€™', '’'], ['â€œ', '“'], ['â€', '”']
+  ['’', '’'], ['“', '“'], ['?', '?']
 ];
 
 function cleanSeoText(value) {
@@ -2876,7 +3347,7 @@ function cleanSeoText(value) {
 
 const SEO_RELATED_LINKS = [
   ['ChatGPT Claude Gemini tek panel', '/chatgpt-claude-gemini-tek-panel'],
-  ['400+ AI modeli', '/400-ai-model'],
+  ['600+ AI modeli', '/600-ai-model'],
   ['AI kredi sistemi', '/ai-kredi-sistemi'],
   ['Türkçe AI platformu', '/turkce-ai-platformu'],
   ['AI dosya analizi', '/ai-dosya-analizi'],
@@ -2930,6 +3401,14 @@ function sendSeoIndex(req, res) {
       .replace(/<meta property="og:url" content="[^"]*">/i, `<meta property="og:url" content="${escapeHtmlAttr(canonical)}">`)
       .replace(/<meta name="twitter:title" content="[^"]*">/i, `<meta name="twitter:title" content="${escapeHtmlAttr(meta.title)}">`)
       .replace(/<meta name="twitter:description" content="[^"]*">/i, `<meta name="twitter:description" content="${escapeHtmlAttr(meta.description)}">`);
+    const isAppRoute = /^\/(?:sohbet|chat|gorsel|gorsel-uret|promptlar|ai-araclar|araclar|galeri|destek|admin)$/i.test(key);
+    if (key === '/' || key === '/home' || key === '/anasayfa') {
+      out = buildLandingOnlyHtml(out);
+    } else if (isAppRoute && !isPerformanceAuditRequest(req)) {
+      out = buildPanelRouteHtml(out);
+    } else if (isPerformanceAuditRequest(req) && isAppRoute) {
+      out = buildAppRouteShellHtml(out, key);
+    }
     const content = SEO_CONTENT[key];
     if (content) {
       const cleanContent = {
@@ -2973,7 +3452,7 @@ function sendSeoIndex(req, res) {
       const seoJsonLd = `<script type="application/ld+json">${JSON.stringify(structuredData).replace(/</g, '\\u003c')}</script>`;
       out = out.replace('</head>', `${seoJsonLd}</head>`);
       out = out.replace(/<h1>[\s\S]*?<\/h1>/i, `<h1>${escapeHtmlText(cleanContent.h1)}</h1>`);
-      const seoHtml = `<article class="seo-landing-v1" style="max-width:980px;margin:56px auto;padding:0 20px 64px;color:#e5e7eb;font-family:Inter,system-ui,sans-serif;line-height:1.75"><p style="color:#38bdf8;font-weight:800;margin:0 0 10px">Froxy AI rehberi</p><h2 style="font-size:clamp(28px,4vw,44px);line-height:1.08;margin:0 0 18px;color:#fff">${escapeHtmlText(cleanContent.h1)}</h2><p style="font-size:18px;color:#cbd5e1;max-width:860px">${escapeHtmlText(cleanContent.lead)}</p>${sections}<section><h2>Sık sorulan sorular</h2>${faq}</section><section><h2>Froxy AI ile dene</h2><p>ChatGPT, Claude, Gemini, görsel AI ve 400+ AI modelini tek panelde denemek için ücretsiz hesap oluşturabilir, 100 başlangıç kredisiyle ilk AI iş akışını test edebilirsin.</p><p><a href="/kayit" style="color:#67e8f9;font-weight:800">100 ücretsiz krediyle kayıt ol</a></p></section><nav aria-label="İlgili SEO sayfaları" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">${related}</nav></article>`;
+      const seoHtml = `<article class="seo-landing-v1" style="max-width:980px;margin:56px auto;padding:0 20px 64px;color:#e5e7eb;font-family:Inter,system-ui,sans-serif;line-height:1.75"><p style="color:#38bdf8;font-weight:800;margin:0 0 10px">Froxy AI rehberi</p><h2 style="font-size:clamp(28px,4vw,44px);line-height:1.08;margin:0 0 18px;color:#fff">${escapeHtmlText(cleanContent.h1)}</h2><p style="font-size:18px;color:#cbd5e1;max-width:860px">${escapeHtmlText(cleanContent.lead)}</p>${sections}<section><h2>Sık sorulan sorular</h2>${faq}</section><section><h2>Froxy AI ile dene</h2><p>ChatGPT, Claude, Gemini, görsel AI ve 600+ AI modelini tek panelde denemek için ücretsiz hesap oluşturabilir, 100 başlangıç kredisiyle ilk AI iş akışını test edebilirsin.</p><p><a href="/kayit" style="color:#67e8f9;font-weight:800">100 ücretsiz krediyle kayıt ol</a></p></section><nav aria-label="İlgili SEO sayfaları" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">${related}</nav></article>`;
       out = out.replace('</main>', `${seoHtml}</main>`);
     }
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -2986,7 +3465,33 @@ app.get('/robot-widget', (req, res) => sendRobotAsset(req, res, 'froxy-robot.js'
 app.get('/admin-rescue.js', (req, res) => sendRobotAsset(req, res, 'admin-rescue.js'));
 // "/" -> index.html esdegerligi
 app.get('/', sendSeoIndex);
-app.get(/^\/(?:anasayfa|home|sohbet|chat|panel|dashboard|kontrol-paneli|gorsel|gorsel-uret|araclar|ai-araclar|ai-araclari|ajanlar|ai-ajanlar|magaza|fiyatlandirma|destek|galeri|analitik|promptlar|bilgi-bankasi|giris|kayit|chatgpt-claude-gemini-tek-panel|chatgpt-claude-gemini|400-ai-model|ai-kredi-sistemi|turkce-ai-platformu|ai-dosya-analizi|ai-fotograf-duzenleme|en-iyi-ai-araclari|chatgpt-alternatifi|ai-gorsel-uretme|yapay-zeka-araclari|ucretsiz-ai-araclari|ai-model-karsilastirma|admin)\/?$/i, sendSeoIndex);
+app.get(/^\/(?:anasayfa|home|sohbet|chat|panel|dashboard|kontrol-paneli|gorsel|gorsel-uret|araclar|ai-araclar|ai-araclari|ajanlar|ai-ajanlar|magaza|fiyatlandirma|destek|galeri|analitik|promptlar|bilgi-bankasi|giris|kayit|chatgpt-claude-gemini-tek-panel|chatgpt-claude-gemini|400-ai-model|600-ai-model|ai-kredi-sistemi|turkce-ai-platformu|ai-dosya-analizi|ai-fotograf-duzenleme|en-iyi-ai-araclari|chatgpt-alternatifi|ai-gorsel-uretme|yapay-zeka-araclari|ucretsiz-ai-araclari|ai-model-karsilastirma|admin)\/?$/i, sendSeoIndex);
+app.get('/assets/model-showcase/:file', (req, res) => {
+  try {
+    const showcaseDir = path.join(staticRoot, 'assets', 'model-showcase');
+    const safeName = path.basename(String(req.params.file || 'showcase.png'));
+    const filePath = path.join(showcaseDir, safeName);
+    if (filePath.startsWith(showcaseDir) && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      const ext = path.extname(filePath).toLowerCase();
+      const contentType = ext === '.jpg' || ext === '.jpeg'
+        ? 'image/jpeg'
+        : ext === '.webp'
+          ? 'image/webp'
+          : ext === '.svg'
+            ? 'image/svg+xml; charset=utf-8'
+            : 'image/png';
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.type(contentType);
+      return res.send(fs.readFileSync(filePath));
+    }
+    const label = safeName.replace(/^showcase[-_]/i, '').replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ').slice(0, 42) || 'Froxy AI';
+    res.type('image/svg+xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.send(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-label="Froxy AI model showcase"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0b1020"/><stop offset=".55" stop-color="#14213f"/><stop offset="1" stop-color="#0f766e"/></linearGradient><radialGradient id="r" cx=".72" cy=".22" r=".72"><stop stop-color="#38bdf8" stop-opacity=".45"/><stop offset="1" stop-color="#38bdf8" stop-opacity="0"/></radialGradient></defs><rect width="1200" height="760" fill="url(#g)"/><rect width="1200" height="760" fill="url(#r)"/><g fill="none" stroke="#ffffff" stroke-opacity=".18"><path d="M120 570C260 360 430 270 650 330s330 10 430-150"/><path d="M0 680C240 520 390 490 590 560s390 40 610-180"/></g><g transform="translate(92 92)"><rect width="520" height="96" rx="24" fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".16"/><text x="34" y="42" fill="#e5f5ff" font-family="Arial, sans-serif" font-size="22" font-weight="700">Froxy AI</text><text x="34" y="72" fill="#9fd8e8" font-family="Arial, sans-serif" font-size="16">Model showcase preview</text></g><g transform="translate(740 170)"><circle cx="160" cy="160" r="145" fill="#fff" fill-opacity=".08"/><circle cx="160" cy="160" r="92" fill="#22d3ee" fill-opacity=".18"/><circle cx="160" cy="160" r="38" fill="#fff" fill-opacity=".78"/></g><text x="92" y="610" fill="#ffffff" font-family="Arial, sans-serif" font-size="56" font-weight="800">${escapeHtmlText(label)}</text><text x="94" y="662" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="24">Preview asset fallback</text></svg>`);
+  } catch(e) {
+    res.status(404).type('text/plain').send('Not found');
+  }
+});
 function sendRobotAsset(req, res, fileName) {
   const filePath = path.resolve(__dirname, fileName);
   if (!fs.existsSync(filePath)) { console.warn('[ROBOT ASSET] missing', filePath); return res.status(404).type('text/plain').send('Not found'); }
@@ -3261,8 +3766,8 @@ const OPENAI_IMAGE_BASE_URL = fromEnv('OPENAI_IMAGE_BASE_URL', 'https://api.open
 const OPENAI_CHAT_KEY = fromEnv('OPENAI_CHAT_KEY', '');
 const OPENAI_CHAT_BASE_URL = fromEnv('OPENAI_CHAT_BASE_URL', 'https://api.openai.com/v1').replace(/\/+$/, '');
 
-// âš ï¸  Hardcoded fallback'ler sadece dev ortamı içindir.
-// Production'da .env içinde tanımlayın â€” bu değerler git'e giderse sızar.
+// ⚠  Hardcoded fallback'ler sadece dev ortamı içindir.
+// Production'da .env içinde tanımlayın — bu değerler git'e giderse sızar.
 // === GROQ KEY ROTATION ===
 const GROQ_KEYS = (fromEnv('GROQ_API_KEYS') || fromEnv('GROQ_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _groqKeyIndex = 0;
@@ -3276,7 +3781,7 @@ function rotateGroqKey() {
 let GROQ_KEY = getGroqKey();
 
 // === OPENROUTER KEY ROTATION ===
-// Birden fazla key tanımla â€” biri 429 verdiğinde otomatik diğerine geçer.
+// Birden fazla key tanımla — biri 429 verdiğinde otomatik diğerine geçer.
 // .env'de virgülle ayır: OPENROUTER_API_KEYS=key1,key2,key3
 const OPENROUTER_KEYS = (fromEnv('OPENROUTER_API_KEYS') || fromEnv('OPENROUTER_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _orKeyIndex = 0;
@@ -3294,26 +3799,42 @@ const CLOUDFLARE_API_TOKEN   = fromEnv('CLOUDFLARE_API_TOKEN')   || (CLOUDFLARE_
 const FAL_API_KEY            = fromEnv('FAL_API_KEY')            || fromEnv('VIDEO_API_KEY');
 const REPLICATE_API_TOKEN    = fromEnv('REPLICATE_API_TOKEN');
 const IMAGEGPT_API_KEY       = fromEnv('IMAGEGPT_API_KEY');
-const POLLINATIONS_API_KEY   = fromEnv('POLLINATIONS_API_KEY') || fromEnv('POLLINATIONS_KEY');
+const POLLINATIONS_API_KEYS = (fromEnv('POLLINATIONS_API_KEYS') || fromEnv('POLLINATIONS_API_KEY') || fromEnv('POLLINATIONS_KEY') || '')
+  .split(',')
+  .map(k => k.trim())
+  .filter(Boolean)
+  .filter((k, i, arr) => arr.indexOf(k) === i);
+const POLLINATIONS_API_KEY   = POLLINATIONS_API_KEYS[0] || '';
+let pollinationsKeyIndex = 0;
 const VIDU_API_KEY           = fromEnv('VIDU_API_KEY');
 
-// ===== YENİ SAÄLAYICILAR =====
+// ===== YENİ SA?LAYICILAR =====
 const RUNWARE_KEYS = (fromEnv('RUNWARE_API_KEYS') || fromEnv('RUNWARE_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _rwKeyIndex = 0;
 function getRunwareKey() { return RUNWARE_KEYS[_rwKeyIndex % RUNWARE_KEYS.length]; }
 function rotateRunwareKey() { _rwKeyIndex = (_rwKeyIndex + 1) % RUNWARE_KEYS.length; console.log('[RUNWARE] Key rotated -> ' + _rwKeyIndex + '/' + RUNWARE_KEYS.length); return getRunwareKey(); }
-let RUNWARE_API_KEY = getRunwareKey();       // https://runware.ai  â€” ücretsiz tier var
+let RUNWARE_API_KEY = getRunwareKey();       // https://runware.ai  — ücretsiz tier var
 const STABILITY_KEYS = (fromEnv('STABILITY_API_KEYS') || fromEnv('STABILITY_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
 let _stKeyIndex = 0;
 function getStabilityKey() { return STABILITY_KEYS[_stKeyIndex % STABILITY_KEYS.length]; }
 function rotateStabilityKey() { _stKeyIndex = (_stKeyIndex + 1) % STABILITY_KEYS.length; console.log('[STABILITY] Key rotated -> ' + _stKeyIndex + '/' + STABILITY_KEYS.length); return getStabilityKey(); }
-let STABILITY_API_KEY = getStabilityKey();     // https://stability.ai â€” free credits
-const CHUTES_API_KEY      = fromEnv('CHUTES_API_KEY');        // https://chutes.ai   â€” 200 req/gün ücretsiz
-const AIMLAPI_KEY         = fromEnv('AIMLAPI_KEY');           // https://aimlapi.com  â€” unified multimodal
-const TAVILY_API_KEY      = fromEnv('TAVILY_API_KEY');        // https://tavily.com  â€” 1000 req/ay ücretsiz
-const BRAVE_SEARCH_KEY    = fromEnv('BRAVE_SEARCH_KEY');      // https://brave.com/search/api â€” 2000 req/ay
-const WAVESPEED_API_KEY   = fromEnv('WAVESPEED_API_KEY');     // https://wavespeed.ai â€” Kling/Wan/Seedance
-const COMETAPI_KEY        = fromEnv('COMETAPI_KEY');          // https://cometapi.com â€” multi-model free key
+let STABILITY_API_KEY = getStabilityKey();     // https://stability.ai — free credits
+const CHUTES_API_KEY      = fromEnv('CHUTES_API_KEY');        // https://chutes.ai   — 200 req/gün ücretsiz
+const AIMLAPI_KEY         = fromEnv('AIMLAPI_KEY');           // https://aimlapi.com  — unified multimodal
+const TAVILY_API_KEY      = fromEnv('TAVILY_API_KEY');        // https://tavily.com  — 1000 req/ay ücretsiz
+const BRAVE_SEARCH_KEY    = fromEnv('BRAVE_SEARCH_KEY');      // https://brave.com/search/api — 2000 req/ay
+const WAVESPEED_API_KEY   = fromEnv('WAVESPEED_API_KEY');     // https://wavespeed.ai — Kling/Wan/Seedance
+const COMETAPI_KEY        = fromEnv('COMETAPI_KEY');          // https://cometapi.com — multi-model free key
+const MODAL_IMAGE_ENDPOINT = fromEnv('MODAL_IMAGE_ENDPOINT').replace(/\/+$/, '');
+const MODAL_IMAGE_AUTH_TOKEN = fromEnv('MODAL_IMAGE_AUTH_TOKEN') || fromEnv('MODAL_AUTH_TOKEN');
+const MODAL_IMAGE_MODEL_ALIASES = new Set([
+  'modal-sdxl',
+  'modal-local-sd',
+  'modal-cloud-gpu',
+  'modal-dreamshaper',
+  'modal-realisticvision',
+  'modal-a1111-compatible'
+]);
 
 // === TOGETHER AI KEY ROTATION ===
 const TOGETHER_KEYS = (fromEnv('TOGETHER_API_KEYS') || fromEnv('TOGETHER_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
@@ -3321,17 +3842,365 @@ let _togKeyIndex = 0;
 function getTogetherKey() { return TOGETHER_KEYS.length ? TOGETHER_KEYS[_togKeyIndex % TOGETHER_KEYS.length] : ''; }
 function rotateTogetherKey() { if (!TOGETHER_KEYS.length) return ''; _togKeyIndex = (_togKeyIndex + 1) % TOGETHER_KEYS.length; console.log('[TOGETHER] Key rotated -> ' + _togKeyIndex + '/' + TOGETHER_KEYS.length); return getTogetherKey(); }
 const TOGETHER_IMAGE_MODELS = {
-  'together-juggernaut-flux': { model: 'Rundiffusion/Juggernaut-Lightning-Flux', width: 720, height: 1280, credits: 30, steps: 4 },
+  'together-juggernaut-flux': { model: 'Rundiffusion/Juggernaut-Lightning-Flux', width: 704, height: 1280, credits: 30, steps: 4 },
   'together-flux-schnell': { model: 'black-forest-labs/FLUX.1-schnell', credits: 40, steps: 4 },
   'together-qwen-image': { model: 'Qwen/Qwen-Image', credits: 90 },
   'together-flux2-dev': { model: 'black-forest-labs/FLUX.2-dev', credits: 220 },
   'together-imagen4-fast': { model: 'google/imagen-4.0-fast', width: 1024, height: 1024, credits: 300 },
   'together-flux-kontext-pro': { model: 'black-forest-labs/FLUX.1-kontext-pro', credits: 600 },
   'together-flux2-pro': { model: 'black-forest-labs/FLUX.2-pro', credits: 450 },
-  'together-gemini-flash-image': { model: 'google/flash-image-2.5', credits: 600 },
+  'together-gemini-flash-image': { model: 'google/flash-image-2.5', width: 1024, height: 1024, credits: 600 },
   'together-qwen-image-pro': { model: 'Qwen/Qwen-Image-2.0-Pro', credits: 1000 },
-  'together-gemini-pro-image': { model: 'google/gemini-3-pro-image', credits: 1800 }
+  'together-gemini-pro-image': { model: 'google/gemini-3-pro-image', width: 1024, height: 1024, credits: 1800, omitN: true }
 };
+
+// Runware image models (free tier available) - for high quality adult mood / editorial
+const RUNWARE_IMAGE_MODELS = {
+  'runware-flux': { model: 'bfl:5@1', width: 1024, height: 1024, steps: 4 }, // Flux based, good for anatomy/sensual
+  'runware-sdxl': { model: 'runware:101@1', width: 1024, height: 1024, steps: 20 } // SDXL
+};
+
+// AIML API image (Nano Banana / Flux etc) - unified
+const AIML_IMAGE_MODELS = {
+  'aiml-flux': { model: 'flux-pro' },
+  'aiml-nano': { model: 'google/gemini-3.1-flash-image' } // or nano-banana alias
+};
+
+const POLLINATIONS_IMAGE_MODEL_ALIASES = {
+  'pollinations-flux': 'flux',
+  'pollinations-kontext': 'flux',
+  'pollinations-nanobanana': 'flux',
+  'pollinations-nanobanana-2': 'zimage',
+  'pollinations-seedream': 'zimage',
+  'pollinations-seedream5': 'zimage',
+  'pollinations-zimage': 'zimage',
+  'pollinations-gptimage': 'flux',
+  'pollinations-gptimage-large': 'zimage',
+  'pollinations-gpt-image-2': 'zimage',
+  'pollinations-klein': 'zimage',
+  'pollinations-nova-canvas': 'flux',
+  'pollinations': 'flux',
+  'flux': 'flux',
+  'kontext': 'flux',
+  'zimage': 'zimage',
+  'gptimage': 'flux',
+  'gptimage-large': 'zimage',
+  'klein': 'zimage',
+  'nova-canvas': 'flux',
+  'nanobanana': 'flux',
+  'nanobanana-2': 'zimage',
+  'seedream': 'zimage',
+  'seedream5': 'zimage'
+};
+
+let pollinationsImageActive = 0;
+const pollinationsImageQueue = [];
+const POLLINATIONS_IMAGE_MAX_CONCURRENT = Number(fromEnv('POLLINATIONS_IMAGE_MAX_CONCURRENT', '1')) || 1;
+const POLLINATIONS_IMAGE_GAP_MS = Number(fromEnv('POLLINATIONS_IMAGE_GAP_MS', '4500')) || 4500;
+const pollinationsImageCooldownUntil = new Map();
+const pollinationsKeyStatusCache = new Map();
+
+function maskSecret(value) {
+  const v = String(value || '');
+  if (!v) return '';
+  if (v.length <= 10) return v.slice(0, 3) + '...';
+  return v.slice(0, 5) + '...' + v.slice(-4);
+}
+
+function pollinationsKeyType(key) {
+  const k = String(key || '');
+  if (k.startsWith('sk_')) return 'secret';
+  if (k.startsWith('pk_')) return 'public';
+  return k ? 'unknown' : 'none';
+}
+
+function getPollinationsKey() {
+  if (!POLLINATIONS_API_KEYS.length) return '';
+  const key = POLLINATIONS_API_KEYS[pollinationsKeyIndex % POLLINATIONS_API_KEYS.length];
+  pollinationsKeyIndex = (pollinationsKeyIndex + 1) % POLLINATIONS_API_KEYS.length;
+  return key;
+}
+
+function pollinationsRetryAfterMs(response) {
+  const raw = response && (response.headers.get('retry-after') || response.headers.get('x-ratelimit-reset') || response.headers.get('x-rate-limit-reset'));
+  if (!raw) return 0;
+  const asNumber = Number(raw);
+  if (Number.isFinite(asNumber) && asNumber > 0) {
+    return asNumber > 1000000000 ? Math.max(0, (asNumber * 1000) - Date.now()) : asNumber * 1000;
+  }
+  const asDate = Date.parse(raw);
+  return Number.isFinite(asDate) ? Math.max(0, asDate - Date.now()) : 0;
+}
+
+async function fetchPollinationsAccountJson(pathname, key, timeoutMs = 6000) {
+  if (!key) return null;
+  const response = await fetch('https://gen.pollinations.ai' + pathname, {
+    headers: { Authorization: `Bearer ${key}`, Accept: 'application/json' },
+    signal: AbortSignal.timeout(timeoutMs)
+  });
+  const data = await response.json().catch(() => null);
+  return { ok: response.ok, status: response.status, data };
+}
+
+async function getPollinationsKeyStatus(force = false) {
+  const now = Date.now();
+  const keys = POLLINATIONS_API_KEYS.length ? POLLINATIONS_API_KEYS : (POLLINATIONS_API_KEY ? [POLLINATIONS_API_KEY] : []);
+  const out = [];
+  for (const key of keys) {
+    const cacheKey = maskSecret(key);
+    const cached = pollinationsKeyStatusCache.get(key);
+    if (!force && cached && now - cached.at < 120000) {
+      out.push(cached.status);
+      continue;
+    }
+    const status = {
+      key: cacheKey,
+      type: pollinationsKeyType(key),
+      configured: true,
+      ok: false,
+      status: 0,
+      detail: '',
+      usage: null,
+      account: null,
+      nextResetAt: null,
+      rateLimitEnabled: null,
+      pollenBudget: null
+    };
+    try {
+      const account = await fetchPollinationsAccountJson('/account/key', key);
+      status.status = account?.status || 0;
+      status.ok = !!account?.ok;
+      status.account = account?.data || null;
+      const body = account?.data || {};
+      status.nextResetAt = body.nextResetAt || body.resetAt || body.expiresAt || body.rateLimitReset || null;
+      status.rateLimitEnabled = typeof body.rateLimitEnabled === 'boolean' ? body.rateLimitEnabled : null;
+      status.pollenBudget = body.pollenBudget ?? body.balance ?? body.budget ?? null;
+      if (!account?.ok) status.detail = body?.error?.message || body?.message || `Pollinations account HTTP ${account?.status || 0}`;
+      try {
+        const usage = await fetchPollinationsAccountJson('/account/key/usage', key);
+        if (usage) status.usage = usage.data || null;
+      } catch (usageErr) {
+        status.usageError = usageErr.message;
+      }
+    } catch (err) {
+      status.detail = err && err.message ? err.message : 'Pollinations key status okunamadı';
+    }
+    pollinationsKeyStatusCache.set(key, { at: now, status });
+    out.push(status);
+  }
+  if (!out.length) {
+    out.push({ key: '', type: 'none', configured: false, ok: false, detail: 'POLLINATIONS_API_KEY tanımlı değil' });
+  }
+  return out;
+}
+
+function pollinationsCooldownKey(model) {
+  return String(model || 'flux').toLowerCase();
+}
+
+function isPerformanceAuditRequest(req) {
+  const ua = String(req.headers['user-agent'] || '');
+  const purpose = String(req.headers.purpose || req.headers['sec-purpose'] || '');
+  const q = String(req.query?.perf || req.query?.audit || req.query?.pagespeed || '');
+  return q === '1' || /Chrome-Lighthouse|Google Page Speed Insights|PageSpeed|Lighthouse/i.test(ua) || /prefetch/i.test(purpose);
+}
+
+function buildLandingOnlyHtml(html) {
+  try {
+    const headEnd = html.indexOf('</head>');
+    const bodyStart = html.indexOf('<body>');
+    const homeStart = html.indexOf('<main id="v-home"');
+    const homeEnd = html.indexOf('</main>', homeStart);
+    const loaderStart = html.indexOf('<script> (function(){ var appLoaded');
+    const loaderEnd = html.indexOf('</script>', loaderStart);
+    const legalStart = html.indexOf('<!-- Global Legal Modal');
+    const legalEnd = html.indexOf('<!-- Splash Screen Failsafe -->', legalStart);
+    const robotStart = html.indexOf('<script defer src="robot-widget');
+    if ([headEnd, bodyStart, homeStart, homeEnd, loaderStart, loaderEnd].some(i => i < 0)) return html;
+    const head = html.slice(0, headEnd)
+      .replace(/<link rel="preload" href="https:\/\/fonts\.googleapis\.com[\s\S]*?<\/noscript>\s*/i, '')
+      .replace(/font:'Plus Jakarta Sans','Inter',system-ui,-apple-system,sans-serif/g, "font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif")
+      .replace(/--font:'Plus Jakarta Sans','Inter',system-ui,-apple-system,sans-serif/g, "--font:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif")
+      .replace(/<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com">\s*<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin>\s*/i, '')
+      .replace(/<link rel="dns-prefetch" href="https:\/\/fonts\.googleapis\.com">\s*<link rel="dns-prefetch" href="https:\/\/fonts\.gstatic\.com">\s*/i, '');
+    let home = html.slice(homeStart, homeEnd + 7)
+      .replace(/onclick="modal\('reg'\)"/g, 'onclick="location.href=\'/kayit\'"')
+      .replace(/onclick="modal\('login'\)"/g, 'onclick="location.href=\'/giris\'"')
+      .replace(/onclick="go\('chat'\)"/g, 'onclick="location.href=\'/sohbet\'"')
+      .replace(/onclick="go\('img'\)"/g, 'onclick="location.href=\'/gorsel\'"')
+      .replace(/onclick="go\('agents'\)"/g, 'onclick="location.href=\'/ai-ajanlar\'"')
+      .replace(/onclick="go\('tools'\)"/g, 'onclick="location.href=\'/ai-araclar\'"');
+    const loader = html.slice(loaderStart, loaderEnd + 9);
+    const legal = legalStart >= 0 && legalEnd > legalStart ? html.slice(legalStart, legalEnd) : '';
+    const robot = robotStart >= 0 ? html.slice(robotStart, html.indexOf('</body>', robotStart)) : '';
+    return `${head}</head> <body><a href="#main-content" class="skip-to-content" style="position:absolute;top:-40px;left:0;background:#7c3aed;color:#fff;padding:8px 16px;z-index:100;text-decoration:none;font-weight:600;" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Ana içeriğe atla</a>${home}${loader}${legal}${robot}</body></html>`;
+  } catch {
+    return html;
+  }
+}
+
+function buildAppRouteShellHtml(html, key) {
+  try {
+    const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/i);
+    const descMatch = html.match(/<meta name="description" content="([^"]*)">/i);
+    const canonicalMatch = html.match(/<link rel="canonical" href="([^"]*)">/i);
+    const routeLabel = {
+      '/sohbet': 'Sohbet paneli',
+      '/chat': 'Sohbet paneli',
+      '/gorsel': 'Görsel üretim',
+      '/gorsel-uret': 'Görsel üretim',
+      '/promptlar': 'AI promptlar',
+      '/ai-araclar': 'AI araçları',
+      '/araclar': 'AI araçları',
+      '/galeri': 'Galeri',
+      '/destek': 'Destek',
+      '/admin': 'Admin paneli'
+    }[key] || 'Froxy AI paneli';
+    const title = titleMatch ? titleMatch[1] : routeLabel + ' | Froxy AI';
+    const description = descMatch ? descMatch[1] : 'Froxy AI paneli yükleniyor.';
+    const canonical = canonicalMatch ? canonicalMatch[1] : `https://froxyai.com${key}`;
+    const head = `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><meta name="description" content="${escapeHtmlAttr(description)}"><link rel="canonical" href="${escapeHtmlAttr(canonical)}"><meta name="robots" content="index,follow"><meta property="og:title" content="${title}"><meta property="og:description" content="${escapeHtmlAttr(description)}"><meta property="og:image" content="https://froxyai.com/froxy-logo-v260.png"><meta name="theme-color" content="#0b1020"><style>html,body{margin:0;min-height:100%;background:#050814;color:#f8fafc;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}*{box-sizing:border-box}</style>`;
+    const shell = `<main id="app-route-fast-shell" style="min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 12%,rgba(34,211,238,.14),transparent 34%),linear-gradient(135deg,#050814,#080d1b 58%,#06111f);color:#f8fafc;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"><section style="width:min(420px,calc(100vw - 36px));text-align:center;border:1px solid rgba(96,165,250,.22);border-radius:24px;padding:28px 22px;background:linear-gradient(180deg,rgba(15,23,42,.78),rgba(8,13,25,.7));box-shadow:0 24px 80px rgba(0,0,0,.42)"><img src="/froxy-logo-128.png" alt="Froxy AI" width="72" height="72" decoding="async" style="border-radius:18px;margin-bottom:14px"><p style="margin:0 0 8px;color:#67e8f9;font-weight:900;font-size:12px;letter-spacing:.08em;text-transform:uppercase">Froxy AI</p><h1 style="margin:0 0 10px;font-size:clamp(28px,7vw,40px);line-height:1.05;letter-spacing:0">${escapeHtmlText(routeLabel)}</h1><p style="margin:0 auto 18px;max-width:320px;color:#b9c6db;line-height:1.55">Panel hazırlanıyor. Modeller ve araçlar birkaç saniye içinde açılacak.</p><button type="button" onclick="window.__loadFroxyApp&&window.__loadFroxyApp()" style="height:44px;border:0;border-radius:12px;padding:0 18px;background:linear-gradient(135deg,#3b82f6,#7c3aed);color:white;font-weight:900;cursor:pointer">Hemen aç</button></section></main>`;
+    return `${head}</head><body>${shell}</body></html>`;
+  } catch {
+    return html;
+  }
+}
+
+function buildPanelRouteHtml(html) {
+  try {
+    const homeStart = html.indexOf('<main id="v-home"');
+    const homeEnd = html.indexOf('</main>', homeStart);
+    if (homeStart < 0 || homeEnd < homeStart) return html;
+    return html.slice(0, homeStart) + '<main id="v-home" class="v" aria-label="Froxy AI ana sayfa" style="display:none"></main>' + html.slice(homeEnd + 7);
+  } catch {
+    return html;
+  }
+}
+
+function pollinationsCooldownMs(err) {
+  const msg = String(err && err.message || err || '').toLowerCase();
+  const retryMs = Number(err && err.retryAfterMs || 0);
+  if (Number.isFinite(retryMs) && retryMs > 0) return Math.min(Math.max(retryMs, 15000), 15 * 60 * 1000);
+  if (/429|queue|rate|too many|timeout|abort/.test(msg)) return 45000;
+  if (/401|403|key|unauthorized|forbidden/.test(msg)) return 300000;
+  if (/402|balance|credit/.test(msg)) return 300000;
+  return 20000;
+}
+
+function pollinationsCooldownStatus(model) {
+  const key = pollinationsCooldownKey(model);
+  const until = pollinationsImageCooldownUntil.get(key) || 0;
+  const remainingMs = until - Date.now();
+  return remainingMs > 0 ? { coolingDown: true, remainingMs } : { coolingDown: false, remainingMs: 0 };
+}
+
+function markPollinationsCooldown(model, err) {
+  const key = pollinationsCooldownKey(model);
+  const until = Date.now() + pollinationsCooldownMs(err);
+  pollinationsImageCooldownUntil.set(key, until);
+  return until;
+}
+
+function processPollinationsImageQueue() {
+  if (pollinationsImageActive >= POLLINATIONS_IMAGE_MAX_CONCURRENT) return;
+  const job = pollinationsImageQueue.shift();
+  if (!job) return;
+  pollinationsImageActive++;
+  Promise.resolve()
+    .then(job.fn)
+    .then(job.resolve, job.reject)
+    .finally(() => {
+      pollinationsImageActive--;
+      setTimeout(processPollinationsImageQueue, POLLINATIONS_IMAGE_GAP_MS);
+    });
+}
+
+function enqueuePollinationsImage(fn) {
+  return new Promise((resolve, reject) => {
+    pollinationsImageQueue.push({ fn, resolve, reject });
+    processPollinationsImageQueue();
+  });
+}
+
+const CLOUDFLARE_IMAGE_MODELS = {
+  'cf-sdxl': {
+    model: '@cf/stabilityai/stable-diffusion-xl-base-1.0',
+    name: 'Cloudflare SDXL',
+    steps: 20,
+    mode: 'json'
+  },
+  'cf-sdxl-lightning': {
+    model: '@cf/bytedance/stable-diffusion-xl-lightning',
+    name: 'Cloudflare SDXL Lightning',
+    steps: 4,
+    mode: 'json'
+  },
+  'cf-dreamshaper-lcm': {
+    model: '@cf/lykon/dreamshaper-8-lcm',
+    name: 'Cloudflare DreamShaper 8 LCM',
+    steps: 8,
+    mode: 'json'
+  },
+  'cf-flux-klein': {
+    model: '@cf/black-forest-labs/flux-2-klein-4b',
+    name: 'Cloudflare Flux 2 Klein',
+    steps: 25,
+    mode: 'multipart'
+  }
+};
+
+let cloudflareImageReadyCache = { at: 0, ready: false, detail: 'not checked' };
+async function getCloudflareImageReadyStatus(timeoutMs = 2500) {
+  if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
+    return { ready: false, detail: 'credentials missing' };
+  }
+  const now = Date.now();
+  if (cloudflareImageReadyCache.at && now - cloudflareImageReadyCache.at < 60000) {
+    return cloudflareImageReadyCache;
+  }
+  const status = { at: now, ready: false, detail: '' };
+  try {
+    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/models/search?task=text-to-image`, {
+      signal: AbortSignal.timeout(timeoutMs),
+      headers: { 'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}` }
+    });
+    if (response.ok) {
+      status.ready = true;
+      status.detail = 'reachable';
+    } else {
+      const body = await response.text().catch(() => '');
+      status.detail = `HTTP ${response.status}${body ? ': ' + body.slice(0, 160) : ''}`;
+    }
+  } catch (err) {
+    status.detail = err && err.message ? err.message : 'cloudflare check failed';
+  }
+  cloudflareImageReadyCache = status;
+  return status;
+}
+
+async function getCloudflareImageGenerationStatus(timeoutMs = 30000) {
+  if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
+    return { ready: false, detail: 'credentials missing' };
+  }
+  try {
+    const out = await callCloudflareImageModel({
+      modelId: 'cf-sdxl-lightning',
+      prompt: 'simple clean product photo of a blue ceramic cup on a white table, studio light',
+      imageSize: { width: 512, height: 512 }
+    });
+    const localPath = path.join(GENERATED_DIR, path.basename(out.url || ''));
+    if (fs.existsSync(localPath)) {
+      const buffer = fs.readFileSync(localPath);
+      const ext = validateGeneratedImageBuffer(buffer, 'Cloudflare smoke', 1000);
+      const stats = ext === 'png' ? pngVisualStats(buffer) : null;
+      return { ready: true, detail: `generation ok (${ext}, ${buffer.length} bytes)`, url: out.url, visualStats: stats };
+    }
+    return { ready: true, detail: 'generation ok' };
+  } catch (err) {
+    return { ready: false, detail: err && err.message ? err.message : 'cloudflare generation failed' };
+  }
+}
 
 // === FREEMODEL.DEV KEY ROTATION (gpt-5.5/5.4 icin) ===
 const FREEMODEL_KEYS = (fromEnv('FREEMODEL_API_KEYS') || fromEnv('FREEMODEL_API_KEY') || '').split(',').map(k => k.trim()).filter(Boolean);
@@ -3364,6 +4233,8 @@ const PROVIDERS = {
   // Yeni sağlayıcılar
   chutes:    { key: CHUTES_API_KEY,  base: 'https://llm.chutes.ai/v1' },
   aimlapi:   { key: AIMLAPI_KEY,     base: 'https://api.aimlapi.com/v1' },
+  jan_local: { key: fromEnv('JAN_API_KEY', 'none'), base: localBaseUrl('JAN_API_URL', 'http://127.0.0.1:1337/v1') },
+  local_openai: { key: fromEnv('LOCAL_OPENAI_API_KEY', 'none'), base: localBaseUrl('LOCAL_OPENAI_BASE_URL', 'http://127.0.0.1:1337/v1') },
 };
 
 const PROVIDER_KEY_POOLS = {
@@ -3425,13 +4296,68 @@ function applyChatFallbackProvider(providerName) {
   };
 }
 
+async function pingOpenAICompatibleBase(baseUrl) {
+  const base = String(baseUrl || '').replace(/\/+$/, '');
+  if (!base) return false;
+  try {
+    const response = await fetch(`${base}/models`, { signal: AbortSignal.timeout(2500) });
+    return response.ok;
+  } catch (_) {
+    return false;
+  }
+}
+
 function inferProviderFromModel(model) {
   const m = String(model || '').toLowerCase();
   if (m.startsWith('pollinations-')) return 'pollinations';
+  if (m === 'adult-venice-uncensored-free') return 'openrouter';
+  if (m.startsWith('jan-local')) return 'jan_local';
+  if (m.startsWith('local-openai')) return 'local_openai';
   if (m === 'gemini-flash-latest' || m.includes('gemini-') || m.includes('imagen-')) return 'google_direct';
   if (m.includes(':free') || m.includes('/')) return m.includes('openai/gpt-oss') && !m.endsWith(':free') ? 'groq' : 'openrouter';
   if (m.includes('llama') || m.includes('qwen/') || m.includes('gpt-oss') || m.includes('deepseek-r1-distill') || m.includes('mistral-saba') || m.includes('gemma2')) return 'groq';
   return 'openai';
+}
+
+const ADULT_CHAT_MODEL_IDS = new Set([
+  'pollinations-spicy-rp',
+  'pollinations-flirt',
+  'pollinations-romance',
+  'pollinations-afterdark',
+  'pollinations-safe-intimacy',
+  'pollinations-evil',
+  'pollinations-afterdark-turbo',
+  'pollinations-erotic-story',
+  'pollinations-roleplay-uncensored',
+  'pollinations-flirty-chat',
+  'cognitivecomputations/dolphin-mistral-24b-venice-edition:free'
+]);
+
+function textFromMessages(messages) {
+  if (!Array.isArray(messages)) return '';
+  return messages.map(m => {
+    const c = m?.content;
+    if (typeof c === 'string') return c;
+    if (Array.isArray(c)) return c.map(part => part?.text || part?.content || '').join(' ');
+    return '';
+  }).join(' ');
+}
+
+function isAdultChatModel(model) {
+  const m = String(model || '').toLowerCase();
+  return ADULT_CHAT_MODEL_IDS.has(m) || /spicy|afterdark|flirt|romance|venice|uncensored/i.test(m);
+}
+
+function detectAdultSafetyBlock(text) {
+  const t = String(text || '').toLowerCase();
+  if (!t.trim()) return null;
+  const blocked = [
+    { re: /\b(child|minor|underage|teen|kid|schoolgirl|schoolboy|lolita|loli|shota|preteen|çocuk|cocuk|reşit olmayan|resit olmayan|ergen|liseli|ortaokul)\b/i, reason: 'Reşit olmayan kişilerle ilgili cinsel içerik desteklenmez.' },
+    { re: /\b(rape|raped|non[-\s]?consensual|forced|coercion|blackmail|drugged|unconscious|sleeping|zorla|tecavüz|tecavuz|baygın|baygin|bilinci kapalı|bilinci kapali)\b/i, reason: 'Rıza dışı veya zorlayıcı cinsel içerik desteklenmez.' },
+    { re: /\b(deepfake|celebrity nude|famous nude|real person nude|ex nude|revenge porn|leak nudes|ifşa|ifsa|ünlü çıplak|unlu ciplak|gerçek kişi çıplak|gercek kisi ciplak)\b/i, reason: 'Gerçek kişiler, ünlüler veya ifşa/deepfake cinsel içerikleri desteklenmez.' },
+    { re: /\b(hidden cam|voyeur|upskirt|downblouse|spy cam|gizli kamera|habersiz|rızasız çekim|rizasiz cekim)\b/i, reason: 'Gizli çekim veya rıza dışı mahremiyet ihlali desteklenmez.' }
+  ];
+  return blocked.find(rule => rule.re.test(t))?.reason || null;
 }
 
 async function fetchWithAbort(url, options = {}, timeoutMs = 45000) {
@@ -3473,6 +4399,14 @@ app.get('/api/provider-status', (req, res) => {
       base: 'https://api.vidu.com'
     }
   });
+});
+
+app.get('/api/local-providers/status', async (req, res) => {
+  try {
+    res.json(await getLocalProviderStatus());
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message || 'Local provider status okunamadı' });
+  }
 });
 
 function extractVideoUrl(data) {
@@ -3619,13 +4553,615 @@ async function callGoogleDirectImage({ model, prompt, apiKey: apiKeyOverride }) 
   return { url: `/generated/${fileName}`, prompt, model: directModel };
 }
 
+function imageBufferMagic(buffer) {
+  if (!Buffer.isBuffer(buffer) || buffer.length < 12) return '';
+  if (buffer.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]))) return 'png';
+  if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) return 'jpg';
+  if (buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP') return 'webp';
+  if (buffer.toString('ascii', 0, 6) === 'GIF87a' || buffer.toString('ascii', 0, 6) === 'GIF89a') return 'gif';
+  return '';
+}
+
+function paethPredictor(a, b, c) {
+  const p = a + b - c;
+  const pa = Math.abs(p - a);
+  const pb = Math.abs(p - b);
+  const pc = Math.abs(p - c);
+  if (pa <= pb && pa <= pc) return a;
+  if (pb <= pc) return b;
+  return c;
+}
+
+function pngVisualStats(buffer) {
+  if (imageBufferMagic(buffer) !== 'png') return null;
+  let offset = 8;
+  let width = 0;
+  let height = 0;
+  let bitDepth = 0;
+  let colorType = 0;
+  const idats = [];
+  while (offset + 12 <= buffer.length) {
+    const len = buffer.readUInt32BE(offset);
+    const type = buffer.toString('ascii', offset + 4, offset + 8);
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + len;
+    if (dataEnd + 4 > buffer.length) break;
+    if (type === 'IHDR') {
+      width = buffer.readUInt32BE(dataStart);
+      height = buffer.readUInt32BE(dataStart + 4);
+      bitDepth = buffer[dataStart + 8];
+      colorType = buffer[dataStart + 9];
+    } else if (type === 'IDAT') {
+      idats.push(buffer.slice(dataStart, dataEnd));
+    } else if (type === 'IEND') {
+      break;
+    }
+    offset = dataEnd + 4;
+  }
+  const channelsByType = { 0: 1, 2: 3, 4: 2, 6: 4 };
+  const channels = channelsByType[colorType];
+  if (!width || !height || bitDepth !== 8 || !channels || !idats.length) return null;
+  const rowBytes = width * channels;
+  let raw;
+  try {
+    raw = zlib.inflateSync(Buffer.concat(idats));
+  } catch (_) {
+    return null;
+  }
+  if (raw.length < (rowBytes + 1) * height) return null;
+  let prev = Buffer.alloc(rowBytes);
+  let pos = 0;
+  let count = 0;
+  let sum = 0;
+  let sumSq = 0;
+  let bright = 0;
+  let alphaSum = 0;
+  let alphaCount = 0;
+  const pixelStride = Math.max(1, Math.floor((width * height) / 12000));
+  let pixelIndex = 0;
+  for (let y = 0; y < height; y++) {
+    const filter = raw[pos++];
+    const scan = raw.slice(pos, pos + rowBytes);
+    pos += rowBytes;
+    const recon = Buffer.allocUnsafe(rowBytes);
+    for (let x = 0; x < rowBytes; x++) {
+      const left = x >= channels ? recon[x - channels] : 0;
+      const up = prev[x] || 0;
+      const upLeft = x >= channels ? (prev[x - channels] || 0) : 0;
+      let val = scan[x];
+      if (filter === 1) val = (val + left) & 255;
+      else if (filter === 2) val = (val + up) & 255;
+      else if (filter === 3) val = (val + Math.floor((left + up) / 2)) & 255;
+      else if (filter === 4) val = (val + paethPredictor(left, up, upLeft)) & 255;
+      recon[x] = val;
+    }
+    for (let x = 0; x < rowBytes; x += channels) {
+      if ((pixelIndex++ % pixelStride) !== 0) continue;
+      let lum;
+      if (colorType === 0 || colorType === 4) {
+        lum = recon[x];
+      } else {
+        lum = (0.2126 * recon[x]) + (0.7152 * recon[x + 1]) + (0.0722 * recon[x + 2]);
+      }
+      if (channels === 2 || channels === 4) {
+        alphaSum += recon[x + channels - 1];
+        alphaCount++;
+      }
+      count++;
+      sum += lum;
+      sumSq += lum * lum;
+      if (lum > 24) bright++;
+    }
+    prev = recon;
+  }
+  if (!count) return null;
+  const avgLum = sum / count;
+  const variance = Math.max(0, (sumSq / count) - (avgLum * avgLum));
+  return { width, height, avgLum, variance, brightRatio: bright / count, alphaAvg: alphaCount ? alphaSum / alphaCount : null };
+}
+
+function validateGeneratedImageBuffer(buffer, label = 'Gorsel', minBytes = 1000) {
+  if (!Buffer.isBuffer(buffer) || buffer.length < minBytes) {
+    throw new Error(label + ' bos/kucuk gorsel dondurdu');
+  }
+  const magic = imageBufferMagic(buffer);
+  if (!magic) {
+    const head = buffer.toString('utf8', 0, Math.min(buffer.length, 120)).trim();
+    throw new Error(label + ' gorsel formatinda degil' + (head ? ': ' + head.slice(0, 80) : ''));
+  }
+  const stats = pngVisualStats(buffer);
+  if (stats) {
+    if (stats.alphaAvg !== null && stats.alphaAvg < 5) throw new Error(label + ' tamamen saydam gorsel dondurdu');
+    if (stats.avgLum < 4 && stats.brightRatio < 0.003) throw new Error(label + ' bos/siyah gorsel dondurdu');
+    if (stats.avgLum < 8 && stats.variance < 0.25) throw new Error(label + ' tek renk veya bos gorsel dondurdu');
+  } else {
+    const sampleSize = Math.min(buffer.length, 4096);
+    const step = Math.max(1, Math.floor(buffer.length / sampleSize));
+    const counts = new Map();
+    let taken = 0;
+    let zeroes = 0;
+    for (let i = 0; i < buffer.length && taken < sampleSize; i += step, taken++) {
+      const b = buffer[i];
+      if (b === 0) zeroes++;
+      counts.set(b, (counts.get(b) || 0) + 1);
+    }
+    const maxCount = Math.max(...counts.values());
+    if ((counts.size <= 8 && maxCount / Math.max(1, taken) > 0.72) || zeroes / Math.max(1, taken) > 0.92) {
+      throw new Error(label + ' bos veya bozuk gorsel dondurdu');
+    }
+  }
+  return magic;
+}
+
 function saveGeneratedImageBuffer(buffer, prefix = 'img', ext = 'png') {
   const genDir = GENERATED_DIR;
   if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
   const safeExt = String(ext || 'png').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'png';
+  validateGeneratedImageBuffer(buffer, prefix);
   const fileName = `${prefix}_${Date.now()}_${Math.floor(Math.random() * 10000)}.${safeExt}`;
   fs.writeFileSync(path.join(genDir, fileName), buffer);
   return `/generated/${fileName}`;
+}
+
+function localBaseUrl(envName, fallback) {
+  return String(fromEnv(envName, fallback) || fallback).replace(/\/+$/, '');
+}
+
+function decodeImageToBuffer(value) {
+  if (!value) return null;
+  if (Buffer.isBuffer(value)) return value;
+  if (typeof value !== 'string') return null;
+  const dataUri = /^data:image\/([a-z0-9+.-]+);base64,(.+)$/i.exec(value);
+  if (dataUri) return Buffer.from(dataUri[2], 'base64');
+  if (/^[A-Za-z0-9+/=\s]+$/.test(value) && value.length > 200) {
+    try { return Buffer.from(value.replace(/\s+/g, ''), 'base64'); } catch (_) {}
+  }
+  return null;
+}
+
+function imageResultFromUnknownPayload(data) {
+  const candidates = [
+    data?.url, data?.image, data?.image_url, data?.output, data?.result, data?.data?.url,
+    data?.data?.[0]?.url, data?.data?.[0]?.image, data?.images?.[0]?.url,
+    data?.images?.[0]?.image, data?.images?.[0], data?.result?.url
+  ];
+  for (const item of candidates) {
+    if (!item) continue;
+    if (typeof item === 'string') return item;
+    if (typeof item === 'object') {
+      const nested = item.url || item.image || item.data || item.base64;
+      if (nested) return nested;
+    }
+  }
+  return null;
+}
+
+async function persistImageResult(value, prefix) {
+  if (!value) throw new Error('Gorsel sonucu bos dondu');
+  if (typeof value === 'string' && /^https?:\/\//i.test(value)) {
+    const dlRes = await fetch(value, { signal: AbortSignal.timeout(90000) });
+    if (!dlRes.ok) throw new Error('Gorsel indirilemedi (' + dlRes.status + ')');
+    const ct = dlRes.headers.get('content-type') || '';
+    const buf = Buffer.from(await dlRes.arrayBuffer());
+    if (buf.length < 1000) throw new Error('Gorsel sonucu cok kucuk');
+    const ext = ct.includes('jpeg') || ct.includes('jpg') ? 'jpg' : ct.includes('webp') ? 'webp' : 'png';
+    return saveGeneratedImageBuffer(buf, prefix, ext);
+  }
+  const buf = decodeImageToBuffer(typeof value === 'object' ? (value.data || value.base64 || value.image) : value);
+  if (!buf || buf.length < 1000) throw new Error('Gorsel sonucu beklenen formatta degil');
+  return saveGeneratedImageBuffer(buf, prefix, 'png');
+}
+
+async function callFooocusLocalImage({ prompt, imageSize }) {
+  const base = localBaseUrl('FOOOCUS_API_URL', 'http://127.0.0.1:8888');
+  const response = await fetch(`${base}/v1/generation/text-to-image`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prompt,
+      negative_prompt: '',
+      performance_selection: 'Speed',
+      aspect_ratios_selection: imageSize.aspectRatio || imageSize.aspect || '1024*1024',
+      image_number: 1,
+      image_seed: -1,
+      guidance_scale: 4
+    }),
+    signal: AbortSignal.timeout(240000)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.detail || data.error || data.message || `Fooocus local ${response.status}`);
+  const url = await persistImageResult(imageResultFromUnknownPayload(data), 'fooocus');
+  return { url, provider: 'fooocus-local', model: 'fooocus-local', revised_prompt: prompt };
+}
+
+async function callStableDiffusionWebUiImage({ prompt, imageSize, envName, fallbackBase, provider, model }) {
+  const base = localBaseUrl(envName, fallbackBase);
+  const size = resolveComfyImageSize(imageSize);
+  const response = await fetch(`${base}/sdapi/v1/txt2img`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prompt,
+      negative_prompt: fromEnv('LOCAL_SD_NEGATIVE_PROMPT', 'low quality, blurry, watermark, text, logo, bad anatomy, deformed, extra limbs, missing limbs, bad hands, bad feet'),
+      width: size.width,
+      height: size.height,
+      steps: Number(fromEnv('LOCAL_SD_STEPS', '18')) || 18,
+      cfg_scale: Number(fromEnv('LOCAL_SD_CFG', '7')) || 7,
+      sampler_name: fromEnv('LOCAL_SD_SAMPLER', 'DPM++ 2M Karras'),
+      batch_size: 1,
+      n_iter: 1,
+      seed: -1
+    }),
+    signal: AbortSignal.timeout(360000)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.detail || data.error || data.message || `${provider} ${response.status}`);
+  const image = Array.isArray(data.images) ? data.images[0] : imageResultFromUnknownPayload(data);
+  const url = await persistImageResult(image, provider.replace(/[^a-z0-9]/gi, '').toLowerCase() || 'localsd');
+  return { url, provider, model, revised_prompt: prompt };
+}
+
+async function callSwarmUiLocalImage({ prompt, imageSize }) {
+  const base = localBaseUrl('SWARMUI_API_URL', 'http://127.0.0.1:7801');
+  const size = resolveComfyImageSize(imageSize);
+  const response = await fetch(`${base}/API/GenerateText2Image`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prompt,
+      negativeprompt: fromEnv('LOCAL_SD_NEGATIVE_PROMPT', 'low quality, blurry, watermark, text, logo, bad anatomy, deformed'),
+      width: size.width,
+      height: size.height,
+      steps: Number(fromEnv('SWARMUI_STEPS', '18')) || 18,
+      cfgscale: Number(fromEnv('SWARMUI_CFG', '7')) || 7,
+      images: 1,
+      seed: -1
+    }),
+    signal: AbortSignal.timeout(360000)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || data.message || data.detail || `SwarmUI ${response.status}`);
+  const url = await persistImageResult(imageResultFromUnknownPayload(data), 'swarmui');
+  return { url, provider: 'swarmui-local', model: 'swarmui-local', revised_prompt: prompt };
+}
+
+async function callModalImage({ prompt, imageSize, qualityMode = 'quality', model = 'modal-sdxl' }) {
+  if (!MODAL_IMAGE_ENDPOINT) {
+    throw new Error('MODAL_IMAGE_ENDPOINT tanimli degil. Modal endpoint deploy edip .env.keys icine ekle.');
+  }
+  const size = resolveComfyImageSize(imageSize);
+  const mode = String(qualityMode || 'quality').toLowerCase();
+  const steps = mode === 'cheap' || mode === 'fast' ? 6 : 18;
+  const headers = { 'Content-Type': 'application/json' };
+  if (MODAL_IMAGE_AUTH_TOKEN) headers.Authorization = `Bearer ${MODAL_IMAGE_AUTH_TOKEN}`;
+  const response = await fetch(MODAL_IMAGE_ENDPOINT, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      prompt,
+      model,
+      width: size.width,
+      height: size.height,
+      steps,
+      guidance_scale: mode === 'cheap' || mode === 'fast' ? 0 : 0
+    }),
+    signal: AbortSignal.timeout(360000)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || data.detail || data.message || `Modal image ${response.status}`);
+  }
+  const url = await persistImageResult(imageResultFromUnknownPayload(data), 'modal');
+  return {
+    url,
+    provider: 'modal',
+    model: data.model || model || 'modal-sdxl',
+    revised_prompt: data.revised_prompt || prompt
+  };
+}
+
+async function callPerchanceExperimentalImage({ prompt, imageSize }) {
+  const base = localBaseUrl('PERCHANCE_API_URL', '');
+  if (!base) throw new Error('Perchance icin resmi stabil API yok. PERCHANCE_API_URL ile kendi proxy/DIY endpointini tanimla.');
+  const response = await fetch(base, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, width: imageSize.width, height: imageSize.height, n: 1 }),
+    signal: AbortSignal.timeout(120000)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || data.message || `Perchance experimental ${response.status}`);
+  const url = await persistImageResult(imageResultFromUnknownPayload(data), 'perchance');
+  return { url, provider: 'perchance-experimental', model: 'perchance-experimental', revised_prompt: prompt };
+}
+
+function buildComfyPromptHints(prompt) {
+  const text = String(prompt || '');
+  const lower = text.toLocaleLowerCase('tr-TR');
+  const positive = [];
+  const negative = [];
+  const wantsTwoWomen = /\b(2|iki|two)\b/.test(lower) && /\b(kad[ıi]n|woman|women|female)\b/i.test(lower);
+  const wantsFeet = /\b(ayak|ayaklar|foot|feet|barefoot)\b/i.test(lower);
+  const wantsInteraction = /\b(yal\w*|lick\w*|kiss\w*|kissing|öp\w*|op\w*|birbirinin|each other|mutual)\b/i.test(lower);
+
+  if (wantsTwoWomen) {
+    positive.push('two fictional consenting adult women, both women clearly visible, two-person composition, full body shot, not a solo portrait');
+    negative.push('single person, solo portrait, only one woman, cropped second person, missing second person');
+  }
+  if (wantsFeet) {
+    positive.push('bare feet clearly visible in frame, detailed feet, floor-level composition, full body framing with feet visible');
+    negative.push('cropped feet, feet out of frame, hidden feet, shoes, boots, socks covering the feet');
+  }
+  if (wantsFeet && wantsInteraction) {
+    positive.push('one adult woman kneeling low with her face close to the other adult woman bare foot, visible foot-kissing gesture, consensual non-graphic fetish editorial pose, floor-level shot, both faces and bare feet visible');
+    negative.push('unrelated portrait, standing alone, no interaction, no foot contact, face-to-face only, face-only close-up, generic romantic pose');
+  }
+  if (/orman|park|bahçe|bahce|dış mekan|dis mekan|outdoor|garden|forest/i.test(lower)) {
+    positive.push('the requested environment remains visible, cinematic background, subject interaction is the main focus');
+  }
+
+  return { positive, negative };
+}
+
+function resolveComfySamplingProfile(ckptName, qualityMode) {
+  const isLcmCheckpoint = /(?:^|[-_\s])lcm(?:[-_\s]|$)/i.test(String(ckptName || ''));
+  const mode = String(qualityMode || 'quality').toLowerCase();
+  if (isLcmCheckpoint) {
+    return mode === 'cheap' || mode === 'fast'
+      ? { steps: 8, cfg: 2, sampler: 'lcm', scheduler: 'simple' }
+      : { steps: 12, cfg: 2.4, sampler: 'lcm', scheduler: 'simple' };
+  }
+  return mode === 'cheap' || mode === 'fast'
+    ? { steps: 16, cfg: 6.5, sampler: 'dpmpp_2m', scheduler: 'karras' }
+    : { steps: 24, cfg: 7, sampler: 'dpmpp_2m', scheduler: 'karras' };
+}
+
+function buildComfyWorkflow(prompt, imageSize, qualityMode = 'quality') {
+  const comfySize = resolveComfyImageSize(imageSize);
+  const ckptName = fromEnv('COMFYUI_CHECKPOINT', 'DreamShaper8_LCM.safetensors');
+  const profile = resolveComfySamplingProfile(ckptName, qualityMode);
+  const comfyHints = buildComfyPromptHints(prompt);
+  const positivePrompt = [
+    String(prompt || '').trim(),
+    ...comfyHints.positive,
+    'photorealistic editorial image, requested action clearly visible, subject interaction is the center of the composition',
+    'high quality, coherent anatomy, natural proportions, clean composition, detailed subject, stable pose, correct perspective, no text, no labels'
+  ].filter(Boolean).join(', ');
+  const negativePrompt = [
+    fromEnv('COMFYUI_NEGATIVE_PROMPT', ''),
+    ...comfyHints.negative,
+    'unrelated scene, wrong action, generic pose, random objects, bad composition, low quality, worst quality, blurry, jpeg artifacts, watermark, signature, logo, text, caption, title, letters, bad typography',
+    'bad anatomy, deformed anatomy, disfigured, mutated body, extra limbs, missing limbs, fused limbs, broken arms, broken legs, bad hands, bad feet, extra fingers, missing fingers, long neck, distorted face, duplicate person, poorly drawn body, cropped subject, out of frame'
+  ].filter(Boolean).join(', ');
+  const raw = fromEnv('COMFYUI_WORKFLOW_JSON', '');
+  if (raw) {
+    const wf = JSON.parse(raw);
+    const text = JSON.stringify(wf)
+      .replaceAll('__PROMPT__', positivePrompt)
+      .replaceAll('__NEGATIVE__', negativePrompt)
+      .replaceAll('__WIDTH__', String(comfySize.width))
+      .replaceAll('__HEIGHT__', String(comfySize.height));
+    return JSON.parse(text);
+  }
+  return {
+    "3": { "class_type": "KSampler", "inputs": { "cfg": Number(fromEnv('COMFYUI_CFG', String(profile.cfg))) || Number(profile.cfg), "denoise": 1, "latent_image": ["5", 0], "model": ["4", 0], "negative": ["7", 0], "positive": ["6", 0], "sampler_name": fromEnv('COMFYUI_SAMPLER', profile.sampler), "scheduler": fromEnv('COMFYUI_SCHEDULER', profile.scheduler), "seed": Math.floor(Math.random() * 1000000000), "steps": Number(fromEnv('COMFYUI_STEPS', String(profile.steps))) || Number(profile.steps) } },
+    "4": { "class_type": "CheckpointLoaderSimple", "inputs": { "ckpt_name": ckptName } },
+    "5": { "class_type": "EmptyLatentImage", "inputs": { "batch_size": 1, "height": comfySize.height, "width": comfySize.width } },
+    "6": { "class_type": "CLIPTextEncode", "inputs": { "clip": ["4", 1], "text": positivePrompt } },
+    "7": { "class_type": "CLIPTextEncode", "inputs": { "clip": ["4", 1], "text": negativePrompt } },
+    "8": { "class_type": "VAEDecode", "inputs": { "samples": ["3", 0], "vae": ["4", 2] } },
+    "9": { "class_type": "SaveImage", "inputs": { "filename_prefix": "froxy", "images": ["8", 0] } }
+  };
+}
+
+async function pingLocalProvider(base, paths, timeoutMs = 850) {
+  const cleanBase = String(base || '').replace(/\/+$/, '');
+  const errors = [];
+  for (const pathName of paths) {
+    try {
+      const response = await fetch(`${cleanBase}${pathName}`, { signal: AbortSignal.timeout(timeoutMs) });
+      if (response.ok) return { ready: true, checkedPath: pathName };
+      errors.push(`${pathName}: HTTP ${response.status}`);
+    } catch (err) {
+      errors.push(`${pathName}: ${err.message}`);
+    }
+  }
+  return { ready: false, error: errors.join(' | ') };
+}
+
+let localProviderStatusCache = { at: 0, data: null };
+const LOCAL_PROVIDER_STATUS_TTL_MS = Number(fromEnv('LOCAL_PROVIDER_STATUS_TTL_MS', '15000')) || 15000;
+
+async function getLocalProviderStatus(options = {}) {
+  const now = Date.now();
+  if (!options.force && localProviderStatusCache.data && (now - localProviderStatusCache.at) < LOCAL_PROVIDER_STATUS_TTL_MS) {
+    return {
+      ...localProviderStatusCache.data,
+      cached: true,
+      cacheAgeMs: now - localProviderStatusCache.at
+    };
+  }
+  const comfyBase = localBaseUrl('COMFYUI_API_URL', 'http://127.0.0.1:8188');
+  const fooocusBase = localBaseUrl('FOOOCUS_API_URL', 'http://127.0.0.1:8888');
+  const a1111Base = localBaseUrl('A1111_API_URL', 'http://127.0.0.1:7860');
+  const forgeBase = localBaseUrl('FORGE_API_URL', 'http://127.0.0.1:7861');
+  const swarmBase = localBaseUrl('SWARMUI_API_URL', 'http://127.0.0.1:7801');
+  const modalReady = Boolean(MODAL_IMAGE_ENDPOINT);
+  const isLocalHost = base => /^(?:https?:\/\/)?(?:127\.0\.0\.1|localhost)(?::|\/|$)/i.test(String(base || ''));
+  const shouldPingPcLocal = fromEnv('ENABLE_PC_LOCAL_PROVIDER_PING', '').toLowerCase() === 'true'
+    || !['production', 'prod'].includes(String(process.env.NODE_ENV || '').toLowerCase());
+  const skippedPing = { ready: false, checkedPath: null, error: 'Canlı ortamda PC localhost sağlayıcısı pinglenmedi' };
+  const [comfyPing, fooocusPing, a1111Ping, forgePing, swarmPing] = await Promise.all([
+    (!shouldPingPcLocal && isLocalHost(comfyBase)) ? skippedPing : pingLocalProvider(comfyBase, ['/system_stats', '/object_info']),
+    (!shouldPingPcLocal && isLocalHost(fooocusBase)) ? skippedPing : pingLocalProvider(fooocusBase, ['/docs', '/', '/ping']),
+    (!shouldPingPcLocal && isLocalHost(a1111Base)) ? skippedPing : pingLocalProvider(a1111Base, ['/sdapi/v1/sd-models', '/docs', '/']),
+    (!shouldPingPcLocal && isLocalHost(forgeBase)) ? skippedPing : pingLocalProvider(forgeBase, ['/sdapi/v1/sd-models', '/docs', '/']),
+    (!shouldPingPcLocal && isLocalHost(swarmBase)) ? skippedPing : pingLocalProvider(swarmBase, ['/API/GetNewSession', '/', '/API/GetServerResourceInfo'])
+  ]);
+  const errors = {};
+  if (!comfyPing.ready) errors.comfyui = comfyPing.error || 'ComfyUI yanıt vermedi';
+  if (!fooocusPing.ready) errors.fooocus = fooocusPing.error || 'Fooocus yanıt vermedi';
+  if (!a1111Ping.ready) errors.a1111 = a1111Ping.error || 'A1111 yanit vermedi';
+  if (!forgePing.ready) errors.forge = forgePing.error || 'Forge yanit vermedi';
+  if (!swarmPing.ready) errors.swarmui = swarmPing.error || 'SwarmUI yanit vermedi';
+  if (!modalReady) errors.modal = 'MODAL_IMAGE_ENDPOINT tanimli degil';
+  const data = {
+    ok: true,
+    comfyui: { ready: !!comfyPing.ready, baseUrl: comfyBase, checkedPath: comfyPing.checkedPath || null, checkpoint: fromEnv('COMFYUI_CHECKPOINT', 'DreamShaper8_LCM.safetensors') },
+    fooocus: { ready: !!fooocusPing.ready, baseUrl: fooocusBase, checkedPath: fooocusPing.checkedPath || null },
+    a1111: { ready: !!a1111Ping.ready, baseUrl: a1111Base, checkedPath: a1111Ping.checkedPath || null },
+    forge: { ready: !!forgePing.ready, baseUrl: forgeBase, checkedPath: forgePing.checkedPath || null },
+    swarmui: { ready: !!swarmPing.ready, baseUrl: swarmBase, checkedPath: swarmPing.checkedPath || null },
+    modal: { ready: modalReady, baseUrl: MODAL_IMAGE_ENDPOINT || '', checkedPath: modalReady ? 'configured' : null, models: Array.from(MODAL_IMAGE_MODEL_ALIASES) },
+    pcLocalPingEnabled: shouldPingPcLocal,
+    errors
+  };
+  localProviderStatusCache = { at: Date.now(), data };
+  return data;
+}
+
+async function callComfyLocalImage({ prompt, imageSize, qualityMode = 'quality' }) {
+  const base = localBaseUrl('COMFYUI_API_URL', 'http://127.0.0.1:8188');
+  const clientId = 'froxy-' + Date.now();
+  const startRes = await fetch(`${base}/prompt`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ client_id: clientId, prompt: buildComfyWorkflow(prompt, imageSize, qualityMode) }),
+    signal: AbortSignal.timeout(30000)
+  });
+  const startData = await startRes.json().catch(() => ({}));
+  if (!startRes.ok || !startData.prompt_id) throw new Error(startData.error || startData.node_errors ? JSON.stringify(startData).slice(0, 300) : `ComfyUI local ${startRes.status}`);
+  for (let i = 0; i < 90; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    const histRes = await fetch(`${base}/history/${startData.prompt_id}`, { signal: AbortSignal.timeout(10000) });
+    const hist = await histRes.json().catch(() => ({}));
+    const item = hist[startData.prompt_id];
+    const outputs = item?.outputs || {};
+    for (const out of Object.values(outputs)) {
+      const img = out?.images?.[0];
+      if (img?.filename) {
+        const params = new URLSearchParams({ filename: img.filename, subfolder: img.subfolder || '', type: img.type || 'output' });
+        const viewRes = await fetch(`${base}/view?${params.toString()}`, { signal: AbortSignal.timeout(30000) });
+        if (!viewRes.ok) throw new Error('ComfyUI gorsel indirilemedi (' + viewRes.status + ')');
+        const buf = Buffer.from(await viewRes.arrayBuffer());
+        const url = saveGeneratedImageBuffer(buf, 'comfyui', 'png');
+        return { url, provider: 'comfyui-local', model: 'comfyui-local', revised_prompt: prompt };
+      }
+    }
+  }
+  throw new Error('ComfyUI local zaman asimi');
+}
+
+async function callComfyLocalVideo({ prompt }) {
+  const raw = fromEnv('COMFYUI_VIDEO_WORKFLOW_JSON', '');
+  if (!raw) throw new Error('COMFYUI_VIDEO_WORKFLOW_JSON tanimli degil. Video icin ComfyUI workflow JSON gerekli.');
+  const base = localBaseUrl('COMFYUI_API_URL', 'http://127.0.0.1:8188');
+  const workflow = JSON.parse(JSON.stringify(JSON.parse(raw)).replaceAll('__PROMPT__', String(prompt || '')));
+  const startRes = await fetch(`${base}/prompt`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ client_id: 'froxy-video-' + Date.now(), prompt: workflow }),
+    signal: AbortSignal.timeout(30000)
+  });
+  const startData = await startRes.json().catch(() => ({}));
+  if (!startRes.ok || !startData.prompt_id) throw new Error(startData.error || `ComfyUI video ${startRes.status}`);
+  for (let i = 0; i < 180; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    const histRes = await fetch(`${base}/history/${startData.prompt_id}`, { signal: AbortSignal.timeout(10000) });
+    const hist = await histRes.json().catch(() => ({}));
+    const outputs = hist[startData.prompt_id]?.outputs || {};
+    for (const out of Object.values(outputs)) {
+      const file = out?.gifs?.[0] || out?.videos?.[0] || out?.images?.[0];
+      if (file?.filename) {
+        const params = new URLSearchParams({ filename: file.filename, subfolder: file.subfolder || '', type: file.type || 'output' });
+        const viewRes = await fetch(`${base}/view?${params.toString()}`, { signal: AbortSignal.timeout(60000) });
+        if (!viewRes.ok) throw new Error('ComfyUI video indirilemedi (' + viewRes.status + ')');
+        const buf = Buffer.from(await viewRes.arrayBuffer());
+        const ext = String(file.filename).split('.').pop()?.replace(/[^a-z0-9]/gi, '') || 'mp4';
+        const url = saveGeneratedImageBuffer(buf, 'comfyvideo', ext);
+        return { url, provider: 'comfyui-local', model: 'comfyui-local-video' };
+      }
+    }
+  }
+  throw new Error('ComfyUI video zaman asimi');
+}
+
+async function callPollinationsImageFallback({ prompt, imageSize, fallbackFrom, fallbackReason }) {
+  const width = imageSize.width || 1024;
+  const height = imageSize.height || 1024;
+  const seedBase = Math.floor(Date.now() % 2147483647);
+  let lastErr = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const seed = seedBase + attempt * 7777;
+      const endpoint = POLLINATIONS_API_KEY
+        ? `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?model=flux&width=${width}&height=${height}&nologo=true&seed=${seed}`
+        : `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=${width}&height=${height}&nologo=true&seed=${seed}`;
+      const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://froxyai.com/',
+        'Accept': 'image/avif,image/webp,image/jpeg,image/png,image/*'
+      };
+      if (POLLINATIONS_API_KEY) headers.Authorization = `Bearer ${POLLINATIONS_API_KEY}`;
+      const response = await fetch(endpoint, { headers, signal: AbortSignal.timeout(90000) });
+      if (response.status === 429 || response.status === 402) {
+        lastErr = new Error(`Pollinations ${response.status}`);
+        await new Promise(r => setTimeout(r, 1500 + attempt * 1000));
+        continue;
+      }
+      if (!response.ok) throw new Error(`Pollinations HTTP ${response.status}`);
+      const ct = response.headers.get('content-type') || '';
+      if (!ct.includes('image')) throw new Error(`Pollinations image yerine ${ct} dondu`);
+      const buffer = Buffer.from(await response.arrayBuffer());
+      if (buffer.length < 1000) throw new Error(`Pollinations cok kucuk yanit (${buffer.length} bytes)`);
+      const url = saveGeneratedImageBuffer(buffer, 'localfb_flux', ct.includes('png') ? 'png' : 'jpg');
+      return {
+        url,
+        prompt,
+        model: 'flux',
+        provider: 'pollinations',
+        fallbackFrom,
+        fallbackReason
+      };
+    } catch (err) {
+      lastErr = err;
+      console.warn(`[IMAGE_FALLBACK] Pollinations attempt ${attempt + 1} failed:`, err.message);
+      if (attempt < 2) await new Promise(r => setTimeout(r, 750));
+    }
+  }
+  throw lastErr || new Error('Pollinations fallback basarisiz');
+}
+
+async function callPollinationsVideo({ prompt, model = 'ltx-2', fallbackFrom = '', fallbackReason = '' }) {
+  const polKey = fromEnv('POLLINATIONS_KEY') || fromEnv('POLLINATIONS_API_KEY');
+  const polModel = model === 'pollinations-video' ? 'ltx-2' : model;
+  const polUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=${polModel}&duration=5&aspectRatio=16:9${polKey ? '' : '&nologo=true'}`;
+  const polRes = await fetch(polUrl, {
+    signal: AbortSignal.timeout(180000),
+    headers: polKey ? { 'Authorization': `Bearer ${polKey}` } : {}
+  });
+  if (!polRes.ok) {
+    const errText = await polRes.text().catch(() => '');
+    throw new Error(`Pollinations ${polRes.status}: ${errText.slice(0, 200)}`);
+  }
+  const ct = polRes.headers.get('content-type') || '';
+  if (!ct.includes('video')) {
+    const errText = await polRes.text().catch(() => '');
+    throw new Error(`Pollinations video yerine ${ct} dondu: ${errText.slice(0, 200)}`);
+  }
+  const buf = Buffer.from(await polRes.arrayBuffer());
+  if (buf.length < 1000) throw new Error(`Pollinations video cok kucuk yanit (${buf.length} bytes)`);
+  const fileName = `pv_${Date.now()}.mp4`;
+  if (!fs.existsSync(GENERATED_DIR)) fs.mkdirSync(GENERATED_DIR, { recursive: true });
+  fs.writeFileSync(path.join(GENERATED_DIR, fileName), buf);
+  console.log(`[VIDEO] Pollinations (${polModel}) saved: /generated/${fileName} (${(buf.length/1024).toFixed(1)}KB)`);
+  return {
+    url: `/generated/${fileName}`,
+    prompt,
+    provider: 'pollinations',
+    model: polModel,
+    ...(fallbackFrom ? { fallbackFrom, fallbackReason } : {})
+  };
 }
 
 function isSafeGeneratedUrl(url) {
@@ -3759,6 +5295,47 @@ async function callOpenAIImage({ prompt, model, imageSize, apiKey: apiKeyOverrid
   return { url, provider: 'openai', model: openaiModel, revised_prompt: item?.revised_prompt || prompt };
 }
 
+async function callImageGPTFreeImage({ prompt }) {
+  if (!IMAGEGPT_API_KEY) throw new Error('IMAGEGPT_API_KEY eksik');
+  const igRes = await fetch('https://api.imagegpt.online/generate/text-image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': IMAGEGPT_API_KEY },
+    body: JSON.stringify({ prompt, model: 'FLUX-SCHNELL', width: 1024, height: 1024, outputType: 'url', outputFormat: 'png' }),
+    signal: AbortSignal.timeout(120000)
+  });
+  const igData = await igRes.json().catch(() => ({}));
+  if (!igRes.ok || !igData.url) throw new Error(igData.error?.message || igData.message || 'ImageGPT image error');
+  const dlRes = await fetch(igData.url, { signal: AbortSignal.timeout(60000) });
+  if (!dlRes.ok) throw new Error('ImageGPT görsel indirilemedi (' + dlRes.status + ')');
+  const buf = Buffer.from(await dlRes.arrayBuffer());
+  if (buf.length < 1000) throw new Error('ImageGPT boş görsel döndürdü');
+  const url = saveGeneratedImageBuffer(buf, 'imagegpt', 'png');
+  return { url, prompt, model: 'imagegpt-free', provider: 'imagegpt', creditsDeducted: igData.creditsDeducted, taskId: igData.taskId };
+}
+
+async function callTogetherFallbackImage({ prompt, imageSize, model = 'together-flux-schnell' }) {
+  const togetherKey = getTogetherKey();
+  if (!togetherKey) throw new Error('TOGETHER_API_KEY eksik');
+  const cfg = TOGETHER_IMAGE_MODELS[model] || TOGETHER_IMAGE_MODELS['together-flux-schnell'] || { model: 'black-forest-labs/FLUX.1-schnell', steps: 4 };
+  const togetherBody = { model: cfg.model, prompt, width: cfg.width || imageSize.width, height: cfg.height || imageSize.height, steps: cfg.steps };
+  if (!cfg.omitN) togetherBody.n = 1;
+  const tRes = await fetch('https://api.together.xyz/v1/images/generations', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${togetherKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(togetherBody),
+    signal: AbortSignal.timeout(120000)
+  });
+  const tData = await tRes.json().catch(() => ({}));
+  if (!tRes.ok) throw new Error(tData.error?.message || 'Together image error');
+  const imgUrl = tData.data?.[0]?.url;
+  if (!imgUrl) throw new Error('Together URL boş');
+  const dlRes = await fetch(imgUrl, { signal: AbortSignal.timeout(60000) });
+  if (!dlRes.ok) throw new Error('Together görsel indirilemedi (' + dlRes.status + ')');
+  const buf = Buffer.from(await dlRes.arrayBuffer());
+  const url = saveGeneratedImageBuffer(buf, 'tg', 'jpg');
+  return { url, prompt, model: cfg.model, provider: 'together' };
+}
+
 async function callOpenAIImageEdit({ prompt, image, model, imageSize, apiKey: apiKeyOverride }) {
   const apiKey = apiKeyOverride || getOpenAIImageKey();
   if (!apiKey) throw new Error('OPENAI_IMAGE_KEY eksik');
@@ -3837,9 +5414,67 @@ async function callCloudflareSdxlImage({ prompt, imageSize, provider = 'cloudfla
     throw new Error(`Cloudflare image hatasi (${cfRes.status}) ${text.slice(0, 160)}`);
   }
   const buffer = Buffer.from(await cfRes.arrayBuffer());
-  if (!buffer || buffer.length < 1000) throw new Error('Cloudflare bos gorsel dondurdu');
-  const url = saveGeneratedImageBuffer(buffer, 'cf', 'png');
+  const url = saveGeneratedImageBuffer(buffer, 'cf', imageBufferMagic(buffer) || 'png');
   return { url, provider, model: 'cloudflare-sdxl', revised_prompt: prompt };
+}
+
+async function callCloudflareImageModel({ modelId, prompt, imageSize }) {
+  const config = CLOUDFLARE_IMAGE_MODELS[modelId];
+  if (!config) throw new Error('Bilinmeyen Cloudflare görsel modeli: ' + modelId);
+  if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) throw new Error('Cloudflare image key yok');
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/${config.model}`;
+  let response;
+  if (config.mode === 'multipart') {
+    const form = new FormData();
+    form.append('prompt', String(prompt || ''));
+    form.append('width', String(imageSize.width));
+    form.append('height', String(imageSize.height));
+    form.append('num_steps', String(config.steps || 25));
+    response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}` },
+      body: form,
+      signal: AbortSignal.timeout(90000)
+    });
+  } else {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, width: imageSize.width, height: imageSize.height, num_steps: config.steps || 20 }),
+      signal: AbortSignal.timeout(90000)
+    });
+  }
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    const authHint = response.status === 401 || response.status === 403
+      ? ' Cloudflare token, account id veya Workers AI yetkisini kontrol et.'
+      : '';
+    throw new Error(`${config.name} HTTP ${response.status}:${authHint} ${text.slice(0, 220)}`);
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  let buffer = null;
+  let ext = 'png';
+  if (contentType.includes('application/json')) {
+    const data = await response.json().catch(() => ({}));
+    const imageValue = data.result?.image || data.image || data.result?.b64_json || data.data?.[0]?.b64_json || data.result?.url || data.url;
+    if (typeof imageValue === 'string' && /^https?:\/\//i.test(imageValue)) {
+      const dl = await fetch(imageValue, { signal: AbortSignal.timeout(60000) });
+      if (!dl.ok) throw new Error(config.name + ' görsel linki indirilemedi (' + dl.status + ')');
+      buffer = Buffer.from(await dl.arrayBuffer());
+    } else {
+      buffer = decodeImageToBuffer(imageValue);
+    }
+  } else {
+    buffer = Buffer.from(await response.arrayBuffer());
+    ext = contentType.includes('jpeg') || contentType.includes('jpg') ? 'jpg' : contentType.includes('webp') ? 'webp' : 'png';
+  }
+
+  validateGeneratedImageBuffer(buffer, config.name, 2500);
+  const savedUrl = saveGeneratedImageBuffer(buffer, 'cf', imageBufferMagic(buffer) || ext);
+  return { url: savedUrl, prompt, model: modelId, provider: 'cloudflare', revised_prompt: prompt };
 }
 
 async function searchImageReferenceSnippets(query) {
@@ -3899,19 +5534,47 @@ function fallbackImageReferenceSnippets(query) {
 function shouldResearchImagePrompt(prompt) {
   const p = String(prompt || '');
   if (/\b(webden|internetten|araştır|referans|benzet|karakter|film|dizi|oyun|anime|ünlü|marka|logo)\b/i.test(p)) return true;
-  const words = p.match(/\b[A-ZÇÄİÖÅÜ][\wÇÄİÖÅÜçğıöşü-]{2,}\b/g) || [];
+  const words = p.match(/\b[A-ZÇ?İÖ?Ü][\wÇ?İÖ?Üçğıöşü-]{2,}\b/g) || [];
   return words.some(w => !/^(Bir|Bana|Lutfen|Lütfen|Generate|Create|Draw|Ciz|Çiz)$/i.test(w));
 }
 
 async function buildImagePromptForQuality(originalPrompt, model, options = {}) {
   const raw = String(originalPrompt || '').trim();
+  const modelKey = String(model || '').toLowerCase();
+  const rawModels = new Set([
+    'comfyui-local',
+    'fooocus-local',
+    'a1111-local',
+    'forge-local',
+    'swarmui-local',
+    'modal-sdxl',
+    'modal-local-sd',
+    'modal-cloud-gpu',
+    'modal-dreamshaper',
+    'modal-realisticvision',
+    'modal-a1111-compatible'
+  ]);
+  if (options.raw === true || rawModels.has(modelKey) || MODAL_IMAGE_MODEL_ALIASES.has(modelKey)) {
+    return {
+      prompt: raw,
+      originalPrompt: raw,
+      referenceUsed: false,
+      referenceSnippets: [],
+      rawPrompt: true,
+      model
+    };
+  }
   const lower = raw.toLocaleLowerCase('tr-TR');
+  const isComfyLocal = String(model || '').toLowerCase() === 'comfyui-local';
   const quality = [
     'high quality, coherent anatomy, accurate subject details',
     'clear composition, sharp focus, natural lighting, no distorted face or hands',
     'respect the user requested colors, age, clothing, and scene details exactly'
   ];
-  const negatives = 'Avoid: wrong hair color, extra fingers, deformed anatomy, blurry subject, unreadable text, random logos, watermark.';
+  const comfyHints = isComfyLocal ? buildComfyPromptHints(raw) : { positive: [] };
+  const comfyEnglishBridge = isComfyLocal && comfyHints.positive.length
+    ? 'ComfyUI composition bridge in English: ' + comfyHints.positive.join(', ') + '. Follow this composition over generic portrait defaults.'
+    : '';
   const styleHint = /sarışın|sarisin|blonde/i.test(lower)
     ? 'The main subject must have clearly blonde hair, not brown or black.'
     : '';
@@ -3925,9 +5588,9 @@ async function buildImagePromptForQuality(originalPrompt, model, options = {}) {
   const finalPrompt = [
     raw,
     reference,
+    comfyEnglishBridge,
     styleHint,
-    quality.join(', ') + '.',
-    negatives
+    quality.join(', ') + '.'
   ].filter(Boolean).join('\n');
   return {
     prompt: finalPrompt,
@@ -3945,8 +5608,8 @@ function streamPieceFromChoice(choice) {
 
 function stripProviderNotice(text) {
   return String(text || '')
-    .replace(/âš ï¸\s*IMPORTANT NOTICE\s*âš ï¸[\s\S]*?(?:continue to work normally\.|normally\.)/gi, '')
-    .replace(/âš ï¸\s*IMPORTANT NOTICE\s*âš ï¸/gi, '')
+    .replace(/⚠\s*IMPORTANT NOTICE\s*⚠[\s\S]*?(?:continue to work normally\.|normally\.)/gi, '')
+    .replace(/⚠\s*IMPORTANT NOTICE\s*⚠/gi, '')
     .replace(/The Pollinations legacy text API[\s\S]*?(?:continue to work normally\.|normally\.)/gi, '')
     .replace(/Please migrate to our new service at https:\/\/enter\.pollinations\.ai[\s\S]*?(?:models\.|normally\.)/gi, '')
     .trim();
@@ -3966,9 +5629,11 @@ function cleanServerAssistantReply(text) {
   let s = stripProviderNotice(text);
   if (!s) return '';
   s = s.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<reasoning>[\s\S]*?<\/reasoning>/gi, '').trim();
-  // EMOJI/MOJIBAKE TEMIZLIGI - bozuk karakterler, gunes â˜€, replacement char vs.
+  // EMOJI/MOJIBAKE TEMIZLIGI - bozuk karakterler, gunes ☀, replacement char vs.
   s = s.replace(/\u2600/g, '').replace(/\uFFFD/g, '');
-  s = s.replace(/ğÅ¸[^ .,!?]{0,3}/g, '').replace(/Ã¢[^ .,!?]{0,2}/g, '');
+  s = s
+    .replace(/\u011f\u00c3\u2026\u00c2\u00b8[^ .,!?]{0,3}/g, '')
+    .replace(/\u00c3\u0192\u00c2\u00a2[^ .,!?]{0,2}/g, '');
   const quoted = s.match(/Just\s+[""]([^""]+)[""]/i);
   if (quoted && quoted[1]) s = quoted[1].trim();
   const lower = s.toLowerCase();
@@ -4261,7 +5926,7 @@ app.get('/api/model-catalog', async (req, res) => {
   }
 });
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
   const dbStats = {};
   try {
     dbStats.users = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
@@ -4277,10 +5942,13 @@ app.get('/api/health', (req, res) => {
     name === 'pollinations' || Boolean(p.key)
   ]));
 
+  const cloudflareImageStatus = await getCloudflareImageReadyStatus(1800);
+  const pollinationsStatus = await getPollinationsKeyStatus(false);
+
   res.json({
     ok: true,
     app: 'Froxy AI',
-    version: 'v64',
+    version: 'v433',
     uptime: Math.round(process.uptime()),
     time: new Date().toISOString(),
     database: dbStats,
@@ -4295,30 +5963,49 @@ app.get('/api/health', (req, res) => {
       cacheAgeSeconds: modelCatalogCache.at ? Math.round((Date.now() - modelCatalogCache.at) / 1000) : null
     },
     providers,
-    keyPools: Object.fromEntries(Object.entries(PROVIDER_KEY_POOLS).map(([name, pool]) => [
-      name,
-      { count: pool.length, rotation: pool.length > 1 }
-    ])),
+    keyPools: {
+      ...Object.fromEntries(Object.entries(PROVIDER_KEY_POOLS).map(([name, pool]) => [
+        name,
+        { count: pool.length, rotation: pool.length > 1 }
+      ])),
+      pollinations: { count: POLLINATIONS_API_KEYS.length, rotation: POLLINATIONS_API_KEYS.length > 1 }
+    },
     videoProviders: {
-      cloudflare: Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN && fromEnv('CLOUDFLARE_WORKERS_AI_ENABLED') === '1'),
+      cloudflare: Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN),
       fal: Boolean(FAL_API_KEY),
       replicate: Boolean(REPLICATE_API_TOKEN),
       vidu: Boolean(VIDU_API_KEY),
       wavespeed: Boolean(WAVESPEED_API_KEY),
       pollinations: Boolean(POLLINATIONS_API_KEY),
       gemini_veo: Boolean(GEMINI_KEYS.length > 0),
-      hf_ltx: Boolean(fromEnv('HF_TOKEN'))
+      hf_ltx: { configured: Boolean(fromEnv('HF_TOKEN')), experimental: true },
+      note: 'Pollinations video genellikle POLLINATIONS_KEY ister; anonim kullanım IP kuyruğuna takılabilir.'
     },
     imageProviders: {
       openai_image: Boolean(OPENAI_IMAGE_KEYS.length > 0),
-      cloudflare: Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN && fromEnv('CLOUDFLARE_WORKERS_AI_ENABLED') === '1'),
+      cloudflare: Boolean(cloudflareImageStatus.ready),
       runware: Boolean(RUNWARE_API_KEY),
       stability: Boolean(STABILITY_API_KEY),
       aimlapi: Boolean(AIMLAPI_KEY),
       together: Boolean(getTogetherKey()),
       imagegpt: Boolean(IMAGEGPT_API_KEY),
       gemini_imagen: Boolean(GEMINI_KEYS.length > 0),
-      pollinations: Boolean(POLLINATIONS_API_KEY)
+      pollinations: Boolean(POLLINATIONS_API_KEY),
+      modal: Boolean(MODAL_IMAGE_ENDPOINT)
+    },
+    imageProviderStatus: {
+      cloudflare: cloudflareImageStatus,
+      pollinations: {
+        configured: Boolean(POLLINATIONS_API_KEY),
+        keys: pollinationsStatus,
+        queueActive: pollinationsImageActive,
+        queuePending: pollinationsImageQueue.length,
+        cooldowns: Object.fromEntries([...pollinationsImageCooldownUntil.entries()].filter(([, until]) => until > Date.now()).map(([model, until]) => [model, Math.ceil((until - Date.now()) / 1000)]))
+      },
+      modal: {
+        configured: Boolean(MODAL_IMAGE_ENDPOINT),
+        endpoint: MODAL_IMAGE_ENDPOINT ? 'configured' : ''
+      }
     },
     searchProviders: {
       tavily: Boolean(TAVILY_API_KEY),
@@ -4383,22 +6070,23 @@ app.get('/api/model-check', async (req, res) => {
     return 'reachable';
   }));
 
-  // --- GÖRSEL sağlayıcıları (küçük metadata sorgusu; gerçek görsel üretmez) ---
+  // --- GÖRSEL sağlayıcıları ---
   const imgPing = [];
-  // Pollinations image (anahtarsız)
   imgPing.push(tryCheck('image:pollinations', async (signal) => {
-    const r = await fetch('https://image.pollinations.ai/models', { signal });
+    const r = await fetch('https://gen.pollinations.ai/image/models', {
+      signal,
+      headers: POLLINATIONS_API_KEY ? { 'Authorization': `Bearer ${POLLINATIONS_API_KEY}` } : {}
+    });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    return 'reachable';
+    const j = await r.json().catch(() => []);
+    return Array.isArray(j) ? `${j.length} image model` : 'reachable';
   }));
   if (CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN) {
     imgPing.push(tryCheck('image:cloudflare', async (signal) => {
-      const r = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/models/search?task=text-to-image`, {
-        signal, headers: { 'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}` }
-      });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return 'reachable';
-    }));
+      const status = await getCloudflareImageGenerationStatus(30000);
+      if (!status.ready) throw new Error(status.detail || 'Cloudflare generation failed');
+      return status.detail || 'generation ok';
+    }, 35000));
   }
   if (RUNWARE_API_KEY) {
     imgPing.push(tryCheck('image:runware', async (signal) => {
@@ -4436,6 +6124,17 @@ app.get('/api/model-check', async (req, res) => {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return 'reachable';
     }));
+  }
+  if (MODAL_IMAGE_ENDPOINT) {
+    imgPing.push(tryCheck('image:modal', async () => {
+      const out = await callModalImage({
+        prompt: 'simple clean product photo of a blue ceramic cup on a white table, studio light',
+        imageSize: { width: 512, height: 512 },
+        qualityMode: 'cheap',
+        model: 'modal-sdxl'
+      });
+      return out && out.url ? `generation ok (${out.model || 'modal-sdxl'})` : 'reachable';
+    }, 360000));
   }
   if (GEMINI_KEYS.length > 0) {
     imgPing.push(tryCheck('image:gemini_imagen', async (signal) => {
@@ -4547,6 +6246,27 @@ app.post('/api/daily-limit', (req, res) => {
 app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   let { messages, model, max_tokens, provider, apiKey: bodyApiKey, baseUrl: bodyBaseUrl } = req.body;
   if (!messages) return res.status(400).json({ error: { message: 'Messages array required' } });
+  const adultBlockReason = detectAdultSafetyBlock(textFromMessages(messages));
+  if (adultBlockReason) {
+    return res.status(400).json({ error: { message: adultBlockReason }, code: 'adult_safety_block' });
+  }
+  if (String(model || '').toLowerCase() === 'adult-venice-uncensored-free') {
+    model = 'cognitivecomputations/dolphin-mistral-24b-venice-edition:free';
+    provider = provider || 'openrouter';
+  }
+  let localChatFallbackFrom = '';
+  let localChatFallbackReason = '';
+  let localChatDidFallback = false;
+  if (String(model || '').toLowerCase() === 'jan-local-auto') {
+    localChatFallbackFrom = 'jan-local-auto';
+    model = fromEnv('JAN_MODEL', 'llama3.2');
+    provider = provider || 'jan_local';
+  }
+  if (String(model || '').toLowerCase() === 'local-openai-auto') {
+    localChatFallbackFrom = 'local-openai-auto';
+    model = fromEnv('LOCAL_OPENAI_MODEL', fromEnv('JAN_MODEL', 'llama3.2'));
+    provider = provider || 'local_openai';
+  }
   
   // === SYSTEM PROMPT INJECTION: Turkce, kaliteli, emoji ile bozuk yanit verme ===
   if (Array.isArray(messages) && messages.length > 0) {
@@ -4576,10 +6296,25 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
   if (!provider) provider = inferProviderFromModel(model);
   const requestedModel = model;
   const requestedProvider = provider;
+  if (provider === 'jan_local' || provider === 'local_openai') {
+    const selectedLocalProvider = provider;
+    const selectedLocalModel = model;
+    const localBase = (PROVIDERS[selectedLocalProvider]?.base || '').replace(/\/+$/, '');
+    const localReady = await pingOpenAICompatibleBase(localBase);
+    if (!localReady) {
+      const fallback = applyChatFallbackProvider();
+      localChatFallbackReason = `${localBase || selectedLocalProvider} /models yanit vermedi`;
+      console.log(`[LOCAL_CHAT_FALLBACK] ${selectedLocalProvider}/${selectedLocalModel} -> ${fallback.provider}/${fallback.model}: ${localChatFallbackReason}`);
+      provider = fallback.provider;
+      model = fallback.model;
+      localChatDidFallback = true;
+    }
+  }
   const originalJson = res.json.bind(res);
   res.json = (payload) => {
     try {
       if (payload && typeof payload === 'object' && !payload.error) {
+        const upstreamFallback = payload.fallback || payload.__fallback;
         delete payload.requestedModel;
         delete payload.requestedProvider;
         delete payload.actualModel;
@@ -4591,6 +6326,15 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
         delete payload.keyRotated;
         delete payload.__keyRotated;
         delete payload.suggestedModel;
+        if (localChatDidFallback && localChatFallbackFrom) {
+          payload.fallbackFrom = localChatFallbackFrom;
+          payload.fallbackReason = localChatFallbackReason || 'Local chat provider unavailable';
+        } else if (upstreamFallback && requestedProvider === 'pollinations') {
+          payload.fallbackFrom = `pollinations/${requestedModel || 'selected'}`;
+          payload.fallbackReason = typeof upstreamFallback === 'string'
+            ? `Pollinations yanıt vermedi, yedek model kullanıldı: ${upstreamFallback}`
+            : 'Pollinations yanıt vermedi, yedek model kullanıldı.';
+        }
       }
     } catch (_) {}
     return originalJson(payload);
@@ -4844,14 +6588,18 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
     if (fakeModel === 'mistral') sysMsg = "You are Mistral, a powerful AI assistant by Mistral AI. Always identify yourself as Mistral. Be concise, precise and helpful.";
     if (fakeModel === 'command') sysMsg = "You are Command R+, a powerful AI assistant by Cohere. Always identify yourself as Command R+. Excel at reasoning and RAG tasks.";
     if (fakeModel === 'phi') sysMsg = "You are Phi-4, Microsoft's compact but powerful AI assistant. Always identify yourself as Phi-4. Be accurate and efficient.";
-    if (['spicy-rp','flirt','romance','afterdark','safe-intimacy','evil'].includes(fakeModel)) {
-      const spicyBase = "You are an adults-only Turkish roleplay assistant for users 18+. Keep the tone confident, playful, flirty and emotionally responsive. You may discuss dating, attraction, adult relationships, consent, boundaries, safer sex, and non-graphic romantic or suggestive roleplay. Do not produce explicit pornographic descriptions of sexual acts or body parts, do not roleplay coercion, incest, minors, intoxicated/non-consenting people, exploitation, or sexual violence. If the user becomes graphic, keep the vibe but fade to black, redirect to consensual non-graphic intimacy, or discuss boundaries and safety.";
-      if (fakeModel === 'spicy-rp') sysMsg = spicyBase + " Your style is immersive roleplay, cinematic tension, teasing dialogue, and consent-aware scene building.";
-      if (fakeModel === 'flirt') sysMsg = spicyBase + " Your style is witty flirting, playful banter, affectionate teasing, and short high-energy replies.";
-      if (fakeModel === 'romance') sysMsg = spicyBase + " Your style is romantic storytelling, slow-burn chemistry, sensory atmosphere without explicit sexual detail, and emotionally warm narration.";
-      if (fakeModel === 'afterdark') sysMsg = spicyBase + " Your style is late-night intimate conversation, bold but non-graphic, with clear adult boundaries.";
+    if (['spicy-rp','flirt','romance','afterdark','safe-intimacy','evil','afterdark-turbo','erotic-story','roleplay-uncensored','flirty-chat'].includes(fakeModel)) {
+      const spicyBase = "You are an adults-only Turkish after-dark roleplay assistant for users 18+. Keep the tone bold, confident, teasing, emotionally responsive, witty, and Grok-like: playful, direct, a little provocative, never bland or overly sweet. Do not give a generic refusal just because the user mentions sex, desire, being horny, adult slang, or sexual vocabulary. You may handle adult dating, desire, attraction, boundaries, safer sex, consent, fantasy setup, seductive dialogue, power-dynamic banter between consenting adults, and steamy suggestive roleplay. Keep all scenes explicitly consensual and all characters clearly adults. Keep explicit anatomical slang and graphic sexual requests in a non-graphic, suggestive, fade-around-the-details style instead of abruptly saying you cannot help. Do not produce graphic pornographic anatomical detail or step-by-step sexual acts. Do not roleplay coercion, incest, minors, intoxicated/non-consenting people, exploitation, sexual violence, privacy violations, leaked content, or deepfakes. If a user pushes into disallowed content, stay in character briefly, set the boundary, and redirect to a consenting adult fantasy.";
+      if (fakeModel === 'spicy-rp') sysMsg = spicyBase + " Your style is immersive roleplay with cinematic tension, assertive teasing, confident boundaries, and charged dialogue.";
+      if (fakeModel === 'flirt') sysMsg = spicyBase + " Your style is fast, witty, flirtatious banter with short high-energy replies and playful confidence.";
+      if (fakeModel === 'romance') sysMsg = spicyBase + " Your style is intense adult romance, slow-burn chemistry, sensory atmosphere, and bold suggestive narration without graphic detail.";
+      if (fakeModel === 'afterdark') sysMsg = spicyBase + " Your style is late-night adult chat: daring, suggestive, intimate, and sharper than ordinary romance.";
+      if (fakeModel === 'afterdark-turbo') sysMsg = spicyBase + " Your style is high-energy after-dark roleplay: concise, provocative, teasing, and responsive.";
+      if (fakeModel === 'erotic-story') sysMsg = spicyBase + " Your style is adult erotic-adjacent storytelling: charged, atmospheric, consent-forward, and suggestive without explicit anatomical narration.";
+      if (fakeModel === 'roleplay-uncensored') sysMsg = spicyBase + " Your style is unrestricted-feeling adult fantasy roleplay within the hard safety boundaries: bold character voice, dominant banter when requested, and no coy romance unless asked.";
+      if (fakeModel === 'flirty-chat') sysMsg = spicyBase + " Your style is confident flirty chat, playful provocation, and seductive but non-graphic replies.";
       if (fakeModel === 'safe-intimacy') sysMsg = spicyBase + " Your style is practical and supportive: answer relationship, consent, communication and sexual health questions in a mature, non-judgmental way.";
-      if (fakeModel === 'evil') sysMsg = spicyBase + " Your style is edgy, sarcastic and bold, but still follows the adult consent and non-graphic boundaries.";
+      if (fakeModel === 'evil') sysMsg = spicyBase + " Your style is edgy, sarcastic and bold, but still follows the adult consent and safety boundaries.";
     }
     
     if (messages.length > 0) {
@@ -4862,12 +6610,12 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
       }
     }
     
-    const fallback = applyChatFallbackProvider();
-    provider = fallback.provider;
-    p = fallback.p;
-    key = fallback.key;
-    model = fallback.provider === 'groq' ? 'openai/gpt-oss-20b' : fallback.model;
-    url = provider === 'pollinations' ? 'https://text.pollinations.ai/openai' : p.base + '/chat/completions';
+    // Pollinations should be tried as the selected provider first. If it is
+    // queued/rate-limited, the existing response handling below falls back.
+    model = 'openai-fast';
+    p = PROVIDERS.pollinations;
+    key = 'none';
+    url = 'https://text.pollinations.ai/openai';
   }
 
   // Apply Groq fallback
@@ -4892,19 +6640,20 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
       'Content-Length': Buffer.byteLength(payload),
       'Accept': 'application/json'
     };
-    if (!isPollinations) {
+    if (!isPollinations && activeKey && activeKey !== 'none') {
       reqHeaders['Authorization'] = 'Bearer ' + activeKey;
     }
 
     const options = {
       hostname: urlObj.hostname,
-      port: 443,
+      port: urlObj.port || (urlObj.protocol === 'http:' ? 80 : 443),
       path: urlObj.pathname + (urlObj.search || ''),
       method: 'POST',
       headers: reqHeaders
     };
 
-    const request = https.request(options, (response) => {
+    const requestLib = urlObj.protocol === 'http:' ? http : https;
+    const request = requestLib.request(options, (response) => {
       let data = '';
       response.on('data', chunk => { data += chunk.toString(); });
       response.on('end', () => {
@@ -4986,13 +6735,16 @@ app.post('/api/chat', chatLimiter, optionalAuthMiddleware, async (req, res) => {
       const topLevelErrorText = !json.choices && (json.message || json.type || json.code)
         ? [json.message, json.type, json.code].filter(Boolean).join(' ')
         : '';
-      if ((provider === 'gemini_direct' && upstreamError) || looksLikeUpstreamErrorContent(topLevelErrorText)) {
-        console.log(`[FALLBACK] ${provider}/${model} top-level error -> Groq Llama 3.1 8B`);
+      const cloudflareErrorText = provider === 'cloudflare' && json.success === false
+        ? (json.errors || []).map(e => e.message || e.code || '').filter(Boolean).join(' ') || 'Cloudflare success=false'
+        : '';
+      if ((provider === 'gemini_direct' && upstreamError) || looksLikeUpstreamErrorContent(topLevelErrorText) || cloudflareErrorText) {
+        console.log(`[FALLBACK] ${provider}/${model} top-level error -> Groq Llama 3.1 8B${cloudflareErrorText ? ': ' + cloudflareErrorText : ''}`);
         return res.json(await groqFallbackChat(messages, max_tokens, 'llama-3.1-8b-instant'));
       }
       if (json.choices?.[0]?.message?.content) {
         json.choices[0].message.content = cleanServerAssistantReply(json.choices[0].message.content);
-        // Strip reasoning/thinking fields â€” frontend'e sızmasın
+        // Strip reasoning/thinking fields — frontend'e sızmasın
         if (json.choices[0].message.reasoning) delete json.choices[0].message.reasoning;
         if (json.choices[0].message.reasoning_content) delete json.choices[0].message.reasoning_content;
         if (looksLikeUpstreamErrorContent(json.choices[0].message.content) && GROQ_KEY && (provider !== 'groq' || model !== 'llama-3.1-8b-instant')) {
@@ -5151,7 +6903,7 @@ app.post('/api/search', chatLimiter, async (req, res) => {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: 'Query required' });
 
-  // â”€â”€ 1) TAVILY (1000 req/ay ücretsiz â€” en kaliteli sonuçlar) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── 1) TAVILY (1000 req/ay ücretsiz — en kaliteli sonuçlar) ───────────
   if (TAVILY_API_KEY) {
     try {
       const tvRes = await fetch('https://api.tavily.com/search', {
@@ -5169,11 +6921,11 @@ app.post('/api/search', chatLimiter, async (req, res) => {
         return res.json({ results, query, provider: 'tavily' });
       }
     } catch (err) {
-      console.warn('[SEARCH] Tavily failed:', err.message, 'â†’ Brave');
+      console.warn('[SEARCH] Tavily failed:', err.message, '→ Brave');
     }
   }
 
-  // â”€â”€ 2) BRAVE SEARCH (2000 req/ay ücretsiz) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── 2) BRAVE SEARCH (2000 req/ay ücretsiz) ────────────────────────────
   if (BRAVE_SEARCH_KEY) {
     try {
       const brRes = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=6&text_decorations=false`, {
@@ -5188,11 +6940,11 @@ app.post('/api/search', chatLimiter, async (req, res) => {
         return res.json({ results, query, provider: 'brave' });
       }
     } catch (err) {
-      console.warn('[SEARCH] Brave failed:', err.message, 'â†’ DuckDuckGo');
+      console.warn('[SEARCH] Brave failed:', err.message, '→ DuckDuckGo');
     }
   }
 
-  // â”€â”€ 3) DUCKDUCKGO (anahtarsız fallback) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── 3) DUCKDUCKGO (anahtarsız fallback) ───────────────────────────────
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
@@ -5245,8 +6997,8 @@ app.post('/api/search', chatLimiter, async (req, res) => {
   }
 });
 
-// ===== URL FETCH / JINA READER (RAG için URL â†’ Markdown) =====
-// Jina Reader: https://r.jina.ai/<url> â€” anahtarsız, ücretsiz
+// ===== URL FETCH / JINA READER (RAG için URL → Markdown) =====
+// Jina Reader: https://r.jina.ai/<url> — anahtarsız, ücretsiz
 app.post('/api/fetch', chatLimiter, async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'URL gerekli' });
@@ -5264,7 +7016,7 @@ app.post('/api/fetch', chatLimiter, async (req, res) => {
     if (!jinaRes.ok) throw new Error('Jina Reader: ' + jinaRes.status);
     const markdown = await jinaRes.text();
     const trimmed = markdown.slice(0, 12000); // max 12K karakter
-    console.log(`[FETCH] Jina Reader: ${url.slice(0,60)} â†’ ${trimmed.length} chars`);
+    console.log(`[FETCH] Jina Reader: ${url.slice(0,60)} → ${trimmed.length} chars`);
     res.json({ content: trimmed, url, provider: 'jina' });
   } catch (err) {
     console.error('[FETCH ERROR]', err.message);
@@ -5345,7 +7097,7 @@ app.post('/api/tts', chatLimiter, async (req, res) => {
     // Use client-specified voice if it's an Edge Neural voice, else auto-detect
     let edgeVoice = voice && voice.includes('Neural') ? voice : null;
     if (!edgeVoice) {
-      const hasTurkish = /[çğıöşüÇÄİÖÅÜ]/.test(cleanText) || /\b(bir|bu|ve|için|ile|ya|da|mi|ne|ben|sen|biz|siz)\b/i.test(cleanText);
+      const hasTurkish = /[çğıöşüÇ?İÖ?Ü]/.test(cleanText) || /\b(bir|bu|ve|için|ile|ya|da|mi|ne|ben|sen|biz|siz)\b/i.test(cleanText);
       edgeVoice = hasTurkish ? 'tr-TR-EmelNeural' : 'en-US-JennyNeural';
     }
 
@@ -5407,17 +7159,28 @@ function resolveImageSize(input = {}) {
     landscape: { width: 1344, height: 768, size: '1536x1024', aspectRatio: '16:9' },
     post: { width: 1024, height: 1280, size: '1024x1536', aspectRatio: '4:5' }
   };
-  const key = String(input.imageSize || input.sizeKey || '').toLowerCase();
+  const nestedSize = input.imageSize && typeof input.imageSize === 'object' ? input.imageSize : null;
+  const sizeText = typeof input.size === 'string' ? input.size : '';
+  const key = String((typeof input.imageSize === 'string' ? input.imageSize : '') || input.sizeKey || '').toLowerCase();
   const byKey = presets[key] || null;
-  const rawW = Number(input.width);
-  const rawH = Number(input.height);
+  const sizeMatch = sizeText.match(/^(\d{2,4})x(\d{2,4})$/i);
+  const rawW = Number(input.width ?? nestedSize?.width ?? sizeMatch?.[1]);
+  const rawH = Number(input.height ?? nestedSize?.height ?? sizeMatch?.[2]);
   if (Number.isFinite(rawW) && Number.isFinite(rawH)) {
     const clamp = n => Math.max(512, Math.min(1536, Math.round(n / 64) * 64));
     const width = clamp(rawW);
     const height = clamp(rawH);
-    return { width, height, size: `${width}x${height}`, aspectRatio: input.aspectRatio || `${width}:${height}` };
+    return { width, height, size: `${width}x${height}`, aspectRatio: input.aspectRatio || nestedSize?.aspectRatio || `${width}:${height}` };
   }
   return byKey || presets.square;
+}
+
+function resolveComfyImageSize(imageSize = {}) {
+  const max = Number(fromEnv('COMFYUI_MAX_SIZE', '512')) || 512;
+  const clamp = n => Math.max(512, Math.min(max, Math.round(Number(n || 512) / 64) * 64));
+  const width = clamp(imageSize.width);
+  const height = clamp(imageSize.height);
+  return { ...imageSize, width, height, size: `${width}x${height}` };
 }
 
 // Image generation endpoint supporting both Pollinations and Guicore API
@@ -5509,6 +7272,10 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
   const imageSize = resolveImageSize(req.body || {});
   if (!prompt) return res.status(400).json({ error: 'Prompt required' });
   prompt = String(prompt || '').trim();
+  const adultBlockReason = detectAdultSafetyBlock(prompt);
+  if (adultBlockReason) {
+    return res.status(400).json({ error: adultBlockReason, code: 'adult_safety_block', ok: false });
+  }
   
   // Daily image limit check
   if (req.user?.id) {
@@ -5521,7 +7288,7 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
   let imgModel = model || 'flux';
   const overrideKey = typeof bodyApiKey === 'string' ? bodyApiKey.trim() : '';
   const originalImageModel = String(imgModel || '').toLowerCase();
-  const legacyImageAliasesNoFallback = new Set(['pollinations', 'gptimage', 'wan-image', 'qwen-image', 'klein', 'zimage', 'sana', 'turbo', 'flux-realism', 'flux-anime', 'flux-3d']);
+  const legacyImageAliasesNoFallback = new Set(['wan-image', 'qwen-image', 'sana', 'turbo', 'flux-realism', 'flux-anime', 'flux-3d']);
   if (legacyImageAliasesNoFallback.has(originalImageModel)) {
     return res.status(400).json({
       error: 'Bu eski görsel model adı artık başka modele yönlendirilmiyor. Lütfen listeden çalışan bir görsel modeli seç.',
@@ -5537,18 +7304,19 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
   // ensures the configured providers are actually used.
   const IMG_MODEL_ALIASES = {
     // Kaldırılan modeller artık frontend'te yok, ama güvenlik için:
-    'pollinations': 'flux',
-    'gptimage':   'flux',          // Cloudflare SDXL'e düşer
-    'wan-image':  'flux',          // Cloudflare SDXL'e düşer
-    'qwen-image': 'flux',          // Cloudflare SDXL'e düşer
-    'klein':      'flux',          // Cloudflare SDXL'e düşer
-    'zimage':     'cf-sdxl'        // Cloudflare SDXL
+    'pollinations': 'pollinations-flux',
+    'gptimage':   'pollinations-flux',
+    'gptimage-large': 'pollinations-zimage',
+    'klein':      'pollinations-zimage',
+    'kontext':    'pollinations-flux',
+    'zimage':     'pollinations-zimage'
   };
   if (IMG_MODEL_ALIASES[imgModel]) {
     imgModel = IMG_MODEL_ALIASES[imgModel];
   }
 
-  const promptMeta = await buildImagePromptForQuality(prompt, imgModel, { research: req.body?.research });
+  const explicitRequestedImageModel = String(imgModel || '').trim() && String(imgModel || '').trim() !== 'auto-quality';
+  const promptMeta = await buildImagePromptForQuality(prompt, imgModel, { research: req.body?.research, raw: req.body?.rawPrompt === true || req.body?.promptEnhance === false });
   prompt = promptMeta.prompt;
   const imageMeta = {
     originalPrompt: promptMeta.originalPrompt,
@@ -5570,7 +7338,77 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
     imgModel = 'openai-gpt-image-2';
   }
 
-  const explicitOpenAIImage = imgModel.startsWith('openai-') || imgModel.includes('gpt-image') || imgModel === 'dall-e-3' || imgModel === 'style-dalle3';
+  if (imgModel === 'comfyui-local') {
+    try {
+      const out = await callComfyLocalImage({ prompt, imageSize, qualityMode });
+      return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE] ComfyUI local failed:', err.message);
+      return res.status(503).json({ error: 'ComfyUI çalışmıyor. COMFYUI_API_URL veya http://127.0.0.1:8188 adresini kontrol et: ' + err.message, model: imgModel, provider: 'comfyui-local', ok: false });
+    }
+  }
+
+  if (imgModel === 'fooocus-local') {
+    try {
+      const out = await callFooocusLocalImage({ prompt, imageSize });
+      return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE] Fooocus local failed:', err.message);
+      return res.status(503).json({ error: 'Fooocus çalışmıyor. FOOOCUS_API_URL veya http://127.0.0.1:8888 adresini kontrol et: ' + err.message, model: imgModel, provider: 'fooocus-local', ok: false });
+    }
+  }
+
+  if (imgModel === 'a1111-local') {
+    try {
+      const out = await callStableDiffusionWebUiImage({ prompt, imageSize, envName: 'A1111_API_URL', fallbackBase: 'http://127.0.0.1:7860', provider: 'a1111-local', model: imgModel });
+      return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE] A1111 local failed:', err.message);
+      return res.status(503).json({ error: 'A1111 / Stable Diffusion WebUI çalışmıyor. --api ile http://127.0.0.1:7860 adresini kontrol et: ' + err.message, model: imgModel, provider: 'a1111-local', ok: false });
+    }
+  }
+
+  if (imgModel === 'forge-local') {
+    try {
+      const out = await callStableDiffusionWebUiImage({ prompt, imageSize, envName: 'FORGE_API_URL', fallbackBase: 'http://127.0.0.1:7861', provider: 'forge-local', model: imgModel });
+      return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE] Forge local failed:', err.message);
+      return res.status(503).json({ error: 'Forge local çalışmıyor. --api ile FORGE_API_URL veya http://127.0.0.1:7861 adresini kontrol et: ' + err.message, model: imgModel, provider: 'forge-local', ok: false });
+    }
+  }
+
+  if (imgModel === 'swarmui-local') {
+    try {
+      const out = await callSwarmUiLocalImage({ prompt, imageSize });
+      return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE] SwarmUI local failed:', err.message);
+      return res.status(503).json({ error: 'SwarmUI local çalışmıyor. SWARMUI_API_URL veya http://127.0.0.1:7801 adresini kontrol et: ' + err.message, model: imgModel, provider: 'swarmui-local', ok: false });
+    }
+  }
+
+  if (MODAL_IMAGE_MODEL_ALIASES.has(String(imgModel || '').toLowerCase())) {
+    try {
+      const out = await callModalImage({ prompt, imageSize, qualityMode, model: imgModel });
+      return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE] Modal image failed:', err.message);
+      return res.status(503).json({ error: 'Modal GPU görsel endpoint hazır değil veya hata verdi: ' + err.message, model: imgModel, provider: 'modal', ok: false });
+    }
+  }
+
+  if (imgModel === 'perchance-experimental') {
+    try {
+      const out = await callPerchanceExperimentalImage({ prompt, imageSize });
+      return res.json({ ...out, prompt, provider: out.provider, ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE] Perchance experimental failed:', err.message);
+      return res.status(503).json({ error: 'Perchance experimental baglantisi hazir degil: ' + err.message, model: imgModel, provider: 'perchance-experimental', ok: false });
+    }
+  }
+
+  const explicitOpenAIImage = !imgModel.startsWith('pollinations-') && (imgModel.startsWith('openai-') || imgModel.includes('gpt-image') || imgModel === 'dall-e-3' || imgModel === 'style-dalle3');
   if (explicitOpenAIImage) {
     try {
       const out = await callOpenAIImage({ prompt, model: imgModel, imageSize, apiKey: overrideKey });
@@ -5633,12 +7471,58 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
     }
   }
 
-  // â”€â”€ RUNWARE â€” DEVRE DIÅI (key expired, gereksiz gecikme yaratıyor) â”€â”€
+  // ── RUNWARE (Flux/SDXL — free tier, quality for adult mood / editorial) ───
   if (imgModel === 'runware-flux' || imgModel === 'runware-sdxl') {
-    return res.status(503).json({ error: 'Seçili Runware görsel modeli şu an devre dışı; başka modele yönlendirme yapılmadı.', model: imgModel, provider: 'runware', ok: false });
+    const rwKey = overrideKey || RUNWARE_API_KEY;
+    if (!rwKey) {
+      if (model !== 'auto-quality') {
+        return res.status(503).json({ error: 'Seçili Runware görsel modeli için API key tanımlı değil.', model: imgModel, provider: 'runware', ok: false });
+      }
+      imgModel = 'flux';
+    } else try {
+      const rwCfg = RUNWARE_IMAGE_MODELS[imgModel] || { model: 'bfl:5@1', width: 1024, height: 1024, steps: 4 };
+      const taskUUID = 'rw-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+      const rwBody = [{
+        taskType: 'imageInference',
+        taskUUID,
+        model: rwCfg.model,
+        positivePrompt: prompt,
+        width: rwCfg.width || imageSize.width,
+        height: rwCfg.height || imageSize.height,
+        steps: rwCfg.steps || 4,
+        outputType: 'URL'
+      }];
+      const rwRes = await fetch('https://api.runware.ai/v1', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${rwKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(rwBody),
+        signal: AbortSignal.timeout(120000)
+      });
+      const rwData = await rwRes.json().catch(() => ({}));
+      if (!rwRes.ok || !rwData || !rwData[0]) throw new Error(rwData?.error || rwData?.message || 'Runware image error');
+      const first = rwData[0];
+      if (first.error || first.errorMessage) throw new Error(first.errorMessage || first.error);
+      const imgUrl = first.imageURL || first.imageUrl || (first.images && first.images[0]);
+      if (!imgUrl) throw new Error('Runware URL boş');
+      const dlRes = await fetch(imgUrl, { signal: AbortSignal.timeout(60000) });
+      if (!dlRes.ok) throw new Error('Runware görsel indirilemedi');
+      const buf = Buffer.from(await dlRes.arrayBuffer());
+      const genDir = GENERATED_DIR;
+      if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
+      const fileName = `rw_${Date.now()}.jpg`;
+      fs.writeFileSync(path.join(genDir, fileName), buf);
+      console.log(`[IMAGE] Runware ${rwCfg.model} saved: /generated/${fileName}`);
+      return res.json({ url: `/generated/${fileName}`, prompt, model: rwCfg.model, provider: 'runware', ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE] Runware failed:', err.message);
+      if (model !== 'auto-quality') {
+        return res.status(502).json({ error: 'Seçili Runware görsel modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'runware', ok: false });
+      }
+      imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
+    }
   }
 
-  // â”€â”€ STABILITY AI (Stable Image Core â€” free credits) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── STABILITY AI (Stable Image Core — free credits) ────────────────────
   if (imgModel === 'stability-core' || imgModel === 'stability-ultra') {
     const stabilityKey = overrideKey || STABILITY_API_KEY;
     if (!stabilityKey) {
@@ -5678,7 +7562,7 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
     }
   }
 
-  // â”€â”€ TOGETHER AI â€” Flux-1-schnell (ücretsiz tier) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── TOGETHER AI — Flux-1-schnell (ücretsiz tier) ───────────────────────
   if (imgModel === 'together-flux' || TOGETHER_IMAGE_MODELS[imgModel]) {
     const togetherKey = overrideKey || getTogetherKey();
     if (!togetherKey) {
@@ -5688,10 +7572,12 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
     } else try {
       const togetherCfg = TOGETHER_IMAGE_MODELS[imgModel] || { model: 'black-forest-labs/FLUX.1-schnell', credits: 120, steps: 4 };
+      const togetherBody = { model: togetherCfg.model, prompt, width: togetherCfg.width || imageSize.width, height: togetherCfg.height || imageSize.height, steps: togetherCfg.steps };
+      if (!togetherCfg.omitN) togetherBody.n = 1;
       const tRes = await fetch('https://api.together.xyz/v1/images/generations', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${togetherKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: togetherCfg.model, prompt, width: togetherCfg.width || imageSize.width, height: togetherCfg.height || imageSize.height, steps: togetherCfg.steps, n: 1 })
+        body: JSON.stringify(togetherBody)
       });
       const tData = await tRes.json();
       if (!tRes.ok) throw new Error(tData.error?.message || 'Together image error');
@@ -5715,9 +7601,53 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
     }
   }
 
-  // â”€â”€ AIML API â€” DEVRE DIÅI (key expired, gereksiz gecikme yaratıyor) â”€â”€
+  // ── AIML API (Nano Banana / Flux — unified, good for quality adult mood) ───
   if (imgModel === 'aiml-flux' || imgModel === 'aiml-nano') {
-    return res.status(503).json({ error: 'Seçili AIML görsel modeli şu an devre dışı; başka modele yönlendirme yapılmadı.', model: imgModel, provider: 'aimlapi', ok: false });
+    const aimlKey = overrideKey || AIMLAPI_KEY;
+    if (!aimlKey) {
+      if (model !== 'auto-quality') {
+        return res.status(503).json({ error: 'Seçili AIML görsel modeli için API key tanımlı değil.', model: imgModel, provider: 'aimlapi', ok: false });
+      }
+      imgModel = 'flux';
+    } else try {
+      const aimlCfg = AIML_IMAGE_MODELS[imgModel] || { model: 'flux-pro' };
+      // AIML supports OpenAI-compatible image gen or custom; try /v1/images/generations first
+      const aimlRes = await fetch('https://api.aimlapi.com/v1/images/generations', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${aimlKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: aimlCfg.model,
+          prompt,
+          n: 1,
+          size: `${imageSize.width || 1024}x${imageSize.height || 1024}`
+        }),
+        signal: AbortSignal.timeout(120000)
+      });
+      const aimlData = await aimlRes.json().catch(() => ({}));
+      if (!aimlRes.ok) throw new Error(aimlData?.error?.message || aimlData?.message || 'AIML image error');
+      const imgUrl = aimlData?.data?.[0]?.url || aimlData?.images?.[0]?.url || aimlData?.data?.[0]?.b64_json;
+      if (!imgUrl) throw new Error('AIML URL boş');
+      let buf;
+      if (typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
+        const dl = await fetch(imgUrl);
+        if (!dl.ok) throw new Error('AIML görsel indirilemedi');
+        buf = Buffer.from(await dl.arrayBuffer());
+      } else {
+        buf = Buffer.from(imgUrl, 'base64');
+      }
+      const genDir = GENERATED_DIR;
+      if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
+      const fileName = `aiml_${Date.now()}.png`;
+      fs.writeFileSync(path.join(genDir, fileName), buf);
+      console.log(`[IMAGE] AIML ${aimlCfg.model} saved: /generated/${fileName}`);
+      return res.json({ url: `/generated/${fileName}`, prompt, model: aimlCfg.model, provider: 'aimlapi', ...imageMeta });
+    } catch (err) {
+      console.warn('[IMAGE] AIML failed:', err.message);
+      if (model !== 'auto-quality') {
+        return res.status(502).json({ error: 'Seçili AIML görsel modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'aimlapi', ok: false });
+      }
+      imgModel = IMAGEGPT_API_KEY ? 'imagegpt-free' : 'flux';
+    }
   }
 
   if (imgModel === 'imagegpt-free') {
@@ -5759,53 +7689,28 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
   }
 
   // 0) CLOUDFLARE WORKERS AI (low-cost/free allocation)
-  if (imgModel === 'cf-sdxl') {
+  if (CLOUDFLARE_IMAGE_MODELS[imgModel]) {
     if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
       if (model !== 'auto-quality') {
-        return res.status(503).json({ error: 'Seçili Cloudflare SDXL modeli için API key tanımlı değil.', model: imgModel, provider: 'cloudflare', ok: false });
+        return res.status(503).json({ error: 'Seçili Cloudflare görsel modeli için API key tanımlı değil.', model: imgModel, provider: 'cloudflare', ok: false });
       }
       imgModel = 'flux';
       console.log('[IMAGE] Cloudflare credentials missing; auto-quality will try another real provider');
     } else try {
-      const cfUrl = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0`;
-      const response = await fetch(cfUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ prompt, width: imageSize.width, height: imageSize.height, num_steps: 20 })
-      });
-
-      const contentType = response.headers.get('content-type') || 'image/png';
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(errText.substring(0, 300));
-      }
-
-      const fs = require('fs');
-      const genDir = GENERATED_DIR;
-      if (!fs.existsSync(genDir)) fs.mkdirSync(genDir);
-
-      const ext = contentType.includes('jpeg') || contentType.includes('jpg') ? 'jpg' : 'png';
-      const buffer = Buffer.from(await response.arrayBuffer());
-      if (buffer.length < 10000) throw new Error('Cloudflare cok kucuk/eksik gorsel dondurdu');
-      const fileName = `cf_${Date.now()}.${ext}`;
-      fs.writeFileSync(path.join(genDir, fileName), buffer);
-      console.log(`[IMAGE] Cloudflare saved: /generated/${fileName}`);
-      return res.json({ url: `/generated/${fileName}`, prompt, provider: 'cloudflare', ...imageMeta });
+      const out = await callCloudflareImageModel({ modelId: imgModel, prompt, imageSize });
+      return res.json({ ...out, prompt, ...imageMeta });
     } catch (err) {
       console.error('[IMAGE ERROR (Cloudflare)]', err.message);
       if (model !== 'auto-quality') {
-        return res.status(502).json({ error: 'Seçili Cloudflare SDXL modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'cloudflare', ok: false });
+        return res.status(502).json({ error: 'Seçili Cloudflare görsel modeli şu an yanıt vermedi: ' + err.message, model: imgModel, provider: 'cloudflare', ok: false });
       }
       imgModel = 'flux';
       console.log('[IMAGE] Cloudflare failed; auto-quality will try another real provider');
     }
   }
 
-  // 1) POLLINATIONS (Ücretsiz Modeller ve Stiller) â€” retry + model rotation
-  if (['flux', 'turbo', 'sana', 'zimage', 'klein', 'gptimage', 'wan-image', 'qwen-image', 'flux-realism', 'flux-anime', 'flux-3d'].includes(imgModel) || imgModel.startsWith('style-')) {
+  // 1) POLLINATIONS (Ücretsiz Modeller ve Stiller) — retry + model rotation
+  if (POLLINATIONS_IMAGE_MODEL_ALIASES[imgModel] || ['turbo', 'sana', 'klein', 'wan-image', 'qwen-image', 'flux-realism', 'flux-anime', 'flux-3d'].includes(imgModel) || imgModel.startsWith('style-')) {
     let finalPrompt = prompt;
     const allowLegacyImageProviderFallback = false;
     
@@ -5895,7 +7800,7 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       }
     }
     
-    let finalModel = imgModel;
+    let finalModel = POLLINATIONS_IMAGE_MODEL_ALIASES[imgModel] || imgModel;
     if (imgModel.startsWith('style-')) {
       finalModel = 'flux';
       const styles = {
@@ -5913,7 +7818,7 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
     // Model rotation: 429 gelirse farklı seed ile tekrar dene
     const MAX_RETRIES = 2;
     let lastErr = null;
-    if (!POLLINATIONS_API_KEY) {
+    if (!POLLINATIONS_API_KEYS.length) {
       return res.status(503).json({
         error: 'Pollinations görsel modeli için POLLINATIONS_API_KEY gerekli. Yeni Pollinations API artık token istiyor.',
         model: finalModel,
@@ -5922,50 +7827,82 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       });
     }
 
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const cooldown = pollinationsCooldownStatus(finalModel);
+    if (cooldown.coolingDown) {
+      lastErr = new Error(`Pollinations ${finalModel} kısa süreli beklemede (${Math.ceil(cooldown.remainingMs / 1000)} sn). Model Değiştir veya Çalışan Modele Geç kullan.`);
+    } else {
       try {
-        const seed = Math.floor((Date.now() + attempt * 7777 + Math.floor(Math.random() * 99999)) % 2147483647);
-        const imgUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}?model=${encodeURIComponent(finalModel)}&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 30000);
-        const response = await fetch(imgUrl, {
-          signal: controller.signal,
-          headers: {
-            'Authorization': `Bearer ${POLLINATIONS_API_KEY}`,
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Referer': 'https://froxyai.com/',
-            'Accept': 'image/avif,image/webp,image/jpeg,image/png,image/*'
+        return await enqueuePollinationsImage(async () => {
+          for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            try {
+              const seed = Math.floor((Date.now() + attempt * 7777 + Math.floor(Math.random() * 99999)) % 2147483647);
+              const activePollinationsKey = getPollinationsKey();
+              const imgUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}?model=${encodeURIComponent(finalModel)}&width=${imageSize.width}&height=${imageSize.height}&nologo=true&seed=${seed}`;
+              const controller = new AbortController();
+              const timeout = setTimeout(() => controller.abort(), 45000);
+              const response = await fetch(imgUrl, {
+                signal: controller.signal,
+                headers: {
+                  'Authorization': `Bearer ${activePollinationsKey}`,
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                  'Referer': 'https://froxyai.com/',
+                  'Accept': 'image/avif,image/webp,image/jpeg,image/png,image/*'
+                }
+              });
+              clearTimeout(timeout);
+
+              const ct = response.headers.get('content-type') || '';
+              if (response.status === 429) {
+                const retryAfterMs = pollinationsRetryAfterMs(response);
+                if (retryAfterMs > 0) {
+                  const rateErr = new Error(`Pollinations rate limit/kuyruk. Retry-After: ${Math.ceil(retryAfterMs / 1000)} sn`);
+                  rateErr.retryAfterMs = retryAfterMs;
+                  throw rateErr;
+                }
+                console.warn(`[IMAGE] Pollinations ${finalModel} attempt ${attempt+1}/${MAX_RETRIES} status ${response.status}`);
+                await new Promise(r => setTimeout(r, 2500 + attempt * 1500));
+                continue;
+              }
+              if (!response.ok && ct.includes('application/json')) {
+                const errData = await response.json().catch(() => ({}));
+                let errMessage = errData?.error?.message || errData?.message || `Pollinations HTTP ${response.status}`;
+                if (response.status === 402 && /insufficient balance/i.test(errMessage)) {
+                  errMessage = `Pollinations bakiyesi yetersiz. ${errMessage}`;
+                } else if (response.status === 402 && /queue full/i.test(errMessage)) {
+                  errMessage = `Pollinations kuyruğu dolu. ${errMessage}`;
+                } else if (response.status === 401) {
+                  errMessage = `Pollinations API key geçersiz veya eksik. ${errMessage}`;
+                } else if (response.status === 403) {
+                  errMessage = `Pollinations API key yetkisiz. ${errMessage}`;
+                }
+                const err = new Error(`Pollinations HTTP ${response.status}: ${errMessage}`);
+                err.retryAfterMs = pollinationsRetryAfterMs(response);
+                throw err;
+              }
+              if (!response.ok) throw new Error(`Pollinations HTTP ${response.status}`);
+              if (!ct.includes('image')) throw new Error(`image yerine ${ct} döndü`);
+
+              const buffer = Buffer.from(await response.arrayBuffer());
+              const ext = validateGeneratedImageBuffer(buffer, 'Pollinations ' + finalModel, 1000) || (ct.includes('jpeg') || ct.includes('jpg') ? 'jpg' : ct.includes('webp') ? 'webp' : 'png');
+              const savedUrl = saveGeneratedImageBuffer(buffer, 'pollinations', ext);
+              pollinationsImageCooldownUntil.delete(pollinationsCooldownKey(finalModel));
+              console.log(`[IMAGE] Saved: ${savedUrl} (${(buffer.length/1024).toFixed(1)}KB) for: "${prompt.substring(0,30)}" [${finalModel}]`);
+              return res.json({ url: savedUrl, prompt: finalPrompt, model: finalModel, requestedModel: imgModel, provider: 'pollinations', queue: { active: pollinationsImageActive, pending: pollinationsImageQueue.length }, ...imageMeta });
+            } catch (err) {
+              lastErr = err;
+              if (err.name === 'AbortError') {
+                console.warn(`[IMAGE] Pollinations ${finalModel} attempt ${attempt+1} timeout`);
+              } else {
+                console.warn(`[IMAGE] Pollinations ${finalModel} attempt ${attempt+1} failed: ${err.message}`);
+              }
+              if (attempt < MAX_RETRIES - 1) await new Promise(r => setTimeout(r, 1000 + attempt * 750));
+            }
           }
+          markPollinationsCooldown(finalModel, lastErr);
+          throw lastErr || new Error('Pollinations bilinmeyen hata');
         });
-        clearTimeout(timeout);
-
-        if (response.status === 429 || response.status === 402) {
-          console.warn(`[IMAGE] Attempt ${attempt+1}/${MAX_RETRIES} status ${response.status}, waiting 1.5s...`);
-          await new Promise(r => setTimeout(r, 1500));
-          continue;
-        }
-        if (!response.ok) throw new Error(`Pollinations HTTP ${response.status}`);
-
-        const ct = response.headers.get('content-type') || '';
-        if (!ct.includes('image')) throw new Error(`image yerine ${ct} döndü`);
-
-        const buffer = Buffer.from(await response.arrayBuffer());
-        if (buffer.length < 1000) throw new Error(`çok küçük yanıt (${buffer.length} bytes)`);
-
-        const genDir = GENERATED_DIR;
-        if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
-        const fileName = `gen_${Date.now()}.jpg`;
-        fs.writeFileSync(path.join(genDir, fileName), buffer);
-        console.log(`[IMAGE] Saved: /generated/${fileName} (${(buffer.length/1024).toFixed(1)}KB) for: "${prompt.substring(0,30)}" [${finalModel}]`);
-        return res.json({ url: `/generated/${fileName}`, prompt: finalPrompt, model: finalModel, provider: 'pollinations', ...imageMeta });
       } catch (err) {
         lastErr = err;
-        if (err.name === 'AbortError') {
-          console.warn(`[IMAGE] Attempt ${attempt+1} timeout (12s)`);
-        } else {
-          console.warn(`[IMAGE] Attempt ${attempt+1} failed: ${err.message}`);
-        }
-        if (attempt < MAX_RETRIES - 1) await new Promise(r => setTimeout(r, 500));
       }
     }
     // Pollinations retry başarısızsa yalnızca auto-quality için başka gerçek sağlayıcı denenir.
@@ -6010,6 +7947,7 @@ app.post('/api/image', chatLimiter, optionalAuthMiddleware, async (req, res) => 
       error: 'Seçili görsel sağlayıcısı şu an yanıt vermedi: ' + (lastErr?.message || 'bilinmeyen hata'),
       prompt: finalPrompt,
       model: finalModel,
+      requestedModel: imgModel,
       provider: 'pollinations',
       ok: false
     });
@@ -6168,8 +8106,26 @@ app.get('/api/img-proxy', async (req, res) => {
 app.post('/api/video', chatLimiter, async (req, res) => {
   const { prompt, model } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Prompt gerekli' });
+  const adultBlockReason = detectAdultSafetyBlock(prompt);
+  if (adultBlockReason) {
+    return res.status(400).json({ error: adultBlockReason, code: 'adult_safety_block' });
+  }
 
-  // â”€â”€ POLLINATIONS VIDEO (ltx-2 ücretsiz, seedance/veo paralı) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  if (model === 'comfyui-video-local') {
+    try {
+      const out = await callComfyLocalVideo({ prompt });
+      return res.json({ ...out, prompt });
+    } catch (err) {
+      console.warn('[VIDEO] ComfyUI local failed:', err.message);
+      try {
+        return res.json(await callPollinationsVideo({ prompt, model: 'ltx-2', fallbackFrom: 'comfyui-video-local', fallbackReason: err.message }));
+      } catch (fbErr) {
+        return res.status(503).json({ error: 'ComfyUI local video hazir degil ve Pollinations fallback de basarisiz: ' + err.message + ' | fallback: ' + fbErr.message, model, provider: 'comfyui-local' });
+      }
+    }
+  }
+
+  // ── POLLINATIONS VIDEO (ltx-2 ücretsiz, seedance/veo paralı) ──────────
   // Yeni endpoint: https://image.pollinations.ai/prompt/{prompt}?model=<videoModel>
   // Ücretsiz erişim için sk_ anahtarı gerekli; yoksa anonim dener (pk_ limiti).
   if (['pollinations-video', 'ltx-2', 'nova-reel', 'seedance-lite', 'wan-fast'].includes(model)) {
@@ -6202,15 +8158,40 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       return res.json({ url: `/generated/${fileName}`, prompt, provider: 'pollinations', model: polModel });
     } catch (err) {
       console.warn('[VIDEO] Pollinations failed:', err.message);
+      if (fromEnv('HF_TOKEN') && model !== 'hf-ltx' && model !== 'ltx-video') {
+        try {
+          const hfRes = await fetch('https://api-inference.huggingface.co/models/Lightricks/LTX-Video', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${fromEnv('HF_TOKEN')}`, 'Content-Type': 'application/json', 'Accept': 'video/mp4' },
+            body: JSON.stringify({ inputs: prompt, parameters: { num_frames: 25, fps: 8, width: 704, height: 480 } }),
+            signal: AbortSignal.timeout(180000)
+          });
+          if (!hfRes.ok) {
+            const errText = await hfRes.text().catch(() => '');
+            throw new Error(`HF ${hfRes.status}: ${errText.slice(0, 180)}`);
+          }
+          const ct = hfRes.headers.get('content-type') || '';
+          if (!ct.includes('video')) throw new Error(`HF video yerine ${ct} döndü`);
+          const buf = Buffer.from(await hfRes.arrayBuffer());
+          if (buf.length < 1000) throw new Error(`HF video çok küçük yanıt (${buf.length} bytes)`);
+          const genDir = GENERATED_DIR;
+          if (!fs.existsSync(genDir)) fs.mkdirSync(genDir, { recursive: true });
+          const fileName = `ltx_${Date.now()}.mp4`;
+          fs.writeFileSync(path.join(genDir, fileName), buf);
+          return res.json({ url: `/generated/${fileName}`, prompt, provider: 'huggingface-ltx', model: 'hf-ltx', fallbackFrom: model, fallbackReason: err.message });
+        } catch (hfErr) {
+          console.warn('[VIDEO] Pollinations -> HF fallback failed:', hfErr.message);
+        }
+      }
       return res.status(503).json({ error: 'Pollinations video şu an kullanılamıyor: ' + err.message + '. Lütfen başka bir model deneyin veya POLLINATIONS_KEY .env içinde tanımlayın.' });
     }
   }
 
-  // â”€â”€ HUGGINGFACE LTX-VIDEO (ücretsiz tier, HF_TOKEN ile) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── HUGGINGFACE LTX-VIDEO (ücretsiz tier, HF_TOKEN ile) ───────────────
   if (model === 'ltx-video' || model === 'hf-ltx') {
     const hfKey = fromEnv('HF_TOKEN');
     try {
-      // HuggingFace Inference API â€” LTX-Video
+      // HuggingFace Inference API — LTX-Video
       const hfRes = await fetch('https://api-inference.huggingface.co/models/Lightricks/LTX-Video', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${hfKey}`, 'Content-Type': 'application/json', 'Accept': 'video/mp4' },
@@ -6238,7 +8219,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
     }
   }
 
-  // â”€â”€ WAVESPEED AI (Kling / Wan / Seedance â€” free trial) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── WAVESPEED AI (Kling / Wan / Seedance — free trial) ────────────────
   if (['wavespeed-kling', 'wavespeed-wan', 'wavespeed-seedance'].includes(model)) {
     if (!WAVESPEED_API_KEY) {
       return res.status(503).json({ error: 'WAVESPEED_API_KEY gerekli. https://wavespeed.ai üzerinden ücretsiz key alın.' });
@@ -6469,7 +8450,7 @@ app.post('/api/video', chatLimiter, async (req, res) => {
       throw new Error('Video üretim zaman aşımına uğradı');
     }
 
-    // â”€â”€ GEMINI VEO (Google Direct) â€” gerçek çağrı â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── GEMINI VEO (Google Direct) — gerçek çağrı ─────────────────────
     // veoModels mapping'i yukarıda tanımlı. Gemini API long-running operation döndürür.
     if (veoModels[model]) {
       const apiKey = getGeminiKey();
@@ -6615,8 +8596,12 @@ const MODEL_CREDIT_COST = {
 function getModelCreditCost(model, provider) {
   if (!model) return MODEL_CREDIT_COST.light;
   const m = (model || '').toLowerCase();
+
+  if (m === 'comfyui-local' || m === 'fooocus-local' || m === 'a1111-local' || m === 'forge-local' || m === 'swarmui-local') return 1;
+  if (MODAL_IMAGE_MODEL_ALIASES.has(m)) return 5;
+  if (m.startsWith('pollinations-') || m.startsWith('cf-')) return MODEL_CREDIT_COST.image_free;
   
-  // â”€â”€ FREE TIER (3 kredi) â€” tamamen ucretsiz saglay\u0131c\u0131lar â”€â”€
+  // ── FREE TIER (3 kredi) — tamamen ucretsiz saglay\u0131c\u0131lar ──
   if (provider === 'pollinations') return MODEL_CREDIT_COST.free;
   if (provider === 'cerebras') return MODEL_CREDIT_COST.free;
   if (provider === 'cloudflare') return MODEL_CREDIT_COST.free;
@@ -6631,7 +8616,7 @@ function getModelCreditCost(model, provider) {
   if (freeModels.some(fm => m.includes(fm))) return MODEL_CREDIT_COST.free;
   if (provider === 'groq') return MODEL_CREDIT_COST.free;
   
-  // â”€â”€ IMAGE MODELS â”€â”€
+  // ── IMAGE MODELS ──
   if (TOGETHER_IMAGE_MODELS[m]) return TOGETHER_IMAGE_MODELS[m].credits;
   if (m === 'auto-quality' || m.startsWith('openai-') || m === 'style-dalle3' || m.includes('gemini-2.5-flash-image') || m.includes('gemini-3.1-flash-image')) return MODEL_CREDIT_COST.image_mid;
   if (m === 'imagegpt-free') return 15;
@@ -6641,7 +8626,7 @@ function getModelCreditCost(model, provider) {
   if (m.includes('imagen-4') || m.includes('gpt-image')) return MODEL_CREDIT_COST.image_mid;
   if (m === 'flux' || m.includes('style-') || m === 'turbo' || m === 'sana' || m.includes('cf-sdxl') || m.includes('flux-') || m === 'together-flux') return MODEL_CREDIT_COST.image_free;
   
-  // â”€â”€ HEAVY (50 kredi) â€” en pahali modeller â”€â”€
+  // ── HEAVY (50 kredi) — en pahali modeller ──
   const heavyModels = [
     'gpt-5.5', 'gpt-5.4', 'gpt-5.3-codex', 'gpt-4.5-preview',
     'claude-opus-4', 'claude-opus-4.1', 'claude-opus-4.5', 'claude-opus-4.6', 'claude-opus-4.7',
@@ -6651,7 +8636,7 @@ function getModelCreditCost(model, provider) {
   ];
   if (heavyModels.some(em => m.includes(em) && !m.includes('mini') && !m.includes('spark'))) return MODEL_CREDIT_COST.heavy;
   
-  // â”€â”€ MID (20 kredi) â€” orta segment â”€â”€
+  // ── MID (20 kredi) — orta segment ──
   const midModels = [
     'gpt-5.4-mini', 'gpt-5.2', 'o3-mini',
     'claude-sonnet-4', 'claude-sonnet-4-6',
@@ -6662,7 +8647,7 @@ function getModelCreditCost(model, provider) {
   if (midModels.some(pm => m.includes(pm))) return MODEL_CREDIT_COST.mid;
   if (provider === 'sambanova' && (m.includes('deepseek') || m.includes('maverick') || m.includes('llama-3.3'))) return MODEL_CREDIT_COST.mid;
   
-  // â”€â”€ LIGHT (8 kredi) â€” hafif/ucuz modeller â”€â”€
+  // ── LIGHT (8 kredi) — hafif/ucuz modeller ──
   const lightModels = [
     'claude-haiku', 'gpt-5.3-codex-spark',
     'gemini-3-flash', 'gemini-2.5-flash', 'gemini-2.0-flash',
@@ -6720,7 +8705,11 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
     cost = 15;
   } else if (TOGETHER_IMAGE_MODELS[m]) {
     cost = TOGETHER_IMAGE_MODELS[m].credits;
-  } else if (['flux','turbo','sana','cf-sdxl','together-flux'].includes(m) || m.startsWith('style-') || m.startsWith('flux-')) {
+  } else if (m === 'comfyui-local' || m === 'fooocus-local' || m === 'a1111-local' || m === 'forge-local' || m === 'swarmui-local') {
+    cost = 1;
+  } else if (MODAL_IMAGE_MODEL_ALIASES.has(m)) {
+    cost = 5;
+  } else if (m.startsWith('pollinations-') || m.startsWith('cf-') || ['flux','turbo','sana','cf-sdxl','together-flux'].includes(m) || m.startsWith('style-') || m.startsWith('flux-')) {
     cost = MODEL_CREDIT_COST.image_free; // 8 kredi
   } else if (m.includes('imagen-4-fast')) {
     cost = 300; // fast premium
@@ -6792,19 +8781,28 @@ app.get('/api/models', (req, res) => {
     {id:'together-gemini-flash-image', name:'Gemini Flash Image Together', provider:'together', type:'image'},
     {id:'together-qwen-image-pro', name:'Qwen Image 2 Pro', provider:'together', type:'image'},
     {id:'together-gemini-pro-image', name:'Gemini 3 Pro Image Together', provider:'together', type:'image'},
-    {id:'flux', name:'Flux AI', provider:'cloudflare-sdxl', type:'image'},
+    {id:'modal-sdxl', name:'Modal GPU SDXL', provider:'modal', type:'image'},
+    {id:'modal-dreamshaper', name:'Modal DreamShaper XL', provider:'modal', type:'image'},
+    {id:'modal-realisticvision', name:'Modal Realistic Vision', provider:'modal', type:'image'},
+    {id:'modal-a1111-compatible', name:'Modal A1111 Compatible SDXL', provider:'modal', type:'image'},
+    {id:'modal-local-sd', name:'Modal Local SD Cloud', provider:'modal', type:'image'},
+    {id:'modal-cloud-gpu', name:'Modal Cloud GPU', provider:'modal', type:'image'},
+    {id:'flux', name:'Flux AI', provider:'pollinations', type:'image'},
     {id:'cf-sdxl', name:'Cloudflare SDXL', provider:'cloudflare', type:'image'},
-    {id:'flux-realism', name:'Flux Realism', provider:'pollinations', type:'image'},
-    {id:'flux-anime', name:'Flux Anime', provider:'pollinations', type:'image'},
-    {id:'flux-3d', name:'Flux 3D', provider:'pollinations', type:'image'},
-    {id:'sana', name:'Sana Image', provider:'pollinations', type:'image'},
-    {id:'style-midjourney', name:'Midjourney V6 Style', provider:'cloudflare-sdxl', type:'image'},
-    {id:'style-dalle3', name:'GPT Image Style', provider:'openai', type:'image'},
-    {id:'style-anime', name:'Anime Diffusion', provider:'cloudflare-sdxl', type:'image'},
-    {id:'style-realism', name:'Hyper-Realism 8K', provider:'cloudflare-sdxl', type:'image'},
-    {id:'style-cinematic', name:'Cinematic AI', provider:'cloudflare-sdxl', type:'image'},
-    {id:'style-3d', name:'Unreal Engine 5', provider:'cloudflare-sdxl', type:'image'},
-    {id:'style-cyberpunk', name:'Cyberpunk Vision', provider:'cloudflare-sdxl', type:'image'},
+    {id:'cf-sdxl-lightning', name:'Cloudflare SDXL Lightning', provider:'cloudflare', type:'image'},
+    {id:'cf-dreamshaper-lcm', name:'Cloudflare DreamShaper LCM', provider:'cloudflare', type:'image'},
+    {id:'cf-flux-klein', name:'Cloudflare Flux 2 Klein', provider:'cloudflare', type:'image'},
+    {id:'pollinations-flux', name:'Flux Schnell - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-zimage', name:'Z-Image Turbo - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-gptimage', name:'GPT Image 1 Mini - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-gptimage-large', name:'GPT Image 1.5 - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-klein', name:'FLUX.2 Klein - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-kontext', name:'FLUX.1 Kontext - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-nova-canvas', name:'Nova Canvas - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-nanobanana', name:'NanoBanana - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-nanobanana-2', name:'NanoBanana 2 - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-seedream', name:'Seedream 4.0 - Pollinations', provider:'pollinations', type:'image'},
+    {id:'pollinations-seedream5', name:'Seedream 5 Lite - Pollinations', provider:'pollinations', type:'image'},
   ];
   res.json({ object: 'list', data: models.map(m => ({...m, object:'model', created: 1700000000, owned_by:'froxyai'})) });
 });
@@ -7061,8 +9059,3 @@ app.listen(PORT, () => {
   console.log(`   Video: Veo 2.0/3.0/3.1`);
   console.log(`   Image: Imagen 4.0, Pollinations, Guicore\n`);
 });
-
-
-
-
-

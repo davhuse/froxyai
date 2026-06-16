@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node build.js",
     "checkup": "node checkup-froxy.js",
+    "checkup:automation": "node scripts/froxy_automation_checkup.cjs",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

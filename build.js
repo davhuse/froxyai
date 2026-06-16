@@ -4,6 +4,12 @@
 
 const fs = require('fs');
 const path = require('path');
+let esbuild = null;
+try {
+  esbuild = require('esbuild');
+} catch {
+  esbuild = null;
+}
 
 const ROOT = __dirname;
 
@@ -13,11 +19,10 @@ function log(...args) { console.log('[build]', ...args); }
 // esbuild minify emojileri bozduğu için kullanmıyoruz
 function minifyJs(raw) {
   // 1. // tek satır yorumları sil (string içinde değilse)
-  // basit yaklaşım: eğer satır boşluk + // ile başlıyorsa veya sadece // varsa
   let s = raw;
   // 2. /* ... */ yorumlarını sil (multiline)
   s = s.replace(/\/\*[\s\S]*?\*\//g, '');
-  // 3. Satır sonu yorumları (// ...) - basit ama güvenli versiyon
+  // 3. Satır sonu yorumları (// ...)
   s = s.replace(/^\s*\/\/[^\n]*$/gm, '');
   // 4. Birden fazla boş satırı tek boş satıra
   s = s.replace(/\n\s*\n+/g, '\n');
@@ -30,7 +35,15 @@ function buildJs() {
   const src = path.join(ROOT, 'app.js');
   const out = path.join(ROOT, 'app.min.js');
   const raw = fs.readFileSync(src, 'utf8');
-  const min = minifyJs(raw);
+  const min = esbuild
+    ? esbuild.transformSync(raw, {
+        loader: 'js',
+        minify: true,
+        charset: 'utf8',
+        legalComments: 'none',
+        target: 'es2020'
+      }).code
+    : minifyJs(raw);
   fs.writeFileSync(out, min, 'utf8');
   const before = Buffer.byteLength(raw, 'utf8');
   const after = Buffer.byteLength(min, 'utf8');
@@ -54,7 +67,14 @@ function buildCss() {
   const src = path.join(ROOT, 'style.css');
   const out = path.join(ROOT, 'style.min.css');
   const raw = fs.readFileSync(src, 'utf8');
-  const min = minifyCss(raw);
+  const min = esbuild
+    ? esbuild.transformSync(raw, {
+        loader: 'css',
+        minify: true,
+        charset: 'utf8',
+        legalComments: 'none'
+      }).code
+    : minifyCss(raw);
   fs.writeFileSync(out, min, 'utf8');
   const before = Buffer.byteLength(raw, 'utf8');
   const after = Buffer.byteLength(min, 'utf8');
@@ -64,9 +84,54 @@ function buildCss() {
       '(' + Math.round((1 - after / before) * 100) + '% azalma)');
 }
 
+function buildPickerCss() {
+  const src = path.join(ROOT, 'model-picker-v294.css');
+  const out = path.join(ROOT, 'model-picker-v294.min.css');
+  const raw = fs.readFileSync(src, 'utf8');
+  const min = esbuild
+    ? esbuild.transformSync(raw, {
+        loader: 'css',
+        minify: true,
+        charset: 'utf8',
+        legalComments: 'none'
+      }).code
+    : minifyCss(raw);
+  fs.writeFileSync(out, min, 'utf8');
+  const before = Buffer.byteLength(raw, 'utf8');
+  const after = Buffer.byteLength(min, 'utf8');
+  log('model-picker-v294.css -> model-picker-v294.min.css',
+      (before / 1024).toFixed(1) + 'KB ->',
+      (after / 1024).toFixed(1) + 'KB',
+      '(' + Math.round((1 - after / before) * 100) + '% azalma)');
+}
+
+function buildRobotCss() {
+  const src = path.join(ROOT, 'froxy-robot.css');
+  const out = path.join(ROOT, 'froxy-robot.min.css');
+  if (!fs.existsSync(src)) { log('froxy-robot.css not found, skipping'); return; }
+  const raw = fs.readFileSync(src, 'utf8');
+  const min = esbuild
+    ? esbuild.transformSync(raw, {
+        loader: 'css',
+        minify: true,
+        charset: 'utf8',
+        legalComments: 'none'
+      }).code
+    : minifyCss(raw);
+  fs.writeFileSync(out, min, 'utf8');
+  const before = Buffer.byteLength(raw, 'utf8');
+  const after = Buffer.byteLength(min, 'utf8');
+  log('froxy-robot.css -> froxy-robot.min.css',
+      (before / 1024).toFixed(1) + 'KB ->',
+      (after / 1024).toFixed(1) + 'KB',
+      '(' + Math.round((1 - after / before) * 100) + '% azalma)');
+}
+
 try {
   buildJs();
   buildCss();
+  buildPickerCss();
+  buildRobotCss();
   log('OK');
 } catch (e) {
   console.error('[build] HATA:', e.message);

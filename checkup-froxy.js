@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 
-const BASE_URL = process.env.CHECKUP_BASE_URL || 'http://localhost:3010';
+const BASE_URL = process.env.FROXY_CHECKUP_BASE_URL || process.env.CHECKUP_BASE_URL || 'http://localhost:3010';
 const ROUTES = ['/', '/sohbet', '/dashboard', '/gorsel', '/galeri', '/ai-araclar', '/ajanlar', '/promptlar', '/bilgi-bankasi', '/magaza', '/destek', '/admin'];
 const APP_ROUTES = ROUTES.filter(route => route !== '/');
 const VIEWPORTS = [
