@@ -5948,7 +5948,7 @@ app.get('/api/health', async (req, res) => {
   res.json({
     ok: true,
     app: 'Froxy AI',
-    version: 'v436',
+    version: 'v437',
     uptime: Math.round(process.uptime()),
     time: new Date().toISOString(),
     database: dbStats,

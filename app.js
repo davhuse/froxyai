@@ -4111,24 +4111,24 @@ function providerBrandClass(key){
 }
 function providerBrandAssetUrl(key){
   const assets={
-    openai:'provider-logos/openai.svg',
-    gemini:'provider-logos/gemini.svg',
-    claude:'provider-logos/claude.svg',
-    openrouter:'provider-logos/openrouter.svg',
-    deepseek:'provider-logos/deepseek.svg',
-    qwen:'provider-logos/qwen.svg',
-    meta:'provider-logos/generic.svg',
-    mistral:'provider-logos/mistral.svg',
-    nvidia:'provider-logos/nvidia.svg',
-    cloudflare:'provider-logos/cloudflare.svg',
-    huggingface:'provider-logos/huggingface.svg',
-    xai:'provider-logos/xai.svg',
-    groq:'provider-logos/groq.svg',
-    together:'provider-logos/together.svg',
-    cerebras:'provider-logos/cerebras.svg',
-    sambanova:'provider-logos/sambanova.svg',
-    pollinations:'provider-logos/pollinations.svg',
-    generic:'provider-logos/generic.svg'
+    openai:'/provider-logos/openai.svg',
+    gemini:'/provider-logos/gemini.svg',
+    claude:'/provider-logos/claude.svg',
+    openrouter:'/provider-logos/openrouter.svg',
+    deepseek:'/provider-logos/deepseek.svg',
+    qwen:'/provider-logos/qwen.svg',
+    meta:'/provider-logos/generic.svg',
+    mistral:'/provider-logos/mistral.svg',
+    nvidia:'/provider-logos/nvidia.svg',
+    cloudflare:'/provider-logos/cloudflare.svg',
+    huggingface:'/provider-logos/huggingface.svg',
+    xai:'/provider-logos/xai.svg',
+    groq:'/provider-logos/groq.svg',
+    together:'/provider-logos/together.svg',
+    cerebras:'/provider-logos/cerebras.svg',
+    sambanova:'/provider-logos/sambanova.svg',
+    pollinations:'/provider-logos/pollinations.svg',
+    generic:'/provider-logos/generic.svg'
   };
   return assets[key]||'';
 }
