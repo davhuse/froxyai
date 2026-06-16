@@ -31949,3 +31949,11 @@ body.admin-route #froxy-robot-root {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(124,58,237,.35);
 }
+
+/* Force text logo spans to be visible */
+.img-provider-logo-text-v416 span,
+.img-model-stable-menu-v434 .img-provider-logo-text-v416 span,
+#model-picker .mp-provider-logo.img-provider-logo-text-v416 span {
+  display: block !important;
+  visibility: visible !important;
+}

@@ -16822,7 +16822,10 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     },true);
     document.addEventListener('keydown',function(e){if(e.key==='Escape')closeStablePicker()},true);
     window.addEventListener('resize',closeStablePicker,{passive:true});
-    window.addEventListener('scroll',function(){if(document.body.classList.contains('img-model-stable-open-v434'))closeStablePicker()},{passive:true,capture:true});
+    window.addEventListener('scroll',function(e){
+      if(e.target && typeof e.target.closest === 'function' && e.target.closest('.img-model-stable-menu-v434')) return;
+      if(document.body.classList.contains('img-model-stable-open-v434'))closeStablePicker();
+    },{passive:true,capture:true});
   }
 
   function removeImageShowcase(){

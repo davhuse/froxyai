@@ -39,7 +39,10 @@ async function routeSmoke(browser) {
 
       if (route === '/sohbet') {
         await page.click('[data-open-model-picker], .model-picker-chip, .ai-top-chip').catch(() => {});
-        await page.waitForTimeout(800);
+        await page.waitForFunction(() => {
+          const cats = [...document.querySelectorAll('#mp-cats .mp-cat')].map(el => el.textContent);
+          return cats.some(text => text.includes('Ücretsiz Kaliteli') || text.includes('Ucretsiz Kaliteli'));
+        }, { timeout: 10000 }).catch(() => {});
         interactions.modelPicker = await page.evaluate(() => {
           const cats = [...document.querySelectorAll('#mp-cats .mp-cat')].map(el => el.textContent.trim());
           const rows = [...document.querySelectorAll('#model-picker .mp-item')].slice(0, 18);
