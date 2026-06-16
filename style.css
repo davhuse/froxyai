@@ -31957,3 +31957,884 @@ body.admin-route #froxy-robot-root {
   display: block !important;
   visibility: visible !important;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   v440: COMPREHENSIVE UI/UX PREMIUM REDESIGN
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────
+   FAZ 1: IMAGE PAGE SCROLL & OVERFLOW FIX
+   ───────────────────────────────────────────── */
+#ptab-img.ptab.on {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth !important;
+}
+.img-gen-result {
+  max-height: 72vh !important;
+  overflow: hidden !important;
+  border-radius: 16px !important;
+  position: relative !important;
+}
+.img-gen-result img {
+  max-width: 100% !important;
+  max-height: 68vh !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  border-radius: 14px !important;
+  display: block !important;
+  margin: 0 auto !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.28) !important;
+  transition: transform .3s ease, box-shadow .3s ease !important;
+}
+.img-gen-result img:hover {
+  transform: scale(1.01) !important;
+  box-shadow: 0 12px 44px rgba(139,92,246,.22) !important;
+}
+@media(max-width:720px) {
+  .img-gen-result { max-height: 60vh !important; }
+  .img-gen-result img { max-height: 56vh !important; }
+}
+
+/* ─────────────────────────────────────────────
+   FAZ 2: ADMIN PANEL SCROLL FIX
+   ───────────────────────────────────────────── */
+#v-admin .admin-layout.admin-pro-layout {
+  min-height: 100vh !important;
+}
+#v-admin .admin-main,
+#v-admin .admin-pro-main {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+  scrollbar-width: thin !important;
+}
+#v-admin .admin-tab {
+  min-height: auto !important;
+}
+#v-admin .admin-tab.active {
+  display: block !important;
+  padding-bottom: 60px !important;
+}
+#v-admin .admin-model-grid {
+  max-height: calc(100vh - 240px) !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin !important;
+}
+#v-admin .admin-model-grid::-webkit-scrollbar { width: 6px; }
+#v-admin .admin-model-grid::-webkit-scrollbar-thumb {
+  background: rgba(124,58,237,.3);
+  border-radius: 8px;
+}
+@media(max-width:720px) {
+  #v-admin .admin-tab.active { padding: 14px 10px 80px !important; }
+  #v-admin .admin-model-grid { max-height: calc(100vh - 180px) !important; }
+  #v-admin .admin-sidebar,
+  #v-admin .admin-pro-sidebar {
+    max-height: 72px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   FAZ 3: AI AGENTS PREMIUM REDESIGN
+   ───────────────────────────────────────────── */
+
+/* ── Agent Page Container ── */
+#ptab-agents .agents-page {
+  position: relative !important;
+  overflow-x: hidden !important;
+}
+
+/* ── Hero Section Upgrade ── */
+#ptab-agents .agents-hero {
+  position: relative !important;
+  background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,27,75,0.85)) !important;
+  border: 1px solid rgba(139,92,246,.18) !important;
+  border-radius: 24px !important;
+  padding: 36px 32px !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+#ptab-agents .agents-hero::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -50% !important;
+  right: -20% !important;
+  width: 400px !important;
+  height: 400px !important;
+  background: radial-gradient(circle, rgba(139,92,246,.15), rgba(59,130,246,.08), transparent 70%) !important;
+  border-radius: 50% !important;
+  filter: blur(60px) !important;
+  animation: agentHeroGlow 6s ease-in-out infinite !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+@keyframes agentHeroGlow {
+  0%, 100% { opacity: .5; transform: translate(0, 0) scale(1); }
+  50% { opacity: .85; transform: translate(-20px, 15px) scale(1.1); }
+}
+
+/* ── Agents Grid Layout ── */
+#ptab-agents .agents-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  gap: 20px !important;
+  padding: 8px 0 !important;
+}
+
+/* ── Agent Card — Premium Glassmorphism ── */
+#ptab-agents .agent-card,
+#ptab-agents .agent-card-v106 {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 16px !important;
+  padding: 22px 20px !important;
+  border-radius: 20px !important;
+  background: rgba(15,23,42,0.55) !important;
+  backdrop-filter: blur(16px) saturate(1.4) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
+  border: 1px solid rgba(148,163,184,.12) !important;
+  cursor: pointer !important;
+  transition: all .35s cubic-bezier(.22,1,.36,1) !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  animation: agentCardIn .5s ease both !important;
+  animation-delay: var(--agent-delay, 0ms) !important;
+}
+@keyframes agentCardIn {
+  from { opacity: 0; transform: translateY(18px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Animated gradient border glow */
+#ptab-agents .agent-card::before,
+#ptab-agents .agent-card-v106::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: -1px !important;
+  border-radius: 21px !important;
+  padding: 1px !important;
+  background: conic-gradient(from 180deg, var(--agent-accent, #8b5cf6), transparent 40%, transparent 60%, var(--agent-accent, #8b5cf6)) !important;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+  opacity: 0 !important;
+  transition: opacity .4s ease !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+#ptab-agents .agent-card::after,
+#ptab-agents .agent-card-v106::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 10% !important;
+  right: 10% !important;
+  height: 50% !important;
+  background: radial-gradient(ellipse, var(--agent-accent, #8b5cf6), transparent 70%) !important;
+  opacity: 0 !important;
+  filter: blur(28px) !important;
+  transition: opacity .4s ease !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* Hover State */
+#ptab-agents .agent-card:hover,
+#ptab-agents .agent-card-v106:hover {
+  transform: translateY(-6px) scale(1.015) !important;
+  border-color: rgba(148,163,184,.22) !important;
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.32),
+    0 0 30px color-mix(in srgb, var(--agent-accent, #8b5cf6) 15%, transparent) !important;
+  background: rgba(15,23,42,0.7) !important;
+}
+#ptab-agents .agent-card:hover::before,
+#ptab-agents .agent-card-v106:hover::before { opacity: .7 !important; }
+#ptab-agents .agent-card:hover::after,
+#ptab-agents .agent-card-v106:hover::after { opacity: .12 !important; }
+
+/* ── Agent Icon ── */
+#ptab-agents .agent-card .agent-icon,
+#ptab-agents .agent-card-v106 .agent-icon {
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  border-radius: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--agent-accent, #8b5cf6) 15%, transparent), color-mix(in srgb, var(--agent-accent, #8b5cf6) 8%, transparent)) !important;
+  border: 1px solid color-mix(in srgb, var(--agent-accent, #8b5cf6) 22%, transparent) !important;
+  color: var(--agent-accent, #8b5cf6) !important;
+  transition: all .35s ease !important;
+  flex-shrink: 0 !important;
+}
+#ptab-agents .agent-card .agent-icon svg,
+#ptab-agents .agent-card-v106 .agent-icon svg {
+  width: 24px !important;
+  height: 24px !important;
+  stroke: var(--agent-accent, #8b5cf6) !important;
+}
+#ptab-agents .agent-card:hover .agent-icon,
+#ptab-agents .agent-card-v106:hover .agent-icon {
+  transform: scale(1.08) !important;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--agent-accent, #8b5cf6) 30%, transparent) !important;
+  border-color: var(--agent-accent, #8b5cf6) !important;
+}
+
+/* ── Agent Body Text ── */
+#ptab-agents .agent-card .agent-body,
+#ptab-agents .agent-card-v106 .agent-body {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+#ptab-agents .agent-card .agent-top,
+#ptab-agents .agent-card-v106 .agent-top {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+#ptab-agents .agent-card .agent-top strong,
+#ptab-agents .agent-card-v106 .agent-top strong {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  letter-spacing: -.01em !important;
+}
+#ptab-agents .agent-card .agent-top em,
+#ptab-agents .agent-card-v106 .agent-top em {
+  font-style: normal !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 2px 10px !important;
+  border-radius: 20px !important;
+  background: color-mix(in srgb, var(--agent-accent, #8b5cf6) 15%, transparent) !important;
+  color: var(--agent-accent, #8b5cf6) !important;
+  border: 1px solid color-mix(in srgb, var(--agent-accent, #8b5cf6) 20%, transparent) !important;
+  white-space: nowrap !important;
+}
+#ptab-agents .agent-card .agent-desc,
+#ptab-agents .agent-card-v106 .agent-desc {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: var(--text2) !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+#ptab-agents .agent-card .agent-foot,
+#ptab-agents .agent-card-v106 .agent-foot {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 4px !important;
+}
+#ptab-agents .agent-card .agent-foot b,
+#ptab-agents .agent-card-v106 .agent-foot b {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--text3) !important;
+}
+#ptab-agents .agent-card .agent-foot i,
+#ptab-agents .agent-card-v106 .agent-foot i {
+  font-style: normal !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  padding: 5px 16px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, var(--agent-accent, #8b5cf6), color-mix(in srgb, var(--agent-accent, #8b5cf6) 70%, #3b82f6)) !important;
+  color: #fff !important;
+  letter-spacing: .02em !important;
+  transition: all .25s ease !important;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--agent-accent, #8b5cf6) 25%, transparent) !important;
+}
+#ptab-agents .agent-card:hover .agent-foot i,
+#ptab-agents .agent-card-v106:hover .agent-foot i {
+  transform: scale(1.05) !important;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--agent-accent, #8b5cf6) 35%, transparent) !important;
+}
+
+/* ── Agent Shine Effect ── */
+#ptab-agents .agent-card .agent-card-shine,
+#ptab-agents .agent-card-v106 .agent-card-shine {
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 50% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.04), transparent) !important;
+  transition: none !important;
+  pointer-events: none !important;
+}
+#ptab-agents .agent-card:hover .agent-card-shine,
+#ptab-agents .agent-card-v106:hover .agent-card-shine {
+  animation: agentShine .7s ease forwards !important;
+}
+@keyframes agentShine { to { left: 150%; } }
+
+/* ── Agent Favorite Button ── */
+#ptab-agents .agent-card .agent-fav-btn,
+#ptab-agents .agent-card-v106 .agent-fav-btn {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 10px !important;
+  background: rgba(15,23,42,.6) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(148,163,184,.12) !important;
+  color: var(--text3) !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all .25s ease !important;
+  z-index: 2 !important;
+  padding: 0 !important;
+}
+#ptab-agents .agent-card .agent-fav-btn:hover,
+#ptab-agents .agent-card-v106 .agent-fav-btn:hover {
+  background: rgba(245,158,11,.12) !important;
+  border-color: rgba(245,158,11,.3) !important;
+  color: #f59e0b !important;
+  transform: scale(1.1) !important;
+}
+#ptab-agents .agent-card .agent-fav-btn.on,
+#ptab-agents .agent-card-v106 .agent-fav-btn.on {
+  color: #f59e0b !important;
+  background: rgba(245,158,11,.15) !important;
+  border-color: rgba(245,158,11,.3) !important;
+  text-shadow: 0 0 10px rgba(245,158,11,.4) !important;
+}
+
+/* ── Agent Mobile Responsive ── */
+@media(max-width:720px) {
+  #ptab-agents .agents-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  #ptab-agents .agents-hero { padding: 24px 18px !important; }
+  #ptab-agents .agent-card,
+  #ptab-agents .agent-card-v106 {
+    padding: 16px 14px !important;
+  }
+  #ptab-agents .agent-card .agent-icon,
+  #ptab-agents .agent-card-v106 .agent-icon {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+  }
+}
+
+/* ── Light Theme Agent Overrides ── */
+body.theme-light #ptab-agents .agent-card,
+body.theme-light #ptab-agents .agent-card-v106 {
+  background: rgba(255,255,255,.72) !important;
+  border-color: rgba(15,23,42,.08) !important;
+}
+body.theme-light #ptab-agents .agent-card:hover,
+body.theme-light #ptab-agents .agent-card-v106:hover {
+  background: rgba(255,255,255,.88) !important;
+  box-shadow: 0 20px 50px rgba(15,23,42,.12), 0 0 30px color-mix(in srgb, var(--agent-accent, #635bff) 10%, transparent) !important;
+}
+body.theme-light #ptab-agents .agents-hero {
+  background: linear-gradient(135deg, rgba(248,250,252,.95), rgba(238,242,255,.9)) !important;
+  border-color: rgba(99,102,241,.12) !important;
+}
+
+/* ─────────────────────────────────────────────
+   FAZ 4: AI TOOLS PREMIUM REDESIGN
+   ───────────────────────────────────────────── */
+
+/* ── Tools Hero Section ── */
+#ptab-tools .ai-tools-hero,
+#ptab-tools .froxy-ui-v351-hero {
+  position: relative !important;
+  background: linear-gradient(135deg, rgba(15,23,42,.92), rgba(30,58,138,.3)) !important;
+  border: 1px solid rgba(34,211,238,.12) !important;
+  border-radius: 24px !important;
+  padding: 36px 32px !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+#ptab-tools .ai-tools-hero::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -80px !important;
+  left: -60px !important;
+  width: 350px !important;
+  height: 350px !important;
+  background: radial-gradient(circle, rgba(34,211,238,.12), rgba(59,130,246,.06), transparent 70%) !important;
+  border-radius: 50% !important;
+  filter: blur(50px) !important;
+  animation: toolsHeroPulse 7s ease-in-out infinite !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+@keyframes toolsHeroPulse {
+  0%, 100% { opacity: .4; transform: scale(1); }
+  50% { opacity: .7; transform: scale(1.15) translate(15px, 10px); }
+}
+
+/* ── Tools Topic Input ── */
+#ptab-tools .ai-tool-runbar,
+#ptab-tools .ai-tools-hero .ai-tool-runbar {
+  display: flex !important;
+  gap: 10px !important;
+  margin-top: 18px !important;
+  flex-wrap: wrap !important;
+}
+#ptab-tools #ai-tool-topic {
+  flex: 1 !important;
+  min-width: 220px !important;
+  padding: 14px 18px !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.04) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(148,163,184,.14) !important;
+  color: var(--text) !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  transition: all .3s ease !important;
+  outline: none !important;
+}
+#ptab-tools #ai-tool-topic:focus {
+  border-color: rgba(34,211,238,.45) !important;
+  box-shadow: 0 0 0 3px rgba(34,211,238,.08), 0 0 24px rgba(34,211,238,.06) !important;
+  background: rgba(255,255,255,.06) !important;
+}
+#ptab-tools .ai-tool-runbar button {
+  padding: 12px 20px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(34,211,238,.12), rgba(59,130,246,.12)) !important;
+  border: 1px solid rgba(34,211,238,.2) !important;
+  color: #22d3ee !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all .25s ease !important;
+  white-space: nowrap !important;
+}
+#ptab-tools .ai-tool-runbar button:hover {
+  background: linear-gradient(135deg, rgba(34,211,238,.2), rgba(59,130,246,.2)) !important;
+  border-color: rgba(34,211,238,.4) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(34,211,238,.15) !important;
+}
+
+/* ── Tools Stats Bar ── */
+#ptab-tools .ai-tools-stats,
+#ptab-tools .froxy-v351-stats {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+  gap: 14px !important;
+  margin: 22px 0 !important;
+}
+#ptab-tools .ai-tools-stats > div,
+#ptab-tools .froxy-v351-stats > div {
+  padding: 16px !important;
+  border-radius: 16px !important;
+  background: rgba(15,23,42,.5) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(148,163,184,.08) !important;
+  text-align: center !important;
+  transition: all .25s ease !important;
+}
+#ptab-tools .ai-tools-stats > div:hover,
+#ptab-tools .froxy-v351-stats > div:hover {
+  border-color: rgba(34,211,238,.2) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2) !important;
+}
+#ptab-tools .ai-tools-stats strong,
+#ptab-tools .froxy-v351-stats strong {
+  display: block !important;
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, #22d3ee, #3b82f6) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+#ptab-tools .ai-tools-stats span,
+#ptab-tools .froxy-v351-stats span {
+  font-size: 12px !important;
+  color: var(--text3) !important;
+  margin-top: 4px !important;
+  display: block !important;
+}
+
+/* ── Tool Cards Grid ── */
+#ptab-tools .ai-tools-grid,
+#ptab-tools .froxy-v351-card-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 18px !important;
+}
+
+/* ── Tool Card — Premium Design ── */
+#ptab-tools .ai-tool-card,
+#ptab-tools .froxy-v351-work-card {
+  position: relative !important;
+  padding: 24px 22px !important;
+  border-radius: 20px !important;
+  background: rgba(15,23,42,.5) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(148,163,184,.1) !important;
+  cursor: default !important;
+  transition: all .35s cubic-bezier(.22,1,.36,1) !important;
+  overflow: hidden !important;
+  animation: toolCardIn .45s ease both !important;
+  animation-delay: var(--tool-delay, 0ms) !important;
+}
+@keyframes toolCardIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+#ptab-tools .ai-tool-card:hover,
+#ptab-tools .froxy-v351-work-card:hover {
+  transform: translateY(-5px) !important;
+  border-color: color-mix(in srgb, var(--tool-accent, #22d3ee) 30%, transparent) !important;
+  box-shadow:
+    0 16px 44px rgba(0,0,0,.28),
+    0 0 24px color-mix(in srgb, var(--tool-accent, #22d3ee) 10%, transparent) !important;
+  background: rgba(15,23,42,.65) !important;
+}
+
+/* Tool card top (icon + category) */
+#ptab-tools .ai-tool-card .tool-card-top,
+#ptab-tools .froxy-v351-work-card .tool-card-top {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 14px !important;
+}
+#ptab-tools .ai-tool-card .froxy-v351-icon,
+#ptab-tools .froxy-v351-work-card .froxy-v351-icon {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--tool-accent, #22d3ee) 15%, transparent), color-mix(in srgb, var(--tool-accent, #22d3ee) 6%, transparent)) !important;
+  border: 1px solid color-mix(in srgb, var(--tool-accent, #22d3ee) 18%, transparent) !important;
+  color: var(--tool-accent, #22d3ee) !important;
+  flex-shrink: 0 !important;
+  transition: all .3s ease !important;
+}
+#ptab-tools .ai-tool-card .froxy-v351-icon svg,
+#ptab-tools .froxy-v351-work-card .froxy-v351-icon svg {
+  stroke: var(--tool-accent, #22d3ee) !important;
+}
+#ptab-tools .ai-tool-card:hover .froxy-v351-icon,
+#ptab-tools .froxy-v351-work-card:hover .froxy-v351-icon {
+  transform: scale(1.06) !important;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--tool-accent, #22d3ee) 22%, transparent) !important;
+}
+#ptab-tools .ai-tool-card .tool-card-top em,
+#ptab-tools .froxy-v351-work-card .tool-card-top em {
+  font-style: normal !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 3px 10px !important;
+  border-radius: 20px !important;
+  background: color-mix(in srgb, var(--tool-accent, #22d3ee) 12%, transparent) !important;
+  color: var(--tool-accent, #22d3ee) !important;
+  border: 1px solid color-mix(in srgb, var(--tool-accent, #22d3ee) 16%, transparent) !important;
+}
+
+/* Tool card title & description */
+#ptab-tools .ai-tool-card h4,
+#ptab-tools .froxy-v351-work-card h4 {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  margin: 0 0 8px !important;
+  letter-spacing: -.01em !important;
+}
+#ptab-tools .ai-tool-card p,
+#ptab-tools .froxy-v351-work-card p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: var(--text2) !important;
+  margin: 0 0 16px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+/* Tool card action buttons */
+#ptab-tools .ai-tool-card .tool-card-actions,
+#ptab-tools .froxy-v351-work-card .tool-card-actions {
+  display: flex !important;
+  gap: 8px !important;
+}
+#ptab-tools .ai-tool-card .tool-card-actions button:first-child,
+#ptab-tools .froxy-v351-work-card .tool-card-actions button:first-child {
+  flex: 1 !important;
+  padding: 10px 16px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  background: linear-gradient(135deg, var(--tool-accent, #22d3ee), color-mix(in srgb, var(--tool-accent, #22d3ee) 70%, #3b82f6)) !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all .25s ease !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--tool-accent, #22d3ee) 22%, transparent) !important;
+}
+#ptab-tools .ai-tool-card .tool-card-actions button:first-child:hover,
+#ptab-tools .froxy-v351-work-card .tool-card-actions button:first-child:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--tool-accent, #22d3ee) 30%, transparent) !important;
+}
+#ptab-tools .ai-tool-card .tool-card-actions button:last-child,
+#ptab-tools .froxy-v351-work-card .tool-card-actions button:last-child {
+  padding: 10px 16px !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,.04) !important;
+  border: 1px solid rgba(148,163,184,.14) !important;
+  color: var(--text2) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all .25s ease !important;
+}
+#ptab-tools .ai-tool-card .tool-card-actions button:last-child:hover,
+#ptab-tools .froxy-v351-work-card .tool-card-actions button:last-child:hover {
+  background: rgba(255,255,255,.08) !important;
+  border-color: rgba(148,163,184,.25) !important;
+  color: var(--text) !important;
+}
+
+/* ── Tools Mobile ── */
+@media(max-width:720px) {
+  #ptab-tools .ai-tools-grid,
+  #ptab-tools .froxy-v351-card-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  #ptab-tools .ai-tools-hero,
+  #ptab-tools .froxy-ui-v351-hero { padding: 24px 16px !important; }
+  #ptab-tools .ai-tools-stats,
+  #ptab-tools .froxy-v351-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  #ptab-tools .ai-tool-runbar { flex-direction: column !important; }
+}
+
+/* ── Tools Light Theme ── */
+body.theme-light #ptab-tools .ai-tool-card,
+body.theme-light #ptab-tools .froxy-v351-work-card {
+  background: rgba(255,255,255,.7) !important;
+  border-color: rgba(15,23,42,.06) !important;
+}
+body.theme-light #ptab-tools .ai-tool-card:hover,
+body.theme-light #ptab-tools .froxy-v351-work-card:hover {
+  background: rgba(255,255,255,.85) !important;
+  box-shadow: 0 16px 44px rgba(15,23,42,.1) !important;
+}
+body.theme-light #ptab-tools .ai-tools-hero {
+  background: linear-gradient(135deg, rgba(248,250,252,.95), rgba(224,242,254,.8)) !important;
+  border-color: rgba(14,165,233,.12) !important;
+}
+
+/* ─────────────────────────────────────────────
+   FAZ 5: PROMPTS PREMIUM REDESIGN
+   ───────────────────────────────────────────── */
+
+/* ── Prompt Category Chips ── */
+#ptab-prompts .tool-chip,
+#prompt-cats .tool-chip {
+  padding: 8px 18px !important;
+  border-radius: 12px !important;
+  background: rgba(15,23,42,.4) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(148,163,184,.1) !important;
+  color: var(--text2) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all .25s ease !important;
+  white-space: nowrap !important;
+}
+#ptab-prompts .tool-chip:hover,
+#prompt-cats .tool-chip:hover {
+  background: rgba(139,92,246,.1) !important;
+  border-color: rgba(139,92,246,.2) !important;
+  color: var(--text) !important;
+  transform: translateY(-1px) !important;
+}
+#ptab-prompts .tool-chip.active,
+#prompt-cats .tool-chip.active {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 16px rgba(139,92,246,.25) !important;
+}
+
+/* ── Prompt Cards Grid ── */
+#prompt-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: 18px !important;
+  margin-top: 20px !important;
+}
+
+/* ── Prompt Card — Premium Style ── */
+#ptab-prompts .prompt-card,
+#prompt-grid .prompt-card {
+  position: relative !important;
+  padding: 24px 20px !important;
+  border-radius: 20px !important;
+  background: rgba(15,23,42,.5) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(148,163,184,.1) !important;
+  cursor: pointer !important;
+  transition: all .35s cubic-bezier(.22,1,.36,1) !important;
+  overflow: hidden !important;
+  text-align: center !important;
+}
+/* Gradient top accent stripe */
+#ptab-prompts .prompt-card::before,
+#prompt-grid .prompt-card::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #8b5cf6, #ec4899, #f59e0b) !important;
+  opacity: .6 !important;
+  transition: opacity .3s ease !important;
+}
+#ptab-prompts .prompt-card:hover,
+#prompt-grid .prompt-card:hover {
+  transform: translateY(-5px) !important;
+  border-color: rgba(139,92,246,.2) !important;
+  box-shadow: 0 16px 44px rgba(0,0,0,.28), 0 0 20px rgba(139,92,246,.08) !important;
+  background: rgba(15,23,42,.65) !important;
+}
+#ptab-prompts .prompt-card:hover::before,
+#prompt-grid .prompt-card:hover::before { opacity: 1 !important; }
+
+/* Prompt card icon */
+#ptab-prompts .prompt-card .persona-icon-3d,
+#prompt-grid .prompt-card .persona-icon-3d {
+  border-radius: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all .3s ease !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18) !important;
+}
+#ptab-prompts .prompt-card:hover .persona-icon-3d,
+#prompt-grid .prompt-card:hover .persona-icon-3d {
+  transform: scale(1.08) rotate(3deg) !important;
+  box-shadow: 0 8px 24px rgba(139,92,246,.22) !important;
+}
+
+/* Prompt card title */
+#ptab-prompts .prompt-card h3,
+#prompt-grid .prompt-card h3 {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  margin: 12px 0 6px !important;
+  letter-spacing: -.01em !important;
+}
+/* Prompt card description */
+#ptab-prompts .prompt-card p,
+#prompt-grid .prompt-card p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: var(--text2) !important;
+  margin: 0 !important;
+}
+
+/* Prompt favorite button */
+#ptab-prompts .prompt-fav-btn,
+#prompt-grid .prompt-fav-btn {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 9px !important;
+  background: rgba(15,23,42,.5) !important;
+  backdrop-filter: blur(6px) !important;
+  border: 1px solid rgba(148,163,184,.1) !important;
+  color: var(--text3) !important;
+  font-size: 15px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all .25s ease !important;
+  z-index: 2 !important;
+  padding: 0 !important;
+}
+#ptab-prompts .prompt-fav-btn:hover,
+#prompt-grid .prompt-fav-btn:hover {
+  background: rgba(245,158,11,.12) !important;
+  border-color: rgba(245,158,11,.3) !important;
+  color: #f59e0b !important;
+  transform: scale(1.12) !important;
+}
+#ptab-prompts .prompt-fav-btn.on,
+#prompt-grid .prompt-fav-btn.on {
+  color: #f59e0b !important;
+  background: rgba(245,158,11,.15) !important;
+  border-color: rgba(245,158,11,.3) !important;
+  text-shadow: 0 0 8px rgba(245,158,11,.35) !important;
+}
+
+/* ── Prompts Mobile ── */
+@media(max-width:720px) {
+  #prompt-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  #prompt-cats { display: flex !important; overflow-x: auto !important; gap: 8px !important; padding-bottom: 8px !important; }
+}
+
+/* ── Prompts Light Theme ── */
+body.theme-light #ptab-prompts .prompt-card,
+body.theme-light #prompt-grid .prompt-card {
+  background: rgba(255,255,255,.72) !important;
+  border-color: rgba(15,23,42,.06) !important;
+}
+body.theme-light #ptab-prompts .prompt-card:hover,
+body.theme-light #prompt-grid .prompt-card:hover {
+  background: rgba(255,255,255,.88) !important;
+  box-shadow: 0 16px 44px rgba(15,23,42,.1) !important;
+}
+body.theme-light #ptab-prompts .tool-chip,
+body.theme-light #prompt-cats .tool-chip {
+  background: rgba(255,255,255,.7) !important;
+  border-color: rgba(15,23,42,.08) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   END v440 PREMIUM REDESIGN
+   ══════════════════════════════════════════════════════════════ */
