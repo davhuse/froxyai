@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
 const path = require('path');
@@ -5948,7 +5948,7 @@ app.get('/api/health', async (req, res) => {
   res.json({
     ok: true,
     app: 'Froxy AI',
-    version: 'v433',
+    version: 'v435',
     uptime: Math.round(process.uptime()),
     time: new Date().toISOString(),
     database: dbStats,
