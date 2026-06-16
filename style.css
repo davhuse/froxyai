@@ -32702,7 +32702,11 @@ body.theme-light #ptab-tools .ai-tools-hero {
 
 /* ── Prompt Card — Premium Style ── */
 #ptab-prompts .prompt-card,
-#prompt-grid .prompt-card {
+#prompt-grid .prompt-card,
+#ptab-prompts .pro-prompt-card,
+.pro-prompt-grid .pro-prompt-card,
+.froxy-v351-library-card,
+.froxy-v351-prompt-card {
   position: relative !important;
   display: flex !important;
   flex-direction: column !important;
@@ -32724,7 +32728,11 @@ body.theme-light #ptab-tools .ai-tools-hero {
 
 /* Conic gradient borders (like agents) */
 #ptab-prompts .prompt-card::before,
-#prompt-grid .prompt-card::before {
+#prompt-grid .prompt-card::before,
+#ptab-prompts .pro-prompt-card::before,
+.pro-prompt-grid .pro-prompt-card::before,
+.froxy-v351-library-card::before,
+.froxy-v351-prompt-card::before {
   content: '' !important;
   position: absolute !important;
   inset: -1px !important;
@@ -32742,7 +32750,11 @@ body.theme-light #ptab-tools .ai-tools-hero {
 }
 
 #ptab-prompts .prompt-card::after,
-#prompt-grid .prompt-card::after {
+#prompt-grid .prompt-card::after,
+#ptab-prompts .pro-prompt-card::after,
+.pro-prompt-grid .pro-prompt-card::after,
+.froxy-v351-library-card::after,
+.froxy-v351-prompt-card::after {
   content: '' !important;
   position: absolute !important;
   bottom: 0 !important;
@@ -32758,7 +32770,11 @@ body.theme-light #ptab-tools .ai-tools-hero {
 }
 
 #ptab-prompts .prompt-card:hover,
-#prompt-grid .prompt-card:hover {
+#prompt-grid .prompt-card:hover,
+#ptab-prompts .pro-prompt-card:hover,
+.pro-prompt-grid .pro-prompt-card:hover,
+.froxy-v351-library-card:hover,
+.froxy-v351-prompt-card:hover {
   transform: translateY(-6px) scale(1.015) !important;
   border-color: rgba(148,163,184,.22) !important;
   box-shadow:
@@ -32768,13 +32784,23 @@ body.theme-light #ptab-tools .ai-tools-hero {
 }
 
 #ptab-prompts .prompt-card:hover::before,
-#prompt-grid .prompt-card:hover::before { opacity: .7 !important; }
+#prompt-grid .prompt-card:hover::before,
+#ptab-prompts .pro-prompt-card:hover::before,
+.pro-prompt-grid .pro-prompt-card:hover::before,
+.froxy-v351-library-card:hover::before,
+.froxy-v351-prompt-card:hover::before { opacity: .7 !important; }
+
 #ptab-prompts .prompt-card:hover::after,
-#prompt-grid .prompt-card:hover::after { opacity: .12 !important; }
+#prompt-grid .prompt-card:hover::after,
+#ptab-prompts .pro-prompt-card:hover::after,
+.pro-prompt-grid .pro-prompt-card:hover::after,
+.froxy-v351-library-card:hover::after,
+.froxy-v351-prompt-card:hover::after { opacity: .12 !important; }
 
 /* Prompt card icon centering & wrap */
 #ptab-prompts .prompt-icon-container,
-#prompt-grid .prompt-icon-container {
+#prompt-grid .prompt-icon-container,
+.pro-prompt-grid .prompt-icon-container {
   display: flex !important;
   align-items: center !important;
   justify-content: flex-start !important;
@@ -32782,7 +32808,11 @@ body.theme-light #ptab-tools .ai-tools-hero {
 }
 
 #ptab-prompts .prompt-card .persona-icon-3d,
-#prompt-grid .prompt-card .persona-icon-3d {
+#prompt-grid .prompt-card .persona-icon-3d,
+#ptab-prompts .pro-prompt-card .persona-icon-3d,
+.pro-prompt-grid .pro-prompt-card .persona-icon-3d,
+.froxy-v351-library-card .persona-icon-3d,
+.froxy-v351-prompt-card .persona-icon-3d {
   width: 46px !important;
   height: 46px !important;
   min-width: 46px !important;
@@ -32797,7 +32827,11 @@ body.theme-light #ptab-tools .ai-tools-hero {
 }
 
 #ptab-prompts .prompt-card:hover .persona-icon-3d,
-#prompt-grid .prompt-card:hover .persona-icon-3d {
+#prompt-grid .prompt-card:hover .persona-icon-3d,
+#ptab-prompts .pro-prompt-card:hover .persona-icon-3d,
+.pro-prompt-grid .pro-prompt-card:hover .persona-icon-3d,
+.froxy-v351-library-card:hover .persona-icon-3d,
+.froxy-v351-prompt-card:hover .persona-icon-3d {
   transform: scale(1.06) rotate(3deg) !important;
   box-shadow: 0 0 16px color-mix(in srgb, var(--prompt-accent, #8b5cf6) 22%, transparent) !important;
   border-color: var(--prompt-accent, #8b5cf6) !important;
@@ -32805,7 +32839,11 @@ body.theme-light #ptab-tools .ai-tools-hero {
 
 /* Prompt card title */
 #ptab-prompts .prompt-card h3,
-#prompt-grid .prompt-card h3 {
+#prompt-grid .prompt-card h3,
+#ptab-prompts .pro-prompt-card strong,
+.pro-prompt-grid .pro-prompt-card strong,
+.froxy-v351-library-card h3,
+.froxy-v351-prompt-card strong {
   font-size: 15px !important;
   font-weight: 700 !important;
   color: var(--text) !important;
@@ -32815,7 +32853,11 @@ body.theme-light #ptab-tools .ai-tools-hero {
 
 /* Prompt card description */
 #ptab-prompts .prompt-card p,
-#prompt-grid .prompt-card p {
+#prompt-grid .prompt-card p,
+#ptab-prompts .pro-prompt-card em,
+.pro-prompt-grid .pro-prompt-card em,
+.froxy-v351-library-card p,
+.froxy-v351-prompt-card em {
   font-size: 13px !important;
   line-height: 1.5 !important;
   color: var(--text2) !important;
@@ -32829,7 +32871,10 @@ body.theme-light #ptab-tools .ai-tools-hero {
 
 /* Prompt card footer & button */
 #ptab-prompts .prompt-card-foot,
-#prompt-grid .prompt-card-foot {
+#prompt-grid .prompt-card-foot,
+.pro-prompt-grid .prompt-card-foot,
+.froxy-v351-library-card .prompt-card-foot,
+.froxy-v351-prompt-card .prompt-card-foot {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -32838,14 +32883,20 @@ body.theme-light #ptab-tools .ai-tools-hero {
 }
 
 #ptab-prompts .prompt-card-foot span,
-#prompt-grid .prompt-card-foot span {
+#prompt-grid .prompt-card-foot span,
+.pro-prompt-grid .prompt-card-foot span,
+.froxy-v351-library-card .prompt-card-foot span,
+.froxy-v351-prompt-card .prompt-card-foot span {
   font-size: 11px !important;
   font-weight: 600 !important;
   color: var(--text3) !important;
 }
 
 #ptab-prompts .prompt-use-btn,
-#prompt-grid .prompt-use-btn {
+#prompt-grid .prompt-use-btn,
+.pro-prompt-grid .prompt-use-btn,
+.froxy-v351-library-card .prompt-use-btn,
+.froxy-v351-prompt-card .prompt-use-btn {
   padding: 6px 14px !important;
   border-radius: 10px !important;
   border: none !important;
@@ -32859,14 +32910,21 @@ body.theme-light #ptab-tools .ai-tools-hero {
 }
 
 #ptab-prompts .prompt-card:hover .prompt-use-btn,
-#prompt-grid .prompt-card:hover .prompt-use-btn {
+#prompt-grid .prompt-card:hover .prompt-use-btn,
+#ptab-prompts .pro-prompt-card:hover .prompt-use-btn,
+.pro-prompt-grid .pro-prompt-card:hover .prompt-use-btn,
+.froxy-v351-library-card:hover .prompt-use-btn,
+.froxy-v351-prompt-card:hover .prompt-use-btn {
   transform: scale(1.04) !important;
   box-shadow: 0 6px 16px color-mix(in srgb, var(--prompt-accent, #8b5cf6) 35%, transparent) !important;
 }
 
 /* Prompt Card Shine sweep effect */
 #ptab-prompts .prompt-card-shine,
-#prompt-grid .prompt-card-shine {
+#prompt-grid .prompt-card-shine,
+.pro-prompt-grid .prompt-card-shine,
+.froxy-v351-library-card .prompt-card-shine,
+.froxy-v351-prompt-card .prompt-card-shine {
   position: absolute !important;
   top: 0 !important;
   left: -100% !important;
@@ -32878,7 +32936,11 @@ body.theme-light #ptab-tools .ai-tools-hero {
 }
 
 #ptab-prompts .prompt-card:hover .prompt-card-shine,
-#prompt-grid .prompt-card:hover .prompt-card-shine {
+#prompt-grid .prompt-card:hover .prompt-card-shine,
+#ptab-prompts .pro-prompt-card:hover .prompt-card-shine,
+.pro-prompt-grid .pro-prompt-card:hover .prompt-card-shine,
+.froxy-v351-library-card:hover .prompt-card-shine,
+.froxy-v351-prompt-card:hover .prompt-card-shine {
   animation: promptShine .7s ease forwards !important;
 }
 
@@ -32886,7 +32948,8 @@ body.theme-light #ptab-tools .ai-tools-hero {
 
 /* Prompt favorite button */
 #ptab-prompts .prompt-fav-btn,
-#prompt-grid .prompt-fav-btn {
+#prompt-grid .prompt-fav-btn,
+.froxy-v351-library-card .prompt-fav-btn {
   position: absolute !important;
   top: 12px !important;
   right: 12px !important;
@@ -32907,14 +32970,16 @@ body.theme-light #ptab-tools .ai-tools-hero {
   padding: 0 !important;
 }
 #ptab-prompts .prompt-fav-btn:hover,
-#prompt-grid .prompt-fav-btn:hover {
+#prompt-grid .prompt-fav-btn:hover,
+.froxy-v351-library-card .prompt-fav-btn:hover {
   background: rgba(245,158,11,.12) !important;
   border-color: rgba(245,158,11,.3) !important;
   color: #f59e0b !important;
   transform: scale(1.12) !important;
 }
 #ptab-prompts .prompt-fav-btn.on,
-#prompt-grid .prompt-fav-btn.on {
+#prompt-grid .prompt-fav-btn.on,
+.froxy-v351-library-card .prompt-fav-btn.on {
   color: #f59e0b !important;
   background: rgba(245,158,11,.15) !important;
   border-color: rgba(245,158,11,.3) !important;
@@ -32932,12 +32997,16 @@ body.theme-light #ptab-tools .ai-tools-hero {
 
 /* ── Prompts Light Theme ── */
 body.theme-light #ptab-prompts .prompt-card,
-body.theme-light #prompt-grid .prompt-card {
+body.theme-light #prompt-grid .prompt-card,
+body.theme-light .froxy-v351-library-card,
+body.theme-light .froxy-v351-prompt-card {
   background: rgba(255,255,255,.72) !important;
   border-color: rgba(15,23,42,.06) !important;
 }
 body.theme-light #ptab-prompts .prompt-card:hover,
-body.theme-light #prompt-grid .prompt-card:hover {
+body.theme-light #prompt-grid .prompt-card:hover,
+body.theme-light .froxy-v351-library-card:hover,
+body.theme-light .froxy-v351-prompt-card:hover {
   background: rgba(255,255,255,.88) !important;
   box-shadow: 0 16px 44px rgba(15,23,42,.1) !important;
 }
