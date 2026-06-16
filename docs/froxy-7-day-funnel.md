@@ -4,7 +4,7 @@
 
 Her video, bio ve reklam ayni teklife baglanacak:
 
-`ChatGPT, Claude, Gemini ve 400+ AI modeli tek panelde. 100 ucretsiz krediyle dene.`
+`ChatGPT, Claude, Gemini ve 600+ AI modeli tek panelde. 100 ucretsiz krediyle dene.`
 
 ## Kampanya Linkleri
 
@@ -43,7 +43,7 @@ Ekranda hizli sekme karmasasi. Ses: `ChatGPT ayri, Claude ayri, Gemini ayri... y
 Gercek Froxy AI panel kaydi. Model listesinden ChatGPT, Claude ve Gemini kartlari gorunsun. Bir prompt yaz: `Bu urun icin 5 reklam fikri ver.`
 
 10-15 sn:
-Panelde cevap akarken ekran yazisi: `400+ AI modeli tek panelde.`
+Panelde cevap akarken ekran yazisi: `600+ AI modeli tek panelde.`
 
 15-20 sn:
 CTA: `100 ucretsiz krediyle dene. froxyai.com`
@@ -52,7 +52,7 @@ Baslik:
 `AI araclari arasinda kaybolma | Froxy AI`
 
 Aciklama:
-`ChatGPT, Claude, Gemini ve 400+ AI modeli tek panelde. Froxy AI'yi 100 ucretsiz krediyle dene: https://froxyai.com/?utm_source=youtube&utm_medium=shorts&utm_campaign=free100`
+`ChatGPT, Claude, Gemini ve 600+ AI modeli tek panelde. Froxy AI'yi 100 ucretsiz krediyle dene: https://froxyai.com/?utm_source=youtube&utm_medium=shorts&utm_campaign=free100`
 
 Hashtag:
 `#froxyai #yapayzeka #chatgpt #claude #gemini #aitools`
@@ -98,7 +98,7 @@ Baslik:
 `Froxy AI 100 ucretsiz kredi veriyor`
 
 Aciklama:
-`ChatGPT, Claude, Gemini ve 400+ AI modeli tek panelde. 100 krediyle ucretsiz dene: https://froxyai.com/?utm_source=youtube&utm_medium=shorts&utm_campaign=free100`
+`ChatGPT, Claude, Gemini ve 600+ AI modeli tek panelde. 100 krediyle ucretsiz dene: https://froxyai.com/?utm_source=youtube&utm_medium=shorts&utm_campaign=free100`
 
 Hashtag:
 `#froxyai #yapayzeka #ai #chatgpt #ucretsiz`

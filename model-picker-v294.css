@@ -1152,16 +1152,137 @@ body.theme-light #model-picker .mp-item,body.theme-ocean #model-picker .mp-item,
   100% { transform: scale(1); }
 }
 
-/* Provider logo icons redesign */
+/* Provider logo icons redesign & Premium overhaul overrides */
+#model-picker {
+  animation: modelPickerEntrance 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  border: 1px solid rgba(124, 58, 237, 0.2) !important;
+  background: rgba(10, 15, 30, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65), 0 0 40px rgba(124, 58, 237, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+@keyframes modelPickerEntrance {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+#model-picker-overlay {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  background: rgba(0, 0, 0, 0.65) !important;
+  transition: opacity 0.3s ease !important;
+}
+
+#model-picker #mp-search {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+#model-picker #mp-search:focus {
+  border-color: rgba(124, 58, 237, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+#model-picker .mp-cat {
+  position: relative !important;
+  transition: background 0.2s ease, color 0.2s ease, padding-left 0.2s ease !important;
+}
+
+#model-picker .mp-cat:hover {
+  padding-left: 20px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+#model-picker .mp-cat.active {
+  background: linear-gradient(90deg, rgba(124, 58, 237, 0.12), transparent) !important;
+  color: #c4b5fd !important;
+  border-left: 3px solid #7c3aed !important;
+}
+
+#model-picker .mp-item {
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  border-radius: 14px !important;
+  margin-bottom: 6px !important;
+  background: rgba(15, 23, 42, 0.25) !important;
+}
+
+#model-picker .mp-item:hover {
+  transform: translateY(-2px) scale(1.008) !important;
+  background: rgba(15, 23, 42, 0.52) !important;
+  border-color: rgba(124, 58, 237, 0.22) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35), 0 0 14px rgba(124, 58, 237, 0.08) !important;
+}
+
+#model-picker .mp-item.selected {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(59, 130, 246, 0.04)) !important;
+  border-color: rgba(124, 58, 237, 0.35) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(124, 58, 237, 0.15) !important;
+}
+
 #model-picker .mp-provider-logo {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  transition: all 0.25s ease !important;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease !important;
 }
 
 #model-picker .mp-item:hover .mp-provider-logo {
-  transform: scale(1.04) !important;
-  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.25) !important;
-  border-color: rgba(124, 58, 237, 0.3) !important;
+  transform: scale(1.1) rotate(4deg) !important;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
 }
+
+#model-picker .mp-item:hover .mp-provider-logo.mp-logo-openai {
+  box-shadow: 0 0 16px rgba(16, 163, 127, 0.45) !important;
+  border-color: rgba(16, 163, 127, 0.5) !important;
+}
+
+#model-picker .mp-item:hover .mp-provider-logo.mp-logo-gemini {
+  box-shadow: 0 0 16px rgba(66, 133, 244, 0.45), 0 0 20px rgba(139, 92, 246, 0.35) !important;
+  border-color: rgba(139, 92, 246, 0.5) !important;
+}
+
+#model-picker .mp-item:hover .mp-provider-logo.mp-logo-claude {
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.45) !important;
+  border-color: rgba(249, 115, 22, 0.5) !important;
+}
+
+#model-picker .mp-item:hover .mp-provider-logo.mp-logo-deepseek {
+  box-shadow: 0 0 16px rgba(29, 78, 216, 0.45) !important;
+  border-color: rgba(96, 165, 250, 0.5) !important;
+}
+
+#model-picker .mp-item:hover .mp-provider-logo.mp-logo-meta {
+  box-shadow: 0 0 16px rgba(37, 99, 235, 0.45) !important;
+  border-color: rgba(37, 99, 235, 0.5) !important;
+}
+
+#model-picker .mp-item:hover .mp-provider-logo.mp-logo-cloudflare {
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.4) !important;
+  border-color: rgba(249, 115, 22, 0.5) !important;
+}
+
+#model-picker #mp-list::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+#model-picker #mp-list::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+#model-picker #mp-list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.12) !important;
+  border-radius: 99px !important;
+}
+
+#model-picker #mp-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.3) !important;
+}
+
 

@@ -1446,7 +1446,12 @@ function finishBackendAuth(data, successText){
   localStorage.setItem('saas_token', authToken);
   localStorage.setItem('saas_user', JSON.stringify(authUser));
   if(typeof msg==='function') msg(successText || 'Başarıyla giriş yapıldı!', 'ok');
-  completeAuthTransition('chat');
+  
+  // Dynamic target: if user is admin and was attempting admin path, stay on admin view
+  const isUserAdmin = !!(authUser?.is_admin || authUser?.isAdmin || (data?.user && (data.user.is_admin || data.user.isAdmin)));
+  const currentRoute = typeof getRouteTarget === 'function' ? getRouteTarget() : '';
+  const dest = (isUserAdmin && (currentRoute === 'admin' || location.pathname.includes('admin'))) ? 'admin' : 'chat';
+  completeAuthTransition(dest);
 }
 
 async function verifyLoginCode(){
