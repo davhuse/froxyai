@@ -4371,14 +4371,19 @@ function openModelPicker(event){
   const p=document.getElementById('model-picker');
   const o=document.getElementById('model-picker-overlay');
   if(!p||!o)return;
-  p.classList.add('open');
-  o.classList.add('open');
   p.style.display='flex';
   o.style.display='block';
   p.removeAttribute('aria-hidden');
   o.removeAttribute('aria-hidden');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      p.classList.add('open');
+      o.classList.add('open');
+    });
+  });
   document.body.classList.add('model-picker-open');
   window.__froxyModelPickerOpenedAt=Date.now();
+  window.__froxyModelPickerScrollStart = window.scrollY || document.documentElement.scrollTop;
   renderModelPicker();
   const s=document.getElementById('mp-search');
   if(s)setTimeout(()=>s.focus(),30);
@@ -4404,9 +4409,13 @@ function closeModelPicker(){
   const o=document.getElementById('model-picker-overlay');
   p?.classList.remove('open');
   o?.classList.remove('open');
-  if(p){p.style.display='';p.setAttribute('aria-hidden','true')}
-  if(o){o.style.display='';o.setAttribute('aria-hidden','true')}
+  if(p){p.setAttribute('aria-hidden','true')}
+  if(o){o.setAttribute('aria-hidden','true')}
   document.body.classList.remove('model-picker-open');
+  setTimeout(() => {
+    if(p && !p.classList.contains('open')) p.style.display='';
+    if(o && !o.classList.contains('open')) o.style.display='';
+  }, 400);
 }
 
 function openSettingsModal(){
@@ -16906,3 +16915,13 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
   [80,240,700,1600,3600].forEach(ms=>setTimeout(run,ms));
   window.addEventListener('popstate',()=>setTimeout(run,40));
 })();
+
+// EXPORTS FOR PROXIES
+window.modal = typeof modal !== 'undefined' ? modal : window.modal;
+window.go = typeof go !== 'undefined' ? go : window.go;
+window.buyTokensById = typeof buyTokensById !== 'undefined' ? buyTokensById : window.buyTokensById;
+window.toggleModelPicker = typeof toggleModelPicker !== 'undefined' ? toggleModelPicker : window.toggleModelPicker;
+window.openModelPicker = typeof openModelPicker !== 'undefined' ? openModelPicker : window.openModelPicker;
+window.filterModels = typeof filterModels !== 'undefined' ? filterModels : window.filterModels;
+window.selectModel = typeof selectModel !== 'undefined' ? selectModel : window.selectModel;
+
