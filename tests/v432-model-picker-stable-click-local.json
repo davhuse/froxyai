@@ -1,0 +1,9 @@
+{
+  "before": "together-juggernaut-flux",
+  "target": "pollinations-flux",
+  "after": "pollinations-flux",
+  "ok": true,
+  "menuExists": 0,
+  "triggerText": "Flux Schnell - Pollinations\n10 kredi · görsel modeli",
+  "errors": []
+}

@@ -1,0 +1,146 @@
+{
+  "at": "2026-06-12T09:33:03.946Z",
+  "results": [
+    {
+      "kind": "chat",
+      "id": "~anthropic/claude-fable-latest",
+      "provider": "openrouter",
+      "ok": true,
+      "status": 200,
+      "ms": 6074,
+      "url": "",
+      "content": "tamam*",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "nex-agi/nex-n2-pro:free",
+      "provider": "openrouter",
+      "ok": true,
+      "status": 200,
+      "ms": 11388,
+      "url": "",
+      "content": "tamam",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "qwen/qwen3.7-plus",
+      "provider": "openrouter",
+      "ok": true,
+      "status": 200,
+      "ms": 9381,
+      "url": "",
+      "content": "tamam",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "x-ai/grok-build-0.1",
+      "provider": "openrouter",
+      "ok": true,
+      "status": 200,
+      "ms": 5893,
+      "url": "",
+      "content": "tamam",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "deepseek-ai/DeepSeek-V4-Pro",
+      "provider": "together",
+      "ok": true,
+      "status": 200,
+      "ms": 2231,
+      "url": "",
+      "content": "tamam",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "MiniMaxAI/MiniMax-M2.7",
+      "provider": "together",
+      "ok": true,
+      "status": 200,
+      "ms": 1398,
+      "url": "",
+      "content": "tamam!",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "meta/llama-3.1-8b-instruct",
+      "provider": "nvidia",
+      "ok": true,
+      "status": 200,
+      "ms": 844,
+      "url": "",
+      "content": "tamam",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "@cf/meta/llama-3.1-8b-instruct-fp8",
+      "provider": "cloudflare",
+      "ok": true,
+      "status": 200,
+      "ms": 229,
+      "url": "",
+      "content": "",
+      "error": ""
+    },
+    {
+      "kind": "image",
+      "id": "imagegpt-free",
+      "provider": "imagegpt",
+      "ok": true,
+      "status": 200,
+      "ms": 6685,
+      "url": "/generated/imagegpt_1781256779421_9074.png",
+      "content": "",
+      "error": ""
+    },
+    {
+      "kind": "image",
+      "id": "together-flux-schnell",
+      "provider": "together",
+      "ok": true,
+      "status": 200,
+      "ms": 2265,
+      "url": "/generated/tg_1781256781688.jpg",
+      "content": "",
+      "error": ""
+    },
+    {
+      "kind": "image",
+      "id": "openai-gpt-image-2",
+      "provider": "openai",
+      "ok": false,
+      "status": 502,
+      "ms": 1375,
+      "url": "",
+      "content": "",
+      "error": "Seçili OpenAI görsel modeli şu an yanıt vermedi: rate_limit_check_failed (request id: 202606120932571113101088268d9d6FYlnoiO6)"
+    },
+    {
+      "kind": "video",
+      "id": "pollinations-video",
+      "ok": false,
+      "status": 503,
+      "ms": 726,
+      "url": "",
+      "content": "",
+      "error": "Pollinations video şu an kullanılamıyor: Pollinations 402: {\"x402Version\":1,\"error\":\"Queue full for IP: 2a06:98c0:3600::103: 1 requests already queued (max: 1). Get unlimited access at https://enter.pollinations.ai\",\"accepts\":[{\"scheme\":\"exact\",\"network\":\"bas. Lütfen başka bir model deneyin veya POLLINATIONS_KEY .env içinde tanımlayın."
+    },
+    {
+      "kind": "video",
+      "id": "ltx-2",
+      "ok": false,
+      "status": 503,
+      "ms": 155,
+      "url": "",
+      "content": "",
+      "error": "Pollinations video şu an kullanılamıyor: Pollinations 402: {\"x402Version\":1,\"error\":\"Queue full for IP: 2a06:98c0:3600::103: 1 requests already queued (max: 1). Get unlimited access at https://enter.pollinations.ai\",\"accepts\":[{\"scheme\":\"exact\",\"network\":\"bas. Lütfen başka bir model deneyin veya POLLINATIONS_KEY .env içinde tanımlayın."
+    }
+  ]
+}

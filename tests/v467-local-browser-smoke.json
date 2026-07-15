@@ -1,0 +1,218 @@
+{
+  "version": "v467",
+  "at": "2026-06-18T17:42:58.791Z",
+  "routes": [
+    {
+      "route": "/",
+      "loadMs": 1541,
+      "state": {
+        "admin401": false,
+        "body": "home-mode theme-dark mobile-shell-v192",
+        "chatChip": false,
+        "href": "http://127.0.0.1:3000/?cb=v467report",
+        "imgTrigger": false,
+        "oldBackendText": false,
+        "ready": "complete",
+        "root": "theme-light-pre perf-v433 home-mode mobile-shell-v192 app-ready",
+        "scripts": [
+          "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v467",
+          "http://127.0.0.1:3000/interaction-fix-v467.js?v=v467",
+          "http://127.0.0.1:3000/app.min.js?v=v467"
+        ],
+        "visibleView": [
+          "v-home"
+        ]
+      },
+      "errors": []
+    },
+    {
+      "route": "/sohbet",
+      "loadMs": 2684,
+      "state": {
+        "admin401": true,
+        "body": "theme-dark mobile-shell-v192",
+        "chatChip": true,
+        "href": "http://127.0.0.1:3000/sohbet?cb=v467report",
+        "imgTrigger": true,
+        "oldBackendText": false,
+        "ready": "complete",
+        "root": "theme-light-pre perf-v433 mobile-shell-v192",
+        "scripts": [
+          "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v467",
+          "http://127.0.0.1:3000/interaction-fix-v467.js?v=v467",
+          "http://127.0.0.1:3000/app.min.js?v=v467"
+        ],
+        "visibleView": [
+          "v-chat",
+          "ptab-chat"
+        ]
+      },
+      "errors": []
+    },
+    {
+      "route": "/gorsel",
+      "loadMs": 3162,
+      "state": {
+        "admin401": true,
+        "body": "image-perf-route-v434 theme-dark mobile-shell-v192",
+        "chatChip": true,
+        "href": "http://127.0.0.1:3000/gorsel",
+        "imgTrigger": true,
+        "oldBackendText": false,
+        "ready": "complete",
+        "root": "theme-light-pre perf-v433 image-perf-route-v434 mobile-shell-v192 app-ready",
+        "scripts": [
+          "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v467",
+          "http://127.0.0.1:3000/interaction-fix-v467.js?v=v467",
+          "http://127.0.0.1:3000/app.min.js?v=v467"
+        ],
+        "visibleView": [
+          "v-chat",
+          "ptab-img"
+        ]
+      },
+      "errors": []
+    },
+    {
+      "route": "/promptlar",
+      "loadMs": 3025,
+      "state": {
+        "admin401": true,
+        "body": "theme-dark mobile-shell-v192",
+        "chatChip": true,
+        "href": "http://127.0.0.1:3000/promptlar",
+        "imgTrigger": true,
+        "oldBackendText": false,
+        "ready": "complete",
+        "root": "theme-light-pre perf-v433 mobile-shell-v192",
+        "scripts": [
+          "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v467",
+          "http://127.0.0.1:3000/interaction-fix-v467.js?v=v467",
+          "http://127.0.0.1:3000/app.min.js?v=v467"
+        ],
+        "visibleView": [
+          "v-chat",
+          "ptab-prompts"
+        ]
+      },
+      "errors": []
+    },
+    {
+      "route": "/ai-araclar",
+      "loadMs": 2942,
+      "state": {
+        "admin401": true,
+        "body": "theme-dark mobile-shell-v192",
+        "chatChip": true,
+        "href": "http://127.0.0.1:3000/ai-araclar",
+        "imgTrigger": true,
+        "oldBackendText": false,
+        "ready": "complete",
+        "root": "theme-light-pre perf-v433 mobile-shell-v192",
+        "scripts": [
+          "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v467",
+          "http://127.0.0.1:3000/interaction-fix-v467.js?v=v467",
+          "http://127.0.0.1:3000/app.min.js?v=v467"
+        ],
+        "visibleView": [
+          "v-chat",
+          "ptab-tools"
+        ]
+      },
+      "errors": []
+    },
+    {
+      "route": "/galeri",
+      "loadMs": 2629,
+      "state": {
+        "admin401": true,
+        "body": "image-perf-route-v434 theme-dark mobile-shell-v192",
+        "chatChip": true,
+        "href": "http://127.0.0.1:3000/galeri",
+        "imgTrigger": true,
+        "oldBackendText": false,
+        "ready": "complete",
+        "root": "theme-light-pre perf-v433 image-perf-route-v434 mobile-shell-v192",
+        "scripts": [
+          "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v467",
+          "http://127.0.0.1:3000/interaction-fix-v467.js?v=v467",
+          "http://127.0.0.1:3000/app.min.js?v=v467"
+        ],
+        "visibleView": [
+          "v-chat",
+          "ptab-gallery"
+        ]
+      },
+      "errors": []
+    },
+    {
+      "route": "/destek",
+      "loadMs": 2924,
+      "state": {
+        "admin401": true,
+        "body": "theme-dark mobile-shell-v192",
+        "chatChip": true,
+        "href": "http://127.0.0.1:3000/destek",
+        "imgTrigger": true,
+        "oldBackendText": false,
+        "ready": "complete",
+        "root": "theme-light-pre perf-v433 mobile-shell-v192",
+        "scripts": [
+          "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v467",
+          "http://127.0.0.1:3000/interaction-fix-v467.js?v=v467",
+          "http://127.0.0.1:3000/app.min.js?v=v467"
+        ],
+        "visibleView": [
+          "v-chat",
+          "ptab-support"
+        ]
+      },
+      "errors": []
+    },
+    {
+      "route": "/admin",
+      "loadMs": 2175,
+      "state": {
+        "admin401": true,
+        "body": "admin-route-v434 theme-dark mobile-shell-v192",
+        "chatChip": true,
+        "href": "http://127.0.0.1:3000/admin?cb=v467report",
+        "imgTrigger": true,
+        "oldBackendText": false,
+        "ready": "complete",
+        "root": "theme-light-pre perf-v433 admin-route-v434 mobile-shell-v192 app-ready",
+        "scripts": [
+          "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v467",
+          "http://127.0.0.1:3000/interaction-fix-v467.js?v=v467",
+          "http://127.0.0.1:3000/app.min.js?v=v467"
+        ],
+        "visibleView": [
+          "ptab-chat",
+          "v-admin"
+        ]
+      },
+      "errors": []
+    }
+  ],
+  "interactions": {
+    "chatPicker": {
+      "legacyOpen": false,
+      "listClient": 499,
+      "listScroll": 8291,
+      "menu": true,
+      "optionCount": 126,
+      "title": "Model Seçimix"
+    },
+    "imagePicker": {
+      "listClient": 623,
+      "listScroll": 2136,
+      "menu": true,
+      "optionCount": 32,
+      "selected": "together-juggernaut-flux",
+      "title": "Model Seçimix"
+    }
+  },
+  "deploy": {
+    "railway": "unauthorized"
+  }
+}

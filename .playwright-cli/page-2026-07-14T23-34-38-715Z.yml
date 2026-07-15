@@ -1,0 +1,114 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary "Admin gezintisi" [ref=e3]:
+      - link "F froxy.admin" [ref=e5] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=e6]: F
+        - generic [ref=e7]: froxy.admin
+      - generic [ref=e8]:
+        - generic [ref=e9]: ✦
+        - generic [ref=e10]:
+          - text: Çalışma alanı
+          - strong [ref=e11]: Froxy Türkiye
+      - navigation "Admin bölümleri" [ref=e14]:
+        - generic [ref=e15]: MERKEZ
+        - button "Genel bakış" [ref=e16] [cursor=pointer]
+        - button "Kullanıcılar 2.481" [ref=e22] [cursor=pointer]:
+          - text: Kullanıcılar
+          - generic [ref=e26]: "2.481"
+        - button "Modeller" [ref=e27] [cursor=pointer]
+        - button "Krediler" [active] [ref=e31] [cursor=pointer]
+        - generic [ref=e35]: SİSTEM
+        - button "Sistem sağlığı" [ref=e36] [cursor=pointer]
+      - generic [ref=e40]:
+        - link "Çalışma alanına dön" [ref=e41] [cursor=pointer]:
+          - /url: index.html
+        - generic [ref=e44]:
+          - generic [ref=e45]: HA
+          - generic [ref=e46]:
+            - strong [ref=e47]: Habil A.
+            - generic [ref=e48]: Yönetici
+          - button "Hesap ayarları" [ref=e49] [cursor=pointer]: •••
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e53]:
+          - text: FROXY TÜRKİYE / ADMIN
+          - heading "Krediler" [level=1] [ref=e379]
+        - generic [ref=e55]:
+          - button "Verileri yenile" [ref=e56] [cursor=pointer]
+          - generic [ref=e59]: Tüm sistemler çalışıyor
+          - button "HA" [ref=e61] [cursor=pointer]
+      - region "Krediler" [ref=e380]:
+        - generic [ref=e381]:
+          - generic [ref=e382]:
+            - text: KREDİ VE HARCAMA
+            - heading [level=2] [ref=e383]:
+              - text: Harcamayı gör,
+              - emphasis [ref=e384]: ritmi koru.
+            - paragraph [ref=e385]: Model kullanımı ve bakiye hareketleri şeffaf biçimde burada.
+          - button "+ Kredi ekle" [ref=e386] [cursor=pointer]:
+            - generic [ref=e387]: +
+            - text: Kredi ekle
+        - generic [ref=e388]:
+          - generic [ref=e390]:
+            - strong [ref=e391]: "%68"
+            - generic [ref=e392]: kalan bütçe
+          - generic [ref=e393]:
+            - text: Temmuz bütçesi
+            - heading "₺120.000 / ₺180.000" [level=3] [ref=e394]
+            - paragraph [ref=e395]:
+              - text: "Bu ay model maliyeti hedefin altında ilerliyor. Tahmini ay sonu:"
+              - strong [ref=e396]: ₺161.400
+          - generic [ref=e399]:
+            - button "+ ₺5.000 ekle" [ref=e400] [cursor=pointer]:
+              - generic [ref=e401]: +
+              - text: ₺5.000 ekle
+            - button "+ ₺10.000 ekle" [ref=e402] [cursor=pointer]:
+              - generic [ref=e403]: +
+              - text: ₺10.000 ekle
+            - button "◎ Uyarı ayarla" [ref=e404] [cursor=pointer]:
+              - generic [ref=e405]: ◎
+              - text: Uyarı ayarla
+        - generic [ref=e406]:
+          - article [ref=e407]:
+            - generic [ref=e408]:
+              - generic [ref=e409]:
+                - text: MALİYET DAĞILIMI
+                - heading "Modele göre kullanım" [level=3] [ref=e410]
+              - generic [ref=e411]: Son 30 gün
+            - generic [ref=e412]:
+              - generic [ref=e413]:
+                - generic [ref=e414]: Froxy Core
+                - strong [ref=e417]: ₺74.240
+              - generic [ref=e418]:
+                - generic [ref=e419]: Froxy Swift
+                - strong [ref=e422]: ₺59.614
+              - generic [ref=e423]:
+                - generic [ref=e424]: Froxy Vision
+                - strong [ref=e427]: ₺27.546
+          - article [ref=e428]:
+            - generic [ref=e429]:
+              - generic [ref=e430]:
+                - text: SON HAREKETLER
+                - heading "Bakiye geçmişi" [level=3] [ref=e431]
+              - button "Tüm faturalar →" [ref=e432] [cursor=pointer]
+            - generic [ref=e433]:
+              - generic [ref=e434]:
+                - generic [ref=e435]: +
+                - paragraph [ref=e436]:
+                  - strong [ref=e437]: Kredi yükleme
+                  - generic [ref=e438]: 01 Temmuz · Kart
+                - generic [ref=e439]: + ₺25.000
+              - generic [ref=e440]:
+                - generic [ref=e441]: ↗
+                - paragraph [ref=e442]:
+                  - strong [ref=e443]: Model kullanımı
+                  - generic [ref=e444]: 01–14 Temmuz
+                - generic [ref=e445]: − ₺104.842
+              - generic [ref=e446]:
+                - generic [ref=e447]: +
+                - paragraph [ref=e448]:
+                  - strong [ref=e449]: Kredi yükleme
+                  - generic [ref=e450]: 01 Haziran · Kart
+                - generic [ref=e451]: + ₺120.000
+  - status: Froxy Core duraklatıldı.

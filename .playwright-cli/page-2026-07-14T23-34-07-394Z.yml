@@ -1,0 +1,89 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary "Admin gezintisi" [ref=e3]:
+      - link "F froxy.admin" [ref=e5] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=e6]: F
+        - generic [ref=e7]: froxy.admin
+      - generic [ref=e8]:
+        - generic [ref=e9]: ✦
+        - generic [ref=e10]:
+          - text: Çalışma alanı
+          - strong [ref=e11]: Froxy Türkiye
+      - navigation "Admin bölümleri" [ref=e14]:
+        - generic [ref=e15]: MERKEZ
+        - button "Genel bakış" [ref=e16] [cursor=pointer]
+        - button "Kullanıcılar 2.481" [ref=e22] [cursor=pointer]:
+          - text: Kullanıcılar
+          - generic [ref=e26]: "2.481"
+        - button "Modeller" [ref=e27] [cursor=pointer]
+        - button "Krediler" [ref=e31] [cursor=pointer]
+        - generic [ref=e35]: SİSTEM
+        - button "Sistem sağlığı" [ref=e36] [cursor=pointer]
+      - generic [ref=e40]:
+        - link "Çalışma alanına dön" [ref=e41] [cursor=pointer]:
+          - /url: index.html
+        - generic [ref=e44]:
+          - generic [ref=e45]: HA
+          - generic [ref=e46]:
+            - strong [ref=e47]: Habil A.
+            - generic [ref=e48]: Yönetici
+          - button "Hesap ayarları" [ref=e49] [cursor=pointer]: •••
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e53]:
+          - text: FROXY TÜRKİYE / ADMIN
+          - heading "Kullanıcılar" [level=1] [ref=e176]
+        - generic [ref=e55]:
+          - button "Verileri yenile" [ref=e56] [cursor=pointer]
+          - generic [ref=e59]: Tüm sistemler çalışıyor
+          - button "HA" [ref=e61] [cursor=pointer]
+      - region "Kullanıcılar" [ref=e177]:
+        - generic [ref=e178]:
+          - generic [ref=e179]:
+            - text: KULLANICI YÖNETİMİ
+            - heading [level=2] [ref=e180]:
+              - text: İnsanlar,
+              - emphasis [ref=e181]: akışlar
+              - text: ve erişimler.
+            - paragraph [ref=e182]: Son 30 günde 2.481 aktif kullanıcı.
+          - button "+ Kullanıcı davet et" [ref=e183] [cursor=pointer]:
+            - generic [ref=e184]: +
+            - text: Kullanıcı davet et
+        - generic [ref=e185]:
+          - searchbox [ref=e190]
+          - group "Kullanıcı durumu filtresi" [ref=e191]:
+            - button "Tümü 2.481" [ref=e192] [cursor=pointer]
+            - button "Aktif 2.392" [ref=e193] [cursor=pointer]
+            - button "Deneme 62" [active] [ref=e194] [cursor=pointer]
+            - button "Duraklatıldı 27" [ref=e195] [cursor=pointer]
+        - generic [ref=e196]:
+          - table [ref=e198]:
+            - rowgroup [ref=e199]:
+              - row [ref=e200]:
+                - columnheader "Kullanıcı" [ref=e201]
+                - columnheader "Plan" [ref=e202]
+                - columnheader "Son etkinlik" [ref=e203]
+                - columnheader "Mesaj" [ref=e204]
+                - columnheader "Durum" [ref=e205]
+                - columnheader "İşlem" [ref=e206]
+            - rowgroup [ref=e207]:
+              - row [ref=e238]:
+                - cell "SK Sude Kılıç sude@studio.com" [ref=e239]:
+                  - generic [ref=e240]:
+                    - generic [ref=e241]: SK
+                    - generic [ref=e242]:
+                      - strong [ref=e243]: Sude Kılıç
+                      - generic [ref=e244]: sude@studio.com
+                - cell "Deneme" [ref=e245]
+                - cell "1 sa önce" [ref=e247]
+                - cell "84" [ref=e248]
+                - cell "7 gün kaldı" [ref=e249]
+                - cell [ref=e251]:
+                  - button "•••" [ref=e252] [cursor=pointer]
+          - generic [ref=e283]:
+            - generic [ref=e284]: 1 kullanıcı gösteriliyor
+            - generic [ref=e285]:
+              - button "← Önceki" [disabled] [ref=e286]
+              - button "Sonraki →" [ref=e287] [cursor=pointer]
+  - status

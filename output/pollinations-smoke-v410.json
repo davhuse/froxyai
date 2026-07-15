@@ -1,0 +1,47 @@
+{
+  "at": "2026-06-14T19:00:56.528Z",
+  "baseUrl": "http://127.0.0.1:3000",
+  "prompt": "a small cinematic still life photo of a red apple on a wooden table, soft daylight",
+  "results": [
+    {
+      "model": "pollinations-flux",
+      "ok": true,
+      "status": 200,
+      "ms": 3890,
+      "url": "/generated/pollinations_1781463660409_6632.jpg",
+      "error": null
+    },
+    {
+      "model": "pollinations-zimage",
+      "ok": true,
+      "status": 200,
+      "ms": 15793,
+      "url": "/generated/pollinations_1781463680717_9346.jpg",
+      "error": null
+    },
+    {
+      "model": "pollinations-gptimage",
+      "ok": true,
+      "status": 200,
+      "ms": 2451,
+      "url": "/generated/pollinations_1781463687680_7567.jpg",
+      "error": null
+    },
+    {
+      "model": "pollinations-klein",
+      "ok": true,
+      "status": 200,
+      "ms": 4419,
+      "url": "/generated/pollinations_1781463696608_3632.jpg",
+      "error": null
+    },
+    {
+      "model": "pollinations-kontext",
+      "ok": true,
+      "status": 200,
+      "ms": 2360,
+      "url": "/generated/pollinations_1781463703479_7702.jpg",
+      "error": null
+    }
+  ]
+}

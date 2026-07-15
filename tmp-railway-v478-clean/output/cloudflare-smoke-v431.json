@@ -1,0 +1,46 @@
+{
+  "at": "2026-06-16T10:35:08.503Z",
+  "prompt": "safe product photo of a small froxy ai glass cube on white studio background",
+  "results": [
+    {
+      "model": "cf-sdxl-lightning",
+      "ms": 2506,
+      "ok": true,
+      "status": 200,
+      "error": "",
+      "provider": "cloudflare",
+      "url": true,
+      "returnedModel": "cf-sdxl-lightning"
+    },
+    {
+      "model": "cf-sdxl",
+      "ms": 4438,
+      "ok": true,
+      "status": 200,
+      "error": "",
+      "provider": "cloudflare",
+      "url": true,
+      "returnedModel": "cf-sdxl"
+    },
+    {
+      "model": "cf-dreamshaper-lcm",
+      "ms": 1033,
+      "ok": true,
+      "status": 200,
+      "error": "",
+      "provider": "cloudflare",
+      "url": true,
+      "returnedModel": "cf-dreamshaper-lcm"
+    },
+    {
+      "model": "cf-flux-klein",
+      "ms": 9048,
+      "ok": true,
+      "status": 200,
+      "error": "",
+      "provider": "cloudflare",
+      "url": true,
+      "returnedModel": "cf-flux-klein"
+    }
+  ]
+}

@@ -1,0 +1,2585 @@
+[
+  {
+    "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "name": "NVIDIA: Nemotron 3 Nano Omni (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "poolside/laguna-xs.2:free",
+    "name": "Poolside: Laguna XS.2 (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "poolside/laguna-m.1:free",
+    "name": "Poolside: Laguna M.1 (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "~anthropic/claude-haiku-latest",
+    "name": "Anthropic Claude Haiku Latest",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "~openai/gpt-mini-latest",
+    "name": "OpenAI GPT Mini Latest",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "~google/gemini-pro-latest",
+    "name": "Google Gemini Pro Latest",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "~moonshotai/kimi-latest",
+    "name": "MoonshotAI Kimi Latest",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "~google/gemini-flash-latest",
+    "name": "Google Gemini Flash Latest",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "~anthropic/claude-sonnet-latest",
+    "name": "Anthropic Claude Sonnet Latest",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "~openai/gpt-latest",
+    "name": "OpenAI GPT Latest",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "qwen/qwen3.5-plus-20260420",
+    "name": "Qwen: Qwen3.5 Plus 2026-04-20",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3.6-flash",
+    "name": "Qwen: Qwen3.6 Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3.6-35b-a3b",
+    "name": "Qwen: Qwen3.6 35B A3B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3.6-max-preview",
+    "name": "Qwen: Qwen3.6 Max Preview",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3.6-27b",
+    "name": "Qwen: Qwen3.6 27B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "openai/gpt-5.5-pro",
+    "name": "OpenAI: GPT-5.5 Pro",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5.5",
+    "name": "OpenAI: GPT-5.5",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "deepseek/deepseek-v4-pro",
+    "name": "DeepSeek: DeepSeek V4 Pro",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "deepseek/deepseek-v4-flash",
+    "name": "DeepSeek: DeepSeek V4 Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "inclusionai/ling-2.6-1t:free",
+    "name": "inclusionAI: Ling-2.6-1T (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "tencent/hy3-preview:free",
+    "name": "Tencent: Hy3 preview (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "xiaomi/mimo-v2.5-pro",
+    "name": "Xiaomi: MiMo-V2.5-Pro",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "xiaomi/mimo-v2.5",
+    "name": "Xiaomi: MiMo-V2.5",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-5.4-image-2",
+    "name": "OpenAI: GPT-5.4 Image 2",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "inclusionai/ling-2.6-flash",
+    "name": "inclusionAI: Ling-2.6-flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "~anthropic/claude-opus-latest",
+    "name": "Anthropic: Claude Opus Latest",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "openrouter/pareto-code",
+    "name": "Pareto Code Router",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "baidu/qianfan-ocr-fast:free",
+    "name": "Baidu: Qianfan-OCR-Fast (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "moonshotai/kimi-k2.6",
+    "name": "MoonshotAI: Kimi K2.6",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "anthropic/claude-opus-4.7",
+    "name": "Anthropic: Claude Opus 4.7",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "anthropic/claude-opus-4.6-fast",
+    "name": "Anthropic: Claude Opus 4.6 (Fast)",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "z-ai/glm-5.1",
+    "name": "Z.ai: GLM 5.1",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-4-26b-a4b-it:free",
+    "name": "Google: Gemma 4 26B A4B  (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-4-26b-a4b-it",
+    "name": "Google: Gemma 4 26B A4B ",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-4-31b-it:free",
+    "name": "Google: Gemma 4 31B (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-4-31b-it",
+    "name": "Google: Gemma 4 31B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "qwen/qwen3.6-plus",
+    "name": "Qwen: Qwen3.6 Plus",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "z-ai/glm-5v-turbo",
+    "name": "Z.ai: GLM 5V Turbo",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "arcee-ai/trinity-large-thinking",
+    "name": "Arcee AI: Trinity Large Thinking",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "x-ai/grok-4.20-multi-agent",
+    "name": "xAI: Grok 4.20 Multi-Agent",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "x-ai/grok-4.20",
+    "name": "xAI: Grok 4.20",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/lyria-3-pro-preview",
+    "name": "Google: Lyria 3 Pro Preview",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/lyria-3-clip-preview",
+    "name": "Google: Lyria 3 Clip Preview",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "kwaipilot/kat-coder-pro-v2",
+    "name": "Kwaipilot: KAT-Coder-Pro V2",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "rekaai/reka-edge",
+    "name": "Reka Edge",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "xiaomi/mimo-v2-omni",
+    "name": "Xiaomi: MiMo-V2-Omni",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "xiaomi/mimo-v2-pro",
+    "name": "Xiaomi: MiMo-V2-Pro",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "minimax/minimax-m2.7",
+    "name": "MiniMax: MiniMax M2.7",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-5.4-nano",
+    "name": "OpenAI: GPT-5.4 Nano",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5.4-mini",
+    "name": "OpenAI: GPT-5.4 Mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "mistralai/mistral-small-2603",
+    "name": "Mistral: Mistral Small 4",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "z-ai/glm-5-turbo",
+    "name": "Z.ai: GLM 5 Turbo",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nvidia/nemotron-3-super-120b-a12b:free",
+    "name": "NVIDIA: Nemotron 3 Super (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nvidia/nemotron-3-super-120b-a12b",
+    "name": "NVIDIA: Nemotron 3 Super",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "bytedance-seed/seed-2.0-lite",
+    "name": "ByteDance Seed: Seed-2.0-Lite",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "qwen/qwen3.5-9b",
+    "name": "Qwen: Qwen3.5-9B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "openai/gpt-5.4-pro",
+    "name": "OpenAI: GPT-5.4 Pro",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5.4",
+    "name": "OpenAI: GPT-5.4",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "inception/mercury-2",
+    "name": "Inception: Mercury 2",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-5.3-chat",
+    "name": "OpenAI: GPT-5.3 Chat",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "google/gemini-3.1-flash-lite-preview",
+    "name": "Google: Gemini 3.1 Flash Lite Preview",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "bytedance-seed/seed-2.0-mini",
+    "name": "ByteDance Seed: Seed-2.0-Mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-3.1-flash-image-preview",
+    "name": "Google: Nano Banana 2 (Gemini 3.1 Flash Image Preview)",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "qwen/qwen3.5-35b-a3b",
+    "name": "Qwen: Qwen3.5-35B-A3B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3.5-27b",
+    "name": "Qwen: Qwen3.5-27B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3.5-122b-a10b",
+    "name": "Qwen: Qwen3.5-122B-A10B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3.5-flash-02-23",
+    "name": "Qwen: Qwen3.5-Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "liquid/lfm-2-24b-a2b",
+    "name": "LiquidAI: LFM2-24B-A2B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-3.1-pro-preview-customtools",
+    "name": "Google: Gemini 3.1 Pro Preview Custom Tools",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "openai/gpt-5.3-codex",
+    "name": "OpenAI: GPT-5.3-Codex",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "aion-labs/aion-2.0",
+    "name": "AionLabs: Aion-2.0",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-3.1-pro-preview",
+    "name": "Google: Gemini 3.1 Pro Preview",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "anthropic/claude-sonnet-4.6",
+    "name": "Anthropic: Claude Sonnet 4.6",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "qwen/qwen3.5-plus-02-15",
+    "name": "Qwen: Qwen3.5 Plus 2026-02-15",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3.5-397b-a17b",
+    "name": "Qwen: Qwen3.5 397B A17B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "minimax/minimax-m2.5:free",
+    "name": "MiniMax: MiniMax M2.5 (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "minimax/minimax-m2.5",
+    "name": "MiniMax: MiniMax M2.5",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "z-ai/glm-5",
+    "name": "Z.ai: GLM 5",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "qwen/qwen3-max-thinking",
+    "name": "Qwen: Qwen3 Max Thinking",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "anthropic/claude-opus-4.6",
+    "name": "Anthropic: Claude Opus 4.6",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "qwen/qwen3-coder-next",
+    "name": "Qwen: Qwen3 Coder Next",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "openrouter/free",
+    "name": "Free Models Router",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "stepfun/step-3.5-flash",
+    "name": "StepFun: Step 3.5 Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "arcee-ai/trinity-large-preview",
+    "name": "Arcee AI: Trinity Large Preview",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "moonshotai/kimi-k2.5",
+    "name": "MoonshotAI: Kimi K2.5",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "upstage/solar-pro-3",
+    "name": "Upstage: Solar Pro 3",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "minimax/minimax-m2-her",
+    "name": "MiniMax: MiniMax M2-her",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "writer/palmyra-x5",
+    "name": "Writer: Palmyra X5",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "liquid/lfm-2.5-1.2b-thinking:free",
+    "name": "LiquidAI: LFM2.5-1.2B-Thinking (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "liquid/lfm-2.5-1.2b-instruct:free",
+    "name": "LiquidAI: LFM2.5-1.2B-Instruct (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-audio",
+    "name": "OpenAI: GPT Audio",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-audio-mini",
+    "name": "OpenAI: GPT Audio Mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "z-ai/glm-4.7-flash",
+    "name": "Z.ai: GLM 4.7 Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-5.2-codex",
+    "name": "OpenAI: GPT-5.2-Codex",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "allenai/olmo-3.1-32b-instruct",
+    "name": "AllenAI: Olmo 3.1 32B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "bytedance-seed/seed-1.6-flash",
+    "name": "ByteDance Seed: Seed 1.6 Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "bytedance-seed/seed-1.6",
+    "name": "ByteDance Seed: Seed 1.6",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "minimax/minimax-m2.1",
+    "name": "MiniMax: MiniMax M2.1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "z-ai/glm-4.7",
+    "name": "Z.ai: GLM 4.7",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-3-flash-preview",
+    "name": "Google: Gemini 3 Flash Preview",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "mistralai/mistral-small-creative",
+    "name": "Mistral: Mistral Small Creative",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "xiaomi/mimo-v2-flash",
+    "name": "Xiaomi: MiMo-V2-Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "name": "NVIDIA: Nemotron 3 Nano 30B A3B (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nvidia/nemotron-3-nano-30b-a3b",
+    "name": "NVIDIA: Nemotron 3 Nano 30B A3B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-5.2-chat",
+    "name": "OpenAI: GPT-5.2 Chat",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5.2-pro",
+    "name": "OpenAI: GPT-5.2 Pro",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5.2",
+    "name": "OpenAI: GPT-5.2",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "mistralai/devstral-2512",
+    "name": "Mistral: Devstral 2 2512",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "relace/relace-search",
+    "name": "Relace: Relace Search",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "z-ai/glm-4.6v",
+    "name": "Z.ai: GLM 4.6V",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nex-agi/deepseek-v3.1-nex-n1",
+    "name": "Nex AGI: DeepSeek V3.1 Nex N1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "essentialai/rnj-1-instruct",
+    "name": "EssentialAI: Rnj 1 Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openrouter/bodybuilder",
+    "name": "Body Builder (beta)",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-5.1-codex-max",
+    "name": "OpenAI: GPT-5.1-Codex-Max",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "amazon/nova-2-lite-v1",
+    "name": "Amazon: Nova 2 Lite",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "mistralai/ministral-14b-2512",
+    "name": "Mistral: Ministral 3 14B 2512",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "mistralai/ministral-8b-2512",
+    "name": "Mistral: Ministral 3 8B 2512",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "mistralai/ministral-3b-2512",
+    "name": "Mistral: Ministral 3 3B 2512",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "mistralai/mistral-large-2512",
+    "name": "Mistral: Mistral Large 3 2512",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "arcee-ai/trinity-mini",
+    "name": "Arcee AI: Trinity Mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "deepseek/deepseek-v3.2-speciale",
+    "name": "DeepSeek: DeepSeek V3.2 Speciale",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "deepseek/deepseek-v3.2",
+    "name": "DeepSeek: DeepSeek V3.2",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "prime-intellect/intellect-3",
+    "name": "Prime Intellect: INTELLECT-3",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "anthropic/claude-opus-4.5",
+    "name": "Anthropic: Claude Opus 4.5",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "allenai/olmo-3-32b-think",
+    "name": "AllenAI: Olmo 3 32B Think",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-3-pro-image-preview",
+    "name": "Google: Nano Banana Pro (Gemini 3 Pro Image Preview)",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "x-ai/grok-4.1-fast",
+    "name": "xAI: Grok 4.1 Fast",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "deepcogito/cogito-v2.1-671b",
+    "name": "Deep Cogito: Cogito v2.1 671B",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-5.1",
+    "name": "OpenAI: GPT-5.1",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5.1-chat",
+    "name": "OpenAI: GPT-5.1 Chat",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5.1-codex",
+    "name": "OpenAI: GPT-5.1-Codex",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5.1-codex-mini",
+    "name": "OpenAI: GPT-5.1-Codex-Mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "moonshotai/kimi-k2-thinking",
+    "name": "MoonshotAI: Kimi K2 Thinking",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "amazon/nova-premier-v1",
+    "name": "Amazon: Nova Premier 1.0",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "perplexity/sonar-pro-search",
+    "name": "Perplexity: Sonar Pro Search",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "mistralai/voxtral-small-24b-2507",
+    "name": "Mistral: Voxtral Small 24B 2507",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "openai/gpt-oss-safeguard-20b",
+    "name": "OpenAI: gpt-oss-safeguard-20b",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "nvidia/nemotron-nano-12b-v2-vl:free",
+    "name": "NVIDIA: Nemotron Nano 12B 2 VL (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nvidia/nemotron-nano-12b-v2-vl",
+    "name": "NVIDIA: Nemotron Nano 12B 2 VL",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "minimax/minimax-m2",
+    "name": "MiniMax: MiniMax M2",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "qwen/qwen3-vl-32b-instruct",
+    "name": "Qwen: Qwen3 VL 32B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "ibm-granite/granite-4.0-h-micro",
+    "name": "IBM: Granite 4.0 Micro",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-5-image-mini",
+    "name": "OpenAI: GPT-5 Image Mini",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "anthropic/claude-haiku-4.5",
+    "name": "Anthropic: Claude Haiku 4.5",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "qwen/qwen3-vl-8b-thinking",
+    "name": "Qwen: Qwen3 VL 8B Thinking",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-vl-8b-instruct",
+    "name": "Qwen: Qwen3 VL 8B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "openai/gpt-5-image",
+    "name": "OpenAI: GPT-5 Image",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/o3-deep-research",
+    "name": "OpenAI: o3 Deep Research",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/o4-mini-deep-research",
+    "name": "OpenAI: o4 Mini Deep Research",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+    "name": "NVIDIA: Llama 3.3 Nemotron Super 49B V1.5",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "baidu/ernie-4.5-21b-a3b-thinking",
+    "name": "Baidu: ERNIE 4.5 21B A3B Thinking",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-2.5-flash-image",
+    "name": "Google: Nano Banana (Gemini 2.5 Flash Image)",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "qwen/qwen3-vl-30b-a3b-thinking",
+    "name": "Qwen: Qwen3 VL 30B A3B Thinking",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-vl-30b-a3b-instruct",
+    "name": "Qwen: Qwen3 VL 30B A3B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "openai/gpt-5-pro",
+    "name": "OpenAI: GPT-5 Pro",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "z-ai/glm-4.6",
+    "name": "Z.ai: GLM 4.6",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "anthropic/claude-sonnet-4.5",
+    "name": "Anthropic: Claude Sonnet 4.5",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "deepseek/deepseek-v3.2-exp",
+    "name": "DeepSeek: DeepSeek V3.2 Exp",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "thedrummer/cydonia-24b-v4.1",
+    "name": "TheDrummer: Cydonia 24B V4.1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "relace/relace-apply-3",
+    "name": "Relace: Relace Apply 3",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-2.5-flash-lite-preview-09-2025",
+    "name": "Google: Gemini 2.5 Flash Lite Preview 09-2025",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "qwen/qwen3-vl-235b-a22b-thinking",
+    "name": "Qwen: Qwen3 VL 235B A22B Thinking",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-vl-235b-a22b-instruct",
+    "name": "Qwen: Qwen3 VL 235B A22B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-max",
+    "name": "Qwen: Qwen3 Max",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-coder-plus",
+    "name": "Qwen: Qwen3 Coder Plus",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "openai/gpt-5-codex",
+    "name": "OpenAI: GPT-5 Codex",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "deepseek/deepseek-v3.1-terminus",
+    "name": "DeepSeek: DeepSeek V3.1 Terminus",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "x-ai/grok-4-fast",
+    "name": "xAI: Grok 4 Fast",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "alibaba/tongyi-deepresearch-30b-a3b",
+    "name": "Tongyi DeepResearch 30B A3B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "qwen/qwen3-coder-flash",
+    "name": "Qwen: Qwen3 Coder Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-next-80b-a3b-thinking",
+    "name": "Qwen: Qwen3 Next 80B A3B Thinking",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-next-80b-a3b-instruct:free",
+    "name": "Qwen: Qwen3 Next 80B A3B Instruct (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-next-80b-a3b-instruct",
+    "name": "Qwen: Qwen3 Next 80B A3B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen-plus-2025-07-28:thinking",
+    "name": "Qwen: Qwen Plus 0728 (thinking)",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen-plus-2025-07-28",
+    "name": "Qwen: Qwen Plus 0728",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "nvidia/nemotron-nano-9b-v2:free",
+    "name": "NVIDIA: Nemotron Nano 9B V2 (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nvidia/nemotron-nano-9b-v2",
+    "name": "NVIDIA: Nemotron Nano 9B V2",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "moonshotai/kimi-k2-0905",
+    "name": "MoonshotAI: Kimi K2 0905",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "qwen/qwen3-30b-a3b-thinking-2507",
+    "name": "Qwen: Qwen3 30B A3B Thinking 2507",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "x-ai/grok-code-fast-1",
+    "name": "xAI: Grok Code Fast 1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nousresearch/hermes-4-70b",
+    "name": "Nous: Hermes 4 70B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "nousresearch/hermes-4-405b",
+    "name": "Nous: Hermes 4 405B",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "deepseek/deepseek-chat-v3.1",
+    "name": "DeepSeek: DeepSeek V3.1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "openai/gpt-4o-audio-preview",
+    "name": "OpenAI: GPT-4o Audio",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "mistralai/mistral-medium-3.1",
+    "name": "Mistral: Mistral Medium 3.1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "baidu/ernie-4.5-21b-a3b",
+    "name": "Baidu: ERNIE 4.5 21B A3B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "baidu/ernie-4.5-vl-28b-a3b",
+    "name": "Baidu: ERNIE 4.5 VL 28B A3B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "z-ai/glm-4.5v",
+    "name": "Z.ai: GLM 4.5V",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "ai21/jamba-large-1.7",
+    "name": "AI21: Jamba Large 1.7",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-5-chat",
+    "name": "OpenAI: GPT-5 Chat",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5",
+    "name": "OpenAI: GPT-5",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5-mini",
+    "name": "OpenAI: GPT-5 Mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-5-nano",
+    "name": "OpenAI: GPT-5 Nano",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-oss-120b:free",
+    "name": "OpenAI: gpt-oss-120b (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-oss-120b",
+    "name": "OpenAI: gpt-oss-120b",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-oss-20b:free",
+    "name": "OpenAI: gpt-oss-20b (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-oss-20b",
+    "name": "OpenAI: gpt-oss-20b",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "anthropic/claude-opus-4.1",
+    "name": "Anthropic: Claude Opus 4.1",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "mistralai/codestral-2508",
+    "name": "Mistral: Codestral 2508",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "qwen/qwen3-coder-30b-a3b-instruct",
+    "name": "Qwen: Qwen3 Coder 30B A3B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-30b-a3b-instruct-2507",
+    "name": "Qwen: Qwen3 30B A3B Instruct 2507",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "z-ai/glm-4.5",
+    "name": "Z.ai: GLM 4.5",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "z-ai/glm-4.5-air:free",
+    "name": "Z.ai: GLM 4.5 Air (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "z-ai/glm-4.5-air",
+    "name": "Z.ai: GLM 4.5 Air",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "qwen/qwen3-235b-a22b-thinking-2507",
+    "name": "Qwen: Qwen3 235B A22B Thinking 2507",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "z-ai/glm-4-32b",
+    "name": "Z.ai: GLM 4 32B ",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "qwen/qwen3-coder:free",
+    "name": "Qwen: Qwen3 Coder 480B A35B (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-coder",
+    "name": "Qwen: Qwen3 Coder 480B A35B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "bytedance/ui-tars-1.5-7b",
+    "name": "ByteDance: UI-TARS 7B ",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-2.5-flash-lite",
+    "name": "Google: Gemini 2.5 Flash Lite",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "qwen/qwen3-235b-a22b-2507",
+    "name": "Qwen: Qwen3 235B A22B Instruct 2507",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "switchpoint/router",
+    "name": "Switchpoint Router",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "moonshotai/kimi-k2",
+    "name": "MoonshotAI: Kimi K2 0711",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "mistralai/devstral-medium",
+    "name": "Mistral: Devstral Medium",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "mistralai/devstral-small",
+    "name": "Mistral: Devstral Small 1.1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+    "name": "Venice: Uncensored (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "spicy"
+  },
+  {
+    "id": "x-ai/grok-4",
+    "name": "xAI: Grok 4",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-3n-e2b-it:free",
+    "name": "Google: Gemma 3n 2B (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "tencent/hunyuan-a13b-instruct",
+    "name": "Tencent: Hunyuan A13B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "tngtech/deepseek-r1t2-chimera",
+    "name": "TNG: DeepSeek R1T2 Chimera",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "morph/morph-v3-large",
+    "name": "Morph: Morph V3 Large",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "morph/morph-v3-fast",
+    "name": "Morph: Morph V3 Fast",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "baidu/ernie-4.5-vl-424b-a47b",
+    "name": "Baidu: ERNIE 4.5 VL 424B A47B ",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "baidu/ernie-4.5-300b-a47b",
+    "name": "Baidu: ERNIE 4.5 300B A47B ",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "mistralai/mistral-small-3.2-24b-instruct",
+    "name": "Mistral: Mistral Small 3.2 24B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "minimax/minimax-m1",
+    "name": "MiniMax: MiniMax M1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-2.5-flash",
+    "name": "Google: Gemini 2.5 Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "google/gemini-2.5-pro",
+    "name": "Google: Gemini 2.5 Pro",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "openai/o3-pro",
+    "name": "OpenAI: o3 Pro",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "x-ai/grok-3-mini",
+    "name": "xAI: Grok 3 Mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "x-ai/grok-3",
+    "name": "xAI: Grok 3",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-2.5-pro-preview",
+    "name": "Google: Gemini 2.5 Pro Preview 06-05",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "deepseek/deepseek-r1-0528",
+    "name": "DeepSeek: R1 0528",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "anthropic/claude-opus-4",
+    "name": "Anthropic: Claude Opus 4",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "anthropic/claude-sonnet-4",
+    "name": "Anthropic: Claude Sonnet 4",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "google/gemma-3n-e4b-it:free",
+    "name": "Google: Gemma 3n 4B (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-3n-e4b-it",
+    "name": "Google: Gemma 3n 4B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "mistralai/mistral-medium-3",
+    "name": "Mistral: Mistral Medium 3",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "google/gemini-2.5-pro-preview-05-06",
+    "name": "Google: Gemini 2.5 Pro Preview 05-06",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "arcee-ai/spotlight",
+    "name": "Arcee AI: Spotlight",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "arcee-ai/maestro-reasoning",
+    "name": "Arcee AI: Maestro Reasoning",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "arcee-ai/virtuoso-large",
+    "name": "Arcee AI: Virtuoso Large",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "arcee-ai/coder-large",
+    "name": "Arcee AI: Coder Large",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "meta-llama/llama-guard-4-12b",
+    "name": "Meta: Llama Guard 4 12B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "qwen/qwen3-30b-a3b",
+    "name": "Qwen: Qwen3 30B A3B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-8b",
+    "name": "Qwen: Qwen3 8B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-14b",
+    "name": "Qwen: Qwen3 14B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-32b",
+    "name": "Qwen: Qwen3 32B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen3-235b-a22b",
+    "name": "Qwen: Qwen3 235B A22B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "openai/o4-mini-high",
+    "name": "OpenAI: o4 Mini High",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/o3",
+    "name": "OpenAI: o3",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/o4-mini",
+    "name": "OpenAI: o4 Mini",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-4.1",
+    "name": "OpenAI: GPT-4.1",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-4.1-mini",
+    "name": "OpenAI: GPT-4.1 Mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-4.1-nano",
+    "name": "OpenAI: GPT-4.1 Nano",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "alfredpros/codellama-7b-instruct-solidity",
+    "name": "AlfredPros: CodeLLaMa 7B Instruct Solidity",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "x-ai/grok-3-mini-beta",
+    "name": "xAI: Grok 3 Mini Beta",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "x-ai/grok-3-beta",
+    "name": "xAI: Grok 3 Beta",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "meta-llama/llama-4-maverick",
+    "name": "Meta: Llama 4 Maverick",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "meta-llama/llama-4-scout",
+    "name": "Meta: Llama 4 Scout",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "deepseek/deepseek-chat-v3-0324",
+    "name": "DeepSeek: DeepSeek V3 0324",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "openai/o1-pro",
+    "name": "OpenAI: o1-pro",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "mistralai/mistral-small-3.1-24b-instruct",
+    "name": "Mistral: Mistral Small 3.1 24B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "google/gemma-3-4b-it:free",
+    "name": "Google: Gemma 3 4B (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-3-4b-it",
+    "name": "Google: Gemma 3 4B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-3-12b-it:free",
+    "name": "Google: Gemma 3 12B (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-3-12b-it",
+    "name": "Google: Gemma 3 12B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "cohere/command-a",
+    "name": "Cohere: Command A",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-4o-mini-search-preview",
+    "name": "OpenAI: GPT-4o-mini Search Preview",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-4o-search-preview",
+    "name": "OpenAI: GPT-4o Search Preview",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "rekaai/reka-flash-3",
+    "name": "Reka Flash 3",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-3-27b-it:free",
+    "name": "Google: Gemma 3 27B (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemma-3-27b-it",
+    "name": "Google: Gemma 3 27B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "thedrummer/skyfall-36b-v2",
+    "name": "TheDrummer: Skyfall 36B V2",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "perplexity/sonar-reasoning-pro",
+    "name": "Perplexity: Sonar Reasoning Pro",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "perplexity/sonar-pro",
+    "name": "Perplexity: Sonar Pro",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "perplexity/sonar-deep-research",
+    "name": "Perplexity: Sonar Deep Research",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-2.0-flash-lite-001",
+    "name": "Google: Gemini 2.0 Flash Lite",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "anthropic/claude-3.7-sonnet",
+    "name": "Anthropic: Claude 3.7 Sonnet",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "anthropic/claude-3.7-sonnet:thinking",
+    "name": "Anthropic: Claude 3.7 Sonnet (thinking)",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "mistralai/mistral-saba",
+    "name": "Mistral: Saba",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "meta-llama/llama-guard-3-8b",
+    "name": "Llama Guard 3 8B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "openai/o3-mini-high",
+    "name": "OpenAI: o3 Mini High",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "google/gemini-2.0-flash-001",
+    "name": "Google: Gemini 2.0 Flash",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gemini"
+  },
+  {
+    "id": "qwen/qwen-vl-plus",
+    "name": "Qwen: Qwen VL Plus",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "aion-labs/aion-1.0",
+    "name": "AionLabs: Aion-1.0",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "aion-labs/aion-1.0-mini",
+    "name": "AionLabs: Aion-1.0-Mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "aion-labs/aion-rp-llama-3.1-8b",
+    "name": "AionLabs: Aion-RP 1.0 (8B)",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "qwen/qwen-vl-max",
+    "name": "Qwen: Qwen VL Max",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen-turbo",
+    "name": "Qwen: Qwen-Turbo",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen2.5-vl-72b-instruct",
+    "name": "Qwen: Qwen2.5 VL 72B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen-plus",
+    "name": "Qwen: Qwen-Plus",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "qwen/qwen-max",
+    "name": "Qwen: Qwen-Max ",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "openai/o3-mini",
+    "name": "OpenAI: o3 Mini",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "mistralai/mistral-small-24b-instruct-2501",
+    "name": "Mistral: Mistral Small 3",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "deepseek/deepseek-r1-distill-qwen-32b",
+    "name": "DeepSeek: R1 Distill Qwen 32B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "perplexity/sonar",
+    "name": "Perplexity: Sonar",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "deepseek/deepseek-r1-distill-llama-70b",
+    "name": "DeepSeek: R1 Distill Llama 70B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "deepseek/deepseek-r1",
+    "name": "DeepSeek: R1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "minimax/minimax-01",
+    "name": "MiniMax: MiniMax-01",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "microsoft/phi-4",
+    "name": "Microsoft: Phi 4",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "sao10k/l3.1-70b-hanami-x1",
+    "name": "Sao10K: Llama 3.1 70B Hanami x1",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "spicy"
+  },
+  {
+    "id": "deepseek/deepseek-chat",
+    "name": "DeepSeek: DeepSeek V3",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "deepseek"
+  },
+  {
+    "id": "sao10k/l3.3-euryale-70b",
+    "name": "Sao10K: Llama 3.3 Euryale 70B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "spicy"
+  },
+  {
+    "id": "openai/o1",
+    "name": "OpenAI: o1",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "cohere/command-r7b-12-2024",
+    "name": "Cohere: Command R7B (12-2024)",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "meta-llama/llama-3.3-70b-instruct:free",
+    "name": "Meta: Llama 3.3 70B Instruct (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "meta-llama/llama-3.3-70b-instruct",
+    "name": "Meta: Llama 3.3 70B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "amazon/nova-lite-v1",
+    "name": "Amazon: Nova Lite 1.0",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "amazon/nova-micro-v1",
+    "name": "Amazon: Nova Micro 1.0",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "amazon/nova-pro-v1",
+    "name": "Amazon: Nova Pro 1.0",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-4o-2024-11-20",
+    "name": "OpenAI: GPT-4o (2024-11-20)",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "mistralai/mistral-large-2411",
+    "name": "Mistral Large 2411",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "mistralai/mistral-large-2407",
+    "name": "Mistral Large 2407",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "mistralai/pixtral-large-2411",
+    "name": "Mistral: Pixtral Large 2411",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "qwen/qwen-2.5-coder-32b-instruct",
+    "name": "Qwen2.5 Coder 32B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "thedrummer/unslopnemo-12b",
+    "name": "TheDrummer: UnslopNemo 12B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "anthropic/claude-3.5-haiku",
+    "name": "Anthropic: Claude 3.5 Haiku",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "anthracite-org/magnum-v4-72b",
+    "name": "Magnum v4 72B",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "qwen/qwen-2.5-7b-instruct",
+    "name": "Qwen: Qwen2.5 7B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "nvidia/llama-3.1-nemotron-70b-instruct",
+    "name": "NVIDIA: Llama 3.1 Nemotron 70B Instruct",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "inflection/inflection-3-productivity",
+    "name": "Inflection: Inflection 3 Productivity",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "inflection/inflection-3-pi",
+    "name": "Inflection: Inflection 3 Pi",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "thedrummer/rocinante-12b",
+    "name": "TheDrummer: Rocinante 12B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "meta-llama/llama-3.2-3b-instruct:free",
+    "name": "Meta: Llama 3.2 3B Instruct (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "meta-llama/llama-3.2-3b-instruct",
+    "name": "Meta: Llama 3.2 3B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "meta-llama/llama-3.2-1b-instruct",
+    "name": "Meta: Llama 3.2 1B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "meta-llama/llama-3.2-11b-vision-instruct",
+    "name": "Meta: Llama 3.2 11B Vision Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "qwen/qwen-2.5-72b-instruct",
+    "name": "Qwen2.5 72B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "qwen"
+  },
+  {
+    "id": "cohere/command-r-plus-08-2024",
+    "name": "Cohere: Command R+ (08-2024)",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "cohere/command-r-08-2024",
+    "name": "Cohere: Command R (08-2024)",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "sao10k/l3.1-euryale-70b",
+    "name": "Sao10K: Llama 3.1 Euryale 70B v2.2",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "spicy"
+  },
+  {
+    "id": "nousresearch/hermes-3-llama-3.1-70b",
+    "name": "Nous: Hermes 3 70B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "nousresearch/hermes-3-llama-3.1-405b:free",
+    "name": "Nous: Hermes 3 405B Instruct (free)",
+    "tier": "free",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "nousresearch/hermes-3-llama-3.1-405b",
+    "name": "Nous: Hermes 3 405B Instruct",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "sao10k/l3-lunaris-8b",
+    "name": "Sao10K: Llama 3 8B Lunaris",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "spicy"
+  },
+  {
+    "id": "openai/gpt-4o-2024-08-06",
+    "name": "OpenAI: GPT-4o (2024-08-06)",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "meta-llama/llama-3.1-8b-instruct",
+    "name": "Meta: Llama 3.1 8B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "meta-llama/llama-3.1-70b-instruct",
+    "name": "Meta: Llama 3.1 70B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "mistralai/mistral-nemo",
+    "name": "Mistral: Mistral Nemo",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "openai/gpt-4o-mini-2024-07-18",
+    "name": "OpenAI: GPT-4o-mini (2024-07-18)",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-4o-mini",
+    "name": "OpenAI: GPT-4o-mini",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "google/gemma-2-27b-it",
+    "name": "Google: Gemma 2 27B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "sao10k/l3-euryale-70b",
+    "name": "Sao10k: Llama 3 Euryale 70B v2.1",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "spicy"
+  },
+  {
+    "id": "nousresearch/hermes-2-pro-llama-3-8b",
+    "name": "NousResearch: Hermes 2 Pro - Llama-3 8B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "openai/gpt-4o-2024-05-13",
+    "name": "OpenAI: GPT-4o (2024-05-13)",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-4o",
+    "name": "OpenAI: GPT-4o",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "meta-llama/llama-3-8b-instruct",
+    "name": "Meta: Llama 3 8B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "meta-llama/llama-3-70b-instruct",
+    "name": "Meta: Llama 3 70B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "llama"
+  },
+  {
+    "id": "mistralai/mixtral-8x22b-instruct",
+    "name": "Mistral: Mixtral 8x22B Instruct",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "microsoft/wizardlm-2-8x22b",
+    "name": "WizardLM-2 8x22B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-4-turbo",
+    "name": "OpenAI: GPT-4 Turbo",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "anthropic/claude-3-haiku",
+    "name": "Anthropic: Claude 3 Haiku",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "claude"
+  },
+  {
+    "id": "mistralai/mistral-large",
+    "name": "Mistral Large",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "openai/gpt-4-turbo-preview",
+    "name": "OpenAI: GPT-4 Turbo Preview",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-3.5-turbo-0613",
+    "name": "OpenAI: GPT-3.5 Turbo (older v0613)",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "mistralai/mixtral-8x7b-instruct",
+    "name": "Mistral: Mixtral 8x7B Instruct",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "alpindale/goliath-120b",
+    "name": "Goliath 120B",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openrouter/auto",
+    "name": "Auto Router",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-4-1106-preview",
+    "name": "OpenAI: GPT-4 Turbo (older v1106)",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-3.5-turbo-instruct",
+    "name": "OpenAI: GPT-3.5 Turbo Instruct",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "mistralai/mistral-7b-instruct-v0.1",
+    "name": "Mistral: Mistral 7B Instruct v0.1",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "mistral"
+  },
+  {
+    "id": "openai/gpt-3.5-turbo-16k",
+    "name": "OpenAI: GPT-3.5 Turbo 16k",
+    "tier": "pro",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "mancer/weaver",
+    "name": "Mancer: Weaver (alpha)",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "spicy"
+  },
+  {
+    "id": "undi95/remm-slerp-l2-13b",
+    "name": "ReMM SLERP 13B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "gryphe/mythomax-l2-13b",
+    "name": "MythoMax 13B",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "other"
+  },
+  {
+    "id": "openai/gpt-4-0314",
+    "name": "OpenAI: GPT-4 (older v0314)",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-4",
+    "name": "OpenAI: GPT-4",
+    "tier": "enterprise",
+    "provider": "openrouter",
+    "cat": "gpt"
+  },
+  {
+    "id": "openai/gpt-3.5-turbo",
+    "name": "OpenAI: GPT-3.5 Turbo",
+    "tier": "starter",
+    "provider": "openrouter",
+    "cat": "gpt"
+  }
+]

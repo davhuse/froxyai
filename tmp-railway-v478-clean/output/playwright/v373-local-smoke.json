@@ -1,0 +1,339 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "overflow": 0,
+      "bad": {
+        "bad": false,
+        "match": null,
+        "sample": ""
+      },
+      "errors": [],
+      "anim": {
+        "running": 22,
+        "tooFastInfinite": 0,
+        "highPlaybackRate": 0,
+        "minDuration": 2600
+      }
+    },
+    {
+      "route": "/sohbet",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "overflow": 0,
+      "bad": {
+        "bad": false,
+        "match": null,
+        "sample": ""
+      },
+      "errors": [
+        "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+        "Cannot access 'ROUTE_MAP' before initialization"
+      ],
+      "anim": {
+        "running": 25,
+        "tooFastInfinite": 0,
+        "highPlaybackRate": 0,
+        "minDuration": 2600
+      }
+    },
+    {
+      "route": "/gorsel",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "overflow": 0,
+      "bad": {
+        "bad": false,
+        "match": null,
+        "sample": ""
+      },
+      "errors": [
+        "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+        "Cannot access 'ROUTE_MAP' before initialization"
+      ],
+      "anim": {
+        "running": 25,
+        "tooFastInfinite": 0,
+        "highPlaybackRate": 0,
+        "minDuration": 2600
+      }
+    },
+    {
+      "route": "/promptlar",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "overflow": 0,
+      "bad": {
+        "bad": false,
+        "match": null,
+        "sample": ""
+      },
+      "errors": [
+        "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+        "Cannot access 'ROUTE_MAP' before initialization"
+      ],
+      "anim": {
+        "running": 26,
+        "tooFastInfinite": 0,
+        "highPlaybackRate": 0,
+        "minDuration": 2600
+      }
+    },
+    {
+      "route": "/ai-araclar",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "overflow": 0,
+      "bad": {
+        "bad": false,
+        "match": null,
+        "sample": ""
+      },
+      "errors": [
+        "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+        "Cannot access 'ROUTE_MAP' before initialization"
+      ],
+      "anim": {
+        "running": 25,
+        "tooFastInfinite": 0,
+        "highPlaybackRate": 0,
+        "minDuration": 2600
+      }
+    },
+    {
+      "route": "/destek",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "overflow": 0,
+      "bad": {
+        "bad": false,
+        "match": null,
+        "sample": ""
+      },
+      "errors": [
+        "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+        "Cannot access 'ROUTE_MAP' before initialization"
+      ],
+      "anim": {
+        "running": 26,
+        "tooFastInfinite": 0,
+        "highPlaybackRate": 0,
+        "minDuration": 2600
+      }
+    },
+    {
+      "route": "/sohbet",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "bad": {
+        "bad": false,
+        "match": null,
+        "sample": ""
+      },
+      "errors": [
+        "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+        "Cannot access 'ROUTE_MAP' before initialization"
+      ],
+      "anim": {
+        "running": 23,
+        "tooFastInfinite": 0,
+        "highPlaybackRate": 0,
+        "minDuration": 420
+      }
+    },
+    {
+      "route": "/gorsel",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "bad": {
+        "bad": false,
+        "match": null,
+        "sample": ""
+      },
+      "errors": [
+        "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+        "Cannot access 'ROUTE_MAP' before initialization"
+      ],
+      "anim": {
+        "running": 23,
+        "tooFastInfinite": 0,
+        "highPlaybackRate": 0,
+        "minDuration": 420
+      }
+    },
+    {
+      "route": "/admin",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "bad": {
+        "bad": false,
+        "match": null,
+        "sample": ""
+      },
+      "errors": [
+        "Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.",
+        "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+        "Cannot access 'ROUTE_MAP' before initialization",
+        "Cannot access 'PROVIDER_MAP' before initialization"
+      ],
+      "anim": {
+        "running": 31,
+        "tooFastInfinite": 0,
+        "highPlaybackRate": 0,
+        "minDuration": 420
+      }
+    }
+  ],
+  "admin": {
+    "before": {
+      "adminOn": false,
+      "activeTab": "at-users",
+      "rows": 5,
+      "userCells": [
+        "",
+        "",
+        ""
+      ],
+      "funcs": {
+        "openCreditModal": "function",
+        "applyCredit": "function",
+        "openBanModal": "function",
+        "applyBan": "function",
+        "openAdminUserDetail": "function",
+        "adminBlockUser": "function",
+        "adminToggleRole": "function",
+        "adminDeleteUser": "function",
+        "adminChangePlan": "function",
+        "loadAdminUsers": "function"
+      },
+      "buttons": []
+    },
+    "creditOpen": false,
+    "detailOpen": false,
+    "banOpen": false,
+    "overflow": 0,
+    "bad": {
+      "bad": false,
+      "match": null,
+      "sample": ""
+    },
+    "errors": [
+      "Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.",
+      "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+      "Cannot access 'ROUTE_MAP' before initialization",
+      "Cannot access 'PROVIDER_MAP' before initialization",
+      "Cannot access 'adminCurrentPage' before initialization",
+      "Cannot access 'DAILY_TASKS' before initialization",
+      "Cannot access 'DAILY_TASKS' before initialization"
+    ]
+  },
+  "imagePicker": {
+    "optionValues": [
+      "auto-quality",
+      "gemini-2.5-flash-image",
+      "gemini-3.1-flash-image",
+      "gemini-3-pro-image",
+      "imagen-4-fast",
+      "imagen-4",
+      "imagen-4-ultra",
+      "openai-gpt-image-2",
+      "gemini-3.1-flash-image-preview",
+      "gemini-3-pro-image-preview",
+      "cf-sdxl",
+      "flux",
+      "flux-realism",
+      "imagegpt-free",
+      "together-juggernaut-flux",
+      "together-flux-schnell",
+      "together-qwen-image",
+      "together-flux2-dev",
+      "together-flux-kontext-pro",
+      "together-flux2-pro",
+      "together-gemini-flash-image",
+      "together-imagen4-fast",
+      "together-qwen-image-pro",
+      "together-gemini-pro-image",
+      "sana",
+      "style-midjourney",
+      "style-anime",
+      "style-realism",
+      "style-cinematic",
+      "style-3d",
+      "style-cyberpunk",
+      "flux-anime",
+      "flux-3d",
+      "style-dalle3"
+    ],
+    "forbidden": [
+      "openai-gpt-image-2",
+      "cf-sdxl",
+      "flux-realism",
+      "sana",
+      "flux-anime",
+      "flux-3d"
+    ],
+    "picker": {
+      "open": false,
+      "logoImgs": 0,
+      "logoLabels": [],
+      "rowTexts": []
+    },
+    "overflow": 0,
+    "bad": {
+      "bad": false,
+      "match": null,
+      "sample": ""
+    },
+    "errors": [
+      "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+      "Cannot access 'ROUTE_MAP' before initialization",
+      "Cannot access 'DAILY_TASKS' before initialization",
+      "Cannot access 'DAILY_TASKS' before initialization"
+    ]
+  },
+  "robot": {
+    "robot": {
+      "host": true,
+      "shadow": true,
+      "opened": true,
+      "panelVisible": true,
+      "rect": {
+        "x": 954,
+        "y": 440.734375,
+        "w": 390,
+        "h": 437.265625
+      },
+      "bad": false,
+      "sample": "Froxy AI DestekÇevrim içi BugünMerhaba, ben Froxy destek asistanı. Fiyat, kredi, giriş, görsel üretim ve teknik sorunlarda hızlıca yardımcı olurum.03:13Fiyatlandırma ve kredi paketleriGiriş veya kayıt sorunuGörsel üretim hatasıÖdeme ve fatu",
+      "api": true
+    },
+    "errors": [
+      "Cannot access 'VERIFIED_IMAGE_GENERATE_MODELS' before initialization",
+      "Cannot access 'ROUTE_MAP' before initialization"
+    ]
+  },
+  "timestamp": "2026-06-08T00:12:40.719Z"
+}

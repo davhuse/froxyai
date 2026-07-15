@@ -1,0 +1,252 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - link "Froxy AI açılış sayfası" [ref=e3] [cursor=pointer]:
+      - /url: landing.html
+      - generic [ref=e4]: F
+      - generic [ref=e5]: froxy.
+    - navigation "Ana menü" [ref=e6]:
+      - link "Nasıl çalışır" [ref=e7] [cursor=pointer]:
+        - /url: "#nasil-calisir"
+      - link "Ürün" [ref=e8] [cursor=pointer]:
+        - /url: "#urun"
+      - link "Modeller" [ref=e9] [cursor=pointer]:
+        - /url: "#modeller"
+      - link "Fiyatlar" [ref=e10] [cursor=pointer]:
+        - /url: "#fiyatlandirma"
+    - generic [ref=e11]:
+      - link "Giriş yap" [ref=e12] [cursor=pointer]:
+        - /url: auth.html
+      - link "Ücretsiz dene →" [ref=e13] [cursor=pointer]:
+        - /url: auth.html?mode=signup
+        - text: Ücretsiz dene
+        - generic [ref=e14]: →
+  - main [ref=e15]:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]: Araştır. üret. netleştir.
+        - heading [level=1] [ref=e20]:
+          - text: Fikrini
+          - emphasis [ref=e21]: ilerleten
+          - text: bir zihin alanı.
+        - paragraph [ref=e22]: Froxy, dağınık düşünceleri araştırmaya, karara ve somut üretime dönüştüren sakin bir AI çalışma alanı.
+        - generic [ref=e23]:
+          - link "Froxy'yi aç ↗" [ref=e24] [cursor=pointer]:
+            - /url: index.html
+            - text: Froxy'yi aç
+            - generic [ref=e25]: ↗
+          - link "▶ Nasıl çalışır?" [ref=e26] [cursor=pointer]:
+            - /url: "#nasil-calisir"
+            - generic [ref=e27]: ▶
+            - text: Nasıl çalışır?
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: AA
+            - generic [ref=e31]: DE
+            - generic [ref=e32]: SU
+            - generic [ref=e33]: +8k
+          - paragraph [ref=e34]:
+            - strong [ref=e35]: 8.000+ meraklı zihin
+            - text: Froxy ile daha net ilerliyor.
+      - generic "Froxy sohbet arayüzü önizlemesi" [ref=e36]:
+        - generic [ref=e37]: ✦
+        - generic [ref=e38]: ✦
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e42]:
+              - generic [ref=e43]: F
+              - generic [ref=e44]: Froxy Studio
+            - generic [ref=e45]: Odak modu
+            - generic [ref=e47]: •••
+          - generic [ref=e48]:
+            - generic [ref=e49]: BUGÜNÜN ÇALIŞMASI
+            - generic [ref=e50]: Yeni ürün fikrimin gerçekten bir ihtiyacı çözdüğünü nasıl anlarım?
+            - generic [ref=e51]:
+              - generic [ref=e52]: F
+              - generic [ref=e53]:
+                - text: Önce sinyali yakalayalım.
+                - paragraph [ref=e54]: Fikri çözüm değil, doğrulanabilir bir varsayım olarak ele alalım.
+                - list [ref=e55]:
+                  - listitem [ref=e56]: •Hedef kişiyi tek bağlamda tanımla
+                  - listitem [ref=e57]: •En küçük deneyi tasarla
+                  - listitem [ref=e58]: •Geri dönüş sinyalini ölç
+                - generic [ref=e59]:
+                  - generic [ref=e60]: İLK ADIM
+                  - strong [ref=e61]: 10 dakikalık bir varsayım kartı çıkar.
+          - generic [ref=e62]:
+            - generic [ref=e63]: Fikrine bir yön ver...
+            - generic [ref=e64]: ↗
+        - generic [ref=e65]:
+          - generic [ref=e66]: ⌁
+          - generic [ref=e67]:
+            - generic [ref=e68]: Çalışma kartı
+            - strong [ref=e69]: Tek bir net adım
+        - generic [ref=e70]: Akış hazır
+    - region "Froxy faydaları" [ref=e73]:
+      - generic [ref=e74]: FİKİRDEN NETLİĞE
+      - generic [ref=e76]: AKIŞTA DÜŞÜN
+      - generic [ref=e78]: GEREKSİZ GÜRÜLTÜ YOK
+      - generic [ref=e80]: GÖRÜNÜR İLERLEME
+    - generic [ref=e81]:
+      - generic [ref=e82]:
+        - text: 01 / FROXY İLE ÇALIŞMAK
+        - heading [level=2] [ref=e83]:
+          - text: Bir yanıttan fazlası.
+          - emphasis [ref=e84]: Bir yön duygusu.
+        - paragraph [ref=e85]: Sohbeti yalnızca cevap üretmek için değil, düşüncenin bir sonraki iyi hareketini bulmak için tasarladık.
+      - generic [ref=e86]:
+        - article [ref=e87]:
+          - generic [ref=e88]: "01"
+          - generic [ref=e89]: ⌁
+          - heading "Odak kartları" [level=3] [ref=e90]
+          - paragraph [ref=e91]: Her iyi fikri küçük, görünür bir sonraki adımla kapat. Ne yapacağını düşünerek zaman kaybetme.
+          - generic [ref=e92]: Net ilk adım
+        - article [ref=e97]:
+          - generic [ref=e98]: "02"
+          - generic [ref=e99]: ◎
+          - heading "Bağlamı tutar" [level=3] [ref=e100]
+          - paragraph [ref=e101]: Dosyaların, notların ve kararların aynı yerde kalır. Her yeni konuşma sıfırdan başlamaz.
+          - generic [ref=e102]:
+            - generic [ref=e103]: brief.pdf
+            - generic [ref=e104]: görüşme notları
+            - generic [ref=e105]: ilk taslak
+        - article [ref=e106]:
+          - generic [ref=e107]: "03"
+          - generic [ref=e108]: ↗
+          - heading "Kendi ritmin" [level=3] [ref=e109]
+          - paragraph [ref=e110]: Hızlı taslak gerektiğinde Swift; derin düşünmek gerektiğinde Core. Ritmi işin belirler.
+          - generic [ref=e111]: Froxy Core
+    - generic [ref=e116]:
+      - generic [ref=e117]:
+        - text: 02 / NASIL ÇALIŞIR
+        - heading [level=2] [ref=e118]:
+          - text: İyi iş, iyi bir
+          - emphasis [ref=e119]: ilk soruyla
+          - text: başlar.
+      - generic [ref=e120]:
+        - article [ref=e121]:
+          - text: "01"
+          - generic [ref=e122]: "?"
+          - heading "Ne olduğunu söyle" [level=3] [ref=e123]
+          - paragraph [ref=e124]: Froxy'ye bağlamı, hedefi veya kafanı kurcalayan soruyu yaz.
+        - article [ref=e125]:
+          - text: "02"
+          - generic [ref=e126]: ✦
+          - heading "Birlikte ayır" [level=3] [ref=e127]
+          - paragraph [ref=e128]: Önemli olanı gürültüden ayır; seçenekleri ve varsayımları görünür kıl.
+        - article [ref=e129]:
+          - text: "03"
+          - generic [ref=e130]: →
+          - heading "Harekete geç" [level=3] [ref=e131]
+          - paragraph [ref=e132]: Çalışmayı, bugün yapılabilecek net bir adımla tamamla.
+    - generic [ref=e133]:
+      - generic [ref=e134]:
+        - text: 03 / FROXY MODELLERİ
+        - heading [level=2] [ref=e135]:
+          - text: Her işin
+          - emphasis [ref=e136]: kendi ritmi
+          - text: var.
+        - paragraph [ref=e137]: Tek bir model seçmek zorunda değilsin. Aynı çalışma alanında ihtiyacın olan zihni seç.
+        - link "Model alanını gör →" [ref=e138] [cursor=pointer]:
+          - /url: index.html
+          - text: Model alanını gör
+          - generic [ref=e139]: →
+      - generic [ref=e140]:
+        - article [ref=e141]:
+          - generic [ref=e142]: "01"
+          - heading "Froxy Core" [level=3] [ref=e145]
+          - paragraph [ref=e146]: Dengeli düşünme, strateji ve derin üretim.
+          - generic [ref=e147]: Varsayılan zihin
+        - article [ref=e148]:
+          - generic [ref=e149]: "02"
+          - heading "Froxy Swift" [level=3] [ref=e152]
+          - paragraph [ref=e153]: Hızlı taslaklar, özetler ve ilk fikirler.
+          - generic [ref=e154]: Hızlı başlangıç
+        - article [ref=e155]:
+          - generic [ref=e156]: "03"
+          - heading "Froxy Vision" [level=3] [ref=e159]
+          - paragraph [ref=e160]: Görsel yön, dosya ve yaratıcı konseptler.
+          - generic [ref=e161]: Görsel zihin
+    - generic [ref=e162]:
+      - generic [ref=e163]:
+        - text: 04 / BASİT FİYATLAR
+        - heading [level=2] [ref=e164]:
+          - text: Küçük başla.
+          - emphasis [ref=e165]: İyi ilerle.
+        - group "Faturalandırma aralığı" [ref=e166]:
+          - button "Aylık" [ref=e167] [cursor=pointer]
+          - button "Yıllık %20 avantaj" [active] [ref=e168] [cursor=pointer]
+      - generic [ref=e169]:
+        - article [ref=e170]:
+          - text: Explorer
+          - heading "İlk netlik için." [level=3] [ref=e171]
+          - generic [ref=e172]:
+            - strong [ref=e173]: ₺0
+            - generic [ref=e174]: / ay
+          - paragraph [ref=e175]: Froxy ile düşünme ritmini kur.
+          - list [ref=e176]:
+            - listitem [ref=e177]: ✓Günlük 15 Froxy mesajı
+            - listitem [ref=e178]: ✓Temel çalışma kartları
+            - listitem [ref=e179]: ✓3 aktif proje
+          - link "Ücretsiz başla" [ref=e180] [cursor=pointer]:
+            - /url: auth.html?mode=signup
+        - article [ref=e181]:
+          - generic [ref=e182]: EN ÇOK TERCİH EDİLEN
+          - text: Studio
+          - heading "Fikrin büyüdüğünde." [level=3] [ref=e183]
+          - generic [ref=e184]:
+            - strong [ref=e185]: ₺239
+            - generic [ref=e186]: / ay
+          - paragraph [ref=e187]: Daha fazla bağlam, üretim ve akış.
+          - list [ref=e188]:
+            - listitem [ref=e189]: ✓Sınırsız Core & Swift sohbet
+            - listitem [ref=e190]: ✓Froxy Vision ve dosya analizi
+            - listitem [ref=e191]: ✓Sınırsız proje ve paylaşım
+          - link "Studio'yu dene →" [ref=e192] [cursor=pointer]:
+            - /url: auth.html?mode=signup
+            - text: Studio'yu dene
+            - generic [ref=e193]: →
+    - generic [ref=e194]:
+      - generic [ref=e195]:
+        - text: MERAK EDİLENLER
+        - heading [level=2] [ref=e196]:
+          - text: Önce bilmek
+          - emphasis [ref=e197]: isteyebileceğin
+          - text: şeyler.
+      - generic [ref=e198]:
+        - group [ref=e199]:
+          - generic "Froxy hangi modelleri kullanıyor? +" [ref=e200] [cursor=pointer]:
+            - text: Froxy hangi modelleri kullanıyor?
+            - generic [ref=e201]: +
+          - paragraph [ref=e202]: Prototipte Core, Swift ve Vision çalışma modları bulunuyor. Gerçek üründe model sağlayıcısı ve erişim planı ayrıca yapılandırılır.
+        - group [ref=e203]:
+          - generic "Froxy'yi hemen kullanabilir miyim? +" [ref=e204] [cursor=pointer]:
+            - text: Froxy'yi hemen kullanabilir miyim?
+            - generic [ref=e205]: +
+        - group [ref=e206]:
+          - generic "Dosyalarım ve konuşmalarım bana mı ait? +" [ref=e207] [cursor=pointer]:
+            - text: Dosyalarım ve konuşmalarım bana mı ait?
+            - generic [ref=e208]: +
+    - generic [ref=e209]:
+      - generic [ref=e210]: Bir soru yeter
+      - heading [level=2] [ref=e212]:
+        - text: Bugün neyi
+        - emphasis [ref=e213]: netleştirelim?
+      - paragraph [ref=e214]: Froxy ile ilk çalışma alanını birkaç saniyede aç.
+      - link "Froxy'ye gir ↗" [ref=e215] [cursor=pointer]:
+        - /url: index.html
+        - text: Froxy'ye gir
+        - generic [ref=e216]: ↗
+  - contentinfo [ref=e217]:
+    - link "F froxy." [ref=e218] [cursor=pointer]:
+      - /url: landing.html
+      - generic [ref=e219]: F
+      - generic [ref=e220]: froxy.
+    - generic [ref=e221]: © 2026 Froxy AI — fikirden netliğe.
+    - generic [ref=e222]:
+      - link "Çalışma alanı" [ref=e223] [cursor=pointer]:
+        - /url: index.html
+      - link "Giriş" [ref=e224] [cursor=pointer]:
+        - /url: auth.html
+      - link "Admin" [ref=e225] [cursor=pointer]:
+        - /url: admin.html
+  - status: Yıllık fiyatlar ve %20 avantaj gösteriliyor.

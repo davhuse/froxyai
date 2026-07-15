@@ -1,0 +1,276 @@
+{
+  "at": "2026-06-18T20:47:34.484Z",
+  "checks": {
+    "chatReady": {
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 600+ Model | Froxy AI",
+      "scripts": [
+        "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v468",
+        "http://127.0.0.1:3000/interaction-fix-v468.js?v=v468",
+        "http://127.0.0.1:3000/app.min.js?v=v468"
+      ],
+      "selectCount": 126,
+      "hasTrigger": true,
+      "interactionFix": true,
+      "oldBackendText": false
+    },
+    "chatPicker": {
+      "rowCount": 126,
+      "rows": [
+        {
+          "value": "llama-3.3-70b-versatile",
+          "label": "Ücretsiz - Llama 3.3 70B",
+          "provider": "groq",
+          "hasImg": false,
+          "hasSvg": false,
+          "text": "AI"
+        },
+        {
+          "value": "openai/gpt-oss-120b",
+          "label": "Ücretsiz - GPT-OSS 120B (Groq)",
+          "provider": "groq",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "openai/gpt-oss-20b",
+          "label": "Ücretsiz - GPT-OSS 20B (Groq)",
+          "provider": "groq",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "llama-3.1-8b-instant",
+          "label": "Ücretsiz - Llama 3.1 8B Ultra",
+          "provider": "groq",
+          "hasImg": false,
+          "hasSvg": false,
+          "text": "AI"
+        },
+        {
+          "value": "deepseek-r1-distill-llama-70b",
+          "label": "Ücretsiz - DeepSeek R1 Distill 70B",
+          "provider": "groq",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "openrouter/free",
+          "label": "Ücretsiz - OpenRouter Free Auto",
+          "provider": "openrouter",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "deepseek/deepseek-r1:free",
+          "label": "Ücretsiz - DeepSeek R1 Free",
+          "provider": "openrouter",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "jan-local-auto",
+          "label": "Ücretsiz - Jan Local Chat (Free)",
+          "provider": "jan_local",
+          "hasImg": false,
+          "hasSvg": false,
+          "text": "AI"
+        },
+        {
+          "value": "local-openai-auto",
+          "label": "Ücretsiz - Local OpenAI-Compatible Chat",
+          "provider": "local_openai",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "openai/gpt-oss-120b:free",
+          "label": "Ücretsiz - OpenAI: gpt-oss-120b",
+          "provider": "openrouter",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "openai/gpt-oss-20b:free",
+          "label": "Ücretsiz - OpenAI: gpt-oss-20b",
+          "provider": "openrouter",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-openai",
+          "label": "Ücretsiz - GPT Sınırsız",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        }
+      ],
+      "badPlainAiCount": 3,
+      "providers": [
+        "groq",
+        "openrouter",
+        "jan_local",
+        "local_openai",
+        "pollinations"
+      ]
+    },
+    "imageReady": {
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "scripts": [
+        "http://127.0.0.1:3000/image-picker-fix-v461.js?v=v468",
+        "http://127.0.0.1:3000/interaction-fix-v468.js?v=v468",
+        "http://127.0.0.1:3000/app.min.js?v=v468"
+      ],
+      "selectCount": 29,
+      "hasTrigger": true,
+      "oldBackendText": false
+    },
+    "imagePicker": {
+      "rowCount": 29,
+      "rows": [
+        {
+          "value": "cf-sdxl-lightning",
+          "label": "Cloudflare SDXL Lightning",
+          "provider": "cloudflare",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "cf-sdxl",
+          "label": "Cloudflare SDXL",
+          "provider": "cloudflare",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "cf-dreamshaper-lcm",
+          "label": "Cloudflare DreamShaper LCM",
+          "provider": "cloudflare",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "cf-flux-klein",
+          "label": "Cloudflare Flux 2 Klein",
+          "provider": "cloudflare",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-flux",
+          "label": "Flux Schnell - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-zimage",
+          "label": "Z-Image Turbo - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-gptimage",
+          "label": "GPT Image 1 Mini - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-gptimage-large",
+          "label": "GPT Image 1.5 - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-klein",
+          "label": "FLUX.2 Klein - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-kontext",
+          "label": "FLUX.1 Kontext - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-nova-canvas",
+          "label": "Nova Canvas - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-nanobanana",
+          "label": "NanoBanana - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-nanobanana-2",
+          "label": "NanoBanana 2 - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-seedream",
+          "label": "Seedream 4.0 - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "pollinations-seedream5",
+          "label": "Seedream 5 Lite - Pollinations",
+          "provider": "pollinations",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        },
+        {
+          "value": "together-juggernaut-flux",
+          "label": "Juggernaut Lightning Flux — Together",
+          "provider": "together",
+          "hasImg": true,
+          "hasSvg": false,
+          "text": ""
+        }
+      ],
+      "badPlainAiCount": 0,
+      "providers": [
+        "cloudflare",
+        "pollinations",
+        "together"
+      ]
+    }
+  }
+}

@@ -1,0 +1,110 @@
+﻿[
+    {
+        "model":  "pollinations-flux",
+        "ok":  true,
+        "ms":  2794,
+        "provider":  "pollinations",
+        "actual":  "flux",
+        "url":  "/generated/gen_1781377378317.jpg",
+        "error":  null
+    },
+    {
+        "model":  "pollinations-zimage",
+        "ok":  true,
+        "ms":  33022,
+        "provider":  "pollinations",
+        "actual":  "zimage",
+        "url":  "/generated/gen_1781377411369.jpg",
+        "error":  null
+    },
+    {
+        "model":  "pollinations-kontext",
+        "ok":  false,
+        "ms":  3816,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    },
+    {
+        "model":  "pollinations-klein",
+        "ok":  false,
+        "ms":  3801,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    },
+    {
+        "model":  "pollinations-gptimage",
+        "ok":  false,
+        "ms":  3844,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    },
+    {
+        "model":  "pollinations-gptimage-large",
+        "ok":  false,
+        "ms":  4208,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    },
+    {
+        "model":  "pollinations-nova-canvas",
+        "ok":  false,
+        "ms":  3798,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    },
+    {
+        "model":  "pollinations-nanobanana",
+        "ok":  false,
+        "ms":  3873,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    },
+    {
+        "model":  "pollinations-nanobanana-2",
+        "ok":  false,
+        "ms":  3777,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    },
+    {
+        "model":  "pollinations-seedream",
+        "ok":  false,
+        "ms":  3819,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    },
+    {
+        "model":  "pollinations-seedream5",
+        "ok":  false,
+        "ms":  3880,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    },
+    {
+        "model":  "pollinations-gpt-image-2",
+        "ok":  false,
+        "ms":  3812,
+        "provider":  null,
+        "actual":  null,
+        "url":  null,
+        "error":  "{\"error\":\"SeÃ§ili gÃ¶rsel saÄŸlayÄ±cÄ±sÄ± ÅŸu an yanÄ±t vermedi: bilinmeyen hata\",\"prompt\":\"safe product photo of a small red apple on a white table\\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no"
+    }
+]

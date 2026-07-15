@@ -1,0 +1,92 @@
+# ============================================
+# AiPaketim — Environment Variables
+# ============================================
+# Bu dosyayi .env olarak kopyala ve degerleri doldur.
+# Production'da key'leri koda yazma; hosting panelindeki
+# environment variables alanina ekle.
+
+# ===== ZORUNLU (Uygulama baslatmak icin) =====
+
+# JWT Token sifresi — production icin MUTLAKA benzersiz, uzun bir string ayarla
+JWT_SECRET=
+
+# Admin hesabi — bos birakilirsa admin hesabi olusturulmaz
+ADMIN_EMAIL=admin@aipaketim.com
+ADMIN_PASSWORD=
+ADMIN_USERNAME=Admin
+
+# Admin bootstrap endpoint guvenlik anahtari
+ADMIN_BOOTSTRAP_SECRET=
+
+# ===== AI PROVIDER KEYS =====
+
+# Groq (ucretsiz modeller + fallback)
+GROQ_API_KEY=
+
+# OpenRouter (300+ model katalogu)
+OPENROUTER_API_KEY=
+
+# Google Gemini (direct API)
+GEMINI_API_KEYS=
+GOOGLE_API_KEY=
+
+# Guicore (GPT, Claude, Gemini proxy)
+GUICORE_BASE_URL=https://api.guicore.com/v1
+GUICORE_OPENAI_KEY=
+GUICORE_GEMINI_KEY=
+GUICORE_CLAUDE_KEY=
+GUICORE_IMAGE_KEY=
+
+# ===== UCRETSIZ / YAKIN-UCRETSIZ CHAT =====
+CEREBRAS_API_KEY=
+SAMBANOVA_API_KEY=
+MISTRAL_API_KEY=
+NVIDIA_API_KEY=
+FIREWORKS_API_KEY=
+TOGETHER_API_KEY=
+XAI_API_KEY=
+HF_TOKEN=
+DEEPSEEK_API_KEY=
+
+# ===== VIDEO PROVIDERS =====
+FAL_API_KEY=
+REPLICATE_API_TOKEN=
+VIDU_API_KEY=
+WAVESPEED_API_KEY=        # https://wavespeed.ai — Kling/Wan/Seedance, free trial
+POLLINATIONS_KEY=         # https://enter.pollinations.ai — sk_ key, video/image için önerilir
+
+# ===== GORSEL PROVIDERS =====
+# Cloudflare Workers AI
+CLOUDFLARE_CREDENTIALS=
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_API_TOKEN=
+
+# Runware (Flux-schnell / SDXL — ücretsiz tier)
+RUNWARE_API_KEY=          # https://runware.ai
+
+# Stability AI (Stable Image Core/Ultra — free credits)
+STABILITY_API_KEY=        # https://stability.ai
+
+# AIML API (unified: Nano Banana 2, Flux 2, GPT Image)
+AIMLAPI_KEY=              # https://aimlapi.com
+
+# ===== ARAMA SAĞLAYICILARI =====
+TAVILY_API_KEY=           # https://tavily.com — 1000 req/ay ücretsiz
+BRAVE_SEARCH_KEY=         # https://brave.com/search/api — 2000 req/ay ücretsiz
+
+# ===== YENİ CHAT SAĞLAYICILARI =====
+CHUTES_API_KEY=           # https://chutes.ai — 200 req/gün ücretsiz (Llama4, DeepSeek, Qwen3)
+COMETAPI_KEY=             # https://cometapi.com — multi-model free key
+
+# ===== TTS (Text-to-Speech) =====
+OPENAI_TTS_KEY=
+
+# ===== OAUTH (Opsiyonel) =====
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# ===== ORTAM =====
+NODE_ENV=development
+# PORT=3001

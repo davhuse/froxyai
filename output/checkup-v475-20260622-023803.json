@@ -1,0 +1,36 @@
+﻿{
+    "at":  "2026-06-22T02:38:03",
+    "version":  "v475",
+    "syntaxBuild":  "pass",
+    "local":  {
+                  "health":  "pass",
+                  "routeSmoke":  "pass",
+                  "logos":  "pass"
+              },
+    "live":  {
+                 "health":  "pass",
+                 "routeSmoke":  "pass",
+                 "sentry":  "active",
+                 "logos":  "pass",
+                 "consoleErrors":  "none in browser smoke"
+             },
+    "providers":  {
+                      "modal":  "ready",
+                      "pcLocal":  "not running/expected false",
+                      "cloudflare":  "configured",
+                      "pollinations":  "configured",
+                      "together":  "configured",
+                      "aimlapi":  "configured",
+                      "runware":  "configured from health imageProviders earlier if env present",
+                      "stability":  "not configured in provider-status"
+                  },
+    "admin":  {
+                  "anonymousAdminStats":  "401 expected",
+                  "route":  "shows login required without token"
+              },
+    "notes":  [
+                  "Pollinations multi-account plan is not practical if GitHub is required for each account.",
+                  "Modal is the PC-off cloud GPU path; PC-local Comfy/A1111/Fooocus are false unless running on machine.",
+                  "Live logo DOM verified: modal.svg for Modal, meta.svg for Llama."
+              ]
+}

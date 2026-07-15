@@ -1,0 +1,61 @@
+{
+  "summary": {
+    "source": "openrouter",
+    "count": 372,
+    "checked": 7,
+    "ok": 7,
+    "fail": 0,
+    "failures": []
+  },
+  "results": [
+    {
+      "id": "x-ai/grok-4.3",
+      "ok": true,
+      "status": 200,
+      "fallback": null,
+      "error": null
+    },
+    {
+      "id": "ibm-granite/granite-4.1-8b",
+      "ok": true,
+      "status": 200,
+      "fallback": null,
+      "error": null
+    },
+    {
+      "id": "mistralai/mistral-medium-3-5",
+      "ok": true,
+      "status": 200,
+      "fallback": null,
+      "error": null
+    },
+    {
+      "id": "~anthropic/claude-haiku-latest",
+      "ok": true,
+      "status": 200,
+      "fallback": null,
+      "error": null
+    },
+    {
+      "id": "~google/gemini-pro-latest",
+      "ok": true,
+      "status": 200,
+      "fallback": null,
+      "error": null
+    },
+    {
+      "id": "qwen/qwen3.5-plus-20260420",
+      "ok": true,
+      "status": 200,
+      "fallback": null,
+      "error": null
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro",
+      "ok": true,
+      "status": 200,
+      "fallback": null,
+      "error": null
+    }
+  ]
+}

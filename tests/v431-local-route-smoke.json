@@ -1,0 +1,72 @@
+[
+  {
+    "route": "/",
+    "status": 200,
+    "ms": 81,
+    "bytes": 35407,
+    "ok": true
+  },
+  {
+    "route": "/sohbet",
+    "status": 200,
+    "ms": 16,
+    "bytes": 162814,
+    "ok": true
+  },
+  {
+    "route": "/gorsel",
+    "status": 200,
+    "ms": 14,
+    "bytes": 162726,
+    "ok": true
+  },
+  {
+    "route": "/promptlar",
+    "status": 200,
+    "ms": 15,
+    "bytes": 157972,
+    "ok": true
+  },
+  {
+    "route": "/ai-araclar",
+    "status": 200,
+    "ms": 10,
+    "bytes": 162482,
+    "ok": true
+  },
+  {
+    "route": "/galeri",
+    "status": 200,
+    "ms": 12,
+    "bytes": 157966,
+    "ok": true
+  },
+  {
+    "route": "/destek",
+    "status": 200,
+    "ms": 8,
+    "bytes": 157966,
+    "ok": true
+  },
+  {
+    "route": "/admin",
+    "status": 200,
+    "ms": 9,
+    "bytes": 157964,
+    "ok": true
+  },
+  {
+    "route": "/api/health",
+    "status": 200,
+    "ms": 3,
+    "bytes": 19532,
+    "ok": true
+  },
+  {
+    "route": "/api/local-providers/status",
+    "status": 200,
+    "ms": 1,
+    "bytes": 960,
+    "ok": true
+  }
+]

@@ -1,0 +1,127 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary "Admin gezintisi" [ref=e3]:
+      - link "F froxy.admin" [ref=e5] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=e6]: F
+        - generic [ref=e7]: froxy.admin
+      - generic [ref=e8]:
+        - generic [ref=e9]: ✦
+        - generic [ref=e10]:
+          - text: Çalışma alanı
+          - strong [ref=e11]: Froxy Türkiye
+      - navigation "Admin bölümleri" [ref=e14]:
+        - generic [ref=e15]: MERKEZ
+        - button "Genel bakış" [ref=e16] [cursor=pointer]
+        - button "Kullanıcılar 2.481" [ref=e22] [cursor=pointer]:
+          - text: Kullanıcılar
+          - generic [ref=e26]: "2.481"
+        - button "Modeller" [ref=e27] [cursor=pointer]
+        - button "Krediler" [ref=e31] [cursor=pointer]
+        - generic [ref=e35]: SİSTEM
+        - button "Sistem sağlığı" [active] [ref=e36] [cursor=pointer]
+      - generic [ref=e40]:
+        - link "Çalışma alanına dön" [ref=e41] [cursor=pointer]:
+          - /url: index.html
+        - generic [ref=e44]:
+          - generic [ref=e45]: HA
+          - generic [ref=e46]:
+            - strong [ref=e47]: Habil A.
+            - generic [ref=e48]: Yönetici
+          - button "Hesap ayarları" [ref=e49] [cursor=pointer]: •••
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e53]:
+          - text: FROXY TÜRKİYE / ADMIN
+          - heading "Sistem sağlığı" [level=1] [ref=e452]
+        - generic [ref=e55]:
+          - button "Verileri yenile" [ref=e56] [cursor=pointer]
+          - generic [ref=e59]: Tüm sistemler çalışıyor
+          - button "HA" [ref=e61] [cursor=pointer]
+      - region "Sistem sağlığı" [ref=e453]:
+        - generic [ref=e454]:
+          - generic [ref=e455]:
+            - text: SİSTEM SAĞLIĞI
+            - heading [level=2] [ref=e456]:
+              - text: Her şey
+              - emphasis [ref=e457]: akışta.
+            - paragraph [ref=e458]: Altyapı, kuyruklar ve bağlantılar için canlı durum ekranı.
+          - button "Kontrol çalıştır ↻" [ref=e459] [cursor=pointer]:
+            - text: Kontrol çalıştır
+            - generic [ref=e460]: ↻
+        - generic [ref=e461]:
+          - generic [ref=e462]: Operasyonel
+          - paragraph [ref=e464]:
+            - text: Son 30 gündeki kullanılabilirlik
+            - strong [ref=e465]: "%99,98"
+          - generic [ref=e466]: "Son denetim: bugün, 14:22"
+        - generic [ref=e467]:
+          - article [ref=e468]:
+            - generic [ref=e470]:
+              - text: ALTYAPI
+              - heading "Servis durumu" [level=3] [ref=e471]
+            - generic [ref=e472]:
+              - generic [ref=e473]:
+                - generic [ref=e474]: API geçidi
+                - generic [ref=e476]: 42 ms
+                - generic [ref=e477]: Operasyonel
+              - generic [ref=e478]:
+                - generic [ref=e479]: Sohbet kuyruğu
+                - generic [ref=e481]: 18 ms
+                - generic [ref=e482]: Operasyonel
+              - generic [ref=e483]:
+                - generic [ref=e484]: Dosya işleme
+                - generic [ref=e486]: 126 ms
+                - generic [ref=e487]: Operasyonel
+              - generic [ref=e488]:
+                - generic [ref=e489]: Analitik akışı
+                - generic [ref=e491]: 84 ms
+                - generic [ref=e492]: Operasyonel
+          - article [ref=e493]:
+            - generic [ref=e494]:
+              - generic [ref=e495]:
+                - text: ENTEGRASYONLAR
+                - heading "Bağlantılar" [level=3] [ref=e496]
+              - button "Ekle →" [ref=e497] [cursor=pointer]
+            - generic [ref=e498]:
+              - generic [ref=e499]:
+                - generic [ref=e500]: O
+                - paragraph [ref=e501]:
+                  - strong [ref=e502]: OpenAI
+                  - generic [ref=e503]: Son eşitleme az önce
+                - switch [checked] [ref=e504] [cursor=pointer]
+              - generic [ref=e506]:
+                - generic [ref=e507]: G
+                - paragraph [ref=e508]:
+                  - strong [ref=e509]: Google AI
+                  - generic [ref=e510]: Son eşitleme 3 dk önce
+                - switch [checked] [ref=e511] [cursor=pointer]
+              - generic [ref=e513]:
+                - generic [ref=e514]: A
+                - paragraph [ref=e515]:
+                  - strong [ref=e516]: Anthropic
+                  - generic [ref=e517]: Son eşitleme 5 dk önce
+                - switch [checked] [ref=e518] [cursor=pointer]
+        - article [ref=e520]:
+          - generic [ref=e521]:
+            - generic [ref=e522]:
+              - text: DENETİM KAYDI
+              - heading "Yakın sistem olayları" [level=3] [ref=e523]
+            - button "Kaydı indir ↓" [ref=e524] [cursor=pointer]
+          - generic [ref=e525]:
+            - generic [ref=e526]:
+              - time [ref=e527]: 14:22
+              - paragraph [ref=e529]:
+                - strong [ref=e530]: Otomatik kontrol tamamlandı
+                - generic [ref=e531]: 4 servis, 3 model sağlayıcısı
+            - generic [ref=e532]:
+              - time [ref=e533]: 13:48
+              - paragraph [ref=e535]:
+                - strong [ref=e536]: Model kataloğu eşitlendi
+                - generic [ref=e537]: 1 yeni sürüm algılandı
+            - generic [ref=e538]:
+              - time [ref=e539]: 12:10
+              - paragraph [ref=e541]:
+                - strong [ref=e542]: Kredi limiti değerlendirildi
+                - generic [ref=e543]: Uyarı eşiğinin altında
+  - status: Froxy Core duraklatıldı.

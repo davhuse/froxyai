@@ -1,0 +1,116 @@
+{
+  "at": "2026-06-16T10:34:51.475Z",
+  "prompt": "safe product photo of a small froxy ai glass cube on white studio background",
+  "results": [
+    {
+      "model": "pollinations-flux",
+      "ms": 2806,
+      "ok": true,
+      "status": 200,
+      "error": "",
+      "provider": "pollinations",
+      "url": true,
+      "returnedModel": "flux",
+      "requestedModel": "pollinations-flux"
+    },
+    {
+      "model": "pollinations-zimage",
+      "ms": 29019,
+      "ok": true,
+      "status": 200,
+      "error": "",
+      "provider": "pollinations",
+      "url": true,
+      "returnedModel": "zimage",
+      "requestedModel": "pollinations-zimage"
+    },
+    {
+      "model": "pollinations-gptimage",
+      "ms": 2279,
+      "ok": true,
+      "status": 200,
+      "error": "",
+      "provider": "pollinations",
+      "url": true,
+      "returnedModel": "flux",
+      "requestedModel": "pollinations-gptimage"
+    },
+    {
+      "model": "pollinations-klein",
+      "ms": 20246,
+      "ok": true,
+      "status": 200,
+      "error": "",
+      "provider": "pollinations",
+      "url": true,
+      "returnedModel": "zimage",
+      "requestedModel": "pollinations-klein"
+    },
+    {
+      "model": "pollinations-kontext",
+      "ms": 2180,
+      "ok": true,
+      "status": 200,
+      "error": "",
+      "provider": "pollinations",
+      "url": true,
+      "returnedModel": "flux",
+      "requestedModel": "pollinations-kontext"
+    },
+    {
+      "model": "pollinations-nova-canvas",
+      "ms": 1753,
+      "ok": false,
+      "status": 502,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: Pollinations HTTP 402: Pollinations bakiyesi yetersiz. Insufficient balance. This request costs ~0.0018 pollen, but your available balance is 0.0008.",
+      "provider": "pollinations",
+      "url": false,
+      "returnedModel": "flux",
+      "requestedModel": "pollinations-nova-canvas"
+    },
+    {
+      "model": "pollinations-nanobanana",
+      "ms": 2,
+      "ok": false,
+      "status": 502,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: Pollinations flux kısa süreli beklemede (300 sn). Model Değiştir veya Çalışan Modele Geç kullan.",
+      "provider": "pollinations",
+      "url": false,
+      "returnedModel": "flux",
+      "requestedModel": "pollinations-nanobanana"
+    },
+    {
+      "model": "pollinations-nanobanana-2",
+      "ms": 1785,
+      "ok": false,
+      "status": 502,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: Pollinations HTTP 402: Pollinations bakiyesi yetersiz. Insufficient balance. This request costs ~0.0020 pollen, but your available balance is 0.0008.",
+      "provider": "pollinations",
+      "url": false,
+      "returnedModel": "zimage",
+      "requestedModel": "pollinations-nanobanana-2"
+    },
+    {
+      "model": "pollinations-seedream",
+      "ms": 3,
+      "ok": false,
+      "status": 502,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: Pollinations zimage kısa süreli beklemede (300 sn). Model Değiştir veya Çalışan Modele Geç kullan.",
+      "provider": "pollinations",
+      "url": false,
+      "returnedModel": "zimage",
+      "requestedModel": "pollinations-seedream"
+    },
+    {
+      "model": "pollinations-seedream5",
+      "ms": 2,
+      "ok": false,
+      "status": 502,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: Pollinations zimage kısa süreli beklemede (300 sn). Model Değiştir veya Çalışan Modele Geç kullan.",
+      "provider": "pollinations",
+      "url": false,
+      "returnedModel": "zimage",
+      "requestedModel": "pollinations-seedream5"
+    }
+  ]
+}

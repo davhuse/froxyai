@@ -1,0 +1,129 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary "Admin gezintisi" [ref=e3]:
+      - link "F froxy.admin" [ref=e5] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=e6]: F
+        - generic [ref=e7]: froxy.admin
+      - generic [ref=e8]:
+        - generic [ref=e9]: ✦
+        - generic [ref=e10]:
+          - text: Çalışma alanı
+          - strong [ref=e11]: Froxy Türkiye
+      - navigation "Admin bölümleri" [ref=e14]:
+        - generic [ref=e15]: MERKEZ
+        - button "Genel bakış" [ref=e16] [cursor=pointer]
+        - button "Kullanıcılar 2.481" [ref=e22] [cursor=pointer]:
+          - text: Kullanıcılar
+          - generic [ref=e26]: "2.481"
+        - button "Modeller" [ref=e27] [cursor=pointer]
+        - button "Krediler" [ref=e31] [cursor=pointer]
+        - generic [ref=e35]: SİSTEM
+        - button "Sistem sağlığı" [ref=e36] [cursor=pointer]
+      - generic [ref=e40]:
+        - link "Çalışma alanına dön" [ref=e41] [cursor=pointer]:
+          - /url: index.html
+        - generic [ref=e44]:
+          - generic [ref=e45]: HA
+          - generic [ref=e46]:
+            - strong [ref=e47]: Habil A.
+            - generic [ref=e48]: Yönetici
+          - button "Hesap ayarları" [ref=e49] [cursor=pointer]: •••
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e53]:
+          - text: FROXY TÜRKİYE / ADMIN
+          - heading "Modeller" [level=1] [ref=e288]
+        - generic [ref=e55]:
+          - button "Verileri yenile" [ref=e56] [cursor=pointer]
+          - generic [ref=e59]: Tüm sistemler çalışıyor
+          - button "HA" [ref=e61] [cursor=pointer]
+      - region "Modeller" [ref=e289]:
+        - generic [ref=e290]:
+          - generic [ref=e291]:
+            - text: MODEL KATALOĞU
+            - heading [level=2] [ref=e292]:
+              - text: Doğru model,
+              - emphasis [ref=e293]: doğru iş.
+            - paragraph [ref=e294]: Sağlayıcı, kalite ve maliyet dengesini tek yerden yönet.
+          - button "Kataloğu eşitle ↻" [ref=e295] [cursor=pointer]:
+            - text: Kataloğu eşitle
+            - generic [ref=e296]: ↻
+        - generic [ref=e297]:
+          - generic [ref=e298]:
+            - generic [ref=e299]: "5"
+            - text: aktif model
+          - generic [ref=e300]:
+            - generic [ref=e301]: "3"
+            - text: sağlayıcı
+          - generic [ref=e302]:
+            - generic [ref=e303]: ₺0,24
+            - text: ort. 1K token
+          - generic [ref=e304]:
+            - generic [ref=e305]: "%98,4"
+            - text: akıllı yönlendirme
+        - generic [ref=e306]:
+          - article [ref=e307]:
+            - generic [ref=e308]:
+              - generic [ref=e309]: O
+              - generic [ref=e310]: OPENAI
+              - switch [active] [ref=e311] [cursor=pointer]
+            - generic [ref=e315]:
+              - heading "Froxy Core" [level=3] [ref=e316]
+              - paragraph [ref=e317]: Derin düşünme ve karmaşık üretim
+            - generic [ref=e318]:
+              - generic [ref=e319]:
+                - generic [ref=e320]: Gecikme
+                - generic [ref=e321]: 1,4 sn
+              - generic [ref=e322]:
+                - generic [ref=e323]: Kalite
+                - generic [ref=e324]: Yüksek
+              - generic [ref=e325]:
+                - generic [ref=e326]: Pay
+                - generic [ref=e327]: "%46"
+            - generic [ref=e328]:
+              - generic [ref=e329]: Canlı
+              - button "Ayarlar →" [ref=e330] [cursor=pointer]
+          - article [ref=e331]:
+            - generic [ref=e332]:
+              - generic [ref=e333]: G
+              - generic [ref=e334]: GOOGLE AI
+              - switch [checked] [ref=e335] [cursor=pointer]
+            - generic [ref=e339]:
+              - heading "Froxy Swift" [level=3] [ref=e340]
+              - paragraph [ref=e341]: Hızlı taslaklar ve özetler
+            - generic [ref=e342]:
+              - generic [ref=e343]:
+                - generic [ref=e344]: Gecikme
+                - generic [ref=e345]: 0,6 sn
+              - generic [ref=e346]:
+                - generic [ref=e347]: Kalite
+                - generic [ref=e348]: İyi
+              - generic [ref=e349]:
+                - generic [ref=e350]: Pay
+                - generic [ref=e351]: "%37"
+            - generic [ref=e352]:
+              - generic [ref=e353]: Canlı
+              - button "Ayarlar →" [ref=e354] [cursor=pointer]
+          - article [ref=e355]:
+            - generic [ref=e356]:
+              - generic [ref=e357]: A
+              - generic [ref=e358]: ANTHROPIC
+              - switch [checked] [ref=e359] [cursor=pointer]
+            - generic [ref=e363]:
+              - heading "Froxy Vision" [level=3] [ref=e364]
+              - paragraph [ref=e365]: Görsel yön ve dosya içgörüsü
+            - generic [ref=e366]:
+              - generic [ref=e367]:
+                - generic [ref=e368]: Gecikme
+                - generic [ref=e369]: 2,1 sn
+              - generic [ref=e370]:
+                - generic [ref=e371]: Kalite
+                - generic [ref=e372]: Yüksek
+              - generic [ref=e373]:
+                - generic [ref=e374]: Pay
+                - generic [ref=e375]: "%17"
+            - generic [ref=e376]:
+              - generic [ref=e377]: Canlı
+              - button "Ayarlar →" [ref=e378] [cursor=pointer]
+  - status: Froxy Core duraklatıldı.

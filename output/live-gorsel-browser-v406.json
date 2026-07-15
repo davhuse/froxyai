@@ -1,0 +1,85 @@
+{
+  "at": "2026-06-14T16:17:28.619Z",
+  "info": {
+    "url": "https://www.froxyai.com/gorsel",
+    "selected": "together-juggernaut-flux",
+    "count": 23,
+    "pollinations": [
+      {
+        "value": "pollinations-flux",
+        "text": "Flux Schnell - Pollinations",
+        "disabled": false,
+        "group": "FREE / POLLINATIONS"
+      },
+      {
+        "value": "pollinations-zimage",
+        "text": "Z-Image Turbo - Pollinations",
+        "disabled": false,
+        "group": "FREE / POLLINATIONS"
+      }
+    ],
+    "togetherCount": 10,
+    "local": [
+      {
+        "value": "comfyui-local",
+        "text": "ComfyUI DreamShaper8 LCM - Kurulum gerekli",
+        "disabled": true,
+        "group": "Local Free"
+      },
+      {
+        "value": "fooocus-local",
+        "text": "Fooocus Local Image - Kurulum gerekli",
+        "disabled": true,
+        "group": "Local Free"
+      },
+      {
+        "value": "a1111-local",
+        "text": "A1111 WebUI Local - Kurulum gerekli",
+        "disabled": true,
+        "group": "Local Free"
+      },
+      {
+        "value": "forge-local",
+        "text": "Forge Local - Kurulum gerekli",
+        "disabled": true,
+        "group": "Local Free"
+      },
+      {
+        "value": "swarmui-local",
+        "text": "SwarmUI Local - Kurulum gerekli",
+        "disabled": true,
+        "group": "Local Free"
+      },
+      {
+        "value": "modal-sdxl",
+        "text": "Modal GPU SDXL - Cloud GPU Ready",
+        "disabled": false,
+        "group": "Local Free"
+      }
+    ],
+    "hasVideoTab": false,
+    "badText": false
+  },
+  "errors": [
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()"
+  ]
+}

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Froxy AI için ChatGPT ve Gemini benzeri özgün, tıklanabilir sohbet arayüzü prototipi."
+    />
+    <title>Froxy AI — Çalışma Alanı Prototipi</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23c5f8ff'/%3E%3Cstop offset='.55' stop-color='%237bdaf6'/%3E%3Cstop offset='1' stop-color='%23a58bff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='10' fill='url(%23g)'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Arial' font-size='18' font-weight='700' fill='%23071321'%3EF%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <div class="app-shell">
+      <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
+
+      <aside class="sidebar" id="sidebar" aria-label="Froxy gezinme menüsü">
+        <div class="brand-row">
+          <a class="brand" href="#chat" aria-label="Froxy AI ana sayfa">
+            <span class="brand-mark" aria-hidden="true">F</span>
+            <span>froxy<span class="brand-dot">.</span></span>
+          </a>
+          <button class="icon-button mobile-close" id="sidebar-close" type="button" aria-label="Menüyü kapat">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+          </button>
+        </div>
+
+        <button class="new-chat-button" id="new-chat" type="button">
+          <span class="plus-icon" aria-hidden="true">+</span>
+          Yeni çalışma
+          <span class="shortcut">⌘ K</span>
+        </button>
+
+        <nav class="primary-nav" aria-label="Birincil">
+          <button class="nav-item is-active" type="button" data-view="chat">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5c-1.3 0-2.5-.32-3.55-.9L4 20l1.54-4.14A7.47 7.47 0 0 1 5 13.1 7.5 7.5 0 1 1 20 11.5Z" /></svg>
+            Sohbet
+          </button>
+          <button class="nav-item" type="button" data-view="explore">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM19 16l.75 2.25L22 19l-2.25.75L19 22l-.75-2.25L16 19l2.25-.75L19 16Z" /></svg>
+            Keşfet
+            <span class="new-badge">Yeni</span>
+          </button>
+          <button class="nav-item" type="button" data-view="files">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.8A2.8 2.8 0 0 1 6.8 4h3.44l1.7 2H17.2A2.8 2.8 0 0 1 20 8.8v8.4a2.8 2.8 0 0 1-2.8 2.8H6.8A2.8 2.8 0 0 1 4 17.2V6.8Z" /></svg>
+            Dosyalar
+          </button>
+          <div class="nav-divider" role="presentation"></div>
+          <button class="nav-item" type="button" data-view="images">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.75A2.25 2.25 0 0 1 6.75 3.5h10.5a2.25 2.25 0 0 1 2.25 2.25v12.5a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V5.75Zm2.3 10.85 3.2-3.2 2.45 2.45 1.85-1.85 3.35 3.35M8 8.35h.01" /></svg>
+            Görsel stüdyo
+          </button>
+          <button class="nav-item" type="button" data-view="prompts">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10A2.5 2.5 0 0 1 19.5 7v10a2.5 2.5 0 0 1-2.5 2.5H7A2.5 2.5 0 0 1 4.5 17V7A2.5 2.5 0 0 1 7 4.5Zm2.2 4.3h5.6M9.2 12h5.6M9.2 15.2h3.2" /></svg>
+            Prompt kütüphanesi
+          </button>
+          <button class="nav-item" type="button" data-view="projects">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7.5h14M7.5 4.5v6m9-6v6M6.75 19.5h10.5A2.25 2.25 0 0 0 19.5 17.25v-9A2.25 2.25 0 0 0 17.25 6h-10.5A2.25 2.25 0 0 0 4.5 8.25v9a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+            Projeler
+          </button>
+          <div class="nav-divider" role="presentation"></div>
+          <a class="nav-item nav-external" href="landing.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10.5 12 4l7.5 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-4.25v-5.25h-3.5v5.25H6A1.5 1.5 0 0 1 4.5 19v-8.5Z" /></svg>
+            Açılış sayfası
+          </a>
+          <a class="nav-item nav-external" href="admin.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.2 19 8v8l-7 3.8L5 16V8l7-3.8Zm0 0V12m0 0 7-4M12 12 5 8m7 4v7.8" /></svg>
+            Yönetim
+            <span class="admin-badge">Admin</span>
+          </a>
+        </nav>
+
+        <div class="history-section">
+          <div class="section-label"><span>Bugün</span><button class="more-button" type="button" aria-label="Geçmiş seçenekleri">•••</button></div>
+          <div class="conversation-list" id="conversation-list">
+            <button class="conversation-item is-current" type="button" data-prompt="Froxy AI için dikkat çeken bir landing page konsepti oluştur.">
+              <span class="conversation-icon icon-violet" aria-hidden="true">✦</span>
+              <span class="conversation-content"><strong>Froxy landing konsepti</strong><small>2 dk önce</small></span>
+            </button>
+            <button class="conversation-item" type="button" data-prompt="İstanbul'da iki günlük yaratıcı bir gezi rotası planla.">
+              <span class="conversation-icon icon-cyan" aria-hidden="true">⌁</span>
+              <span class="conversation-content"><strong>İstanbul yaratıcı rota</strong><small>Dün</small></span>
+            </button>
+            <button class="conversation-item" type="button" data-prompt="Yeni ürün fikrimin hedef kitlesini ve ilk testini çıkar.">
+              <span class="conversation-icon icon-peach" aria-hidden="true">↗</span>
+              <span class="conversation-content"><strong>Ürün fikrini doğrula</strong><small>Dün</small></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-bottom">
+          <div class="usage-card">
+            <div class="usage-card-top"><span>Bugünün akışı</span><strong>%68</strong></div>
+            <div class="meter"><span></span></div>
+            <p>3 net fikir, 1 sonraki adım.</p>
+          </div>
+          <button class="profile-button" type="button" aria-label="Hesap ayarları">
+            <span class="profile-avatar">HA</span>
+            <span class="profile-copy"><strong>Habil A.</strong><small>Froxy Explorer</small></span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button class="icon-button mobile-menu" id="sidebar-open" type="button" aria-label="Menüyü aç">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+            </button>
+            <div class="workspace-label">
+              <span class="eyebrow">FROXY STUDIO</span>
+              <span class="workspace-status"><i></i> Odak modu açık</span>
+            </div>
+          </div>
+          <div class="topbar-actions">
+            <div class="model-picker">
+              <button class="model-trigger" id="model-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="model-orb" aria-hidden="true"></span>
+                <span><small>Model</small><strong id="model-value">Froxy Core</strong></span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg>
+              </button>
+              <div class="model-menu" id="model-menu" role="listbox" aria-label="Model seç">
+                <button class="model-option is-selected" type="button" role="option" aria-selected="true" data-model="Froxy Core">
+                  <span class="model-orb orb-core" aria-hidden="true"></span><span><strong>Froxy Core</strong><small>Dengeli düşünme ve üretim</small></span>
+                </button>
+                <button class="model-option" type="button" role="option" aria-selected="false" data-model="Froxy Swift">
+                  <span class="model-orb orb-swift" aria-hidden="true"></span><span><strong>Froxy Swift</strong><small>Hızlı taslaklar ve özetler</small></span>
+                </button>
+                <button class="model-option" type="button" role="option" aria-selected="false" data-model="Froxy Vision">
+                  <span class="model-orb orb-vision" aria-hidden="true"></span><span><strong>Froxy Vision</strong><small>Görsel ve dosya odaklı işler</small></span>
+                </button>
+              </div>
+            </div>
+            <button class="share-button" id="share-button" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4.2A1.8 1.8 0 0 0 6.8 20h10.4a1.8 1.8 0 0 0 1.8-1.8V14" /></svg>
+              Paylaş
+            </button>
+          </div>
+        </header>
+
+        <section class="view chat-view" id="chat-view" aria-label="Sohbet çalışma alanı">
+          <div class="empty-state" id="empty-state">
+            <div class="welcome-tag"><span class="sparkle" aria-hidden="true">✦</span> Netlik için buradayım</div>
+            <h1>Bugün neyi <em>netleştirelim?</em></h1>
+            <p>Froxy; fikirleri, araştırmayı ve üretimi aynı akışta buluşturur.</p>
+            <div class="mode-strip" role="group" aria-label="Çalışma modu">
+              <button class="mode-pill is-selected" data-mode="Fikir üret" type="button">Fikir üret</button>
+              <button class="mode-pill" data-mode="Araştır" type="button">Araştır</button>
+              <button class="mode-pill" data-mode="Planla" type="button">Planla</button>
+              <button class="mode-pill" data-mode="Yaz" type="button">Yaz</button>
+            </div>
+            <div class="suggestion-grid" aria-label="Önerilen başlangıçlar">
+              <button class="suggestion-card accent-violet" type="button" data-suggestion="Yeni bir dijital ürün fikrini doğrulamak için 7 günlük test planı oluştur.">
+                <span class="suggestion-icon">↗</span><span><strong>Bir ürün fikrini doğrula</strong><small>Hızlı test planı ve ilk sinyaller</small></span><i>→</i>
+              </button>
+              <button class="suggestion-card accent-cyan" type="button" data-suggestion="Bir web sitesi için güven veren, kısa ve dönüşüm odaklı içerik planı hazırla.">
+                <span class="suggestion-icon">⌘</span><span><strong>Web sitesi için içerik planla</strong><small>Sayfa yapısı, mesaj ve CTA'lar</small></span><i>→</i>
+              </button>
+              <button class="suggestion-card accent-peach" type="button" data-suggestion="Karmaşık bir konuyu yeni başlayan birine sade ve örnekli olarak anlat.">
+                <span class="suggestion-icon">◎</span><span><strong>Karmaşık bir konuyu sadeleştir</strong><small>Örnekli, katmanlı açıklama</small></span><i>→</i>
+              </button>
+              <button class="suggestion-card accent-lime" type="button" data-suggestion="Hedefime ulaşmak için yaratıcı ve uygulanabilir bir yol haritası çıkar.">
+                <span class="suggestion-icon">⌁</span><span><strong>Yaratıcı yol haritası çıkar</strong><small>Hedef, ritim ve ilk adım</small></span><i>→</i>
+              </button>
+            </div>
+            <div class="quiet-note"><span></span> Her iyi iş, net bir ilk soruyla başlar.</div>
+          </div>
+
+          <div class="message-list" id="message-list" aria-live="polite" aria-label="Sohbet mesajları"></div>
+        </section>
+
+        <section class="view explore-view is-hidden" id="explore-view" aria-label="Keşfet">
+          <div class="explore-heading"><span class="welcome-tag"><span class="sparkle" aria-hidden="true">✦</span> Hazır akışlar</span><h1>Düşünmeyi <em>başlatan</em> bir yer.</h1><p>Bir akış seç, Froxy ilk taslağı hızlandırsın.</p></div>
+          <div class="workflow-grid">
+            <button class="workflow-card workflow-research" type="button" data-suggestion="Bu konu için güvenilir kaynaklardan kısa bir araştırma planı oluştur: "><span class="workflow-art">⌕</span><span class="workflow-copy"><strong>Araştır</strong><small>Kaynakları, soruları ve bulguları düzenle.</small></span><b>Başlat →</b></button>
+            <button class="workflow-card workflow-write" type="button" data-suggestion="Bu fikri güçlü bir ilk taslağa dönüştür: "><span class="workflow-art">Aa</span><span class="workflow-copy"><strong>Yaz</strong><small>Sayfa, e-posta veya anlatı için iskelet oluştur.</small></span><b>Başlat →</b></button>
+            <button class="workflow-card workflow-plan" type="button" data-suggestion="Bu hedef için kilometre taşları ve net ilk adım içeren bir plan hazırla: "><span class="workflow-art">↗</span><span class="workflow-copy"><strong>Planla</strong><small>Dağınık hedefleri sıraya koy.</small></span><b>Başlat →</b></button>
+            <button class="workflow-card workflow-build" type="button" data-suggestion="Bu ürün fikri için teknik yaklaşımı ve ilk ekranları çıkar: "><span class="workflow-art">⌘</span><span class="workflow-copy"><strong>Üret</strong><small>Fikirden somut bir başlangıca geç.</small></span><b>Başlat →</b></button>
+          </div>
+        </section>
+
+        <section class="view files-view is-hidden" id="files-view" aria-label="Dosyalar">
+          <div class="files-panel">
+            <span class="welcome-tag"><span class="sparkle" aria-hidden="true">✦</span> Bağlam ekle</span>
+            <h1>Dosyanı bırak,<br /><em>birlikte</em> açalım.</h1>
+            <p>Metin, brief veya görselini ekle; Froxy onu çalışma akışına dahil etmeye hazır.</p>
+            <button class="drop-zone" id="file-drop-zone" type="button">
+              <span class="drop-icon" aria-hidden="true">↑</span><strong>Dosya ekle</strong><small>PDF, görsel veya metin dosyası seç</small>
+            </button>
+          </div>
+        </section>
+
+        <section class="view image-view is-hidden" id="images-view" aria-label="Görsel stüdyo">
+          <div class="studio-heading">
+            <span class="welcome-tag"><span class="sparkle" aria-hidden="true">✦</span> Froxy Vision</span>
+            <h1>Fikrini <em>görünür</em> kıl.</h1>
+            <p>Bir atmosfer tarif et; Froxy Vision konseptini bir görsel yöne dönüştürsün.</p>
+          </div>
+          <div class="image-studio-grid">
+            <div class="image-controls">
+              <label for="image-prompt">Görsel fikri</label>
+              <textarea id="image-prompt" rows="5" placeholder="Örn. Froxy için sakin ama futuristik bir ürün lansman görseli...">Froxy için sakin ama futuristik bir ürün lansman görseli; buz mavisi ışık, editorial kompozisyon.</textarea>
+              <div class="visual-style-row" role="group" aria-label="Görsel stil seçimi">
+                <button class="visual-style is-selected" type="button" data-image-style="editorial">Editorial</button>
+                <button class="visual-style" type="button" data-image-style="cinematic">Sinematik</button>
+                <button class="visual-style" type="button" data-image-style="minimal">Minimal</button>
+              </div>
+              <button class="vision-generate" id="vision-generate" type="button"><span>✦</span> 4 varyasyon oluştur</button>
+              <small class="vision-note">Bu prototip yalnızca görsel yönünü simüle eder.</small>
+            </div>
+            <div class="vision-result" id="vision-result" aria-live="polite">
+              <div class="vision-result-top"><span>Seçili konsept</span><span class="image-status"><i></i> Hazır</span></div>
+              <div class="image-canvas editorial" id="image-canvas" aria-label="Froxy Vision örnek görseli">
+                <div class="canvas-star star-one"></div><div class="canvas-star star-two"></div><div class="canvas-glass"></div><span class="canvas-word">clarity</span><span class="canvas-caption" id="canvas-caption">Buz mavisi × seçici enerji</span>
+              </div>
+              <div class="variation-row"><button class="variation-card is-current" type="button" aria-label="Birinci varyasyon"><span></span></button><button class="variation-card variation-two" type="button" aria-label="İkinci varyasyon"><span></span></button><button class="variation-card variation-three" type="button" aria-label="Üçüncü varyasyon"><span></span></button><button class="variation-card variation-four" type="button" aria-label="Dördüncü varyasyon"><span></span></button></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view prompts-view is-hidden" id="prompts-view" aria-label="Prompt kütüphanesi">
+          <div class="library-heading"><span class="welcome-tag"><span class="sparkle" aria-hidden="true">✦</span> Hızlı başlangıçlar</span><h1>İyi bir soruyla <em>ileri</em> git.</h1><p>Hazır prompt'u seç, kendi bağlamınla düzenle ve çalışma alanına taşı.</p></div>
+          <label class="library-search" for="prompt-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"></circle><path d="m15 15 4.3 4.3"></path></svg><input id="prompt-search" type="search" placeholder="Promptlarda ara..." /></label>
+          <div class="library-filter-row" role="group" aria-label="Prompt filtresi"><button class="library-filter is-selected" type="button" data-filter="all">Tümü</button><button class="library-filter" type="button" data-filter="strateji">Strateji</button><button class="library-filter" type="button" data-filter="yazı">Yazı</button><button class="library-filter" type="button" data-filter="araştırma">Araştırma</button><button class="library-filter" type="button" data-filter="kod">Kod</button></div>
+          <div class="prompt-library" id="prompt-library">
+            <button class="library-card" type="button" data-category="strateji" data-suggestion="Bir ürün fikri için hedef kullanıcı, temel acı, benzersiz değer ve 7 günlük doğrulama deneyini çıkar."><span class="library-icon icon-violet">↗</span><span><b>Fikri doğrulama çerçevesi</b><small>Strateji · 4 dk</small><p>Varsayımı test edilebilir bir ilk deneye çevir.</p></span><i>→</i></button>
+            <button class="library-card" type="button" data-category="yazı" data-suggestion="Bu ürün için kısa, güven veren ve dönüşüm odaklı bir landing page metni oluştur. Hero, kanıt, fayda ve CTA kullan."><span class="library-icon icon-peach">Aa</span><span><b>Dönüşüm odaklı landing metni</b><small>Yazı · 3 dk</small><p>Yüzeysel sıfatlar yerine net bir değer önerisi yaz.</p></span><i>→</i></button>
+            <button class="library-card" type="button" data-category="araştırma" data-suggestion="Bu konu için araştırma soruları, kontrol edilmesi gereken iddialar ve güvenilir kaynak türleriyle bir araştırma planı hazırla."><span class="library-icon icon-cyan">⌕</span><span><b>Kaynaklı araştırma planı</b><small>Araştırma · 5 dk</small><p>Neyi bildiğini, neyi doğrulaman gerektiğini ayır.</p></span><i>→</i></button>
+            <button class="library-card" type="button" data-category="kod" data-suggestion="Bu ürün fikri için teknik mimariyi, ekranları ve ilk sprint görevlerini; öncelikleriyle birlikte çıkar."><span class="library-icon icon-lime">⌘</span><span><b>Üründen ilk sprint'e</b><small>Kod · 6 dk</small><p>Fikri uygulanabilir sistem kararlarına bağla.</p></span><i>→</i></button>
+            <button class="library-card" type="button" data-category="strateji" data-suggestion="Bu hedef için 30 günlük bir plan oluştur: haftalık çıktılar, riskler, kontrol noktaları ve bugünkü ilk adım."><span class="library-icon icon-violet">⌁</span><span><b>30 günlük yol haritası</b><small>Strateji · 4 dk</small><p>Hedefi belirli ritme ve ölçülebilir ilerlemeye dönüştür.</p></span><i>→</i></button>
+            <button class="library-card" type="button" data-category="yazı" data-suggestion="Bu karmaşık konuyu bir uzmana değil, meraklı bir yeni başlayana; iyi bir benzetme ve örneklerle anlat."><span class="library-icon icon-peach">◎</span><span><b>Sade açıklama ustası</b><small>Yazı · 3 dk</small><p>Jargonu azalt, kavrayışı derinleştir.</p></span><i>→</i></button>
+          </div>
+          <p class="library-empty" id="library-empty" hidden>Bu filtreyle eşleşen bir prompt bulamadık. Aramayı sadeleştirmeyi dene.</p>
+        </section>
+
+        <section class="view projects-view is-hidden" id="projects-view" aria-label="Projeler">
+          <div class="projects-heading"><span class="welcome-tag"><span class="sparkle" aria-hidden="true">✦</span> Çalışmaların</span><h1>Fikirlerin için <em>alan</em> aç.</h1><p>Her proje, konuşmaları, dosyaları ve kararları bir arada tutan küçük bir çalışma odasıdır.</p><button class="project-new" id="project-new" type="button"><span>+</span> Yeni proje</button></div>
+          <div class="project-grid" id="project-grid">
+            <button class="project-card project-orbit" type="button" data-project-prompt="Orbit için ürün stratejisi, ilk hedef kitle ve bu hafta test edilecek tek varsayımı çıkar."><span class="project-kicker">Ürün stratejisi</span><span class="project-mark">O</span><strong>Orbit</strong><small>12 not · 3 karar · bugün güncellendi</small><i>Çalışmaya devam et →</i></button>
+            <button class="project-card project-nova" type="button" data-project-prompt="Nova landing sayfası için mesaj hiyerarşisi, hero metni ve iki farklı CTA seçeneği oluştur."><span class="project-kicker">Marka ve içerik</span><span class="project-mark">N</span><strong>Nova</strong><small>8 not · 1 taslak · dün güncellendi</small><i>Çalışmaya devam et →</i></button>
+            <button class="project-card project-field" type="button" data-project-prompt="Field araştırması için görüşme sorularını, sinyal tablosunu ve bulgu özetini hazırla."><span class="project-kicker">Araştırma</span><span class="project-mark">F</span><strong>Field notes</strong><small>5 kaynak · 2 bulgu · 4 gün önce</small><i>Çalışmaya devam et →</i></button>
+            <button class="project-card project-draft" type="button" data-project-prompt="Yeni proje için tek cümlelik hedefi, ilk çıktıyı ve yarın yapılacak adımı belirle."><span class="project-kicker">Boş alan</span><span class="project-mark">+</span><strong>Yeni fikre yer aç</strong><small>Bir ilk soruyla başla.</small><i>Projeyi oluştur →</i></button>
+          </div>
+        </section>
+
+        <div class="composer-zone">
+          <form class="composer" id="composer" novalidate>
+            <div class="attachment-list" id="attachment-list" aria-live="polite"></div>
+            <div class="composer-inner">
+              <button class="composer-tool" id="attach-button" type="button" aria-label="Dosya ekle" title="Dosya ekle">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20.5 11.5-8.86 8.86a5 5 0 0 1-7.07-7.07l9.55-9.55a3.3 3.3 0 0 1 4.67 4.67l-9.2 9.2a1.6 1.6 0 0 1-2.27-2.27l8.14-8.14" /></svg>
+              </button>
+              <textarea id="prompt-input" rows="1" maxlength="3000" placeholder="Froxy'ye bir şey sor..." aria-label="Froxy'ye mesaj yaz"></textarea>
+              <button class="send-button" id="send-button" type="submit" aria-label="Gönder" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-4.5 14-2.6-5.1L5 12Zm6.9 1.9L19 5" /></svg>
+              </button>
+            </div>
+            <div class="composer-footer"><span><kbd>⌘</kbd><kbd>Enter</kbd> gönder</span><span>Froxy hata yapabilir. Önemli bilgileri doğrulayın.</span></div>
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <input id="file-input" type="file" multiple hidden />
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

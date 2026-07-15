@@ -1,0 +1,53 @@
+{
+  "date": "2026-06-14T15:10:56.463Z",
+  "chat": [
+    {
+      "model": "pollinations-openai",
+      "status": 200,
+      "ok": true,
+      "ms": 2757,
+      "content": "Çiçek tozpüskülü.",
+      "fallback": null
+    },
+    {
+      "model": "pollinations-flirt",
+      "status": 200,
+      "ok": true,
+      "ms": 1123,
+      "content": "Bir çiçeğin güzelliğini ölçmek için bileşik bir test. 🌹",
+      "fallback": null
+    }
+  ],
+  "image": [
+    {
+      "model": "pollinations-flux",
+      "status": 200,
+      "ok": true,
+      "ms": 2387,
+      "provider": "pollinations",
+      "actual": "flux",
+      "url": "/generated/pollinations_1781449862730_6544.jpg",
+      "error": null
+    },
+    {
+      "model": "pollinations-zimage",
+      "status": 200,
+      "ok": true,
+      "ms": 2717,
+      "provider": "pollinations",
+      "actual": "zimage",
+      "url": "/generated/pollinations_1781449865446_4222.jpg",
+      "error": null
+    },
+    {
+      "model": "pollinations-gptimage",
+      "status": 200,
+      "ok": true,
+      "ms": 2970,
+      "provider": "pollinations",
+      "actual": "flux",
+      "url": "/generated/pollinations_1781449868417_1555.jpg",
+      "error": null
+    }
+  ]
+}

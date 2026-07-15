@@ -1,0 +1,141 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary "Admin gezintisi" [ref=e3]:
+      - link "F froxy.admin" [ref=e5] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=e6]: F
+        - generic [ref=e7]: froxy.admin
+      - generic [ref=e8]:
+        - generic [ref=e9]: ✦
+        - generic [ref=e10]:
+          - text: Çalışma alanı
+          - strong [ref=e11]: Froxy Türkiye
+      - navigation "Admin bölümleri" [ref=e14]:
+        - generic [ref=e15]: MERKEZ
+        - button "Genel bakış" [ref=e16] [cursor=pointer]
+        - button "Kullanıcılar 2.481" [active] [ref=e22] [cursor=pointer]:
+          - text: Kullanıcılar
+          - generic [ref=e26]: "2.481"
+        - button "Modeller" [ref=e27] [cursor=pointer]
+        - button "Krediler" [ref=e31] [cursor=pointer]
+        - generic [ref=e35]: SİSTEM
+        - button "Sistem sağlığı" [ref=e36] [cursor=pointer]
+      - generic [ref=e40]:
+        - link "Çalışma alanına dön" [ref=e41] [cursor=pointer]:
+          - /url: index.html
+        - generic [ref=e44]:
+          - generic [ref=e45]: HA
+          - generic [ref=e46]:
+            - strong [ref=e47]: Habil A.
+            - generic [ref=e48]: Yönetici
+          - button "Hesap ayarları" [ref=e49] [cursor=pointer]: •••
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e53]:
+          - text: FROXY TÜRKİYE / ADMIN
+          - heading "Kullanıcılar" [level=1] [ref=e176]
+        - generic [ref=e55]:
+          - button "Verileri yenile" [ref=e56] [cursor=pointer]
+          - generic [ref=e59]: Tüm sistemler çalışıyor
+          - button "HA" [ref=e61] [cursor=pointer]
+      - region "Kullanıcılar" [ref=e177]:
+        - generic [ref=e178]:
+          - generic [ref=e179]:
+            - text: KULLANICI YÖNETİMİ
+            - heading [level=2] [ref=e180]:
+              - text: İnsanlar,
+              - emphasis [ref=e181]: akışlar
+              - text: ve erişimler.
+            - paragraph [ref=e182]: Son 30 günde 2.481 aktif kullanıcı.
+          - button "+ Kullanıcı davet et" [ref=e183] [cursor=pointer]:
+            - generic [ref=e184]: +
+            - text: Kullanıcı davet et
+        - generic [ref=e185]:
+          - searchbox [ref=e190]
+          - group "Kullanıcı durumu filtresi" [ref=e191]:
+            - button "Tümü 2.481" [ref=e192] [cursor=pointer]
+            - button "Aktif 2.392" [ref=e193] [cursor=pointer]
+            - button "Deneme 62" [ref=e194] [cursor=pointer]
+            - button "Duraklatıldı 27" [ref=e195] [cursor=pointer]
+        - generic [ref=e196]:
+          - table [ref=e198]:
+            - rowgroup [ref=e199]:
+              - row [ref=e200]:
+                - columnheader "Kullanıcı" [ref=e201]
+                - columnheader "Plan" [ref=e202]
+                - columnheader "Son etkinlik" [ref=e203]
+                - columnheader "Mesaj" [ref=e204]
+                - columnheader "Durum" [ref=e205]
+                - columnheader "İşlem" [ref=e206]
+            - rowgroup [ref=e207]:
+              - row [ref=e208]:
+                - cell "EA Elif Aras elif@atolye.co" [ref=e209]:
+                  - generic [ref=e210]:
+                    - generic [ref=e211]: EA
+                    - generic [ref=e212]:
+                      - strong [ref=e213]: Elif Aras
+                      - generic [ref=e214]: elif@atolye.co
+                - cell "Studio" [ref=e215]
+                - cell "2 dk önce" [ref=e217]
+                - cell "1.284" [ref=e218]
+                - cell "Aktif" [ref=e219]
+                - cell [ref=e221]:
+                  - button "•••" [ref=e222] [cursor=pointer]
+              - row [ref=e223]:
+                - cell "ME Mert Erdem mert@fieldnotes.io" [ref=e224]:
+                  - generic [ref=e225]:
+                    - generic [ref=e226]: ME
+                    - generic [ref=e227]:
+                      - strong [ref=e228]: Mert Erdem
+                      - generic [ref=e229]: mert@fieldnotes.io
+                - cell "Explorer" [ref=e230]
+                - cell "14 dk önce" [ref=e232]
+                - cell "392" [ref=e233]
+                - cell "Aktif" [ref=e234]
+                - cell [ref=e236]:
+                  - button "•••" [ref=e237] [cursor=pointer]
+              - row [ref=e238]:
+                - cell "SK Sude Kılıç sude@studio.com" [ref=e239]:
+                  - generic [ref=e240]:
+                    - generic [ref=e241]: SK
+                    - generic [ref=e242]:
+                      - strong [ref=e243]: Sude Kılıç
+                      - generic [ref=e244]: sude@studio.com
+                - cell "Deneme" [ref=e245]
+                - cell "1 sa önce" [ref=e247]
+                - cell "84" [ref=e248]
+                - cell "7 gün kaldı" [ref=e249]
+                - cell [ref=e251]:
+                  - button "•••" [ref=e252] [cursor=pointer]
+              - row [ref=e253]:
+                - cell "SE Selin Ekin selin@nova.com" [ref=e254]:
+                  - generic [ref=e255]:
+                    - generic [ref=e256]: SE
+                    - generic [ref=e257]:
+                      - strong [ref=e258]: Selin Ekin
+                      - generic [ref=e259]: selin@nova.com
+                - cell "Studio" [ref=e260]
+                - cell "2 sa önce" [ref=e262]
+                - cell "728" [ref=e263]
+                - cell "Aktif" [ref=e264]
+                - cell [ref=e266]:
+                  - button "•••" [ref=e267] [cursor=pointer]
+              - row [ref=e268]:
+                - cell "BY Bora Yılmaz bora@orbit.io" [ref=e269]:
+                  - generic [ref=e270]:
+                    - generic [ref=e271]: BY
+                    - generic [ref=e272]:
+                      - strong [ref=e273]: Bora Yılmaz
+                      - generic [ref=e274]: bora@orbit.io
+                - cell "Explorer" [ref=e275]
+                - cell "3 gün önce" [ref=e277]
+                - cell "201" [ref=e278]
+                - cell "Duraklatıldı" [ref=e279]
+                - cell [ref=e281]:
+                  - button "•••" [ref=e282] [cursor=pointer]
+          - generic [ref=e283]:
+            - generic [ref=e284]: 5 kullanıcı gösteriliyor
+            - generic [ref=e285]:
+              - button "← Önceki" [disabled] [ref=e286]
+              - button "Sonraki →" [ref=e287] [cursor=pointer]
+  - status

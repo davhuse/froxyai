@@ -1,0 +1,64 @@
+{
+  "at": "2026-06-14T15:39:10.879Z",
+  "base": "http://127.0.0.1:3000",
+  "chat": [
+    {
+      "model": "pollinations-openai",
+      "ok": true,
+      "status": 200,
+      "ms": 2480,
+      "fallbackFrom": "pollinations/pollinations-openai",
+      "fallbackReason": "Pollinations yanıt vermedi, yedek model kullanıldı: groq/llama-3.1-8b-instant",
+      "textSample": "Hayır, işimi yapacağımı belirttin, senin sorunlarını çözmeni amaçlıyorüm 🙂."
+    },
+    {
+      "model": "pollinations-llama",
+      "ok": true,
+      "status": 200,
+      "ms": 1147,
+      "fallbackFrom": "pollinations/pollinations-llama",
+      "fallbackReason": "Pollinations yanıt vermedi, yedek model kullanıldı: groq/llama-3.1-8b-instant",
+      "textSample": "Sen Froxy AIassistantısın, ben de Meta firması tarafından oluşturulmuş bir açık kaynaklı AI asistanı olan Llama 3'im."
+    },
+    {
+      "model": "pollinations-qwen",
+      "ok": true,
+      "status": 200,
+      "ms": 1112,
+      "fallbackFrom": "pollinations/pollinations-qwen",
+      "fallbackReason": "Pollinations yanıt vermedi, yedek model kullanıldı: groq/llama-3.1-8b-instant",
+      "textSample": "Sen Froxy AI'nin bir parçasısın, bu nedenle Sen Froxy AI tarafından oluşturuldum, Qwen ismiyle sizlerin hizmetimdeyim."
+    }
+  ],
+  "image": [
+    {
+      "model": "pollinations-flux",
+      "ok": false,
+      "status": 502,
+      "ms": 4732,
+      "provider": "pollinations",
+      "returnedModel": "flux",
+      "requestedModel": null,
+      "hasUrl": false,
+      "url": null,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata"
+    },
+    {
+      "model": "pollinations-zimage",
+      "ok": false,
+      "status": 502,
+      "ms": 4193,
+      "provider": "pollinations",
+      "returnedModel": "zimage",
+      "requestedModel": null,
+      "hasUrl": false,
+      "url": null,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata"
+    }
+  ],
+  "conclusions": {
+    "pollinationsImageStable": false,
+    "pollinationsChatAnswers": true,
+    "pollinationsChatFallbackObserved": true
+  }
+}

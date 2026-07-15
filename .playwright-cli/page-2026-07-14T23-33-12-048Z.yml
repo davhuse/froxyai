@@ -1,0 +1,54 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - link "F froxy." [ref=e4] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=e5]: F
+        - generic [ref=e6]: froxy.
+      - generic [ref=e7]:
+        - generic [ref=e8]: Sakin bir başlangıç
+        - heading [level=1] [ref=e10]:
+          - text: İyi işler,
+          - emphasis [ref=e11]: netlik
+          - text: ister.
+        - paragraph [ref=e12]: Froxy ile düşüncelerini bir sonraki iyi adıma bağla.
+      - generic:
+        - generic:
+          - generic: Bugünün akışı
+          - strong: Tek bir net adım.
+        - generic: fikirden netliğe
+      - paragraph [ref=e13]: © 2026 Froxy AI
+    - main [ref=e14]:
+      - link "← Açılış sayfasına dön" [ref=e15] [cursor=pointer]:
+        - /url: landing.html
+      - generic [ref=e16]:
+        - tablist "Hesap işlemi" [ref=e17]:
+          - tab "Giriş yap" [selected] [ref=e18] [cursor=pointer]
+          - tab "Hesap oluştur" [ref=e19] [cursor=pointer]
+        - generic [ref=e20]:
+          - generic [ref=e21]: F
+          - heading "Tekrar hoş geldin." [level=2] [ref=e22]
+          - paragraph [ref=e23]: Çalışma alanın kaldığın yerden hazır.
+        - generic [ref=e24]:
+          - generic [ref=e25]: E-posta
+          - textbox "E-posta" [ref=e26]:
+            - /placeholder: ornek@eposta.com
+          - generic [ref=e27]:
+            - generic [ref=e28]: Şifre
+            - link "Şifremi unuttum" [ref=e29] [cursor=pointer]:
+              - /url: "#"
+          - generic [ref=e30]:
+            - textbox "Şifre" [ref=e31]:
+              - /placeholder: En az 8 karakter
+            - button "Şifreyi göster" [ref=e32] [cursor=pointer]
+          - button "Giriş yap →" [ref=e36] [cursor=pointer]:
+            - text: Giriş yap
+            - generic [ref=e37]: →
+        - generic [ref=e38]: veya
+        - button "G Google ile devam et" [ref=e40] [cursor=pointer]:
+          - generic [ref=e41]: G
+          - generic [ref=e42]: Google ile devam et
+        - paragraph [ref=e43]:
+          - text: Hesabın yok mu?
+          - button "Ücretsiz hesap oluştur" [ref=e44] [cursor=pointer]
+  - status

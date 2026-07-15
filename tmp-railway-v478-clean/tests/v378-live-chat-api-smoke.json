@@ -1,0 +1,18 @@
+{
+  "chatGroq": {
+    "status": 200,
+    "ok": true,
+    "hasChoices": true,
+    "provider": null,
+    "fallback": false,
+    "error": null
+  },
+  "chatOpenRouter": {
+    "status": 200,
+    "ok": true,
+    "hasChoices": true,
+    "provider": null,
+    "fallback": false,
+    "error": null
+  }
+}

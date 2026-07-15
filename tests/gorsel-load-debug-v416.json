@@ -1,0 +1,187 @@
+{
+  "elapsed": 26129,
+  "data": {
+    "ready": "interactive",
+    "htmlClass": "theme-light-pre app-ready",
+    "bodyLen": 6488,
+    "currentPanel": "ptab-img",
+    "nav": {
+      "domContentLoaded": 82,
+      "load": 0,
+      "responseEnd": 17
+    },
+    "res": [
+      {
+        "name": "https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
+        "dur": 286,
+        "start": 22,
+        "type": "link",
+        "size": 1266
+      },
+      {
+        "name": "https://cdn.simpleicons.org/googlegemini/ffffff",
+        "dur": 274,
+        "start": 22,
+        "type": "img",
+        "size": 0
+      },
+      {
+        "name": "https://cdn.simpleicons.org/meta/ffffff",
+        "dur": 270,
+        "start": 22,
+        "type": "img",
+        "size": 0
+      },
+      {
+        "name": "https://cdn.simpleicons.org/openrouter/ffffff",
+        "dur": 270,
+        "start": 22,
+        "type": "img",
+        "size": 0
+      },
+      {
+        "name": "https://cdn.simpleicons.org/anthropic/ffffff",
+        "dur": 269,
+        "start": 22,
+        "type": "img",
+        "size": 0
+      },
+      {
+        "name": "http://127.0.0.1:3000/api/local-providers/status",
+        "dur": 50,
+        "start": 4014,
+        "type": "fetch",
+        "size": 1275
+      },
+      {
+        "name": "http://127.0.0.1:3000/app.min.js?v=v416",
+        "dur": 31,
+        "start": 32,
+        "type": "link",
+        "size": 163152
+      },
+      {
+        "name": "http://127.0.0.1:3000/style.min.css?v=v416",
+        "dur": 29,
+        "start": 32,
+        "type": "link",
+        "size": 154184
+      },
+      {
+        "name": "http://127.0.0.1:3000/froxy-logo-192-v260.png",
+        "dur": 18,
+        "start": 22,
+        "type": "img",
+        "size": 40760
+      },
+      {
+        "name": "http://127.0.0.1:3000/robot-widget?v=v387",
+        "dur": 18,
+        "start": 23,
+        "type": "script",
+        "size": 9470
+      },
+      {
+        "name": "http://127.0.0.1:3000/home-critical.min.css?v=v385",
+        "dur": 8,
+        "start": 22,
+        "type": "link",
+        "size": 10378
+      },
+      {
+        "name": "http://127.0.0.1:3000/model-picker-v294.min.css?v=v416",
+        "dur": 8,
+        "start": 32,
+        "type": "link",
+        "size": 8082
+      },
+      {
+        "name": "http://127.0.0.1:3000/provider-logos/generic.svg",
+        "dur": 6,
+        "start": 2086,
+        "type": "img",
+        "size": 490
+      },
+      {
+        "name": "http://127.0.0.1:3000/provider-logos/cloudflare.svg",
+        "dur": 6,
+        "start": 2086,
+        "type": "img",
+        "size": 940
+      },
+      {
+        "name": "http://127.0.0.1:3000/provider-logos/qwen.svg",
+        "dur": 6,
+        "start": 2086,
+        "type": "img",
+        "size": 573
+      },
+      {
+        "name": "http://127.0.0.1:3000/provider-logos/openai.svg",
+        "dur": 6,
+        "start": 3579,
+        "type": "img",
+        "size": 1024
+      },
+      {
+        "name": "http://127.0.0.1:3000/provider-logos/gemini.svg",
+        "dur": 6,
+        "start": 3579,
+        "type": "img",
+        "size": 528
+      },
+      {
+        "name": "http://127.0.0.1:3000/froxy-robot.css?v=v383",
+        "dur": 5,
+        "start": 9313,
+        "type": "link",
+        "size": 6176
+      },
+      {
+        "name": "http://127.0.0.1:3000/api/track",
+        "dur": 3,
+        "start": 237,
+        "type": "beacon",
+        "size": 331
+      },
+      {
+        "name": "http://127.0.0.1:3000/provider-logos/together.svg",
+        "dur": 3,
+        "start": 1445,
+        "type": "img",
+        "size": 492
+      },
+      {
+        "name": "http://127.0.0.1:3000/assets/model-showcase/showcase-flux-1.jpg",
+        "dur": 3,
+        "start": 2085,
+        "type": "img",
+        "size": 81420
+      },
+      {
+        "name": "http://127.0.0.1:3000/assets/model-showcase/showcase-flux-2.jpg",
+        "dur": 3,
+        "start": 2086,
+        "type": "img",
+        "size": 80327
+      },
+      {
+        "name": "http://127.0.0.1:3000/provider-logos/pollinations.svg",
+        "dur": 2,
+        "start": 1588,
+        "type": "img",
+        "size": 503
+      }
+    ],
+    "pendingImgs": [
+      "http://127.0.0.1:3000/provider-logos/meta.svg",
+      "http://127.0.0.1:3000/provider-logos/meta.svg"
+    ],
+    "scripts": [
+      "http://127.0.0.1:3000/app.min.js?v=v416",
+      "http://127.0.0.1:3000/robot-widget?v=v387"
+    ]
+  },
+  "failed": [],
+  "responses": []
+}

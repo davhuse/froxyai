@@ -1,0 +1,55 @@
+{
+  "at": "2026-06-15T14:34:53.231Z",
+  "base": "https://www.froxyai.com",
+  "prompt": "a small blue glass cube on a clean white table, studio lighting, sharp focus",
+  "results": [
+    {
+      "model": "cf-sdxl-lightning",
+      "ok": true,
+      "status": 200,
+      "ms": 1755,
+      "provider": "cloudflare",
+      "returnedModel": "cf-sdxl-lightning",
+      "requestedModel": null,
+      "url": "/generated/cf_1781534094181_6064.jpg",
+      "error": null,
+      "togetherLeak": false
+    },
+    {
+      "model": "pollinations-flux",
+      "ok": false,
+      "status": 502,
+      "ms": 2717,
+      "provider": "pollinations",
+      "returnedModel": "flux",
+      "requestedModel": "pollinations-flux",
+      "url": null,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: Pollinations HTTP 402: Pollinations bakiyesi yetersiz. Insufficient balance. This request costs ~0.0018 pollen, but your available balance is 0.0008.",
+      "togetherLeak": false
+    },
+    {
+      "model": "pollinations-zimage",
+      "ok": false,
+      "status": 502,
+      "ms": 2735,
+      "provider": "pollinations",
+      "returnedModel": "zimage",
+      "requestedModel": "pollinations-zimage",
+      "url": null,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: Pollinations HTTP 402: Pollinations bakiyesi yetersiz. Insufficient balance. This request costs ~0.0020 pollen, but your available balance is 0.0008.",
+      "togetherLeak": false
+    },
+    {
+      "model": "modal-sdxl",
+      "ok": true,
+      "status": 200,
+      "ms": 32587,
+      "provider": "modal",
+      "returnedModel": "modal-sdxl",
+      "requestedModel": null,
+      "url": "/generated/modal_1781534135263_4045.png",
+      "error": null,
+      "togetherLeak": false
+    }
+  ]
+}

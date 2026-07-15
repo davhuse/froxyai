@@ -1,0 +1,66 @@
+{
+  "image": [
+    {
+      "model": "flux",
+      "status": 200,
+      "ok": true,
+      "provider": "pollinations",
+      "actual": "flux",
+      "url": true,
+      "error": null
+    },
+    {
+      "model": "imagegpt-free",
+      "status": 200,
+      "ok": true,
+      "provider": "imagegpt",
+      "actual": "imagegpt-free",
+      "url": true,
+      "error": null
+    },
+    {
+      "model": "together-flux-schnell",
+      "status": 502,
+      "ok": false,
+      "provider": "together",
+      "actual": "together-flux-schnell",
+      "url": false,
+      "error": "Seçili Together görsel modeli şu an yanıt vermedi: Invalid API key provided. You can find your API key at https://api.together.ai/settings/api-keys."
+    },
+    {
+      "model": "together-qwen-image",
+      "status": 502,
+      "ok": false,
+      "provider": "together",
+      "actual": "together-qwen-image",
+      "url": false,
+      "error": "Seçili Together görsel modeli şu an yanıt vermedi: Invalid API key provided. You can find your API key at https://api.together.ai/settings/api-keys."
+    },
+    {
+      "model": "together-flux2-dev",
+      "status": 502,
+      "ok": false,
+      "provider": "together",
+      "actual": "together-flux2-dev",
+      "url": false,
+      "error": "Seçili Together görsel modeli şu an yanıt vermedi: Invalid API key provided. You can find your API key at https://api.together.ai/settings/api-keys."
+    },
+    {
+      "model": "together-imagen4-fast",
+      "status": 502,
+      "ok": false,
+      "provider": "together",
+      "actual": "together-imagen4-fast",
+      "url": false,
+      "error": "Seçili Together görsel modeli şu an yanıt vermedi: Invalid API key provided. You can find your API key at https://api.together.ai/settings/api-keys."
+    }
+  ],
+  "chat": {
+    "status": 200,
+    "ok": true,
+    "actual": "llama-3.1-8b-instant",
+    "fallback": "groq/llama-3.1-8b-instant",
+    "reply": "Evet, çalışıyorum.",
+    "bad": false
+  }
+}

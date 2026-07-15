@@ -1,0 +1,165 @@
+{
+  "when": "2026-06-15T09:06:16.239Z",
+  "base": "http://127.0.0.1:3000",
+  "routes": [
+    {
+      "route": "/sohbet",
+      "status": 200,
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 600+ Model | Froxy AI",
+      "active": [
+        "v-chat",
+        "ptab-chat"
+      ],
+      "overflow": 0,
+      "bodySample": "Ana içeriğe atla Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap AI ÇALIŞMA ALANI Yeni Sohbet Kredi 30 Ücretsiz - Llama 3.3 70B 632 model FROXY AI ÇALIŞMA ALANI Bugün ne Üretelim? 632 güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında. Kendini tanıt Plan çıkar İnternetten ara Türkçe düzelt Kısa cevap Türkçe düzelt Kod açıkla Modellerle karşılaştır Llama 3.3 70B",
+      "hasLoader": true,
+      "hasGo": "function",
+      "mojibake": false,
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "route": "/gorsel",
+      "status": 200,
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "active": [
+        "v-chat",
+        "ptab-img"
+      ],
+      "overflow": 0,
+      "bodySample": "Ana içeriğe atla Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap Görsel Üretici AI ile profesyonel görseller oluşturun Yeni Üret Fotoğrafı düzenle Model Seçimi Ucuz Hızlı Kaliteli Premium Flux Schnell - Pollinations 10 kredi · görsel modeli LOCAL FREE ComfyUI Local Image - Kurulum gerekli 1 kredi · Hızlı Görsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu 1 Fooocus Local Image - Kurulum gerekli 1 kredi · Hızlı Görsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu 1 A1111 WebUI Local - Kurulum gerekli 1 kredi · Hızlı Görsel AI · Genel Üreti",
+      "hasLoader": true,
+      "hasGo": "function",
+      "mojibake": false,
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "route": "/promptlar",
+      "status": 200,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "active": [
+        "v-chat",
+        "ptab-prompts"
+      ],
+      "overflow": 0,
+      "bodySample": "Ana içeriğe atla Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap PROMPT KÜTÜPHANESİ Hazır profesyonel akışlar Satış, kod, destek, analiz ve görsel Üretim için renkli, kategorili ve tek tıkla kullanılabilir şablonlar. Sohbete geç Satış Dönüşüm Odaklı Teklif Kısa, net ve ikna edici teklif metni hazırlar. Destek Müşteri Cevabı Sakin, çözüm odaklı destek cevabı oluşturur. Kod Hata Ayıklama Planı Kök neden, çözüm ve test adımlarını çıkarır. Görsel Premium Görsel Promptu Kısa fikri profesyonel görsel promptuna çevirir. Analiz Rakip Analizi Güçlü/zayıf y",
+      "hasLoader": true,
+      "hasGo": "function",
+      "mojibake": false,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    },
+    {
+      "route": "/ai-araclar",
+      "status": 200,
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "active": [
+        "v-chat",
+        "ptab-tools"
+      ],
+      "overflow": 0,
+      "bodySample": "Ana içeriğe atla Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap AI ARAÇ MERKEZİ Satış, reklam ve içerik işlerini tek panelde hızlandır. Brief yaz, aracı seç, Froxy promptu hazırlar ve işi sohbete taşır. Bu bölüm hızlı gelir akışları, destek, SEO, marka ve görsel Üretim için sadeleştirildi. Landing Üret Reklam promptu Brief Konu alındı Model Uygun akış Çıktı Sohbete hazır 12 çalıştırılabilir araç 9 kategori 96 free model 20 sağlayıcı Para kazandıracak iş akışları Kartlar tek tıkla sohbete veya görsel Üretime taşınır; konu alanını doldurursan çıktı",
+      "hasLoader": true,
+      "hasGo": "function",
+      "mojibake": false,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    },
+    {
+      "route": "/galeri",
+      "status": 200,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "active": [
+        "v-chat",
+        "ptab-gallery"
+      ],
+      "overflow": 0,
+      "bodySample": "Ana içeriğe atla Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap Görsel Galeri Ürettiğiniz görseller burada Henüz görsel yok. İlk Üretimden sonra favoriler ve koleksiyonlar burada görünecek.",
+      "hasLoader": true,
+      "hasGo": "function",
+      "mojibake": false,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    },
+    {
+      "route": "/destek",
+      "status": 200,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "active": [
+        "v-chat",
+        "ptab-support"
+      ],
+      "overflow": 0,
+      "bodySample": "Ana içeriğe atla Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap CANLI DESTEK AKTİF Nasıl yardımcı olabiliriz? Sorunlarınızı anında çözüme yaklaştırın. API, fatura, görsel Üretim ve model akışları için destek taleplerinizi tek merkezden yönetin. Yeni Bilet Oluştur Taleplerimi Gör <15dk İLK YANIT 7/24 İZLEME %98 ÇÖZÜM ORANI Doğrudan destek Ticket dışında e-posta ile de ulaşabilirsin. destek@froxyai.com Destek Bileti Oluştur KONU Genel Soru Teknik Sorun Ödeme & Fatura API Hatası Öneri & İstek BAŞLIK AÇIKLAMA DETAYI ÖNCELİK SEVİYESİ Düşük Orta Yüksek",
+      "hasLoader": true,
+      "hasGo": "function",
+      "mojibake": false,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    }
+  ],
+  "promptFlow": {
+    "active": [
+      "v-chat",
+      "ptab-chat"
+    ],
+    "hasInput": true,
+    "sample": "Aşağıdaki ürün/hizmet için dönüşüm odaklı, güven veren Türkçe satış teklifi hazırla:\n\nÜrün/Hizmet: ",
+    "clicked": true,
+    "mojibake": false
+  },
+  "imageFlow": {
+    "count": 34,
+    "comfyOpt": {
+      "value": "comfyui-local",
+      "text": "ComfyUI Local Image - Ready"
+    },
+    "pollinations": [
+      "Flux Schnell - Pollinations",
+      "Z-Image Turbo - Pollinations",
+      "GPT Image 1 Mini - Pollinations",
+      "GPT Image 1.5 - Pollinations",
+      "FLUX.2 Klein - Pollinations",
+      "FLUX.1 Kontext - Pollinations",
+      "Nova Canvas - Pollinations",
+      "NanoBanana - Pollinations",
+      "NanoBanana 2 - Pollinations",
+      "Seedream 4.0 - Pollinations",
+      "Seedream 5 Lite - Pollinations"
+    ],
+    "freeVisible": [],
+    "together": [
+      "Juggernaut Lightning Flux — Together",
+      "FLUX.1 Schnell — Together",
+      "FLUX Kontext Pro — Together",
+      "FLUX.2 Pro — Together",
+      "Qwen Image — Together",
+      "FLUX.2 Dev — Together",
+      "Gemini Flash Image — Together",
+      "Imagen 4 Fast — Together",
+      "Qwen Image 2 Pro — Together",
+      "Gemini 3 Pro Image — Together"
+    ],
+    "localGroup": [
+      "Local Free",
+      "Cloud GPU / Modal",
+      "Free / Cloudflare",
+      "Free / Pollinations",
+      "Together AI Ucuz Kalite",
+      "Together AI Premium",
+      "Ücretsiz Kaliteli",
+      "Together AI Ucuz Kalite",
+      "Together AI Premium"
+    ],
+    "pickerText": "Flux Schnell - Pollinations\n10 kredi · görsel modeli"
+  }
+}

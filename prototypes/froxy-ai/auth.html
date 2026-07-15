@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Froxy AI giriş ve hesap oluşturma prototipi." />
+    <title>Froxy AI — Giriş</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='10' fill='%237feafd'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Arial' font-size='18' font-weight='700' fill='%23071321'%3EF%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body>
+    <div class="auth-shell">
+      <section class="auth-aside">
+        <a class="auth-brand" href="landing.html"><span class="auth-mark">F</span><span>froxy<span>.</span></span></a>
+        <div class="aside-copy"><span class="aside-kicker"><i></i> Sakin bir başlangıç</span><h1>İyi işler,<br /><em>netlik</em> ister.</h1><p>Froxy ile düşüncelerini bir sonraki iyi adıma bağla.</p></div>
+        <div class="auth-art" aria-hidden="true"><div class="art-orb orb-large"></div><div class="art-orb orb-small"></div><div class="art-grid"></div><div class="art-card"><span>Bugünün akışı</span><strong>Tek bir net adım.</strong><i></i></div><div class="art-label">fikirden<br />netliğe</div></div>
+        <p class="aside-foot">© 2026 Froxy AI</p>
+      </section>
+      <main class="auth-main">
+        <a class="back-link" href="landing.html">← Açılış sayfasına dön</a>
+        <div class="form-frame">
+          <div class="auth-tabs" role="tablist" aria-label="Hesap işlemi"><button class="auth-tab is-active" type="button" role="tab" aria-selected="true" data-mode="signin">Giriş yap</button><button class="auth-tab" type="button" role="tab" aria-selected="false" data-mode="signup">Hesap oluştur</button></div>
+          <div class="auth-heading"><span class="heading-orb">F</span><h2 id="auth-title">Tekrar hoş geldin.</h2><p id="auth-subtitle">Çalışma alanın kaldığın yerden hazır.</p></div>
+          <form id="auth-form">
+            <div class="name-row" id="name-row" hidden><label for="full-name">Adın</label><input id="full-name" name="full-name" type="text" autocomplete="name" placeholder="Adın soyadın" /></div>
+            <label for="email">E-posta</label><input id="email" name="email" type="email" autocomplete="email" placeholder="ornek@eposta.com" required />
+            <div class="password-label"><label for="password">Şifre</label><a href="#" id="forgot-link">Şifremi unuttum</a></div>
+            <div class="password-wrap"><input id="password" name="password" type="password" autocomplete="current-password" placeholder="En az 8 karakter" minlength="8" required /><button id="password-toggle" type="button" aria-label="Şifreyi göster"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.1-5.5 9.5-5.5S21.5 12 21.5 12s-3.1 5.5-9.5 5.5S2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
+            <label class="consent-row" id="consent-row" hidden><input id="consent" type="checkbox" required /><span>Froxy'nin <a href="#">kullanım koşullarını</a> ve <a href="#">gizlilik notunu</a> kabul ediyorum.</span></label>
+            <button class="auth-submit" id="auth-submit" type="submit">Giriş yap <span>→</span></button>
+          </form>
+          <div class="form-separator"><span>veya</span></div>
+          <button class="provider-button" type="button" id="provider-button"><span class="provider-mark">G</span><span id="provider-label">Google ile devam et</span></button>
+          <p class="auth-legal" id="auth-legal">Hesabın yok mu? <button type="button" data-switch-mode="signup">Ücretsiz hesap oluştur</button></p>
+        </div>
+      </main>
+    </div>
+    <div class="auth-toast" id="auth-toast" role="status" aria-live="polite"></div>
+    <script src="auth.js"></script>
+  </body>
+</html>

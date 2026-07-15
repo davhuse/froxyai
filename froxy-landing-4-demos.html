@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Froxy AI - 4 Landing Demo</title>
+  <style>
+    :root {
+      --bg: #050711;
+      --bg2: #08101d;
+      --panel: rgba(10, 16, 31, .82);
+      --panel2: rgba(15, 23, 42, .88);
+      --line: rgba(148, 163, 184, .18);
+      --line2: rgba(148, 163, 184, .32);
+      --text: #f8fafc;
+      --muted: #a7b3c8;
+      --dim: #6d7a92;
+      --cyan: #22d3ee;
+      --blue: #3b82f6;
+      --violet: #8b5cf6;
+      --pink: #ec4899;
+      --green: #2ee6a8;
+      --amber: #f59e0b;
+      --red: #fb7185;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(900px 520px at 82% 18%, rgba(59, 130, 246, .16), transparent 62%),
+        radial-gradient(820px 520px at 15% 28%, rgba(139, 92, 246, .14), transparent 64%),
+        radial-gradient(820px 520px at 50% 105%, rgba(34, 211, 238, .08), transparent 62%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, .04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, .04) 1px, transparent 1px);
+      background-size: 74px 74px;
+      mask-image: linear-gradient(#000, rgba(0,0,0,.84) 45%, transparent 94%);
+      animation: gridMove 30s linear infinite;
+    }
+
+    body:after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(5, 7, 17, .9) 0%, transparent 18%, transparent 82%, rgba(5, 7, 17, .9) 100%),
+        radial-gradient(circle at 50% 30%, transparent 0 48%, rgba(5, 7, 17, .56) 100%);
+    }
+
+    @keyframes gridMove {
+      from { background-position: 0 0; }
+      to { background-position: 74px 74px; }
+    }
+
+    a, button { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; }
+
+    .page {
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container {
+      width: min(100% - 40px, 1220px);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid var(--line);
+      background: rgba(5, 7, 17, .72);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 142px;
+      font-weight: 950;
+      letter-spacing: -.02em;
+    }
+
+    .brand img {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      box-shadow: 0 18px 42px rgba(59, 130, 246, .22);
+    }
+
+    .brand span span { color: var(--cyan); }
+
+    .demo-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(15, 23, 42, .72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .demo-tab {
+      min-height: 38px;
+      border: 0;
+      border-radius: 999px;
+      padding: 0 13px;
+      color: #b9c4d8;
+      background: transparent;
+      font-weight: 900;
+      font-size: 12px;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    .demo-tab:hover { color: #fff; transform: translateY(-1px); }
+    .demo-tab.active {
+      color: #03101a;
+      background: linear-gradient(135deg, var(--cyan), var(--blue) 54%, var(--violet));
+      box-shadow: 0 12px 34px rgba(59, 130, 246, .32);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      min-height: 44px;
+      border: 1px solid var(--line2);
+      border-radius: 12px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #fff;
+      background: rgba(255, 255, 255, .045);
+      font-weight: 950;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(34, 211, 238, .34);
+      background: rgba(255, 255, 255, .07);
+    }
+
+    .btn.primary {
+      border: 0;
+      color: #04111b;
+      background: linear-gradient(135deg, var(--cyan), var(--blue) 52%, var(--violet));
+      box-shadow: 0 20px 50px rgba(59, 130, 246, .27);
+    }
+
+    .btn.ghost { color: #c4cede; }
+
+    .variant {
+      display: none;
+      position: relative;
+      min-height: calc(100vh - 72px);
+      padding: 58px 0 80px;
+    }
+
+    .variant.active { display: block; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(520px, 1.08fr);
+      align-items: center;
+      gap: 58px;
+      min-height: calc(100vh - 210px);
+      position: relative;
+      z-index: 2;
+    }
+
+    .eyebrow {
+      width: max-content;
+      max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 34px;
+      padding: 0 14px;
+      border: 1px solid rgba(34, 211, 238, .25);
+      border-radius: 999px;
+      color: #dffaff;
+      background: rgba(8, 47, 73, .28);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .035em;
+      text-transform: uppercase;
+      box-shadow: 0 0 32px rgba(34, 211, 238, .08);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 16px rgba(46, 230, 168, .72);
+      flex: 0 0 auto;
+    }
+
+    .hero-title {
+      margin: 24px 0 0;
+      max-width: 720px;
+      font-size: clamp(46px, 7.4vw, 98px);
+      line-height: .92;
+      letter-spacing: 0;
+      font-weight: 1000;
+    }
+
+    .hero-title .grad {
+      color: transparent;
+      background: linear-gradient(135deg, var(--cyan), #60a5fa 48%, #c084fc 78%, var(--pink));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .hero-copy {
+      max-width: 620px;
+      margin: 22px 0 0;
+      color: #b9c4d8;
+      font-size: 18px;
+      line-height: 1.7;
+      font-weight: 650;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 32px 0 0;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 34px;
+      max-width: 560px;
+    }
+
+    .metric {
+      min-height: 84px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(15, 23, 42, .55);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 1000;
+      letter-spacing: 0;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: #9ba8bd;
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .stage {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(15, 23, 42, .86), rgba(7, 11, 24, .9)),
+        radial-gradient(circle at 90% 15%, rgba(34, 211, 238, .16), transparent 40%);
+      box-shadow:
+        0 44px 110px rgba(0, 0, 0, .36),
+        inset 0 1px 0 rgba(255, 255, 255, .05);
+      overflow: hidden;
+    }
+
+    .stage:before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(34, 211, 238, .18), transparent 34%, rgba(139, 92, 246, .18));
+      opacity: .75;
+      mask-image: linear-gradient(#000, transparent 66%);
+    }
+
+    .stage-head {
+      min-height: 56px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stage-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #e5f3ff;
+      font-size: 13px;
+      font-weight: 1000;
+      letter-spacing: .055em;
+      text-transform: uppercase;
+    }
+
+    .stage-title .spark {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--cyan);
+      box-shadow: 0 0 22px rgba(34, 211, 238, .8);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 28px;
+      padding: 0 10px;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 999px;
+      color: #c9d4e5;
+      background: rgba(255, 255, 255, .045);
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .pill.cyan {
+      color: #ccfbff;
+      border-color: rgba(34, 211, 238, .22);
+      background: rgba(34, 211, 238, .09);
+    }
+
+    .stage-body {
+      padding: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .prompt-box {
+      padding: 20px;
+      border: 1px solid rgba(34, 211, 238, .18);
+      border-radius: 18px;
+      background: rgba(2, 10, 24, .72);
+      color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+    }
+
+    .label {
+      display: block;
+      color: var(--cyan);
+      font-size: 11px;
+      font-weight: 1000;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .prompt-box p {
+      margin: 0;
+      font-weight: 900;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .model-card {
+      min-height: 196px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(15, 23, 42, .72);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .model-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(34, 211, 238, .28);
+      background: rgba(18, 29, 52, .82);
+    }
+
+    .model-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .model-id {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      font-weight: 1000;
+    }
+
+    .provider-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, .93);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, .22);
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+
+    .provider-logo img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .credit {
+      color: #d4e0f1;
+      font-size: 11px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .model-card p {
+      margin: 18px 0 0;
+      color: #b9c4d8;
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 650;
+    }
+
+    .score-bars {
+      display: grid;
+      gap: 7px;
+      margin-top: 16px;
+    }
+
+    .score-bars i {
+      display: block;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--cyan), var(--violet));
+      opacity: .9;
+      box-shadow: 0 0 18px rgba(34, 211, 238, .12);
+    }
+
+    .decision {
+      margin-top: 14px;
+      padding: 18px;
+      border: 1px solid rgba(34, 211, 238, .3);
+      border-radius: 20px;
+      background:
+        linear-gradient(135deg, rgba(34, 211, 238, .12), rgba(139, 92, 246, .10)),
+        rgba(2, 10, 24, .72);
+    }
+
+    .decision-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .decision b {
+      font-size: 18px;
+      font-weight: 1000;
+      letter-spacing: 0;
+    }
+
+    .decision p {
+      margin: 0;
+      color: #c6d3e4;
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 650;
+    }
+
+    .floating-logos {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .float-logo {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 11px;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 999px;
+      background: rgba(2, 6, 23, .58);
+      color: #dbeafe;
+      font-size: 11px;
+      font-weight: 950;
+      box-shadow: 0 18px 44px rgba(0, 0, 0, .22);
+      backdrop-filter: blur(14px);
+      animation: floaty 10s ease-in-out infinite;
+      opacity: .9;
+    }
+
+    .float-logo img {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+      display: block;
+      border-radius: 4px;
+      background: rgba(255,255,255,.88);
+      padding: 2px;
+    }
+
+    .f1 { top: 14%; left: 11%; animation-delay: -1s; }
+    .f2 { top: 21%; right: 13%; animation-delay: -3s; }
+    .f3 { bottom: 18%; left: 8%; animation-delay: -5s; }
+    .f4 { bottom: 13%; right: 17%; animation-delay: -7s; }
+    .f5 { top: 48%; left: 46%; animation-delay: -2s; }
+
+    @keyframes floaty {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(0, -18px, 0); }
+    }
+
+    .router-stage {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      min-height: 540px;
+    }
+
+    .task-rail {
+      padding: 16px;
+      border-right: 1px solid var(--line);
+      background: rgba(2, 6, 23, .2);
+      display: grid;
+      align-content: start;
+      gap: 10px;
+    }
+
+    .task {
+      min-height: 62px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+      background: rgba(255, 255, 255, .035);
+      color: #cbd5e1;
+      text-align: left;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .task:hover, .task.active {
+      transform: translateX(3px);
+      border-color: rgba(34, 211, 238, .35);
+      background: rgba(34, 211, 238, .09);
+      color: #fff;
+    }
+
+    .task strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 1000;
+    }
+
+    .task span {
+      display: block;
+      margin-top: 4px;
+      color: #96a4b8;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .router-main { padding: 18px; }
+
+    .route-flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .flow-card {
+      min-height: 102px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(15, 23, 42, .68);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .flow-card:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(34, 211, 238, .1), transparent);
+      transform: translateX(-100%);
+      animation: scan 3.8s ease-in-out infinite;
+    }
+
+    @keyframes scan {
+      0%, 54% { transform: translateX(-110%); }
+      100% { transform: translateX(110%); }
+    }
+
+    .flow-card small {
+      position: relative;
+      color: var(--dim);
+      font-weight: 950;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .flow-card strong {
+      position: relative;
+      display: block;
+      margin-top: 8px;
+      font-size: 16px;
+      font-weight: 1000;
+    }
+
+    .terminal {
+      margin-top: 14px;
+      min-height: 210px;
+      padding: 18px;
+      border: 1px solid rgba(34, 211, 238, .18);
+      border-radius: 18px;
+      background: #020817;
+      color: #b9f8ff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      box-shadow: inset 0 0 44px rgba(34, 211, 238, .04);
+    }
+
+    .terminal span { display: block; }
+    .terminal .ok { color: #7df8c8; }
+    .terminal .warn { color: #facc15; }
+
+    .mascot-stage {
+      min-height: 550px;
+      display: grid;
+      grid-template-columns: .86fr 1.14fr;
+      gap: 18px;
+      align-items: stretch;
+      padding: 18px;
+    }
+
+    .mascot-box {
+      min-height: 500px;
+      position: relative;
+      border: 1px solid rgba(34, 211, 238, .2);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 50% 32%, rgba(34, 211, 238, .18), transparent 32%),
+        linear-gradient(180deg, rgba(15, 23, 42, .72), rgba(2, 6, 23, .74));
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .bot {
+      width: 210px;
+      height: 310px;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: botIdle 4.6s ease-in-out infinite;
+      filter: drop-shadow(0 34px 42px rgba(0,0,0,.34));
+    }
+
+    @keyframes botIdle {
+      0%, 100% { transform: translateY(0) rotateY(-10deg); }
+      50% { transform: translateY(-16px) rotateY(10deg); }
+    }
+
+    .bot-head {
+      width: 122px;
+      height: 82px;
+      border-radius: 24px 24px 18px 18px;
+      background: linear-gradient(180deg, #667895, #38485f);
+      position: absolute;
+      left: 50%;
+      top: 26px;
+      transform: translateX(-50%);
+      box-shadow: inset 0 8px 18px rgba(255,255,255,.07), inset 0 -18px 22px rgba(0,0,0,.18);
+    }
+
+    .bot-head:before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -28px;
+      width: 6px;
+      height: 28px;
+      border-radius: 999px;
+      background: linear-gradient(var(--violet), #38485f);
+      transform: translateX(-50%);
+    }
+
+    .bot-head:after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -38px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 35% 30%, #d7ccff, var(--violet));
+      transform: translateX(-50%);
+      box-shadow: 0 0 28px rgba(139, 92, 246, .66);
+    }
+
+    .visor {
+      position: absolute;
+      inset: 17px 14px 27px;
+      border-radius: 14px;
+      background: #071020;
+      border: 1px solid rgba(34, 211, 238, .24);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      box-shadow: inset 0 6px 14px rgba(0,0,0,.64), 0 0 24px rgba(34,211,238,.12);
+    }
+
+    .eye {
+      width: 19px;
+      height: 19px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 35% 32%, #e8ffff, var(--cyan) 48%, var(--blue));
+      box-shadow: 0 0 20px rgba(34,211,238,.8);
+      animation: blink 5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(.18); }
+    }
+
+    .bot-mouth {
+      position: absolute;
+      left: 50%;
+      bottom: 10px;
+      width: 34px;
+      height: 12px;
+      border-bottom: 3px solid #c4b5fd;
+      border-radius: 0 0 999px 999px;
+      transform: translateX(-50%);
+    }
+
+    .bot-body {
+      width: 114px;
+      height: 118px;
+      border-radius: 20px 20px 28px 28px;
+      background: linear-gradient(180deg, #596b88, #344258);
+      position: absolute;
+      left: 50%;
+      top: 126px;
+      transform: translateX(-50%);
+      box-shadow: inset 0 9px 16px rgba(255,255,255,.06), inset 0 -18px 22px rgba(0,0,0,.2);
+    }
+
+    .bot-core {
+      position: absolute;
+      left: 50%;
+      top: 22px;
+      width: 54px;
+      height: 54px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      border: 3px solid var(--violet);
+      box-shadow: 0 0 26px rgba(139, 92, 246, .52), inset 0 0 24px rgba(139, 92, 246, .2);
+    }
+
+    .bot-arm, .bot-leg {
+      position: absolute;
+      background: linear-gradient(180deg, #52637e, #303d52);
+      box-shadow: inset 0 6px 12px rgba(255,255,255,.06);
+    }
+
+    .bot-arm {
+      width: 28px;
+      height: 90px;
+      top: 138px;
+      border-radius: 12px;
+      transform-origin: top center;
+    }
+
+    .bot-arm.left { left: 24px; transform: rotate(12deg); animation: armLeft 3.2s ease-in-out infinite; }
+    .bot-arm.right { right: 24px; transform: rotate(-12deg); animation: armRight 3.2s ease-in-out infinite; }
+
+    @keyframes armLeft {
+      0%,100% { transform: rotate(12deg); }
+      50% { transform: rotate(34deg); }
+    }
+
+    @keyframes armRight {
+      0%,100% { transform: rotate(-12deg); }
+      50% { transform: rotate(-44deg); }
+    }
+
+    .bot-leg {
+      width: 34px;
+      height: 60px;
+      top: 242px;
+      border-radius: 11px 11px 15px 15px;
+    }
+
+    .bot-leg.left { left: 65px; }
+    .bot-leg.right { right: 65px; }
+
+    .bubble {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      right: 20px;
+      padding: 14px 16px;
+      border: 1px solid rgba(34, 211, 238, .22);
+      border-radius: 18px;
+      background: rgba(2, 6, 23, .62);
+      color: #d7e7ff;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.5;
+      backdrop-filter: blur(14px);
+    }
+
+    .mascot-actions {
+      display: grid;
+      gap: 12px;
+    }
+
+    .support-card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(15, 23, 42, .64);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .support-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(34, 211, 238, .3);
+      background: rgba(18, 28, 49, .78);
+    }
+
+    .support-card strong {
+      display: block;
+      font-size: 16px;
+      font-weight: 1000;
+    }
+
+    .support-card p {
+      margin: 7px 0 0;
+      color: #b3bfd2;
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 650;
+    }
+
+    .economy-stage {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .price-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .price-stack {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(15, 23, 42, .68);
+    }
+
+    .price-stack h3 {
+      margin: 0 0 14px;
+      font-size: 15px;
+      font-weight: 1000;
+    }
+
+    .price-line {
+      min-height: 54px;
+      border: 1px solid rgba(148, 163, 184, .14);
+      border-radius: 14px;
+      padding: 11px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 9px;
+      background: rgba(255,255,255,.035);
+    }
+
+    .price-line span {
+      color: #c3cde0;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .price-line strong {
+      font-size: 15px;
+      white-space: nowrap;
+    }
+
+    .price-line.good {
+      border-color: rgba(46, 230, 168, .3);
+      background: rgba(46, 230, 168, .08);
+    }
+
+    .calculator {
+      padding: 18px;
+      border: 1px solid rgba(34, 211, 238, .24);
+      border-radius: 20px;
+      background: rgba(2, 10, 24, .72);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .calc-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.035);
+    }
+
+    .calc-card span {
+      display: block;
+      color: #9eadc2;
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .calc-card strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 24px;
+      font-weight: 1000;
+    }
+
+    .section-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .mini {
+      min-height: 132px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(15, 23, 42, .58);
+      transition: transform .18s ease, border-color .18s ease;
+    }
+
+    .mini:hover {
+      transform: translateY(-4px);
+      border-color: rgba(34, 211, 238, .28);
+    }
+
+    .mini strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 1000;
+    }
+
+    .mini p {
+      margin: 8px 0 0;
+      color: #9faec4;
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 650;
+    }
+
+    .hidden-mobile { display: inline-flex; }
+
+    @media (max-width: 1080px) {
+      .nav { height: auto; padding: 14px 0; flex-wrap: wrap; }
+      .brand { min-width: 120px; }
+      .demo-tabs { order: 3; width: 100%; overflow-x: auto; justify-content: flex-start; border-radius: 16px; }
+      .demo-tab { flex: 0 0 auto; }
+      .variant { min-height: calc(100vh - 118px); }
+      .hero-grid { grid-template-columns: 1fr; gap: 32px; min-height: auto; }
+      .stage { max-width: 760px; width: 100%; margin: 0 auto; }
+      .section-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      .container { width: min(100% - 28px, 1220px); }
+      .nav-actions .ghost { display: none; }
+      .brand img { width: 36px; height: 36px; }
+      .variant { padding: 36px 0 58px; }
+      .hero-title { font-size: clamp(42px, 15vw, 64px); }
+      .hero-copy { font-size: 15px; line-height: 1.65; }
+      .btn { width: 100%; }
+      .hero-actions { display: grid; grid-template-columns: 1fr; }
+      .metric-row { grid-template-columns: 1fr; }
+      .model-grid { grid-template-columns: 1fr; }
+      .router-stage { grid-template-columns: 1fr; }
+      .task-rail {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        overflow-x: auto;
+      }
+      .task { min-width: 154px; }
+      .route-flow { grid-template-columns: 1fr 1fr; }
+      .mascot-stage { grid-template-columns: 1fr; }
+      .mascot-box { min-height: 420px; }
+      .price-board { grid-template-columns: 1fr; }
+      .calc-grid { grid-template-columns: 1fr; }
+      .section-strip { grid-template-columns: 1fr; }
+      .stage-head { align-items: flex-start; flex-direction: column; }
+      .decision-top { align-items: flex-start; flex-direction: column; }
+      .hidden-mobile { display: none; }
+    }
+
+    @media (max-width: 420px) {
+      .demo-tabs { gap: 4px; }
+      .demo-tab { padding: 0 10px; font-size: 11px; }
+      .stage-body, .router-main, .economy-stage, .mascot-stage { padding: 14px; }
+      .model-card, .decision, .prompt-box, .support-card { padding: 14px; }
+      .route-flow { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *:before, *:after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="container nav">
+        <a class="brand" href="/">
+          <img src="logo.png" alt="Froxy AI">
+          <span>Froxy<span>AI</span></span>
+        </a>
+        <div class="demo-tabs" aria-label="Landing demo secimi">
+          <button class="demo-tab active" data-target="council">1 AI Kurulu</button>
+          <button class="demo-tab" data-target="command">2 Komuta</button>
+          <button class="demo-tab" data-target="mascot">3 Maskot</button>
+          <button class="demo-tab" data-target="credits">4 Kredi</button>
+        </div>
+        <div class="nav-actions">
+          <a class="btn ghost hidden-mobile" href="/">Mevcut site</a>
+          <a class="btn primary" href="/sohbet">Sohbete Basla</a>
+        </div>
+      </div>
+    </header>
+
+    <section id="council" class="variant active">
+      <div class="floating-logos" aria-hidden="true">
+        <span class="float-logo f1"><img src="provider-logos/openai.svg" alt="">OpenAI</span>
+        <span class="float-logo f2"><img src="provider-logos/claude.svg" alt="">Claude</span>
+        <span class="float-logo f3"><img src="provider-logos/gemini.svg" alt="">Gemini</span>
+        <span class="float-logo f4"><img src="provider-logos/groq.svg" alt="">Groq</span>
+        <span class="float-logo f5"><img src="provider-logos/deepseek.svg" alt="">DeepSeek</span>
+      </div>
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><i class="dot"></i> Tek prompt, cok model</div>
+          <h1 class="hero-title">AI kurulunu <span class="grad">tek panelde</span> calistir.</h1>
+          <p class="hero-copy">ChatGPT, Claude, Gemini, Groq, DeepSeek ve gorsel modellerini tek kredi havuzunda kullan. Ayni promptu modellerde karsilastir, Froxy ortak sonucu ve maliyeti net gostersin.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="/sohbet">100 krediyle dene</a>
+            <button class="btn" data-target="council">AI kurulunu gor</button>
+          </div>
+          <div class="metric-row">
+            <div class="metric"><strong>400+</strong><span>model ve arac</span></div>
+            <div class="metric"><strong>3 cevap</strong><span>tek Froxy karari</span></div>
+            <div class="metric"><strong>8 kredi</strong><span>ornek maliyet</span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-head">
+            <div class="stage-title"><i class="spark"></i> AI Kurulu Canli Onizleme</div>
+            <div class="pill cyan">Canli analiz</div>
+          </div>
+          <div class="stage-body">
+            <div class="prompt-box">
+              <span class="label">Kullanici promptu</span>
+              <p>"Yeni cikan AI urunumuz icin 10 saniyelik reklam fikri, slogan ve Instagram aciklamasi uret."</p>
+            </div>
+            <div class="model-grid">
+              <article class="model-card">
+                <div class="model-head">
+                  <div class="model-id"><span class="provider-logo"><img src="provider-logos/openai.svg" alt="OpenAI"></span>GPT</div>
+                  <span class="credit">2 kredi</span>
+                </div>
+                <p>Net kampanya fikri, kisa slogan ve hizli sosyal medya metni onerir.</p>
+                <div class="score-bars"><i style="width:82%"></i><i style="width:64%"></i><i style="width:74%"></i></div>
+              </article>
+              <article class="model-card">
+                <div class="model-head">
+                  <div class="model-id"><span class="provider-logo"><img src="provider-logos/claude.svg" alt="Claude"></span>Claude</div>
+                  <span class="credit">3 kredi</span>
+                </div>
+                <p>Daha akici, marka tonuna uygun ve guven veren reklam metnine odaklanir.</p>
+                <div class="score-bars"><i style="width:76%"></i><i style="width:88%"></i><i style="width:68%"></i></div>
+              </article>
+              <article class="model-card">
+                <div class="model-head">
+                  <div class="model-id"><span class="provider-logo"><img src="provider-logos/gemini.svg" alt="Gemini"></span>Gemini</div>
+                  <span class="credit">3 kredi</span>
+                </div>
+                <p>Gorsel sahne, video promptu ve hizli varyasyon fikriyle kampanyayi genisletir.</p>
+                <div class="score-bars"><i style="width:68%"></i><i style="width:80%"></i><i style="width:72%"></i></div>
+              </article>
+            </div>
+            <div class="decision">
+              <div class="decision-top">
+                <b>Froxy Karari</b>
+                <span class="pill cyan">Claude secildi</span>
+              </div>
+              <p>3 modelin ortak onerisi hazir. En guclu slogan Claude'dan, hizli reklam kurgusu GPT'den, gorsel sahne Gemini'den alindi.</p>
+              <div class="metric-row" style="margin-top:16px;max-width:none">
+                <div class="metric"><strong>8</strong><span>toplam kredi</span></div>
+                <div class="metric"><strong>31 sn</strong><span>taslak sure</span></div>
+                <div class="metric"><strong>1 karar</strong><span>net sonuc</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container section-strip">
+        <div class="mini"><strong>Model karsilastirma</strong><p>Ayni promptu birden fazla modele sorup tek ekranda karar almak icin.</p></div>
+        <div class="mini"><strong>Kredi seffafligi</strong><p>Her cevabin tahmini maliyeti kullanicidan saklanmadan gorunur.</p></div>
+        <div class="mini"><strong>Gorev bazli secim</strong><p>Kod, reklam, gorsel veya dosya icin en uygun model one cikar.</p></div>
+        <div class="mini"><strong>Premium hissiyat</strong><p>Floating logolar ve canli panel ilk ekranda urunu anlatir.</p></div>
+      </div>
+    </section>
+
+    <section id="command" class="variant">
+      <div class="floating-logos" aria-hidden="true">
+        <span class="float-logo f1"><img src="provider-logos/mistral.svg" alt="">Mistral</span>
+        <span class="float-logo f2"><img src="provider-logos/openrouter.svg" alt="">OpenRouter</span>
+        <span class="float-logo f3"><img src="provider-logos/meta.svg" alt="">Llama</span>
+        <span class="float-logo f4"><img src="provider-logos/qwen.svg" alt="">Qwen</span>
+      </div>
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><i class="dot"></i> Gorevi yaz, modeli Froxy secsin</div>
+          <h1 class="hero-title">AI islerini <span class="grad">komuta merkezinden</span> yonet.</h1>
+          <p class="hero-copy">Kullanici modeli ezberlemek zorunda kalmasin. Froxy gorevi analiz eder; kod, gorsel, reklam, dosya veya hizli cevap icin en mantikli modeli ve maliyeti gosterir.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="/ai-araclar">Araclari ac</a>
+            <a class="btn" href="/promptlar">Promptlari gor</a>
+          </div>
+          <div class="metric-row">
+            <div class="metric"><strong>5+</strong><span>gorev turu</span></div>
+            <div class="metric"><strong>120 ms</strong><span>router hissi</span></div>
+            <div class="metric"><strong>akilli</strong><span>model onerisi</span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-head">
+            <div class="stage-title"><i class="spark"></i> Froxy Komuta Merkezi</div>
+            <span class="pill cyan">Router aktif</span>
+          </div>
+          <div class="router-stage">
+            <div class="task-rail">
+              <button class="task active"><strong>Kod</strong><span>bug fix, refactor, analiz</span></button>
+              <button class="task"><strong>Gorsel</strong><span>urun, reklam, sahne</span></button>
+              <button class="task"><strong>Reklam</strong><span>hook, metin, caption</span></button>
+              <button class="task"><strong>Dosya</strong><span>pdf, rapor, ozet</span></button>
+              <button class="task"><strong>Hizli cevap</strong><span>ucuz ve seri yanit</span></button>
+            </div>
+            <div class="router-main">
+              <div class="prompt-box">
+                <span class="label">Gorev</span>
+                <p>"SaaS sitemin ana sayfasini SEO ve donusum icin analiz et, uygulanacak maddeleri sirala."</p>
+              </div>
+              <div class="route-flow">
+                <div class="flow-card"><small>1</small><strong>Gorev algilandi</strong></div>
+                <div class="flow-card"><small>2</small><strong>Model skoru</strong></div>
+                <div class="flow-card"><small>3</small><strong>Kredi tahmini</strong></div>
+                <div class="flow-card"><small>4</small><strong>Sonuc hazir</strong></div>
+              </div>
+              <div class="terminal">
+                <span>&gt; prompt.type = "seo + conversion audit"</span>
+                <span>&gt; context.need = "long reasoning"</span>
+                <span class="ok">&gt; selected.model = "Claude / GPT fallback"</span>
+                <span class="warn">&gt; estimated.cost = 6 kredi</span>
+                <span class="ok">&gt; result.mode = "aksiyon listesi + oncelik"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container section-strip">
+        <div class="mini"><strong>Arac marketi gibi</strong><p>AI araclari sayfasi daha operasyonel ve profesyonel gorunur.</p></div>
+        <div class="mini"><strong>Prompt kutuphanesi</strong><p>Hazir promptlar gorev tipine gore komuta merkezine baglanir.</p></div>
+        <div class="mini"><strong>Daha az karar yorgunlugu</strong><p>Kullanici yuzlerce model arasinda kaybolmadan isini baslatir.</p></div>
+        <div class="mini"><strong>B2B hissi</strong><p>Kurumsal kullanici icin dashboard kalitesi one cikar.</p></div>
+      </div>
+    </section>
+
+    <section id="mascot" class="variant">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><i class="dot"></i> Canli Froxy deneyimi</div>
+          <h1 class="hero-title">Sitenin icinde <span class="grad">yasayan AI destek</span> hissi.</h1>
+          <p class="hero-copy">Soluk bir landing yerine, kullaniciyi karsilayan, kredi ve paket sorularini cevaplayan, dogru araca goturen canli Froxy maskotu. Reklamdan gelen kisi ilk saniyede farkli bir urunle karsilassin.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="/destek">Destegi dene</a>
+            <a class="btn" href="/magaza">Paketlere bak</a>
+          </div>
+          <div class="metric-row">
+            <div class="metric"><strong>24/7</strong><span>site asistani</span></div>
+            <div class="metric"><strong>3D</strong><span>interaktif his</span></div>
+            <div class="metric"><strong>+CTA</strong><span>dogru yonlendirme</span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-head">
+            <div class="stage-title"><i class="spark"></i> Froxy Canli Karsilama</div>
+            <span class="pill cyan">Satisa yardimci</span>
+          </div>
+          <div class="mascot-stage">
+            <div class="mascot-box">
+              <div class="bubble">Merhaba! Ne yapmak istiyorsun: sohbet, gorsel uretim, dosya analizi veya paket secimi?</div>
+              <div class="bot" aria-hidden="true">
+                <div class="bot-head">
+                  <div class="visor"><i class="eye"></i><i class="eye"></i></div>
+                  <div class="bot-mouth"></div>
+                </div>
+                <div class="bot-arm left"></div>
+                <div class="bot-arm right"></div>
+                <div class="bot-body"><div class="bot-core"></div></div>
+                <div class="bot-leg left"></div>
+                <div class="bot-leg right"></div>
+              </div>
+            </div>
+            <div class="mascot-actions">
+              <div class="support-card"><strong>Kredi ve paket anlatir</strong><p>Kullanici "hangi paket bana yeter?" dediginde kredi mantigini sade anlatir.</p></div>
+              <div class="support-card"><strong>Dogru sayfaya goturur</strong><p>Gorsel uretim, sohbet, AI araclari veya destek akisini tek tikla acar.</p></div>
+              <div class="support-card"><strong>Canli destek hissi verir</strong><p>Bot sadece dekor degil; urunun guvenini ve kullanilabilirligini artirir.</p></div>
+              <div class="support-card"><strong>Reklamdan geleni yakalar</strong><p>Ilk 5 saniyede "bu site farkli" algisi verir, bounce riskini dusurur.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container section-strip">
+        <div class="mini"><strong>Maskot + CTA</strong><p>Maskot her sayfada dogru aksiyonu onerirse dekor olmaktan cikar.</p></div>
+        <div class="mini"><strong>Mini onboarding</strong><p>Yeni uye ilk girdiginde "ilk promptunu beraber yazalim" akisi baslar.</p></div>
+        <div class="mini"><strong>Destek otomasyonu</strong><p>Kredi, odeme, OTP ve model sorularina hazir cevap verir.</p></div>
+        <div class="mini"><strong>Marka hatirlanirligi</strong><p>Froxy sadece AI paneli degil, karakteri olan urun gibi algilanir.</p></div>
+      </div>
+    </section>
+
+    <section id="credits" class="variant">
+      <div class="floating-logos" aria-hidden="true">
+        <span class="float-logo f1"><img src="provider-logos/openai.svg" alt="">ChatGPT Plus</span>
+        <span class="float-logo f2"><img src="provider-logos/claude.svg" alt="">Claude Pro</span>
+        <span class="float-logo f3"><img src="provider-logos/gemini.svg" alt="">Gemini Advanced</span>
+      </div>
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><i class="dot"></i> Tek kredi havuzu</div>
+          <h1 class="hero-title">Aylik abonelik yerine <span class="grad">kullandigin kadar ode.</span></h1>
+          <p class="hero-copy">Her modele ayri ayri para baglama. Froxy'de kredi al, ChatGPT, Claude, Gemini, Llama, gorsel modeller ve araclar arasinda diledigin gibi kullan.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="/magaza">Kredi paketlerini gor</a>
+            <a class="btn" href="/fiyatlandirma">Fiyatlari incele</a>
+          </div>
+          <div class="metric-row">
+            <div class="metric"><strong>0 TL</strong><span>sabit abonelik</span></div>
+            <div class="metric"><strong>tek</strong><span>fatura mantigi</span></div>
+            <div class="metric"><strong>%60</strong><span>ornek tasarruf</span></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-head">
+            <div class="stage-title"><i class="spark"></i> Kredi Ekonomisi</div>
+            <span class="pill cyan">Acik maliyet</span>
+          </div>
+          <div class="economy-stage">
+            <div class="price-board">
+              <div class="price-stack">
+                <h3>Ayri abonelikler</h3>
+                <div class="price-line"><span>ChatGPT Plus</span><strong>$20/ay</strong></div>
+                <div class="price-line"><span>Claude Pro</span><strong>$20/ay</strong></div>
+                <div class="price-line"><span>Gemini Advanced</span><strong>$20/ay</strong></div>
+                <div class="price-line"><span>Gorsel araclar</span><strong>$10+/ay</strong></div>
+              </div>
+              <div class="price-stack">
+                <h3>Froxy havuzu</h3>
+                <div class="price-line good"><span>Tek kredi paketi</span><strong>ihtiyaca gore</strong></div>
+                <div class="price-line good"><span>Model secimi</span><strong>serbest</strong></div>
+                <div class="price-line good"><span>Kredi takibi</span><strong>seffaf</strong></div>
+                <div class="price-line good"><span>Destek sistemi</span><strong>dahil</strong></div>
+              </div>
+            </div>
+            <div class="calculator">
+              <span class="label">Ornek hesap</span>
+              <p style="margin:0;color:#c6d3e4;font-weight:700">Bir kullanici ayda 40 sohbet, 12 gorsel ve 6 dosya analizi yaptiginda maliyeti tek panelde takip eder.</p>
+              <div class="calc-grid">
+                <div class="calc-card"><span>Sohbet</span><strong>80 kredi</strong></div>
+                <div class="calc-card"><span>Gorsel</span><strong>120 kredi</strong></div>
+                <div class="calc-card"><span>Dosya</span><strong>60 kredi</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container section-strip">
+        <div class="mini"><strong>Fiyat anlatimi net</strong><p>Kullanicinin "neden Froxy alayim?" sorusunu dogrudan cevaplar.</p></div>
+        <div class="mini"><strong>Odeme guveni</strong><p>Kredi, iade, destek ve dijital teslimat bilgisi daha profesyonel sunulur.</p></div>
+        <div class="mini"><strong>SEO uyumu</strong><p>AI abonelik alternatifi, AI kredi sistemi gibi aramalar icin guclu mesaj verir.</p></div>
+        <div class="mini"><strong>Satis odakli</strong><p>Reklamdan gelen kullanici fiyat mantigini hemen anlar.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('.demo-tab'));
+      var variants = Array.prototype.slice.call(document.querySelectorAll('.variant'));
+      function activate(id) {
+        tabs.forEach(function (tab) {
+          tab.classList.toggle('active', tab.dataset.target === id);
+        });
+        variants.forEach(function (section) {
+          section.classList.toggle('active', section.id === id);
+        });
+        try {
+          var url = new URL(window.location.href);
+          url.searchParams.set('demo', id);
+          history.replaceState(null, '', url);
+        } catch (e) {}
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          activate(tab.dataset.target);
+        });
+      });
+      var initial = new URLSearchParams(window.location.search).get('demo');
+      if (initial && document.getElementById(initial)) activate(initial);
+    })();
+  </script>
+</body>
+</html>

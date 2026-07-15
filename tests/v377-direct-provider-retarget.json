@@ -1,0 +1,124 @@
+[
+  {
+    "name": "OpenAI Chat",
+    "link": "https://platform.openai.com/api-keys",
+    "configured": true,
+    "modelsListed": 7,
+    "listedSample": [
+      "gpt-5.2",
+      "gpt-5.3-codex",
+      "gpt-5.4",
+      "gpt-5.4-mini",
+      "gpt-5.4-openai-compact",
+      "gpt-5.5",
+      "gpt-5.5-openai-compact"
+    ],
+    "testedModel": "gpt-5.5",
+    "ok": true,
+    "status": 200,
+    "detail": "cevap verdi",
+    "contentLen": 27
+  },
+  {
+    "name": "Together",
+    "link": "https://api.together.xyz/settings/api-keys",
+    "configured": true,
+    "modelsListed": 80,
+    "listedSample": [
+      "deepseek-ai/DeepSeek-V4-Pro",
+      "zai-org/GLM-5.1",
+      "nvidia/nemotron-3-ultra-550b-a55b",
+      "moonshotai/Kimi-K2.6",
+      "MiniMaxAI/MiniMax-M2.7",
+      "pearl-ai/gemma-4-31b-it",
+      "google/gemma-4-31B-it",
+      "Qwen/Qwen3.7-Max"
+    ],
+    "testedModel": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    "ok": true,
+    "status": 200,
+    "detail": "cevap verdi",
+    "contentLen": 24
+  },
+  {
+    "name": "Cerebras",
+    "link": "https://cloud.cerebras.ai/platform/",
+    "configured": true,
+    "modelsListed": 2,
+    "listedSample": [
+      "gpt-oss-120b",
+      "zai-glm-4.7"
+    ],
+    "testedModel": "llama3.1-8b",
+    "ok": false,
+    "status": 404,
+    "detail": "Model llama3.1-8b does not exist or you do not have access to it.",
+    "contentLen": 0
+  },
+  {
+    "name": "SambaNova",
+    "link": "https://cloud.sambanova.ai/",
+    "configured": true,
+    "modelsListed": 8,
+    "listedSample": [
+      "DeepSeek-V3.1",
+      "DeepSeek-V3.2",
+      "Llama-4-Maverick-17B-128E-Instruct",
+      "Meta-Llama-3.3-70B-Instruct",
+      "MiniMax-M2.7",
+      "gemma-3-12b-it",
+      "gemma-4-31B-it",
+      "gpt-oss-120b"
+    ],
+    "testedModel": "Meta-Llama-3.3-70B-Instruct",
+    "ok": true,
+    "status": 200,
+    "detail": "cevap verdi",
+    "contentLen": 24
+  },
+  {
+    "name": "HuggingFace Router",
+    "link": "https://huggingface.co/settings/tokens",
+    "configured": true,
+    "modelsListed": 0,
+    "listedSample": [],
+    "testedModel": "meta-llama/Llama-3.1-8B-Instruct",
+    "ok": false,
+    "status": 401,
+    "detail": "{\"error\":\"User Access Token \\\"aiğaket\\\" is expired\"}",
+    "contentLen": 0
+  },
+  {
+    "name": "AIMLAPI Chat",
+    "link": "https://aimlapi.com/app/keys",
+    "configured": true,
+    "modelsListed": 80,
+    "listedSample": [
+      "gpt-3.5-turbo",
+      "gpt-3.5-turbo",
+      "gpt-3.5-turbo-0125",
+      "gpt-3.5-turbo-0125",
+      "gpt-3.5-turbo-1106",
+      "gpt-3.5-turbo-1106",
+      "gpt-4",
+      "gpt-4"
+    ],
+    "testedModel": "gpt-4o-mini",
+    "ok": false,
+    "status": 401,
+    "detail": "Invalid JWT token #1.",
+    "contentLen": 0
+  },
+  {
+    "name": "Cloudflare Workers AI chat",
+    "link": "https://dash.cloudflare.com/?to=/:account/workers-ai",
+    "configured": true,
+    "modelsListed": 0,
+    "listedSample": [],
+    "testedModel": "@cf/meta/llama-3.1-8b-instruct-fp8",
+    "ok": false,
+    "status": 401,
+    "detail": "Authentication error",
+    "contentLen": 0
+  }
+]

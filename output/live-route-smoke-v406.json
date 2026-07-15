@@ -1,0 +1,62 @@
+{
+  "at": "2026-06-14T16:17:03.446Z",
+  "base": "https://www.froxyai.com",
+  "results": [
+    {
+      "route": "/api/health",
+      "status": 200,
+      "ok": true,
+      "ms": 1565,
+      "badText": false,
+      "sample": "{\"ok\":true,\"app\":\"Froxy AI\",\"version\":\"v64\",\"uptime\":169,\"time\":\"2026-06-14T16:17:01.450Z\",\"database\":{\"users\":13,\"chats\":0,\"documents\":0,\"admins\":1},\"databaseS"
+    },
+    {
+      "route": "/gorsel",
+      "status": 200,
+      "ok": true,
+      "ms": 365,
+      "badText": false,
+      "sample": "<!DOCTYPE html> <html lang=\"tr\"> <head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"> <title>AI Görsel Üretme ve "
+    },
+    {
+      "route": "/sohbet",
+      "status": 200,
+      "ok": true,
+      "ms": 279,
+      "badText": false,
+      "sample": "<!DOCTYPE html> <html lang=\"tr\"> <head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"> <title>AI Sohbet Paneli - C"
+    },
+    {
+      "route": "/promptlar",
+      "status": 200,
+      "ok": true,
+      "ms": 271,
+      "badText": false,
+      "sample": "<!DOCTYPE html> <html lang=\"tr\"> <head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"> <title>Froxy AI - ChatGPT, "
+    },
+    {
+      "route": "/ai-araclar",
+      "status": 200,
+      "ok": true,
+      "ms": 298,
+      "badText": false,
+      "sample": "<!DOCTYPE html> <html lang=\"tr\"> <head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"> <title>AI Araçları - ChatGP"
+    },
+    {
+      "route": "/galeri",
+      "status": 200,
+      "ok": true,
+      "ms": 266,
+      "badText": false,
+      "sample": "<!DOCTYPE html> <html lang=\"tr\"> <head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"> <title>Froxy AI - ChatGPT, "
+    },
+    {
+      "route": "/destek",
+      "status": 200,
+      "ok": true,
+      "ms": 269,
+      "badText": false,
+      "sample": "<!DOCTYPE html> <html lang=\"tr\"> <head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\"> <title>Froxy AI - ChatGPT, "
+    }
+  ]
+}

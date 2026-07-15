@@ -1,0 +1,158 @@
+{
+  "at": "2026-06-18T23:26:02.082Z",
+  "base": "https://www.froxyai.com",
+  "routes": {
+    "/": {
+      "url": "https://www.froxyai.com/?cb=v470x",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "sample": "Ana içeriğe atla\nFroxy AI\nÖzellikler\nModeller\nDemo\nFiyatlandırma\nGüven\nSSS\nGiriş Yap\n100 Krediyle Dene\nTÜRKİYE MERKEZLİ AI ÇALIŞMA ALANI\n400+ AI modelini tek panelde kullan.\n\nChatGPT, Claude, Gemini, görsel üretim araçları ve AI ajanlarını tek hesapta kullan. Yeni üyeler 100 ücretsiz krediyle başlar, kart bilgisi gerekmez.\n\n100 Krediyle Ücretsiz Dene\nPaneli İncele\n100 ücretsiz başlangıç kredisi\nKart bilgisi gerekmez\nChatGPT • Claude • Gemini • Görsel AI\nKVKK uyumlu\nfroxyai.com / panel\nFroxy AI\nÇALIŞMA ALANI\nSohbet\nGörsel Üretim\nAI Ajanlar\nDosya Analizi\nWeb Arama\nAraçlar\nBAŞLANGIÇ KREDİSİ\n100\nD",
+      "clickableCount": 43,
+      "blockers": [],
+      "bodyClasses": "home-mode theme-dark",
+      "htmlClasses": "theme-light-pre perf-v433 home-mode app-ready",
+      "consoleErrors": []
+    },
+    "/sohbet": {
+      "url": "https://www.froxyai.com/sohbet?cb=v470x",
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 600+ Model | Froxy AI",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nAI ÇALIŞMA ALANI\nYeni Sohbet\nKredi 30\nÜcretsiz - Llama 3.3 70B\n632 model\n\nFROXY AI ÇALIŞMA ALANI\n\nBugün ne üretelimĞ\n\n632 güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.\n\nKendini tanıt\nPlan çıkar\nİnternetten ara\nTürkçe düzelt\nKısa cevap\nTürkçe düzelt\nKod açıkla\nModellerle karşılaştır\nLlama 3.3 70B",
+      "clickableCount": 342,
+      "blockers": [],
+      "bodyClasses": "theme-dark",
+      "htmlClasses": "theme-light-pre perf-v433 app-ready",
+      "consoleErrors": []
+    },
+    "/gorsel": {
+      "url": "https://www.froxyai.com/gorsel",
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nGörsel Üretici\n\nAI ile profesyonel görseller oluşturun\n\nYeni üret\nFotoğrafı düzenle\nModel Seçimi\nUcuz\nHızlı\nKaliteli\nPremium\nJuggernaut Lightning Flux — Together\nSeçili model kilitli: together-juggernaut-flux\nCloudflare SDXL Lightning\nCloudflare SDXL\nCloudflare DreamShaper LCM\nCloudflare Flux 2 Klein\nFlux Schnell - Pollinations\nZ-Image Turbo - Pollinations\nGPT Image 1 Mini - Pollinatio",
+      "clickableCount": 356,
+      "blockers": [],
+      "bodyClasses": "image-perf-route-v434 theme-dark",
+      "htmlClasses": "theme-light-pre perf-v433 image-perf-route-v434 app-ready",
+      "consoleErrors": []
+    },
+    "/promptlar": {
+      "url": "https://www.froxyai.com/promptlar",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nPROMPT KÜTÜPHANESİ\nHazır profesyonel akışlar\n\nSatış, kod, destek, analiz ve görsel üretim için renkli, kategorili ve tek tıkla kullanılabilir şablonlar.\n\nSohbete geç\nSatış\nDönüşüm Odaklı Teklif\nKısa, net ve ikna edici teklif metni hazırlar.\nDestek\nMüşteri Cevabı\nSakin, çözüm odaklı destek cevabı oluşturur.\nKod\nHata Ayıklama Planı\nKök neden, çözüm ve test adımlarını çıkarır.\nGörsel\nPrem",
+      "clickableCount": 372,
+      "blockers": [],
+      "bodyClasses": "theme-dark",
+      "htmlClasses": "theme-light-pre perf-v433 app-ready",
+      "consoleErrors": []
+    },
+    "/ai-araclar": {
+      "url": "https://www.froxyai.com/ai-araclar",
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nAI ARAÇ MERKEZİ\nSatış, reklam ve içerik işlerini tek panelde hızlandır.\n\nBrief yaz, aracı seç, Froxy promptu hazırlar ve işi sohbete taşır. Bu bölüm hızlı gelir akışları, destek, SEO, marka ve görsel üretim için sadeleştirildi.\n\nLanding üret\nReklam promptu\nBrief\nKonu alındı\nModel\nUygun akış\nÇıktı\nSohbete hazır\n12\nçalıştırılabilir araç\n9\nkategori\n96\nfree model\n20\nsağlayıcı\nPara kazandır",
+      "clickableCount": 369,
+      "blockers": [],
+      "bodyClasses": "theme-dark",
+      "htmlClasses": "theme-light-pre perf-v433 app-ready",
+      "consoleErrors": []
+    },
+    "/galeri": {
+      "url": "https://www.froxyai.com/galeri",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nGörsel Galeri\n\nÜrettiğiniz görseller burada\n\nHenüz görsel yok. İlk üretimden sonra favoriler ve koleksiyonlar burada görünecek.",
+      "clickableCount": 358,
+      "blockers": [],
+      "bodyClasses": "image-perf-route-v434 theme-dark",
+      "htmlClasses": "theme-light-pre perf-v433 image-perf-route-v434 app-ready",
+      "consoleErrors": []
+    },
+    "/destek": {
+      "url": "https://www.froxyai.com/destek",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nCANLI DESTEK AKTİF\nNasıl yardımcı olabiliriz\n\nSorunlarınızı anında çözüme yaklaştırın. API, fatura, görsel üretim ve model akışları için destek taleplerinizi tek merkezden yönetin.\n\nYeni Bilet Oluştur\nTaleplerimi Gör\n<15dk\nİLK YANIT\n7/24\nİZLEME\n%98\nÇÖZÜM ORANI\nDoğrudan destek\nTicket dışında e-posta ile de ulaşabilirsin.\ndestek@froxyai.com\nDestek Bileti Oluştur\nKONU\nGenel Soru\nTeknik So",
+      "clickableCount": 335,
+      "blockers": [],
+      "bodyClasses": "theme-dark",
+      "htmlClasses": "theme-light-pre perf-v433 app-ready",
+      "consoleErrors": []
+    },
+    "/admin": {
+      "url": "https://www.froxyai.com/admin?cb=v470x",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "sample": "Ana içeriğe atla\nAdmin oturumu gerekli\n\nAdmin verileri için tekrar giriş yapman gerekiyor.\n\nTekrar giriş yap\nOturumu kontrol et\nSohbete dön\nYönetici Oturumu Gerekli\n\nBu panele erişmek için yönetici yetkilerine sahip bir hesapla giriş yapmalısınız. Lütfen sohbet sayfasına dönün.\n\nSohbete Geri Dön\nĞĞAdmin paneli için backend admin oturumu gerekli.×",
+      "clickableCount": 361,
+      "blockers": [],
+      "bodyClasses": "admin-route-v434 theme-dark",
+      "htmlClasses": "theme-light-pre perf-v433 admin-route-v434 app-ready",
+      "consoleErrors": []
+    }
+  },
+  "desktop": {
+    "chat": {
+      "open": true,
+      "before": 0,
+      "after": 7325,
+      "canScroll": true,
+      "options": 126,
+      "logoHtml": "<img class=\"mp-provider-logo-img\" src=\"provider-logos/meta.svg\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
+      "logoClass": "chat-model-stable-logo img-provider-logo-v354 mp-logo-meta",
+      "title": "Model Seçimi",
+      "closedByEsc": true
+    },
+    "image": {
+      "open": true,
+      "before": 0,
+      "after": 1682,
+      "canScroll": true,
+      "options": 29,
+      "logoHtml": "<img class=\"mp-provider-logo-img\" src=\"provider-logos/cloudflare.svg\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
+      "logoClass": "img-model-stable-logo img-provider-logo-v354",
+      "title": "Model Seçimi",
+      "closedByEsc": true
+    }
+  },
+  "mobile": {
+    "chat": {
+      "open": true,
+      "before": 0,
+      "after": 7325,
+      "canScroll": true,
+      "options": 126,
+      "logoHtml": "<img class=\"mp-provider-logo-img\" src=\"provider-logos/meta.svg\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
+      "logoClass": "chat-model-stable-logo img-provider-logo-v354 mp-logo-meta",
+      "title": "Model Seçimi",
+      "closedByEsc": true
+    },
+    "image": {
+      "open": true,
+      "before": 0,
+      "after": 1193,
+      "canScroll": true,
+      "options": 29,
+      "logoHtml": "<img class=\"mp-provider-logo-img\" src=\"provider-logos/cloudflare.svg\" alt=\"\" loading=\"lazy\" decoding=\"async\">",
+      "logoClass": "img-model-stable-logo img-provider-logo-v354",
+      "title": "Model Seçimi",
+      "closedByEsc": true
+    }
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "at": "2026-06-18T22:28:40.568Z",
+  "base": "http://127.0.0.1:4314",
+  "home": {
+    "before": {
+      "url": "http://127.0.0.1:4314/?cb=v470",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "visibleTextSample": "Ana içeriğe atla\nFroxy AI\nÖzellikler\nModeller\nDemo\nFiyatlandırma\nGüven\nSSS\nGiriş Yap\n100 Krediyle Dene\nTÜRKİYE MERKEZLİ AI ÇALIŞMA ALANI\n400+ AI modelini tek panelde kullan.\n\nChatGPT, Claude, Gemini, görsel Üretim araçları ve AI ajanlarını tek hesapta kullan. Yeni üyeler 100 ücretsiz krediyle başlar, kart bilgisi gerekmez.\n\n100 Krediyle Ücretsiz Dene\nPaneli İncele\n100 ücretsiz başlangıç kredisi\nKart bilgisi gerekmez\nChatGPT • Claude • Gemini • Görsel AI\nKVKK uyumlu\nfroxyai.com / panel\nFroxy AI\nÇALIŞMA ALANI\nSohbet\nGörsel Üretim\nAI Ajanlar\nDosya Analizi\nWeb Arama\nAraçlar\nBAŞLANGIÇ KREDİSİ\n100\nDestek\nChatGPT\nClaude\nGemini\nGörsel AI\nAI Ajanlar\n● Hazır\n\nSen\nYeni kampanya için reklam metni yaz ve aynı konsepte görsel Üret.\n\nFroxy AI · Claude\nMetin taslağın hazır. İstersen aynı brief ile Gemini ",
+      "consoleErrors": []
+    },
+    "primaryCount": 1,
+    "secondaryCount": 1,
+    "primaryClick": true,
+    "secondaryClick": true,
+    "afterUrl": "http://127.0.0.1:4314/sohbet"
+  },
+  "chat": {
+    "before": {
+      "url": "http://127.0.0.1:4314/sohbet?cb=v470",
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 600+ Model | Froxy AI",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "visibleTextSample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nAI ÇALIŞMA ALANI\nYeni Sohbet\nKredi 30\nAI\nÜcretsiz - Llama 3.3 70B\n632 model\n\nFROXY AI ÇALIŞMA ALANI\n\nBugün ne ÜretelimĞ\n\n632 güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.\n\nKendini tanıt\nPlan çıkar\nİnternetten ara\nTürkçe düzelt\nKısa cevap\nTürkçe düzelt\nKod açıkla\nModellerle karşılaştır\nAI\nLlama 3.3 70B",
+      "consoleErrors": []
+    },
+    "triggerCount": 2,
+    "menu": {
+      "visible": true,
+      "menuClass": "chat-model-stable-menu-v463",
+      "scrollTop": 0,
+      "options": 126,
+      "bad": false
+    },
+    "optionCount": 126,
+    "afterSelect": {
+      "menuOpen": false,
+      "selected": "openai/gpt-oss-120b",
+      "label": "Ücretsiz - GPT-OSS 120B (..."
+    }
+  },
+  "gorsel": {
+    "before": {
+      "url": "http://127.0.0.1:4314/gorsel",
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "visibleTextSample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nGörsel Üretici\n\nAI ile profesyonel görseller oluşturun\n\nYeni Üret\nFotoğrafı düzenle\nModel Seçimi\nUcuz\nHızlı\nKaliteli\nPremium\nJuggernaut Lightning Flux — Together\nSeçili model kilitli: together-juggernaut-flux\nModal GPU SDXL - Cloud GPU Ready\nModal Local SD Cloud - Cloud GPU Ready\nModal Cloud GPU - Cloud GPU Ready\nCloudflare SDXL Lightning\nCloudflare SDXL\nCloudflare DreamShaper LCM\nCloudflare Flux 2 Klein\nFlux Schnell - Pollinations\nZ-Image Turbo - Pollinations\nGPT Image 1 Mini - Pollinations\nGPT Image 1.5 - Pollinations\nFLUX.2 Klein - Pollinations\nFLUX.1 Kontext - Pollinations\nNova",
+      "consoleErrors": []
+    },
+    "triggerCount": 1,
+    "menu": {
+      "visible": true,
+      "menuClass": "img-model-stable-menu-v432 img-model-stable-menu-v434 img-model-stable-menu-v461",
+      "scrollTop": 380,
+      "options": 26,
+      "bad": false
+    },
+    "optionCount": 26,
+    "afterSelect": {
+      "menuOpen": false,
+      "selected": "cf-sdxl",
+      "changed": true,
+      "triggerText": "Cloudflare SDXL\nSeçili model kilitli: cf-sdxl"
+    }
+  },
+  "admin": {
+    "url": "http://127.0.0.1:4314/admin?cb=v470",
+    "hasToken": false,
+    "saasUser": null,
+    "apUser": null,
+    "adminState": "",
+    "authCard": "Admin oturumu gerekli\n\nAdmin verileri için tekrar giriş yapman gerekiyor.\n\nTekrar giriş yap\nOturumu kontrol et\nSohbete dön",
+    "adminVisible": true,
+    "bad": false
+  },
+  "chatMobile": {
+    "before": {
+      "url": "http://127.0.0.1:4314/sohbet?cb=v470&mobile=1",
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 600+ Model | Froxy AI",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "visibleTextSample": "Ana içeriğe atla\nAI ÇALIŞMA ALANI\nYeni Sohbet\nKredi 30\nAI\nÜcretsiz - Llama 3.3 70B\n632 model\n\nFROXY AI ÇALIŞMA ALANI\n\nBugün ne ÜretelimĞ\n\n632 güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.\n\nKendini tanıt\nPlan çıkar\nİnternetten ara\nTürkçe düzelt\nSohbet\nPanel\nGörsel\nBilgi\nDestek\nMenü",
+      "consoleErrors": []
+    },
+    "triggerCount": 2,
+    "menu": {
+      "visible": true,
+      "menuClass": "chat-model-stable-menu-v463",
+      "scrollTop": 0,
+      "options": 126,
+      "bad": false
+    },
+    "optionCount": 126,
+    "afterSelect": {
+      "menuOpen": false,
+      "selected": "openai/gpt-oss-120b",
+      "label": "Ücretsiz - GPT-OSS 120B (..."
+    }
+  },
+  "gorselMobile": {
+    "before": {
+      "url": "http://127.0.0.1:4314/gorsel",
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "ready": true,
+      "prepaint": false,
+      "badVisibleText": false,
+      "visibleTextSample": "Ana içeriğe atla\nSohbet\nPanel\nGörsel\nBilgi\nDestek\nMenü\nGörsel Üretici\n\nAI ile profesyonel görseller oluşturun\n\nYeni Üret\nFotoğrafı düzenle\nModel Seçimi\nUcuz\nHızlı\nKaliteli\nPremium\nJuggernaut Lightning Flux — Together\nSeçili model kilitli: together-juggernaut-flux\nCloudflare SDXL Lightning\nCloudflare SDXL\nCloudflare DreamShaper LCM\nCloudflare Flux 2 Klein\nFlux Schnell - Pollinations\nZ-Image Turbo - Pollinations\nGPT Image 1 Mini - Pollinations\nGPT Image 1.5 - Pollinations\nFLUX.2 Klein - Pollinations\nFLUX.1 Kontext - Pollinations\nNova Canvas - Pollinations\nNanoBanana - Pollinations\nNanoBanana 2 - Pollinations\nSeedream 4.0 - Pollinations\nSeedream 5 Lite - Pollinations\nJuggernaut Lightning Flux — Together\nFLUX.1 Schnell — Together\nFLUX Kontext Pro — Together\nFLUX.2 Pro — Together\nFlux AI — Kali",
+      "consoleErrors": []
+    },
+    "triggerCount": 1,
+    "menu": {
+      "visible": true,
+      "menuClass": "img-model-stable-menu-v432 img-model-stable-menu-v434 img-model-stable-menu-v461",
+      "scrollTop": 380,
+      "options": 29,
+      "bad": false
+    },
+    "optionCount": 29,
+    "afterSelect": {
+      "menuOpen": false,
+      "selected": "cf-sdxl",
+      "changed": true,
+      "triggerText": "Cloudflare SDXL\nSeçili model kilitli: cf-sdxl"
+    }
+  }
+}

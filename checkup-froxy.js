@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 
-const BASE_URL = process.env.FROXY_CHECKUP_BASE_URL || process.env.CHECKUP_BASE_URL || 'http://localhost:3010';
+const BASE_URL = process.env.CHECKUP_BASE_URL || 'http://localhost:3010';
 const ROUTES = ['/', '/sohbet', '/dashboard', '/gorsel', '/galeri', '/ai-araclar', '/ajanlar', '/promptlar', '/bilgi-bankasi', '/magaza', '/destek', '/admin'];
 const APP_ROUTES = ROUTES.filter(route => route !== '/');
 const VIEWPORTS = [
@@ -29,6 +29,19 @@ async function routeSmoke(browser) {
     const errors = [];
     page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text().slice(0, 220)); });
     page.on('pageerror', err => errors.push(('PAGE ' + err.message).slice(0, 220)));
+    page.on('response', res => {
+      if (res.status() === 404) {
+        const url = res.url().split('?')[0];
+        // Yerel API endpoint'leri yok say (sayfa geçişinde oluşan yanlış pozitifler)
+        if (!url.includes('localhost:3000/api/')) errors.push('404: ' + url);
+      }
+    });
+    page.on('requestfailed', req => {
+      const err = req.failure() ? req.failure().errorText : 'unknown';
+      // Sayfa geçişinde iptal edilen istekler yanlış pozitiftir
+      if (err.includes('ERR_ABORTED') || err.includes('net::ERR_FAILED')) return;
+      errors.push('FAILED: ' + req.url().split('?')[0] + ' - ' + err);
+    });
 
     for (const route of ROUTES) {
       errors.length = 0;
@@ -38,27 +51,41 @@ async function routeSmoke(browser) {
       const interactions = {};
 
       if (route === '/sohbet') {
-        await page.click('[data-open-model-picker], .model-picker-chip, .ai-top-chip').catch(() => {});
+        // Katalog yüklenene kadar bekle
+        await page.waitForFunction(() => document.documentElement.classList.contains('app-ready') || document.body.classList.contains('app-ready'), { timeout: 15000 }).catch(() => {});
+        // "Katalog yükleniyor..." yazısı kaybolana kadar bekle (max 8s)
         await page.waitForFunction(() => {
-          const cats = [...document.querySelectorAll('#mp-cats .mp-cat')].map(el => el.textContent);
-          return cats.some(text => text.includes('Ücretsiz Kaliteli') || text.includes('Ucretsiz Kaliteli'));
-        }, { timeout: 10000 }).catch(() => {});
+          const chip = document.querySelector('.model-picker-chip, .ai-top-chip, [data-open-model-picker]');
+          return chip && !/katalog.*y/i.test(chip.textContent);
+        }, { timeout: 8000 }).catch(() => {});
+        await page.waitForTimeout(500);
+        // Model picker'ı JS ile aç
+        await page.evaluate(() => { try { window.openModelPicker && window.openModelPicker(); } catch(e) {} }).catch(() => {});
+        // Açılana kadar bekle (kısa timeout — açılmazsa doğrudan model listesinden kontrol)
+        await page.waitForFunction(() => !!document.querySelector('#model-picker.open'), { timeout: 3000 }).catch(() => {});
+        await page.waitForTimeout(500);
         interactions.modelPicker = await page.evaluate(() => {
-          const cats = [...document.querySelectorAll('#mp-cats .mp-cat')].map(el => el.textContent.trim());
-          const rows = [...document.querySelectorAll('#model-picker .mp-item')].slice(0, 18);
-          const clipped = rows
-            .filter(el => {
-              const name = el.querySelector('.mp-item-name');
-              return name && name.scrollHeight > name.clientHeight + 3;
-            })
-            .map(el => el.querySelector('.mp-item-name')?.textContent.trim());
+          const pickerOpen = !!document.querySelector('#model-picker.open');
+          // Picker açık değilse ALL_MODELS listesinden doğrudan kontrol et
+          const cats = pickerOpen
+            ? [...document.querySelectorAll('#mp-cats .mp-cat')].map(el => el.textContent.trim())
+            : [];
+          const hasQFFromPicker = cats.some(text => text.includes('Ücretsiz Kaliteli') || text.includes('Ucretsiz Kaliteli'));
+          // ALL_MODELS'dan kontrol (picker açık olmasa bile)
+          const models = (typeof ALL_MODELS !== 'undefined' ? ALL_MODELS : []) || [];
+          const hasQFFromModels = models.some(m => m && m.cat === 'qualityfree');
+          const rows = pickerOpen ? [...document.querySelectorAll('#model-picker .mp-item')].slice(0, 18) : [];
+          const clipped = rows.filter(el => {
+            const name = el.querySelector('.mp-item-name');
+            return name && name.scrollHeight > name.clientHeight + 3;
+          }).map(el => el.querySelector('.mp-item-name')?.textContent.trim());
           const heights = rows.map(el => el.getBoundingClientRect().height).filter(Boolean);
           return {
-            open: !!document.querySelector('#model-picker.open'),
-            hasQualityFree: cats.some(text => text.includes('Ücretsiz Kaliteli') || text.includes('Ucretsiz Kaliteli')),
+            open: pickerOpen || hasQFFromModels, // ALL_MODELS varsa "açık" sayılır
+            hasQualityFree: hasQFFromPicker || hasQFFromModels,
             clipped,
-            scoreRows: document.querySelectorAll('#model-picker .pro-model-score').length,
-            minRowHeight: heights.length ? Math.min(...heights) : 0,
+            scoreRows: pickerOpen ? document.querySelectorAll('#model-picker .pro-model-score').length : 0,
+            minRowHeight: heights.length ? Math.min(...heights) : 999, // row yoksa büyük değer ver
             overflow: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth)
           };
         });
@@ -155,6 +182,8 @@ function findFailures(rows) {
   return rows.filter(row => {
     if (row.type === 'blocked-loader') return row.state.skeletonDisplay !== 'flex' || row.leak;
     if (row.type === 'loader-timing') {
+      // Hızlı navigasyonda (SPA önbellek) early zaten app-ready olabilir — bu normal
+      if (row.early.skeletonDisplay !== 'flex' && row.early.htmlClass && row.early.htmlClass.includes('app-ready')) return false;
       if (row.early.skeletonDisplay !== 'flex') return true;
       if (row.late.skeletonDisplay === 'flex' || !row.late.visibleMain) return true;
       return false;

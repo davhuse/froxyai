@@ -1,0 +1,80 @@
+[
+  {
+    "route": "/",
+    "status": 200,
+    "errors": [],
+    "failed": [],
+    "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+    "classes": "theme-light-pre perf-v426 home-mode app-ready",
+    "bodyLen": 4777,
+    "hasMojibake": false,
+    "hasV426Refs": true,
+    "visible": [
+      "v-home"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nÖzellikler\nModeller\nDemo\nFiyatlandırma\nGüven\nSSS\nGiriş Yap\n100 Krediyle Dene\nTÜRKİYE MERKEZLİ AI ÇALIŞMA ALANI\n400+ AI modelini tek panelde kullan.\n\nChatG"
+  },
+  {
+    "route": "/sohbet",
+    "status": 200,
+    "errors": [],
+    "failed": [],
+    "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 600+ Model | Froxy AI",
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 568,
+    "hasMojibake": false,
+    "hasV426Refs": true,
+    "visible": [
+      "v-chat",
+      "ptab-chat"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Soh"
+  },
+  {
+    "route": "/gorsel",
+    "status": 200,
+    "errors": [],
+    "failed": [],
+    "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 6729,
+    "hasMojibake": false,
+    "hasV426Refs": true,
+    "visible": [
+      "v-chat",
+      "ptab-img"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Soh"
+  },
+  {
+    "route": "/promptlar",
+    "status": 200,
+    "errors": [],
+    "failed": [],
+    "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 2003,
+    "hasMojibake": false,
+    "hasV426Refs": true,
+    "visible": [
+      "v-chat",
+      "ptab-prompts"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Soh"
+  },
+  {
+    "route": "/admin",
+    "status": 200,
+    "errors": [],
+    "failed": [],
+    "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 226,
+    "hasMojibake": false,
+    "hasV426Refs": true,
+    "visible": [
+      "ptab-chat"
+    ],
+    "sample": "Ana içeriğe atla\nYönetici Oturumu Gerekli\n\nBu panele erişmek için yönetici yetkilerine sahip bir hesapla giriş yapmalısınız. Lütfen sohbet sayfasına dönün.\n\nSohbete Geri Dön\n❌\nAdmi"
+  }
+]

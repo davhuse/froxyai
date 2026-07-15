@@ -1,0 +1,99 @@
+{
+  "at": "2026-06-14T15:28:19.759Z",
+  "base": "http://127.0.0.1:3000",
+  "chat": [
+    {
+      "model": "pollinations-openai",
+      "ok": true,
+      "status": 200,
+      "ms": 1936,
+      "provider": null,
+      "modelReturned": "llama-3.1-8b-instant",
+      "fallback": false,
+      "textSample": "Hiyerarşide en düşük pozisyonda bulunan çalışan, genellikle daha kıdemli çalışanlar tarafından yaptırılan görevleri üstlenerek takımın daha iyi bir şekilde çalı"
+    },
+    {
+      "model": "pollinations-llama",
+      "ok": true,
+      "status": 200,
+      "ms": 895,
+      "provider": null,
+      "modelReturned": "llama-3.1-8b-instant",
+      "fallback": false,
+      "textSample": "Hayır, ben değilim Froxy, ben Llama."
+    },
+    {
+      "model": "pollinations-qwen",
+      "ok": true,
+      "status": 200,
+      "ms": 901,
+      "provider": null,
+      "modelReturned": "llama-3.1-8b-instant",
+      "fallback": false,
+      "textSample": "Sen Froxy'sın, yardımcı olmaya geldiğimi unutma. 🙃"
+    }
+  ],
+  "image": [
+    {
+      "model": "pollinations-flux",
+      "ok": true,
+      "status": 200,
+      "ms": 2262,
+      "provider": "pollinations",
+      "returnedModel": "flux",
+      "requestedModel": "pollinations-flux",
+      "hasUrl": true,
+      "url": "/generated/pollinations_1781450905751_7727.jpg",
+      "error": null
+    },
+    {
+      "model": "pollinations-zimage",
+      "ok": true,
+      "status": 200,
+      "ms": 3467,
+      "provider": "pollinations",
+      "returnedModel": "zimage",
+      "requestedModel": "pollinations-zimage",
+      "hasUrl": true,
+      "url": "/generated/pollinations_1781450909149_8834.jpg",
+      "error": null
+    },
+    {
+      "model": "pollinations-gptimage",
+      "ok": false,
+      "status": 502,
+      "ms": 4009,
+      "provider": "pollinations",
+      "returnedModel": "flux",
+      "requestedModel": null,
+      "hasUrl": false,
+      "url": null,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata"
+    },
+    {
+      "model": "zimage",
+      "ok": false,
+      "status": 502,
+      "ms": 3790,
+      "provider": "pollinations",
+      "returnedModel": "zimage",
+      "requestedModel": null,
+      "hasUrl": false,
+      "url": null,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata"
+    },
+    {
+      "model": "klein",
+      "ok": false,
+      "status": 502,
+      "ms": 3801,
+      "provider": "pollinations",
+      "returnedModel": "zimage",
+      "requestedModel": null,
+      "hasUrl": false,
+      "url": null,
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata"
+    }
+  ],
+  "notes": []
+}

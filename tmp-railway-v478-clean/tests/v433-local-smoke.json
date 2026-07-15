@@ -1,0 +1,44 @@
+{
+  "at": "2026-06-16T19:49:28.843Z",
+  "before": {
+    "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+    "classes": "theme-light-pre perf-v433 app-ready",
+    "version": null,
+    "script": "http://127.0.0.1:3000/app.min.js?v=v433",
+    "model": "together-juggernaut-flux",
+    "optionCount": 34,
+    "perfV433": true,
+    "prepaint": false
+  },
+  "after": {
+    "model": "pollinations-flux",
+    "locked": "pollinations-flux",
+    "manual": "pollinations-flux",
+    "errorCard": true
+  },
+  "requests": [
+    {
+      "url": "http://127.0.0.1:3000/api/image?_t=1781639364678",
+      "body": {
+        "prompt": "safe test image, abstract neon cube",
+        "model": "pollinations-flux",
+        "qualityMode": "cheap",
+        "imageSize": "square",
+        "width": 1024,
+        "height": 1024,
+        "aspectRatio": "1:1",
+        "size": "1024x1024",
+        "apiKey": ""
+      }
+    }
+  ],
+  "admin": {
+    "title": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+    "apiState": "",
+    "hasUnauthorized": true,
+    "adminRepairFn": true
+  },
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 599 (Unknown)"
+  ]
+}

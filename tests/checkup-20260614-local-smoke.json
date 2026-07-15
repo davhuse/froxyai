@@ -1,0 +1,326 @@
+{
+  "when": "2026-06-14T12:13:19.332Z",
+  "base": "http://127.0.0.1:3000",
+  "routes": [
+    {
+      "viewport": "desktop",
+      "route": "/sohbet",
+      "statusText": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 600+ Model | Froxy AI",
+      "active": [
+        "v-chat",
+        "ptab-chat"
+      ],
+      "overflow": 0,
+      "badText": true,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nAI ÇALIŞMA ALANI\nYeni Sohbet\nKredi 30\nÜcretsiz - Llama 3.3 70B\n632 model\n\nFROXY AI ÇALIŞMA ALANI\n\nBugün ne Üretelim?\n\n632 güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.\n\nKendini tanıt\nP",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/gorsel",
+      "statusText": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "active": [
+        "v-chat",
+        "ptab-img"
+      ],
+      "overflow": 0,
+      "badText": false,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nGörsel Üretici\n\nAI ile profesyonel görseller oluşturun\n\nYeni Üret\nFotoğrafı düzenle\nModel Seçimi\nUcuz\nHızlı\nKaliteli\nPremium\nJuggernaut Lightning Flux - Together\n30 kredi · görsel modeli\nLOCAL FREE\nComfyUI DreamShaper8 LCM - Ready\n1 kredi",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/promptlar",
+      "statusText": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "active": [
+        "v-chat",
+        "ptab-prompts"
+      ],
+      "overflow": 0,
+      "badText": false,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nPROMPT KÜTÜPHANESİ\nHazır profesyonel akışlar\n\nSatış, kod, destek, analiz ve görsel Üretim için renkli, kategorili ve tek tıkla kullanılabilir şablonlar.\n\nSohbete geç\nSatış\nDönüşüm Odaklı Teklif\nKısa, net ve ikna edici teklif metni hazırla",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/ai-araclar",
+      "statusText": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "active": [
+        "v-chat",
+        "ptab-tools"
+      ],
+      "overflow": 0,
+      "badText": false,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nAI ARAÇ MERKEZİ\nSatış, reklam ve içerik işlerini tek panelde hızlandır.\n\nBrief yaz, aracı seç, Froxy promptu hazırlar ve işi sohbete taşır. Bu bölüm hızlı gelir akışları, destek, SEO, marka ve görsel Üretim için sadeleştirildi.\n\nLanding Ü",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/galeri",
+      "statusText": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "active": [
+        "v-chat",
+        "ptab-gallery"
+      ],
+      "overflow": 0,
+      "badText": false,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nGörsel Galeri\n\nÜrettiğiniz görseller burada\n\nHenüz görsel yok. İlk Üretimden sonra favoriler ve koleksiyonlar burada görünecek.",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/destek",
+      "statusText": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "active": [
+        "v-chat",
+        "ptab-support"
+      ],
+      "overflow": 0,
+      "badText": true,
+      "supportMail": true,
+      "bodySample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nCANLI DESTEK AKTİF\nNasıl yardımcı olabiliriz?\n\nSorunlarınızı anında çözüme yaklaştırın. API, fatura, görsel Üretim ve model akışları için destek taleplerinizi tek merkezden yönetin.\n\nYeni Bilet Oluştur\nTaleplerimi Gör\n<15dk\nİLK YANIT\n7/24",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/sohbet",
+      "statusText": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 600+ Model | Froxy AI",
+      "active": [
+        "v-chat",
+        "ptab-chat"
+      ],
+      "overflow": 0,
+      "badText": true,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nAI ÇALIŞMA ALANI\nYeni Sohbet\nKredi 30\nÜcretsiz - Llama 3.3 70B\n632 model\n\nFROXY AI ÇALIŞMA ALANI\n\nBugün ne Üretelim?\n\n632 güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.\n\nKendini tanıt\nPlan çıkar\nİnternetten ara\nTürkçe düzelt\nSohbet\nPanel\nGörsel\nBilgi\nDestek\nMenü",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/gorsel",
+      "statusText": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "active": [
+        "v-chat",
+        "ptab-img"
+      ],
+      "overflow": 0,
+      "badText": false,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nSohbet\nPanel\nGörsel\nBilgi\nDestek\nMenü\nGörsel Üretici\n\nAI ile profesyonel görseller oluşturun\n\nYeni Üret\nFotoğrafı düzenle\nModel Seçimi\nUcuz\nHızlı\nKaliteli\nPremium\nJuggernaut Lightning Flux - Together\n30 kredi · görsel modeli\nLOCAL FREE\nComfyUI Local Image - Kurulum gerekli\n1 kredi · Hızlı\nGörsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu\nFooocus Local Image - Kurulum gerekli\n1 kredi · Hızlı\nGörsel AI · Genel Üretim, Prompt",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/promptlar",
+      "statusText": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "active": [
+        "v-chat",
+        "ptab-prompts"
+      ],
+      "overflow": 0,
+      "badText": false,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nSohbet\nPanel\nGörsel\nBilgi\nDestek\nMenü\nPROMPT KÜTÜPHANESİ\nHazır profesyonel akışlar\n\nSatış, kod, destek, analiz ve görsel Üretim için renkli, kategorili ve tek tıkla kullanılabilir şablonlar.\n\nSohbete geç\nSatış\nDönüşüm Odaklı Teklif\nKısa, net ve ikna edici teklif metni hazırlar.\nDestek\nMüşteri Cevabı\nSakin, çözüm odaklı destek cevabı oluşturur.\nKod\nHata Ayıklama Planı\nKök neden, çözüm ve test adımlarını çıkarır.\nGörsel\nPremium Gör",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+        "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+      ],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ai-araclar",
+      "statusText": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "active": [
+        "v-chat",
+        "ptab-tools"
+      ],
+      "overflow": 0,
+      "badText": false,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nSohbet\nPanel\nGörsel\nBilgi\nDestek\nMenü\nAI ARAÇ MERKEZİ\nSatış, reklam ve içerik işlerini tek panelde hızlandır.\n\nBrief yaz, aracı seç, Froxy promptu hazırlar ve işi sohbete taşır. Bu bölüm hızlı gelir akışları, destek, SEO, marka ve görsel Üretim için sadeleştirildi.\n\nLanding Üret\nReklam promptu\nBrief\nKonu alındı\nModel\nUygun akış\nÇıktı\nSohbete hazır\n12\nçalıştırılabilir araç\n9\nkategori\n0\nfree model\n0\nsağlayıcı\nPara kazandıracak iş a",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/galeri",
+      "statusText": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "active": [
+        "v-chat",
+        "ptab-gallery"
+      ],
+      "overflow": 0,
+      "badText": false,
+      "supportMail": false,
+      "bodySample": "Ana içeriğe atla\nSohbet\nPanel\nGörsel\nBilgi\nDestek\nMenü\nGörsel Galeri\n\nÜrettiğiniz görseller burada\n\nHenüz görsel yok. İlk Üretimden sonra favoriler ve koleksiyonlar burada görünecek.",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/destek",
+      "statusText": "Froxy AI - ChatGPT, Claude, Gemini ve 600+ AI Modeli Tek Panelde",
+      "active": [
+        "v-chat",
+        "ptab-support"
+      ],
+      "overflow": 0,
+      "badText": true,
+      "supportMail": true,
+      "bodySample": "Ana içeriğe atla\nSohbet\nPanel\nGörsel\nBilgi\nDestek\nMenü\nCANLI DESTEK AKTİF\nNasıl yardımcı olabiliriz?\n\nSorunlarınızı anında çözüme yaklaştırın. API, fatura, görsel Üretim ve model akışları için destek taleplerinizi tek merkezden yönetin.\n\nYeni Bilet Oluştur\nTaleplerimi Gör\n<15dk\nİLK YANIT\n7/24\nİZLEME\n%98\nÇÖZÜM ORANI\nDoğrudan destek\nTicket dışında e-posta ile de ulaşabilirsin.\ndestek@froxyai.com\nDestek Bileti Oluştur\nKONU\nGenel Soru\nTeknik Sorun\nÖd",
+      "imagePickerCount": 0,
+      "comfyVisible": false,
+      "pollinationsVisible": [],
+      "freeFlags": [],
+      "consoleErrors": [],
+      "pageErrors": []
+    }
+  ],
+  "promptFlow": {
+    "desktop": {
+      "route": "ptab-chat",
+      "hasChatInput": true,
+      "filled": true,
+      "sample": "Aşağıdaki ürün/hizmet için dönüşüm odaklı, güven veren Türkçe satış teklifi hazırla:\n\nÜrün/Hizmet: "
+    },
+    "mobile": {
+      "route": "ptab-chat",
+      "hasChatInput": true,
+      "filled": true,
+      "sample": "Aşağıdaki ürün/hizmet için dönüşüm odaklı, güven veren Türkçe satış teklifi hazırla:\n\nÜrün/Hizmet: "
+    }
+  },
+  "imagePicker": {
+    "desktop": {
+      "count": 0,
+      "comfy": null,
+      "pollinations": [],
+      "together": [],
+      "cloudflare": [],
+      "openai": []
+    },
+    "mobile": {
+      "count": 0,
+      "comfy": null,
+      "pollinations": [],
+      "together": [],
+      "cloudflare": [],
+      "openai": []
+    }
+  }
+}

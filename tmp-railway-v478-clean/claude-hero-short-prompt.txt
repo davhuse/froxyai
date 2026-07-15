@@ -1,0 +1,35 @@
+﻿Froxy AI için sadece ana sayfa HERO ve ilk izlenim konsepti tasarla.
+
+Amaç: sıradan SaaS değil, videolarda gördüğümüz gibi dikkat çeken, 3D/canlı animasyonlu, premium AI platform hissi.
+
+Kısıtlar:
+- React/Next.js/komple proje verme.
+- Sadece HTML section + CSS + az vanilla JS ver.
+- Backend/auth/chat/payment kodu yazma.
+- Türkçe karakterleri bozma.
+- Mobil uyumlu ve performanslı olsun.
+
+Froxy AI: yüzlerce AI modelini tek panelde toplayan chat, görsel üretim, fotoğraf düzenleme, AI araçları, promptlar ve kredi paketleri olan platform.
+
+3 farklı hero alternatifi üret:
+1. 3D AI çekirdeği / neural orb
+2. 3D maskot / canlı destek asistanı
+3. AI komuta merkezi / dashboard sahnesi
+
+Her alternatif için:
+- Görsel fikir
+- Animasyon fikri
+- Neden satış getirir
+- Mobilde nasıl sadeleşir
+
+Sonra en güçlü alternatifi seç ve onun için gerçek entegre edilebilir kod ver:
+- HTML
+- CSS
+- Vanilla JS
+
+Kodda şu CTA'lar olsun:
+- Sohbete Başla
+- Ücretsiz Dene
+- Paketleri Gör
+
+Tasarım dili: koyu premium, siyah/lacivert zemin, cyan/mor/elektrik mavisi vurgu, holografik/terminal/AI command center hissi. Çok fazla gradient blob kullanma.

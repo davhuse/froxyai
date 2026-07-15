@@ -6,8 +6,10 @@
 
   var STORE_KEY = 'froxy_robot_widget_hidden_v1';
   var CHAT_KEY = 'froxy_robot_widget_chat_v2';
-  var CSS_VERSION = 'v383';
+  var CSS_VERSION = 'v501';
   var WELCOME = 'Merhaba, ben Froxy destek asistanı. Fiyat, kredi, giriş, görsel üretim ve teknik sorunlarda hızlıca yardımcı olurum.';
+
+  WELCOME = 'Merhaba, ben Froxy destek asistan\u0131. Fiyat, kredi, giri\u015f, g\u00f6rsel \u00fcretim ve teknik sorunlarda h\u0131zl\u0131ca yard\u0131mc\u0131 olurum.';
 
   function setPublicApi(api) {
     window.FroxyRobot = Object.assign(window.FroxyRobot || {}, api || {});
@@ -64,6 +66,14 @@
       return 'Şimdi';
     }
   }
+
+  nowLabel = function () {
+    try {
+      return new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      return '\u015eimdi';
+    }
+  };
 
   function isHidden() {
     try { return localStorage.getItem(STORE_KEY) === '1'; } catch (e) { return false; }
@@ -123,7 +133,7 @@
       '  <div class="speech" id="speech"><p id="stxt">' + escapeHtml(WELCOME) + '</p><div class="sarrow"></div></div>',
       '  <button class="fr-hide" id="frHide" type="button" aria-label="Maskotu gizle" title="Maskotu gizle">×</button>',
       '  <div class="dstars" id="dstars"><span>*</span><span>+</span><span>*</span><span>+</span></div>',
-      '  <div class="scene" id="scene" role="button" tabindex="0" aria-label="Froxy 3D destek asistanını aç">',
+      '  <div class="scene" id="scene" role="button" tabindex="0" aria-label="Froxy destek maskotunu aç">',
       '    <div class="r3" id="r3">',
       '      <div class="p-ant" id="antH"><div class="ant-rod"></div><div class="ant-ball"></div></div>',
       '      <div class="p-head" id="headH">',
@@ -140,7 +150,7 @@
       '    </div>',
       '  </div>',
       '  <div class="rshad" id="rshad"></div>',
-      '  <div class="rotate-hint" id="rhint">Scroll ile çevir</div>',
+      '  <div class="rotate-hint" id="rhint">Sürükle ve tanış</div>',
       '</div>',
       '<div class="sov" id="sov" aria-hidden="true">',
       '  <div class="sp" role="dialog" aria-modal="true" aria-label="Froxy AI destek">',
@@ -155,8 +165,6 @@
   }
 
   function mount() {
-    // Admin route'unda robot widget'ı mount etme
-    if (/^\/admin/i.test(location.pathname || '')) return;
     if (document.getElementById('froxy-robot-root')) return;
 
     var host = document.createElement('div');
@@ -167,6 +175,25 @@
     var shadow = host.attachShadow({ mode: 'open' });
     shadow.innerHTML = '<link rel="stylesheet" href="/froxy-robot.css?v=' + CSS_VERSION + '">' + robotMarkup();
     document.body.appendChild(host);
+
+    var copyNode = shadow.getElementById('frHide');
+    if (copyNode) copyNode.textContent = '\u00d7';
+    copyNode = shadow.getElementById('scene');
+    if (copyNode) copyNode.setAttribute('aria-label', 'Froxy destek maskotunu a\u00e7');
+    copyNode = shadow.getElementById('rhint');
+    if (copyNode) copyNode.textContent = 'S\u00fcr\u00fckle ve tan\u0131\u015f';
+    copyNode = shadow.querySelector('.spl b');
+    if (copyNode) copyNode.textContent = 'Froxy AI Destek';
+    copyNode = shadow.querySelector('.spl small');
+    if (copyNode) copyNode.textContent = '\u00c7evrim i\u00e7i';
+    copyNode = shadow.querySelector('.spd');
+    if (copyNode) copyNode.textContent = 'Bug\u00fcn';
+    copyNode = shadow.getElementById('sinp');
+    if (copyNode) copyNode.setAttribute('placeholder', 'Mesaj yaz\u0131n...');
+    copyNode = shadow.getElementById('ssnd');
+    if (copyNode) copyNode.setAttribute('aria-label', 'Mesaj g\u00f6nder');
+    copyNode = shadow.getElementById('frLauncher');
+    if (copyNode) copyNode.setAttribute('aria-label', 'Froxy destek asistan\u0131n\u0131 g\u00f6ster');
 
     var $ = function (id) { return shadow.getElementById(id); };
     var rw = $('rw'), r3 = $('r3'), scene = $('scene'), speech = $('speech'), stxt = $('stxt');
@@ -321,6 +348,18 @@
       legHit: ['Hop, ayaklar çalışıyor.', 'Zıplama modu aktif.'],
       multiHit: ['Tamam, biraz sakinleşelim.', 'Kısa bir mola iyi gelir.'],
       faint: ['Bir saniye toparlanıyorum.', 'Dünya biraz döndü.'],
+      welcome: [WELCOME]
+    };
+
+    speechMap = {
+      idle: ['Yard\u0131m istersen buraday\u0131m.', 'Kayd\u0131rma tekeriyle beni d\u00f6nd\u00fcrebilirsin.', 'Destek panelini a\u00e7mak i\u00e7in g\u00f6vdeme dokun.'],
+      headHit: ['Kafam hassas, dikkat.', 'Tamam tamam, buraday\u0131m.'],
+      armHit: ['Koluma dikkat.', 'Bu biraz g\u0131d\u0131kl\u0131yor.'],
+      antHit: ['Sinyal tamam, anten \u00e7al\u0131\u015f\u0131yor.', 'Anten ba\u011flant\u0131s\u0131 aktif.'],
+      bodyClick: ['Destek panelini a\u00e7\u0131yorum.', 'Hemen yard\u0131mc\u0131 olay\u0131m.'],
+      legHit: ['Hop, ayaklar \u00e7al\u0131\u015f\u0131yor.', 'Z\u0131plama modu aktif.'],
+      multiHit: ['Tamam, biraz sakinle\u015felim.', 'K\u0131sa bir mola iyi gelir.'],
+      faint: ['Bir saniye toparlan\u0131yorum.', 'D\u00fcnya biraz d\u00f6nd\u00fc.'],
       welcome: [WELCOME]
     };
 
@@ -492,6 +531,43 @@
       return 'Anladım. Hesap, ödeme veya özel veri gerekiyorsa güvenli olması için destek talebi açmanı öneririm.';
     }
 
+    renderQuick = function () {
+      if (!spm || shadow.getElementById('sq')) return;
+      var quick = document.createElement('div');
+      quick.className = 'sq';
+      quick.id = 'sq';
+      [
+        'Fiyatland\u0131rma ve kredi paketleri',
+        'Giri\u015f veya kay\u0131t sorunu',
+        'G\u00f6rsel \u00fcretim hatas\u0131',
+        '\u00d6deme ve fatura yard\u0131m\u0131'
+      ].forEach(function (label) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('data-m', label);
+        b.textContent = label;
+        quick.appendChild(b);
+      });
+      spm.appendChild(quick);
+    };
+
+    localReply = function (message) {
+      var s = String(message || '').toLowerCase();
+      if (/fiyat|paket|kredi|ucret|para|sat\u0131n|satin/.test(s)) {
+        return 'Paketleri Ma\u011faza b\u00f6l\u00fcm\u00fcnden g\u00f6rebilirsin. Kredi sistemi kullan\u0131m ba\u015f\u0131na \u00e7al\u0131\u015f\u0131r; yeni \u00fcyeler \u00fccretsiz ba\u015flang\u0131\u00e7 kredisiyle paneli deneyebilir.';
+      }
+      if (/giri\u015f|giris|kay\u0131t|kayit|kod|otp|mail|\u015fifre|sifre/.test(s)) {
+        return 'E-posta ve \u015fifre giri\u015finde do\u011frulama kodu gerekir. Kod gelmezse spam klas\u00f6r\u00fcn\u00fc kontrol et, birka\u00e7 dakika bekle ve tekrar kod iste.';
+      }
+      if (/g\u00f6rsel|gorsel|foto|resim|image|galeri|d\u00fczenle|duzenle/.test(s)) {
+        return 'G\u00f6rsel \u00fcretimde model, oran ve kalite modu se\u00e7ebilirsin. Foto\u011fraf d\u00fczenleme i\u00e7in yaln\u0131zca edit destekli modeller kullan\u0131l\u0131r.';
+      }
+      if (/\u00f6deme|odeme|fatura|shopier|dodo|iade|kart/.test(s)) {
+        return '\u00d6deme ve fatura konular\u0131nda g\u00fcvenli i\u015flem i\u00e7in destek talebi a\u00e7man\u0131 \u00f6neririm. \u00d6zel \u00f6deme bilgilerini h\u0131zl\u0131 sohbet alan\u0131na yazma.';
+      }
+      return 'Anlad\u0131m. Hesap, \u00f6deme veya \u00f6zel veri gerekiyorsa g\u00fcvenli olmas\u0131 i\u00e7in destek talebi a\u00e7man\u0131 \u00f6neririm.';
+    };
+
     function showTyping() {
       var d = document.createElement('div');
       d.className = 'sm sb';
@@ -658,7 +734,6 @@
   }
 
   function boot() {
-    if (/^\/admin/i.test(location.pathname || '')) return;
     var delay = window.matchMedia && window.matchMedia('(max-width: 720px)').matches ? 1100 : 700;
     window.setTimeout(mount, delay);
   }

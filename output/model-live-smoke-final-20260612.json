@@ -1,0 +1,82 @@
+{
+  "at": "2026-06-12T09:40:37.080Z",
+  "catalog": {
+    "status": 200,
+    "count": 524,
+    "source": "openrouter+cf+nvidia"
+  },
+  "results": [
+    {
+      "kind": "chat",
+      "id": "~anthropic/claude-fable-latest",
+      "provider": "openrouter",
+      "ok": true,
+      "status": 200,
+      "ms": 16232,
+      "content": "Tamam 👍",
+      "url": "",
+      "fallbackFrom": "",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "deepseek-ai/DeepSeek-V4-Pro",
+      "provider": "together",
+      "ok": true,
+      "status": 200,
+      "ms": 2440,
+      "content": "Tamam",
+      "url": "",
+      "fallbackFrom": "",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "meta/llama-3.1-8b-instruct",
+      "provider": "nvidia",
+      "ok": true,
+      "status": 200,
+      "ms": 870,
+      "content": "Tamam.",
+      "url": "",
+      "fallbackFrom": "",
+      "error": ""
+    },
+    {
+      "kind": "chat",
+      "id": "@cf/meta/llama-3.1-8b-instruct-fp8",
+      "provider": "cloudflare",
+      "ok": true,
+      "status": 200,
+      "ms": 445,
+      "content": "Tamam!",
+      "url": "",
+      "fallbackFrom": "",
+      "error": ""
+    },
+    {
+      "kind": "image",
+      "id": "openai-gpt-image-2",
+      "provider": "imagegpt",
+      "ok": true,
+      "status": 200,
+      "ms": 5782,
+      "content": "",
+      "url": "/generated/imagegpt_1781257235051_6277.png",
+      "fallbackFrom": "openai-gpt-image-2",
+      "error": ""
+    },
+    {
+      "kind": "image",
+      "id": "together-flux-schnell",
+      "provider": "together",
+      "ok": true,
+      "status": 200,
+      "ms": 2025,
+      "content": "",
+      "url": "/generated/tg_1781257237077.jpg",
+      "fallbackFrom": "",
+      "error": ""
+    }
+  ]
+}

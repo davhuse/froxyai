@@ -1,0 +1,362 @@
+{
+  "routes": [
+    {
+      "viewport": "desktop",
+      "route": "/",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-home",
+        "ptab-chat",
+        "at-dashboard"
+      ],
+      "veryFast": 0,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/sohbet",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-chat"
+      ],
+      "veryFast": 0,
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 400+ Model | Froxy AI",
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/gorsel",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-img"
+      ],
+      "veryFast": 0,
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/promptlar",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-prompts"
+      ],
+      "veryFast": 0,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/ai-araclar",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-tools"
+      ],
+      "veryFast": 0,
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/destek",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-support"
+      ],
+      "veryFast": 0,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/admin",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "ptab-chat",
+        "v-admin"
+      ],
+      "veryFast": 0,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-home",
+        "ptab-chat",
+        "at-dashboard"
+      ],
+      "veryFast": 0,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/sohbet",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-chat"
+      ],
+      "veryFast": 0,
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 400+ Model | Froxy AI",
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/gorsel",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-img"
+      ],
+      "veryFast": 0,
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/promptlar",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-prompts"
+      ],
+      "veryFast": 0,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ai-araclar",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-tools"
+      ],
+      "veryFast": 0,
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/destek",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "v-chat",
+        "ptab-support"
+      ],
+      "veryFast": 0,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/admin",
+      "overflow": 0,
+      "badText": false,
+      "active": [
+        "ptab-chat",
+        "v-admin"
+      ],
+      "veryFast": 0,
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "errors": []
+    }
+  ],
+  "admin": {
+    "initial": {
+      "activeAdmin": true,
+      "rows": 5,
+      "buttons": [],
+      "status": "Backend bağlı - admin token doğrulandı\nBackend bağlantısı"
+    },
+    "detailModal": "none",
+    "creditModal": "none",
+    "screenshot": "tests/v378-local-admin-actions.png"
+  },
+  "image": {
+    "values": [],
+    "logoCount": 3,
+    "monograms": [
+      "Pollinations",
+      "Pollinations",
+      "ImageGPT"
+    ],
+    "overflow": 0
+  },
+  "oauth": {
+    "source": {
+      "hasCorrect": true,
+      "hasBroken": true
+    },
+    "googleStatus": 302,
+    "googleLocation": "http://127.0.0.1:3027/?auth_error=google_not_configured",
+    "githubStatus": 302,
+    "githubLocation": "http://127.0.0.1:3027/?auth_error=github_not_configured"
+  },
+  "api": {
+    "chatGroq": {
+      "status": 200,
+      "ok": true,
+      "data": {
+        "id": "chatcmpl-f40275dc-c174-4777-8e7f-78402046e159",
+        "object": "chat.completion",
+        "created": 1780907973,
+        "model": "llama-3.1-8b-instant",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "İyi günler dilerim, size nasıl yardımcı olabilirim?"
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "queue_time": 0.054608938,
+          "prompt_tokens": 151,
+          "prompt_time": 0.031866923,
+          "completion_tokens": 16,
+          "completion_time": 0.028027017,
+          "total_tokens": 167,
+          "total_time": 0.05989394
+        },
+        "usage_breakdown": null,
+        "system_fingerprint": "fp_6a1eabf260",
+        "x_groq": {
+          "id": "req_01ktk666csesfvmn1ma3ja7nqn",
+          "seed": 950565314
+        },
+        "service_tier": "on_demand"
+      }
+    },
+    "chatOR": {
+      "status": 200,
+      "ok": true,
+      "data": {
+        "id": "chatcmpl-be202334-1ab3-4e64-b2b3-a35496337226",
+        "object": "chat.completion",
+        "created": 1780907975,
+        "model": "llama-3.1-8b-instant",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "Hoşgeldiniz, tüm sorularınızın yanıtlarını verirken size yardımcı olmenin mutluluğunda."
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "queue_time": 0.018830925,
+          "prompt_tokens": 151,
+          "prompt_time": 0.011353704,
+          "completion_tokens": 27,
+          "completion_time": 0.073922616,
+          "total_tokens": 178,
+          "total_time": 0.08527632
+        },
+        "usage_breakdown": null,
+        "system_fingerprint": "fp_03e8423237",
+        "x_groq": {
+          "id": "req_01ktk668cwev9am1qz4c7tktxy",
+          "seed": 768116006
+        },
+        "service_tier": "on_demand"
+      }
+    },
+    "chatTogether": {
+      "status": 200,
+      "ok": true,
+      "data": {
+        "id": "onKjtXB-zfFMX-a086963fa9f50b7d",
+        "object": "chat.completion",
+        "created": 1780907976,
+        "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        "prompt": [],
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "seed": 16148414620996125000,
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "role": "assistant",
+              "content": "Size yardımcı olmaktan memnuniyet duyarım.",
+              "tool_calls": []
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 151,
+          "completion_tokens": 14,
+          "total_tokens": 165,
+          "cached_tokens": 0
+        }
+      }
+    },
+    "imageFlux": {
+      "status": 200,
+      "ok": true,
+      "data": {
+        "url": "/generated/gen_1780907981043.jpg",
+        "prompt": "simple blue glass orb on white table, product photo\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no distorted face or hands, respect the user requested colors, age, clothing, and scene details exactly.\nAvoid: wrong hair color, extra fingers, deformed anatomy, blurry subject, unreadable text, random logos, watermark.",
+        "model": "flux",
+        "provider": "pollinations",
+        "originalPrompt": "simple blue glass orb on white table, product photo",
+        "revised_prompt": "simple blue glass orb on white table, product photo\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no distorted face or hands, respect the user requested colors, age, clothing, and scene details exactly.\nAvoid: wrong hair color, extra fingers, deformed anatomy, blurry subject, unreadable text, random logos, watermark.",
+        "referenceUsed": false,
+        "referenceSnippets": []
+      }
+    },
+    "imageGPT": {
+      "status": 200,
+      "ok": true,
+      "data": {
+        "url": "/generated/imagegpt_1780907987048_9358.png",
+        "prompt": "simple red apple on white table, product photo\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no distorted face or hands, respect the user requested colors, age, clothing, and scene details exactly.\nAvoid: wrong hair color, extra fingers, deformed anatomy, blurry subject, unreadable text, random logos, watermark.",
+        "model": "imagegpt-free",
+        "provider": "imagegpt",
+        "creditsDeducted": 3,
+        "taskId": "imagegpt_img-le5wfssw95s1780907981295",
+        "originalPrompt": "simple red apple on white table, product photo",
+        "revised_prompt": "simple red apple on white table, product photo\nhigh quality, coherent anatomy, accurate subject details, clear composition, sharp focus, natural lighting, no distorted face or hands, respect the user requested colors, age, clothing, and scene details exactly.\nAvoid: wrong hair color, extra fingers, deformed anatomy, blurry subject, unreadable text, random logos, watermark.",
+        "referenceUsed": false,
+        "referenceSnippets": []
+      }
+    }
+  },
+  "screenshots": [
+    "tests/v378-local-gorsel.png",
+    "tests/v378-local-admin.png",
+    "tests/v378-local-home-mobile.png",
+    "tests/v378-local-admin-actions.png",
+    "tests/v378-local-image-picker.png"
+  ]
+}

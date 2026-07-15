@@ -1,0 +1,397 @@
+{
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": false,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/sohbet",
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 400+ Model | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/gorsel",
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/promptlar",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/ai-araclar",
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/destek",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/admin",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": false,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/sohbet",
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 400+ Model | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/gorsel",
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/promptlar",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ai-araclar",
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/destek",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/admin",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "loadFailed": true,
+      "errors": []
+    }
+  ],
+  "imageModels": {
+    "generateCount": 27,
+    "editCount": 8,
+    "generate": [
+      {
+        "value": "auto-quality",
+        "text": "Hazır · Akıllı Kalite — Gemini/GPT Image",
+        "disabled": false
+      },
+      {
+        "value": "gemini-2.5-flash-image",
+        "text": "Yedek · Gemini 2.5 Flash Image — Nano Banana (GEMINI_API_KEYS yok)",
+        "disabled": false
+      },
+      {
+        "value": "gemini-3.1-flash-image",
+        "text": "Yedek · Gemini 3.1 Flash Image — Google (GEMINI_API_KEYS yok)",
+        "disabled": false
+      },
+      {
+        "value": "gemini-3-pro-image",
+        "text": "Yedek · Gemini 3 Pro Image — Google (GEMINI_API_KEYS yok)",
+        "disabled": false
+      },
+      {
+        "value": "imagen-4-fast",
+        "text": "Yedek · Imagen 4 Fast — Google (GEMINI_API_KEYS yok)",
+        "disabled": false
+      },
+      {
+        "value": "imagen-4",
+        "text": "Yedek · Imagen 4 — Google (GEMINI_API_KEYS yok)",
+        "disabled": false
+      },
+      {
+        "value": "imagen-4-ultra",
+        "text": "Yedek · Imagen 4 Ultra — Google (GEMINI_API_KEYS yok)",
+        "disabled": false
+      },
+      {
+        "value": "openai-gpt-image-2",
+        "text": "Hazır · GPT Image 2 — OpenAI",
+        "disabled": false
+      },
+      {
+        "value": "gemini-3.1-flash-image-preview",
+        "text": "Yedek · Gemini 3.1 Flash Image Preview (GEMINI_API_KEYS yok)",
+        "disabled": false
+      },
+      {
+        "value": "gemini-3-pro-image-preview",
+        "text": "Yedek · Gemini 3 Pro Image Preview (GEMINI_API_KEYS yok)",
+        "disabled": false
+      },
+      {
+        "value": "cf-sdxl",
+        "text": "Yedek · Cloudflare SDXL — Stabil Kalite (CLOUDFLARE_API_TOKEN yok)",
+        "disabled": false
+      },
+      {
+        "value": "flux",
+        "text": "Hazır · Flux AI — Kaliteli Ücretsiz",
+        "disabled": false
+      },
+      {
+        "value": "flux-realism",
+        "text": "Flux Realizm — Ücretsiz",
+        "disabled": false
+      },
+      {
+        "value": "imagegpt-free",
+        "text": "Hazır · ImageGPT Free — 3 kredi",
+        "disabled": false
+      },
+      {
+        "value": "together-juggernaut-flux",
+        "text": "Hazır · Juggernaut Lightning Flux — Together",
+        "disabled": false
+      },
+      {
+        "value": "together-flux-schnell",
+        "text": "Hazır · FLUX.1 Schnell — Together",
+        "disabled": false
+      },
+      {
+        "value": "together-qwen-image",
+        "text": "Hazır · Qwen Image — Together",
+        "disabled": false
+      },
+      {
+        "value": "together-flux2-dev",
+        "text": "Hazır · FLUX.2 Dev — Together",
+        "disabled": false
+      },
+      {
+        "value": "together-flux-kontext-pro",
+        "text": "Hazır · FLUX Kontext Pro — Together",
+        "disabled": false
+      },
+      {
+        "value": "together-flux2-pro",
+        "text": "Hazır · FLUX.2 Pro — Together",
+        "disabled": false
+      },
+      {
+        "value": "together-gemini-flash-image",
+        "text": "Hazır · Gemini Flash Image — Together",
+        "disabled": false
+      },
+      {
+        "value": "together-imagen4-fast",
+        "text": "Hazır · Imagen 4 Fast — Together",
+        "disabled": false
+      },
+      {
+        "value": "together-qwen-image-pro",
+        "text": "Hazır · Qwen Image 2 Pro — Together",
+        "disabled": false
+      },
+      {
+        "value": "together-gemini-pro-image",
+        "text": "Hazır · Gemini 3 Pro Image — Together",
+        "disabled": false
+      },
+      {
+        "value": "flux-anime",
+        "text": "Flux Anime",
+        "disabled": false
+      },
+      {
+        "value": "flux-3d",
+        "text": "Flux 3D",
+        "disabled": false
+      },
+      {
+        "value": "style-dalle3",
+        "text": "Hazır · GPT Image Stil",
+        "disabled": false
+      }
+    ],
+    "edit": [
+      {
+        "value": "auto-quality",
+        "text": "Akıllı Kalite — Gemini/GPT Image",
+        "disabled": false
+      },
+      {
+        "value": "gemini-2.5-flash-image",
+        "text": "Gemini 2.5 Flash Image — Nano Banana",
+        "disabled": false
+      },
+      {
+        "value": "gemini-3.1-flash-image",
+        "text": "Gemini 3.1 Flash Image — Google",
+        "disabled": false
+      },
+      {
+        "value": "gemini-3-pro-image",
+        "text": "Gemini 3 Pro Image — Google",
+        "disabled": false
+      },
+      {
+        "value": "openai-gpt-image-2",
+        "text": "GPT Image 2 — OpenAI",
+        "disabled": false
+      },
+      {
+        "value": "gemini-3.1-flash-image-preview",
+        "text": "Gemini 3.1 Flash Image Preview",
+        "disabled": false
+      },
+      {
+        "value": "gemini-3-pro-image-preview",
+        "text": "Gemini 3 Pro Image Preview",
+        "disabled": false
+      },
+      {
+        "value": "style-dalle3",
+        "text": "GPT Image Stil",
+        "disabled": false
+      }
+    ],
+    "qualityLabels": [
+      "Ucuz Düzenle",
+      "Hızlı Düzenle",
+      "Kaliteli Edit",
+      "Premium Edit"
+    ],
+    "body": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod editörü\nBilgi bankası\nMağaza\nDestek\nSOHBET GEÇMİŞİ\nYeni Sohbet\nM\nMisafir\nMisafir\nGiriş Yap\nGörsel Üretici\n\nAI ile profesyonel görseller oluşturun\n\nYeni Üret\nFotoğrafı düzenle\nModel Seçimi\nUcuz Düzenle\nHızlı Düzenle\nKaliteli Edit\nPremium Edit\nAkıllı Kalite - Gemini/GPT Image\n300 kredi · görsel modeli\nFOTOĞRAF DÜZENLEME MODELLERİ\nAkıllı Kalite — Gemini/GPT Image\n300 kredi · Premium\nGörsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu\n300\nGemini 2.5 Flash Image — Nano Banana\n300 kredi · Premium\nGemini / Nano Banana · Referans anlama, Hızlı varyasyon, Karakter tutarlılığı\n300\nGemini 3.1 Flash Image — Google\n300 kredi · Premium\nGemini / Nano Banana · Referans anlama, Hızlı varyasyon, Karakter tutarlılığı\n300\nGemini 3 Pro Image — Google\n900 kredi · Premium\nGemini / Nano Banana · Referans anlama, Hızlı varyasyon, Karakter tutarlılığı\n900\nGPT Image 2 — OpenAI\n300 kredi · Premium\nOpenAI / GPT Image · Metin uyumu, Fotoğraf düzenleme, Ürün görseli\n300\nFOTOĞRAF DÜZENLEME MODELLERİ\nGemini 3.1 Flash Image Preview\n300 kredi · Premium\nGemini / Nano Banana · Referans anlama, Hızlı varyasyon, Karakter tutarlılığı\n300\nGemini 3 Pro Image Preview\n900 kredi · Premium\nGemini / Nano Banana · Referans anlama, Hızlı varyasyon, Karakter tutarlılığı\n900\nFOTOĞRAF DÜZENLEME MODELLERİ\nGPT Image Stil\n300 kredi · Premium\nOpenAI / GPT Image · Metin uyumu, Fotoğraf düzenleme, Ürün görsel"
+  },
+  "api": {
+    "groq": {
+      "status": 200,
+      "ok": true,
+      "hasChoices": true,
+      "error": null
+    },
+    "openrouter": {
+      "status": 200,
+      "ok": true,
+      "hasChoices": true,
+      "error": null
+    },
+    "safe": {
+      "status": 200,
+      "ok": true,
+      "hasChoices": true,
+      "error": null
+    },
+    "flux": {
+      "status": 200,
+      "ok": true,
+      "hasUrl": true,
+      "provider": "pollinations",
+      "error": null
+    },
+    "imagegpt": {
+      "status": 200,
+      "ok": true,
+      "hasUrl": true,
+      "provider": "imagegpt",
+      "error": null
+    }
+  },
+  "failures": []
+}

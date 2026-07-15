@@ -1,0 +1,522 @@
+[
+  {
+    "viewport": "desktop",
+    "route": "/",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Özellikler Modeller Demo Fiyatlandırma Güven SSS Giriş Yap 100 Krediyle Dene TÜRKİYE MERKEZLİ AI ÇALIŞMA ALANI 400+ AI modelini tek panelde kullan. ChatGPT, Claude, Gemini, görsel üretim araçları ve AI ajanların",
+      "oldLeak": true
+    },
+    "final": {
+      "htmlClass": "theme-light-pre",
+      "skeletonDisplay": "none",
+      "bodyChars": 4014,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Özellikler Modeller Demo Fiyatlandırma Güven SSS Giriş Yap 100 Krediyle Dene TÜRKİYE MERKEZLİ AI ÇALIŞMA ALANI 400+ AI modelini tek panelde kullan. ChatGPT, Claude, Gemini"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3749
+  },
+  {
+    "viewport": "desktop",
+    "route": "/sohbet",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre app-route-prepaint prepaint-chat",
+      "skeletonDisplay": "flex",
+      "visibleText": "Froxy AI hazırlanıyor Model ağı, çalışma alanı ve araçlar güvenli şekilde yükleniyor. ARAYÜZ MODELLER HAZIR",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-chat",
+      "skeletonDisplay": "none",
+      "bodyChars": 545,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Mis"
+    },
+    "interactions": {
+      "modelPicker": {
+        "open": true,
+        "hasQualityFree": false,
+        "clipped": [],
+        "overflow": 0
+      }
+    },
+    "errors": [],
+    "ms": 4725
+  },
+  {
+    "viewport": "desktop",
+    "route": "/dashboard",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-dash",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap Kontrol merkezi Froxy AI ",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-dash",
+      "skeletonDisplay": "none",
+      "bodyChars": 1093,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Mis"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3707
+  },
+  {
+    "viewport": "desktop",
+    "route": "/gorsel",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-img",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap Görsel Üretici AI ile pro",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-img",
+      "skeletonDisplay": "none",
+      "bodyChars": 2081,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Mis"
+    },
+    "interactions": {
+      "imagePicker": {
+        "hasQualityFree": false,
+        "hasCf": true,
+        "triggerClipped": false,
+        "overflow": 0
+      }
+    },
+    "errors": [],
+    "ms": 3639
+  },
+  {
+    "viewport": "desktop",
+    "route": "/ai-araclar",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-tools",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap AI araç merkezi Aracı seç",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-tools",
+      "skeletonDisplay": "none",
+      "bodyChars": 1732,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Mis"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3647
+  },
+  {
+    "viewport": "desktop",
+    "route": "/ajanlar",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap Ajan merkezi İşine uygun ",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre",
+      "skeletonDisplay": "none",
+      "bodyChars": 1951,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Mis"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3667
+  },
+  {
+    "viewport": "desktop",
+    "route": "/promptlar",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-prompts",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap Prompt Kütüphanesi Hazır ",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-prompts",
+      "skeletonDisplay": "none",
+      "bodyChars": 1835,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Mis"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3682
+  },
+  {
+    "viewport": "desktop",
+    "route": "/bilgi-bankasi",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-rag",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap Bilgi Bankası AI'ın kulla",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-rag",
+      "skeletonDisplay": "none",
+      "bodyChars": 960,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Mis"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3619
+  },
+  {
+    "viewport": "desktop",
+    "route": "/magaza",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-store",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap AI Market Kredi, model ve",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-store",
+      "skeletonDisplay": "none",
+      "bodyChars": 1984,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Mis"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3673
+  },
+  {
+    "viewport": "desktop",
+    "route": "/destek",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-support",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Misafir Giriş Yap CANLI DESTEK AKTİF Nasıl ",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-support",
+      "skeletonDisplay": "none",
+      "bodyChars": 1026,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Yeni sohbet Sohbete yaz Sohbet Kontrol Paneli Görsel Üret AI ajanlar Promptlar AI Araçları Kod editörü Bilgi bankası Mağaza Destek SOHBET GEÇMİŞİ Yeni Sohbet M Misafir Mis"
+    },
+    "interactions": {
+      "supportVisible": false
+    },
+    "errors": [],
+    "ms": 3645
+  },
+  {
+    "viewport": "desktop",
+    "route": "/admin",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-admin",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI Admin Kontrol merkezi Genel Bakış Kullanıcılar 0 Üyelik Kodları Destek 0 Modeller Duyurular Loglar Ayarlar Sohbete Dön Yönetim konsolu Platform operasyonunu tek panelden yönet Kullanıcılar, üyelik kodları, deste",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-admin",
+      "skeletonDisplay": "none",
+      "bodyChars": 1520,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI Admin Kontrol merkezi Genel Bakış Kullanıcılar 0 Üyelik Kodları Destek 0 Modeller Duyurular Loglar Ayarlar Sohbete Dön Yönetim konsolu Platform operasyonunu tek panelden y"
+    },
+    "interactions": {
+      "adminVisible": false
+    },
+    "errors": [],
+    "ms": 3636
+  },
+  {
+    "viewport": "mobile",
+    "route": "/",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre",
+      "skeletonDisplay": "none",
+      "visibleText": "Froxy AI 100 Krediyle Dene TÜRKİYE MERKEZLİ AI ÇALIŞMA ALANI 400+ AI modelini tek panelde kullan. ChatGPT, Claude, Gemini, görsel üretim araçları ve AI ajanlarını tek hesapta kullan. Yeni üyeler 100 ücretsiz krediyle baş",
+      "oldLeak": true
+    },
+    "final": {
+      "htmlClass": "theme-light-pre",
+      "skeletonDisplay": "none",
+      "bodyChars": 3840,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Froxy AI 100 Krediyle Dene TÜRKİYE MERKEZLİ AI ÇALIŞMA ALANI 400+ AI modelini tek panelde kullan. ChatGPT, Claude, Gemini, görsel üretim araçları ve AI ajanlarını tek hesapta kulla"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3627
+  },
+  {
+    "viewport": "mobile",
+    "route": "/sohbet",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre app-route-prepaint prepaint-chat",
+      "skeletonDisplay": "flex",
+      "visibleText": "Froxy AI hazırlanıyor Model ağı, çalışma alanı ve araçlar güvenli şekilde yükleniyor. ARAYÜZ MODELLER HAZIR",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-chat mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 315,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "AI ÇALIŞMA ALANI Yeni Sohbet Kredi 30 Ücretsiz - Llama 3.3 70B 457 model FROXY AI ÇALIŞMA ALANI Bugün ne üretelim? 457 güncel model, görsel araçları, web arama, dosya analizi ve aj"
+    },
+    "interactions": {
+      "modelPicker": {
+        "open": true,
+        "hasQualityFree": false,
+        "clipped": [],
+        "overflow": 0
+      }
+    },
+    "errors": [],
+    "ms": 4323
+  },
+  {
+    "viewport": "mobile",
+    "route": "/dashboard",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-dash mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "visibleText": "Sohbet Panel Görsel Bilgi Destek Menü Kontrol merkezi Froxy AI çalışma alanı Model kullanımı, kredi akışı, hızlı araçlar ve aktif servislerin tek ekranda toplandığı profesyonel panel. Hoş geldin, Misafir İşte hesabının g",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-dash mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 915,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Sohbet Panel Görsel Bilgi Destek Menü Kontrol merkezi Froxy AI çalışma alanı Model kullanımı, kredi akışı, hızlı araçlar ve aktif servislerin tek ekranda toplandığı profesyonel pan"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3694
+  },
+  {
+    "viewport": "mobile",
+    "route": "/gorsel",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-img mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "visibleText": "Sohbet Panel Görsel Bilgi Destek Menü Görsel Üretici AI ile profesyonel görseller oluşturun Model Seçimi AI Akilli Kalite - GPT Image/SDXL 25 kredi KALİTELİ OTOMATİK AI Akıllı Kalite — GPT Image/SDXL 25 kredi · Premium 2",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-img mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 1899,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Sohbet Panel Görsel Bilgi Destek Menü Görsel Üretici AI ile profesyonel görseller oluşturun Model Seçimi AI Akilli Kalite - GPT Image/SDXL 25 kredi KALİTELİ OTOMATİK AI Akıllı Kali"
+    },
+    "interactions": {
+      "imagePicker": {
+        "hasQualityFree": false,
+        "hasCf": true,
+        "triggerClipped": false,
+        "overflow": 0
+      }
+    },
+    "errors": [],
+    "ms": 3700
+  },
+  {
+    "viewport": "mobile",
+    "route": "/ai-araclar",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-tools mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "visibleText": "Sohbet Panel Görsel Bilgi Destek Menü AI araç merkezi Aracı seç, konuyu yaz, AI çalıştırsın Bu bölüm sadece prompt listesi değil: konu girip araç seçtiğinde sohbete geçer ve uygun modeli kullanarak cevabı üretir. Prompt ",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-tools mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 1575,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Sohbet Panel Görsel Bilgi Destek Menü AI araç merkezi Aracı seç, konuyu yaz, AI çalıştırsın Bu bölüm sadece prompt listesi değil: konu girip araç seçtiğinde sohbete geçer ve uygun "
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3683
+  },
+  {
+    "viewport": "mobile",
+    "route": "/ajanlar",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "visibleText": "Sohbet Panel Görsel Bilgi Destek Menü Ajan merkezi İşine uygun AI ajanını seç, sohbeti uzman modunda başlat Kod, SEO, hukuk, destek, sosyal medya ve analiz işleri için hazırlanmış uzman akışlar. Ajanı seçtiğinde yeni soh",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 1794,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Sohbet Panel Görsel Bilgi Destek Menü Ajan merkezi İşine uygun AI ajanını seç, sohbeti uzman modunda başlat Kod, SEO, hukuk, destek, sosyal medya ve analiz işleri için hazırlanmış "
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3748
+  },
+  {
+    "viewport": "mobile",
+    "route": "/promptlar",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-prompts mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "visibleText": "Sohbet Panel Görsel Bilgi Destek Menü PROMPT MARKET Hazır profesyonel akışlar Satış, kod, destek, analiz ve görsel üretim için hızlı başlangıç şablonları. Sohbete geç Satış Dönüşüm Odaklı Teklif Kısa, net ve ikna edici t",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-prompts mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 1678,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Sohbet Panel Görsel Bilgi Destek Menü PROMPT MARKET Hazır profesyonel akışlar Satış, kod, destek, analiz ve görsel üretim için hızlı başlangıç şablonları. Sohbete geç Satış Dönüşüm"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3702
+  },
+  {
+    "viewport": "mobile",
+    "route": "/bilgi-bankasi",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-rag mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "visibleText": "Sohbet Panel Görsel Bilgi Destek Menü Bilgi Bankası AI'ın kullanacağı özel kaynakları tek yerde yönet Doküman yükle, kalıcı hafıza notları ekle ve sohbetlerde daha tutarlı cevap al. PDF KAYNAK Not HAFIZA RAG CANLI BAĞLAM",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-rag mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 803,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Sohbet Panel Görsel Bilgi Destek Menü Bilgi Bankası AI'ın kullanacağı özel kaynakları tek yerde yönet Doküman yükle, kalıcı hafıza notları ekle ve sohbetlerde daha tutarlı cevap al"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3634
+  },
+  {
+    "viewport": "mobile",
+    "route": "/magaza",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-store mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "visibleText": "Sohbet Panel Görsel Bilgi Destek Menü AI Market Kredi, model ve ajans paketleri tek ekranda Sohbet, görsel üretim ve ekip kullanımı için paketleri burada seç. Fiyat, kredi ve kullanım tipi aynı sayfada net dursun diye ma",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-store mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 1827,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Sohbet Panel Görsel Bilgi Destek Menü AI Market Kredi, model ve ajans paketleri tek ekranda Sohbet, görsel üretim ve ekip kullanımı için paketleri burada seç. Fiyat, kredi ve kulla"
+    },
+    "interactions": {},
+    "errors": [],
+    "ms": 3715
+  },
+  {
+    "viewport": "mobile",
+    "route": "/destek",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-support mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "visibleText": "Sohbet Panel Görsel Bilgi Destek Menü CANLI DESTEK AKTİF Nasıl yardımcı olabiliriz? Sorunlarınızı anında çözüme yaklaştırın. API, fatura, görsel üretim ve model akışları için destek taleplerinizi tek merkezden yönetin. Y",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-support mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 869,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Sohbet Panel Görsel Bilgi Destek Menü CANLI DESTEK AKTİF Nasıl yardımcı olabiliriz? Sorunlarınızı anında çözüme yaklaştırın. API, fatura, görsel üretim ve model akışları için deste"
+    },
+    "interactions": {
+      "supportVisible": false
+    },
+    "errors": [],
+    "ms": 3698
+  },
+  {
+    "viewport": "mobile",
+    "route": "/admin",
+    "status": 200,
+    "early": {
+      "htmlClass": "theme-light-pre prepaint-admin mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "visibleText": "Yönetim konsolu Platform operasyonunu tek panelden yönet Kullanıcılar, üyelik kodları, destek talepleri, modeller ve sistem sağlığı aynı profesyonel akışta. Admin oturumu gerekli Backend bağlantısı Genel Bakış Yenile 0 T",
+      "oldLeak": false
+    },
+    "final": {
+      "htmlClass": "theme-light-pre prepaint-admin mobile-stable-motion mobile-shell-v192",
+      "skeletonDisplay": "none",
+      "bodyChars": 1392,
+      "visibleMain": true,
+      "overflow": 0,
+      "text": "Yönetim konsolu Platform operasyonunu tek panelden yönet Kullanıcılar, üyelik kodları, destek talepleri, modeller ve sistem sağlığı aynı profesyonel akışta. Admin oturumu gerekli B"
+    },
+    "interactions": {
+      "adminVisible": false
+    },
+    "errors": [],
+    "ms": 3645
+  }
+]

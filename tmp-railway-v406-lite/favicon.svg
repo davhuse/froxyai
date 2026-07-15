@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Froxy AI">
+  <defs>
+    <linearGradient id="mark" x1="8" y1="56" x2="56" y2="8" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2ed3ff"/>
+      <stop offset=".48" stop-color="#4f7cff"/>
+      <stop offset="1" stop-color="#8a5bff"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="18" y1="18" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".92"/>
+      <stop offset="1" stop-color="#dbeafe" stop-opacity=".72"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#4f7cff" flood-opacity=".35"/>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#080b14"/>
+  <path d="M13 44V20c0-5 4-9 9-9h29v11H26c-1.5 0-2.5 1-2.5 2.5V30H47v10H23.5v4c0 5-3.7 9-10.5 9V44Z" fill="url(#mark)" filter="url(#glow)"/>
+  <path d="M40.5 13 54 31h-9l5.5 20L35 28h9.5l-4-15Z" fill="url(#shine)"/>
+  <circle cx="18" cy="18" r="3" fill="#2ed3ff"/>
+  <circle cx="26" cy="18" r="3" fill="#8a5bff"/>
+</svg>

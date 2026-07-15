@@ -1,0 +1,127 @@
+{
+  "/gorsel": {
+    "bad": [],
+    "overflow": 0,
+    "visiblePreview": 1,
+    "visibleLegacy": 0,
+    "logos": [
+      "/provider-logos/generic.svg",
+      "/provider-logos/generic.svg",
+      "/provider-logos/gemini.svg",
+      "/provider-logos/gemini.svg",
+      "/provider-logos/gemini.svg",
+      "/provider-logos/gemini.svg",
+      "/provider-logos/gemini.svg",
+      "/provider-logos/gemini.svg",
+      "/provider-logos/openai.svg",
+      "/provider-logos/gemini.svg",
+      "/provider-logos/gemini.svg",
+      "/provider-logos/cloudflare.svg"
+    ],
+    "showcaseImgs": [
+      "/assets/model-showcase/showcase-openai-2.png",
+      "/assets/model-showcase/showcase-cloudflare-2.png"
+    ],
+    "fakeMonograms": [],
+    "adminAuth": false,
+    "robot": true,
+    "consoleErrors": []
+  },
+  "/admin": {
+    "bad": [],
+    "overflow": 0,
+    "visiblePreview": 0,
+    "visibleLegacy": 0,
+    "logos": [],
+    "showcaseImgs": [],
+    "fakeMonograms": [],
+    "adminAuth": true,
+    "robot": true,
+    "consoleErrors": []
+  },
+  "/sohbet": {
+    "bad": [],
+    "overflow": 0,
+    "visiblePreview": 0,
+    "visibleLegacy": 0,
+    "logos": [],
+    "showcaseImgs": [],
+    "fakeMonograms": [],
+    "adminAuth": false,
+    "robot": true,
+    "consoleErrors": []
+  },
+  "/promptlar": {
+    "bad": [],
+    "overflow": 0,
+    "visiblePreview": 0,
+    "visibleLegacy": 0,
+    "logos": [],
+    "showcaseImgs": [],
+    "fakeMonograms": [],
+    "adminAuth": false,
+    "robot": true,
+    "consoleErrors": []
+  },
+  "/ai-araclar": {
+    "bad": [],
+    "overflow": 0,
+    "visiblePreview": 0,
+    "visibleLegacy": 0,
+    "logos": [],
+    "showcaseImgs": [],
+    "fakeMonograms": [],
+    "adminAuth": false,
+    "robot": true,
+    "consoleErrors": []
+  },
+  "robotDeep": {
+    "hasHost": true,
+    "hasShadow": true,
+    "parts": {
+      "headH": {
+        "exists": true,
+        "className": "r3 is-hit-head st-hurt a-shake",
+        "lastHit": "head",
+        "speech": "Tamam tamam, buradayım."
+      },
+      "alH": {
+        "exists": true,
+        "className": "r3 is-hit-left-arm",
+        "lastHit": "left-arm",
+        "speech": "Bu biraz gıdıklıyor."
+      },
+      "arH": {
+        "exists": true,
+        "className": "r3 is-hit-right-arm hit-ar",
+        "lastHit": "right-arm",
+        "speech": "Koluma dikkat."
+      },
+      "llH": {
+        "exists": true,
+        "className": "r3 is-hit-left-leg",
+        "lastHit": "left-leg",
+        "speech": "Hop, ayaklar çalışıyor."
+      },
+      "rlH": {
+        "exists": true,
+        "className": "r3 is-hit-right-leg a-jelly",
+        "lastHit": "right-leg",
+        "speech": "Zıplama modu aktif."
+      },
+      "antH": {
+        "exists": true,
+        "className": "r3 is-hit-antenna a-shake",
+        "lastHit": "antenna",
+        "speech": "Sinyal tamam, anten çalışıyor."
+      }
+    }
+  },
+  "imageApiFailure": {
+    "status": 502,
+    "hasUrl": false,
+    "provider": "imagegpt",
+    "error": "Seçili ImageGPT modeli şu an yanıt vermedi: ImageGPT image error",
+    "ok": false
+  }
+}

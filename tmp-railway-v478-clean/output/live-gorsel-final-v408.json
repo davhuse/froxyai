@@ -1,0 +1,60 @@
+{
+  "at": "2026-06-14T16:37:36.779Z",
+  "info": {
+    "selected": "together-juggernaut-flux",
+    "pollinations": [
+      {
+        "value": "pollinations-flux",
+        "text": "Flux Schnell - Pollinations",
+        "disabled": false,
+        "group": "FREE / POLLINATIONS"
+      },
+      {
+        "value": "pollinations-zimage",
+        "text": "Z-Image Turbo - Pollinations",
+        "disabled": false,
+        "group": "FREE / POLLINATIONS"
+      }
+    ],
+    "togetherCount": 10,
+    "badText": false,
+    "hasVideoTab": false,
+    "appJs": "https://www.froxyai.com/app.min.js?v=v401"
+  },
+  "failed404": [
+    "https://www.froxyai.com/assets/model-showcase/showcase-cloudflare-1.png",
+    "https://www.froxyai.com/assets/model-showcase/showcase-cloudflare-2.png"
+  ],
+  "errors": [
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()"
+  ]
+}

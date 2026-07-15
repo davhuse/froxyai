@@ -1,0 +1,322 @@
+{
+  "file": "model-picker-v294.css",
+  "size": 69384,
+  "lines": 1290,
+  "totalBlocks": 313,
+  "duplicateSelectors": [
+    {
+      "selector": "#model-picker .mp-item",
+      "count": 4,
+      "lines": [
+        300,
+        739,
+        771,
+        831
+      ]
+    },
+    {
+      "selector": ".img-model-picker-trigger:after",
+      "count": 4,
+      "lines": [
+        764,
+        797,
+        1212,
+        1224
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-sort button.active",
+      "count": 3,
+      "lines": [
+        206,
+        730,
+        912
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-body",
+      "count": 3,
+      "lines": [
+        212,
+        829,
+        1090
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-sidebar",
+      "count": 3,
+      "lines": [
+        221,
+        927,
+        1094
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-cat",
+      "count": 3,
+      "lines": [
+        235,
+        936,
+        1100
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-cat-count",
+      "count": 3,
+      "lines": [
+        274,
+        1003,
+        1111
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-list",
+      "count": 3,
+      "lines": [
+        289,
+        738,
+        830
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-item-info",
+      "count": 3,
+      "lines": [
+        441,
+        742,
+        871
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-item-name",
+      "count": 3,
+      "lines": [
+        448,
+        743,
+        872
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-item-meta",
+      "count": 3,
+      "lines": [
+        460,
+        744,
+        873
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-provider-name",
+      "count": 3,
+      "lines": [
+        483,
+        746,
+        875
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-use-case",
+      "count": 3,
+      "lines": [
+        491,
+        747,
+        876
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-item-status",
+      "count": 3,
+      "lines": [
+        500,
+        750,
+        794
+      ]
+    },
+    {
+      "selector": ".img-model-picker-trigger",
+      "count": 3,
+      "lines": [
+        734,
+        753,
+        761
+      ]
+    },
+    {
+      "selector": ".img-model-picker-trigger .img-model-picker-arrow",
+      "count": 3,
+      "lines": [
+        763,
+        796,
+        1211
+      ]
+    },
+    {
+      "selector": "#model-picker",
+      "count": 2,
+      "lines": [
+        26,
+        820
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-search-shell",
+      "count": 2,
+      "lines": [
+        109,
+        722
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-search-shell #mp-search",
+      "count": 2,
+      "lines": [
+        152,
+        723
+      ]
+    },
+    {
+      "selector": "#model-picker #mp-search-clear",
+      "count": 2,
+      "lines": [
+        161,
+        725
+      ]
+    },
+    {
+      "selector": "#model-picker #mp-search-clear.show",
+      "count": 2,
+      "lines": [
+        174,
+        726
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-sort",
+      "count": 2,
+      "lines": [
+        184,
+        727
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-sort button",
+      "count": 2,
+      "lines": [
+        195,
+        728
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-cat.active",
+      "count": 2,
+      "lines": [
+        260,
+        1133
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-item.selected",
+      "count": 2,
+      "lines": [
+        322,
+        853
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-star span",
+      "count": 2,
+      "lines": [
+        356,
+        906
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-provider-logo svg",
+      "count": 2,
+      "lines": [
+        394,
+        1061
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-badge",
+      "count": 2,
+      "lines": [
+        471,
+        874
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-tags",
+      "count": 2,
+      "lines": [
+        731,
+        748
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-tag",
+      "count": 2,
+      "lines": [
+        732,
+        749
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-item>.mp-star",
+      "count": 2,
+      "lines": [
+        740,
+        772
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-item.selected:after",
+      "count": 2,
+      "lines": [
+        752,
+        795
+      ]
+    },
+    {
+      "selector": ".img-model-picker-info strong",
+      "count": 2,
+      "lines": [
+        753,
+        765
+      ]
+    },
+    {
+      "selector": ".img-model-picker-info span",
+      "count": 2,
+      "lines": [
+        753,
+        766
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-star.on",
+      "count": 2,
+      "lines": [
+        908,
+        1017
+      ]
+    },
+    {
+      "selector": "#model-picker .mp-star.on span",
+      "count": 2,
+      "lines": [
+        909,
+        1023
+      ]
+    }
+  ],
+  "keyframes": {
+    "total": 0,
+    "unique": 0,
+    "referenced": [],
+    "orphaned": [],
+    "duplicates": []
+  },
+  "versionedBlocks": []
+}

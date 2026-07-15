@@ -1,0 +1,24 @@
+{
+  "at": "2026-06-18T21:36:30.759Z",
+  "version": "v469",
+  "dbUser": {
+    "id": 3,
+    "username": "habilrencber@gmail.com",
+    "email": "habilrencber111111111111111111111111@gmail.com1",
+    "plan": "enterprise",
+    "is_admin": 1
+  },
+  "me": {
+    "status": 200,
+    "ok": true,
+    "error": null,
+    "code": null
+  },
+  "adminStats": {
+    "status": 200,
+    "ok": true,
+    "error": null,
+    "code": null,
+    "hasStats": false
+  }
+}

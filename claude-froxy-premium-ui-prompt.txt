@@ -1,0 +1,183 @@
+Froxy AI için sıradan landing page değil, gerçekten dikkat çeken, satış odaklı, premium ve yaratıcı bir AI platform arayüzü tasarla.
+
+ÖNEMLİ:
+Bu tasarım mevcut çalışan bir siteye entegre edilecek. Bu yüzden komple proje üretme.
+Sadece ana sayfa ve önemli section tasarımlarını üret.
+Backend, auth, ödeme, chat, dashboard, API, kredi sistemi yazma.
+React/Next.js projesi verme.
+En iyi çıktı formatı:
+- HTML sectionları
+- CSS
+- Gerekirse az miktarda vanilla JavaScript
+- Section section ayrılmış kod
+- Türkçe karakterler kesinlikle bozulmasın: ç, ğ, ı, İ, ö, ş, ü düzgün olsun.
+
+Marka:
+Froxy AI, yüzlerce AI modelini tek panelde toplayan bir AI platformu.
+Kullanıcılar:
+- Chat yapabilir
+- Görsel üretebilir
+- Fotoğraf düzenleyebilir
+- AI araçları kullanabilir
+- Prompt üretebilir
+- Kredi paketleri satın alabilir
+- OpenAI, Claude, Gemini, DeepSeek, Llama, Mistral, Groq, OpenRouter gibi modelleri kullanabilir.
+
+Tasarım hedefi:
+Siteye giren kullanıcı “bu klasik AI sitesi değil, ciddi ve güçlü bir ürün” demeli.
+Tasarım hem premium hem genç hem teknolojik olmalı.
+ChatGPT, Gemini, Claude gibi güven veren; ama onlardan daha canlı, yaratıcı ve ticari olarak daha vurucu hissettirmeli.
+
+Görsel dil:
+- Koyu premium tema
+- Siyah / lacivert ana zemin
+- Mor, cyan, elektrik mavisi vurgu
+- Gereksiz gradient blob/topçuk kullanma
+- Cam efekti, holografik çizgiler, terminal hissi, 3D ışık, komut paneli atmosferi olabilir
+- Yazılar net, okunaklı, taşmayan ve profesyonel olmalı
+- Mobilde mükemmel çalışmalı
+- Çok kasacak animasyonlar yapma
+
+EN ÖNEMLİ İSTEK:
+Benzersiz 3D / canlı animasyon fikri üret.
+Sadece kartlar ve gradientler istemiyorum.
+Aşağıdaki fikirlerden daha iyisini tasarlayabilirsin:
+
+1. Hero bölümünde canlı 3D AI çekirdeği
+- Sağ tarafta gerçek ürün imzası gibi duran AI core / neural orb / hologram sahnesi olsun.
+- Mouse hareketine göre hafif dönebilsin.
+- Etrafında OpenAI, Gemini, Claude, DeepSeek, Llama, Groq gibi model etiketleri dönebilir.
+- CTA hover olunca sahnede ışık veya enerji artışı olsun.
+- Mobilde sadeleştirilmiş versiyon göster.
+
+2. Küçük AI maskot / canlı destek karakteri
+- Sağ alt veya sol alt köşede küçük 3D/cyber AI asistan karakteri olsun.
+- Gözleri mouse’u takip etsin.
+- Tıklayınca kaybolmasın.
+- Kafa, el, gövde gibi alanlara tıklanınca küçük farklı animasyonlar oynatsın.
+- “Canlı destek”, “yardım”, “model öner” gibi aksiyonlara bağlanabilecek hissi versin.
+- Çocukça değil, premium teknoloji maskotu gibi olsun.
+
+3. Modeller bölümü
+Klasik kart grid istemiyorum.
+“AI Model Komuta Paneli” gibi tasarla.
+Şunlar olmalı:
+- OpenAI
+- Claude
+- Gemini
+- DeepSeek
+- Llama
+- Mistral
+- Groq
+- OpenRouter
+Her sağlayıcı için gerçek marka hissinde logo/ikon alanı olsun.
+Kartlar hover’da hafif 3D tilt veya ışık alsın.
+Metinler kısa ve net olsun.
+Örnek başlık:
+“Tek panelde yüzlerce model”
+Alt metin:
+“Göreve göre en hızlı, en ucuz veya en kaliteli modeli seç.”
+
+4. Demo / ürün önizleme bölümü
+Kaba video kutusu istemiyorum.
+Canlı ürün simülasyonu gibi olsun:
+- Sol tarafta prompt yazılıyor gibi typing animasyonu
+- Sağ tarafta chat/görsel/araç sonucu çıkıyor gibi preview
+- Sekmeler: Sohbet, Görsel, AI Araçları, Prompt
+- Geçişler yumuşak olsun
+- Kullanıcı siteyi kullanmadan önce ürünü anlamalı
+
+5. AI araçları bölümü
+AI araçları yaratıcı ve satış odaklı gösterilsin.
+Kartlar:
+- Reklam metni üret
+- Instagram içerik fikri üret
+- Landing page üret
+- Prompt geliştir
+- Görsel üret
+- Kod analiz et
+- Marka metni yaz
+- Video promptu üret
+Kartlar hover’da mini animasyon veya canlı preview hissi versin.
+
+6. Fiyatlandırma bölümü
+Kredi paketleri modern olsun.
+Klasik sıkıcı fiyat kartı istemiyorum.
+Öne çıkan paket premium çerçeve/ışık alabilir.
+Kartlarda:
+- Kredi miktarı
+- Fiyat
+- Kimler için uygun
+- CTA
+- Güvenli ödeme rozeti
+Mobilde taşma olmasın.
+
+7. Güven / ödeme / destek bölümü
+Modern güven paneli tasarla.
+Şunları içersin:
+- Güvenli ödeme
+- KVKK / gizlilik
+- Şeffaf kredi sistemi
+- Destek merkezi
+- Robot doğrulama / güvenlik
+- E-posta OTP doğrulama
+Bankacılık sitesi gibi sıkıcı değil; modern AI platform güven alanı gibi.
+
+8. Admin / dashboard hissi
+Ana sayfada küçük bir dashboard preview olabilir.
+Gerçek panel değil, görsel önizleme:
+- Kullanılan kredi
+- Aktif modeller
+- Sağlayıcı durumu
+- Son üretimler
+- Destek durumu
+Bu bölüm ürünün güçlü olduğunu hissettirsin.
+
+Animasyon kuralları:
+- Scroll reveal
+- Hover tilt
+- Işık geçişleri
+- Neural orb hareketi
+- Typing animation
+- Model etiketlerinin yumuşak hareketi
+- Maskot mikro animasyonları
+Kullanılabilir.
+Ama animasyonlar profesyonel olmalı, sayfayı kasmamalı.
+Mobilde ağır animasyonları azalt.
+
+Kesinlikle yapma:
+- Bozuk Türkçe karakter kullanma
+- Komple React projesi verme
+- Backend/API kodu yazma
+- Auth/ödeme/chat mantığı uydurma
+- Sadece renkli kartlardan oluşan sıradan landing page yapma
+- Çok fazla mor/turkuaz yuvarlak blob koyma
+- Logo/markaları tamamen sahte ve renksiz yapma
+- Yazıları kutulara sığmayacak şekilde tasarlama
+
+Teslim formatı:
+1. Kısa tasarım konsepti açıklaması
+2. Ana sayfa section listesi
+3. HTML
+4. CSS
+5. Gerekirse vanilla JS
+6. Mobil performans notları
+7. Hangi animasyonlar mobilde kapatılmalı
+8. Bu tasarımın mevcut vanilla HTML/CSS/JS siteye nasıl entegre edileceği hakkında kısa not
+
+Ek istek:
+Bana tek bir konsept değil, 3 farklı hero alternatifi üret:
+1. 3D AI çekirdeği konsepti
+2. 3D maskot/asistan konsepti
+3. AI komuta merkezi/dashboard konsepti
+
+Sonra bu üçünden en güçlü olanı tam HTML/CSS/JS olarak detaylandır.
+
+Metin dili Türkçe olsun.
+Froxy AI marka adı net görünsün.
+CTA metinleri:
+- Sohbete Başla
+- Ücretsiz Dene
+- Paketleri Gör
+- AI Araçlarını Keşfet
+- Demo İzle

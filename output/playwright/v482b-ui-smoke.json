@@ -1,0 +1,136 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "status": "OK",
+      "ms": 3195,
+      "error": "",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "5 dakikada iş içerik paketi üret.",
+      "bodyLen": 5583,
+      "activeViews": [
+        "v-home"
+      ],
+      "bad": [],
+      "black": false
+    },
+    {
+      "route": "/sohbet",
+      "status": "OK",
+      "ms": 3122,
+      "error": "",
+      "title": "AI Sohbet Paneli - Türkçe İş Asistanı | Froxy AI",
+      "h1": "AI sohbet paneli",
+      "bodyLen": 574,
+      "activeViews": [
+        "v-chat"
+      ],
+      "bad": [],
+      "black": false
+    },
+    {
+      "route": "/gorsel",
+      "status": "OK",
+      "ms": 3801,
+      "error": "",
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "h1": "AI görsel üretme ve fotoğraf düzenleme",
+      "bodyLen": 1947,
+      "activeViews": [
+        "v-chat"
+      ],
+      "bad": [],
+      "black": false
+    },
+    {
+      "route": "/promptlar",
+      "status": "OK",
+      "ms": 2271,
+      "error": "",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "Yapay zeka modellerini tek panelden yönetin",
+      "bodyLen": 2003,
+      "activeViews": [
+        "v-chat"
+      ],
+      "bad": [],
+      "black": false
+    },
+    {
+      "route": "/ai-araclar",
+      "status": "OK",
+      "ms": 3304,
+      "error": "",
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "h1": "AI araçları merkezi",
+      "bodyLen": 2162,
+      "activeViews": [
+        "v-chat"
+      ],
+      "bad": [],
+      "black": false
+    },
+    {
+      "route": "/galeri",
+      "status": "OK",
+      "ms": 2439,
+      "error": "",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "Yapay zeka modellerini tek panelden yönetin",
+      "bodyLen": 339,
+      "activeViews": [
+        "v-chat"
+      ],
+      "bad": [],
+      "black": false
+    },
+    {
+      "route": "/destek",
+      "status": "OK",
+      "ms": 2432,
+      "error": "",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "Yapay zeka modellerini tek panelden yönetin",
+      "bodyLen": 1118,
+      "activeViews": [
+        "v-chat"
+      ],
+      "bad": [],
+      "black": false
+    },
+    {
+      "route": "/admin",
+      "status": "OK",
+      "ms": 1876,
+      "error": "",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "Yapay zeka modellerini tek panelden yönetin",
+      "bodyLen": 348,
+      "activeViews": [
+        "v-admin"
+      ],
+      "bad": [],
+      "black": false
+    }
+  ],
+  "chatPicker": {
+    "ok": false,
+    "opened": false,
+    "before": 0,
+    "after": 0,
+    "closed": true,
+    "text": "   AI Model Komuta Paneli Model Seçin   ×  Temizle     \n"
+  },
+  "imgPicker": {
+    "ok": false,
+    "opened": false,
+    "before": 0,
+    "after": 0,
+    "old": "pollinations-flux",
+    "newValue": "modal-sdxl",
+    "locked": "modal-sdxl",
+    "optionCount": 29,
+    "changed": true,
+    "menuText": "  Modal GPU SDXL - Cloud GPU Ready 5 kredi ? Modal GPU 5   Modal Local SD Cloud - Cloud GPU Ready 5 kredi ? Modal GPU 5   Modal Cloud GPU - Cloud GPU Ready 5 kredi ? Modal GPU 5    Cloudflare SDXL Lightning 10 kredi ? Hızlı 10   Cloudflare SDXL 10 kredi ? Hızlı 10   Cloudflare DreamShaper LCM 10 kredi ? Hızlı 10   Cloudflare Flux 2 Klein 10 kredi ? Hızlı 10    Flux Schnell - Pollinations 10 kredi "
+  }
+}

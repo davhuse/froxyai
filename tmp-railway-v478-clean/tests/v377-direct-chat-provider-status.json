@@ -1,0 +1,163 @@
+[
+  {
+    "name": "OpenAI Chat",
+    "link": "https://platform.openai.com/api-keys",
+    "configured": true,
+    "ok": false,
+    "status": 503,
+    "ms": 1104,
+    "model": "gpt-4o-mini",
+    "contentLen": 0,
+    "detail": "No available channel for model gpt-4o-mini under group PRO-PLUS气氛组 (distributor) (request id: 202606080656561315441188268d9d6PKloY6Lr)"
+  },
+  {
+    "name": "Freemodel/OpenAI uyumlu",
+    "link": "https://freemodel.dev/",
+    "configured": true,
+    "ok": true,
+    "status": 200,
+    "ms": 12059,
+    "model": "gpt-4o-mini",
+    "contentLen": 27,
+    "detail": "cevap verdi"
+  },
+  {
+    "name": "Groq",
+    "link": "https://console.groq.com/keys",
+    "configured": true,
+    "ok": true,
+    "status": 200,
+    "ms": 528,
+    "model": "llama-3.1-8b-instant",
+    "contentLen": 24,
+    "detail": "cevap verdi"
+  },
+  {
+    "name": "OpenRouter",
+    "link": "https://openrouter.ai/settings/keys",
+    "configured": true,
+    "ok": true,
+    "status": 200,
+    "ms": 6917,
+    "model": "openai/gpt-oss-20b:free",
+    "contentLen": 242,
+    "detail": "cevap verdi"
+  },
+  {
+    "name": "Together",
+    "link": "https://api.together.xyz/settings/api-keys",
+    "configured": true,
+    "ok": false,
+    "status": 400,
+    "ms": 1216,
+    "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+    "contentLen": 0,
+    "detail": "Unable to access non-serverless model meta-llama/Llama-3.3-70B-Instruct-Turbo-Free. Please visit https://api.together.ai/models/meta-llama/Llama-3.3-70B-Instruct-Turbo-Free to crea"
+  },
+  {
+    "name": "Claude/Guicore",
+    "link": "https://console.anthropic.com/settings/keys",
+    "configured": true,
+    "ok": false,
+    "status": 503,
+    "ms": 1335,
+    "model": "claude-sonnet-4-5",
+    "contentLen": 0,
+    "detail": "No available channel for model claude-sonnet-4-5 under group claude_windsurf (distributor) (request id: 202606080657193907775168268d9d6tT9zMTUD)"
+  },
+  {
+    "name": "Cerebras",
+    "link": "https://cloud.cerebras.ai/platform/",
+    "configured": true,
+    "ok": false,
+    "status": 404,
+    "ms": 978,
+    "model": "llama3.1-8b",
+    "contentLen": 0,
+    "detail": "Model llama3.1-8b does not exist or you do not have access to it."
+  },
+  {
+    "name": "SambaNova",
+    "link": "https://cloud.sambanova.ai/",
+    "configured": true,
+    "ok": false,
+    "status": 410,
+    "ms": 1302,
+    "model": "Meta-Llama-3.1-8B-Instruct",
+    "contentLen": 0,
+    "detail": "The requested model (Meta-Llama-3.1-8B-Instruct) is not available on SambaNova Cloud. For more information, please visit https://docs.sambanova.ai/cloud/docs/resources/deprecations"
+  },
+  {
+    "name": "NVIDIA NIM",
+    "link": "https://build.nvidia.com/explore/discover",
+    "configured": true,
+    "ok": true,
+    "status": 200,
+    "ms": 953,
+    "model": "meta/llama-3.1-8b-instruct",
+    "contentLen": 25,
+    "detail": "cevap verdi"
+  },
+  {
+    "name": "HuggingFace Router",
+    "link": "https://huggingface.co/settings/tokens",
+    "configured": true,
+    "ok": false,
+    "status": 401,
+    "ms": 820,
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "contentLen": 0,
+    "detail": "{\"error\":\"User Access Token \\\"aiğaket\\\" is expired\"}"
+  },
+  {
+    "name": "AIMLAPI Chat",
+    "link": "https://aimlapi.com/app/keys",
+    "configured": true,
+    "ok": false,
+    "status": 401,
+    "ms": 1191,
+    "model": "gpt-4o-mini",
+    "contentLen": 0,
+    "detail": "Invalid JWT token #1."
+  },
+  {
+    "name": "Mistral",
+    "link": "https://console.mistral.ai/api-keys/",
+    "base": "https://api.mistral.ai/v1",
+    "model": "mistral-small-latest",
+    "configured": false,
+    "ok": false,
+    "status": "missing",
+    "detail": "key yok"
+  },
+  {
+    "name": "Gemini",
+    "link": "https://aistudio.google.com/app/apikey",
+    "base": "https://generativelanguage.googleapis.com/v1beta/openai",
+    "model": "gemini-2.5-flash",
+    "configured": false,
+    "ok": false,
+    "status": "missing",
+    "detail": "key yok"
+  },
+  {
+    "name": "Fireworks",
+    "link": "https://fireworks.ai/account/api-keys",
+    "base": "https://api.fireworks.ai/inference/v1",
+    "model": "accounts/fireworks/models/llama-v3p1-8b-instruct",
+    "configured": false,
+    "ok": false,
+    "status": "missing",
+    "detail": "key yok"
+  },
+  {
+    "name": "Chutes",
+    "link": "https://chutes.ai/app/api",
+    "base": "https://llm.chutes.ai/v1",
+    "model": "deepseek-ai/DeepSeek-V3-0324",
+    "configured": false,
+    "ok": false,
+    "status": "missing",
+    "detail": "key yok"
+  }
+]

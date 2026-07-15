@@ -1,0 +1,34 @@
+Froxy AI için 3 farklı landing tasarım adayı var. Bunları değerlendirip final yönü seç.
+
+Aday A: C:\Users\habil\.gemini\antigravity\scratch\froxy-ai-landing
+- Statik HTML/CSS/JS.
+- Hero: "Yüzlerce AI Modeli. Tek Platform."
+- Sağda neural orb, etrafında OpenAI/Groq/Claude/Gemini/DeepSeek/Llama etiketleri.
+- Sağ altta küçük robot maskot var.
+- Desktop temiz ama biraz sıradan.
+- Mobilde başlık ve CTA taşmış, ciddi responsive düzeltme gerekiyor.
+
+Aday B: C:\Users\habil\.gemini\antigravity\scratch\froxy-landing-page
+- Statik HTML/CSS/JS.
+- Hero: "Tek Panelde Yüzlerce AI Modeli"
+- Spacing, tipografi ve premium his daha güçlü.
+- Sağda sakin neural orb, altta küçük robot maskot.
+- Desktop en profesyonel aday.
+- Mobil daha düzgün ama üst CTA büyük, orb alt etiketleri kırpılıyor, küçük responsive düzeltme gerekiyor.
+
+Aday C: C:\Users\habil\Downloads\froxy-ai-showcase.zip
+- React/Vite showcase.
+- 3 konsept seçme laboratuvarı gibi: 3D AI Çekirdeği, Siber Robot Maskot, Komuta Merkezi.
+- Fikir olarak zengin ama ürün landing page değil; "canlı önizleme/kod deposu" gibi meta arayüzler var.
+- Direkt entegre etmek ağır ve gereksiz. JS bundle yaklaşık 95KB gzip.
+- İçindeki konsept fikirleri alınabilir.
+
+Mevcut gerçek site vanilla HTML/CSS/JS + Express. Chat, auth, ödeme, dashboard bozulmamalı.
+Hedef: satışa uygun, premium, yaratıcı, 3D/animasyonlu ama hızlı ve mobilde temiz ana sayfa.
+
+Senden istediğim:
+1. Hangi aday final temel olmalı?
+2. Hangi parça hangi adaydan alınmalı?
+3. Ne kesinlikle alınmamalı?
+4. Uygulama sırası nasıl olmalı?
+5. Kısa ve net yaz, kod yazma.

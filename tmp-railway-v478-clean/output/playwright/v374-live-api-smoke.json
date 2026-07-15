@@ -1,0 +1,65 @@
+{
+  "image": [
+    {
+      "model": "flux",
+      "status": 503,
+      "ok": false,
+      "provider": "pollinations",
+      "actual": "flux",
+      "url": false,
+      "error": "Pollinations görsel modeli için POLLINATIONS_API_KEY gerekli. Yeni Pollinations API artık token istiyor."
+    },
+    {
+      "model": "imagegpt-free",
+      "status": 200,
+      "ok": true,
+      "provider": "imagegpt",
+      "actual": "imagegpt-free",
+      "url": true,
+      "error": null
+    },
+    {
+      "model": "together-flux-schnell",
+      "status": 502,
+      "ok": false,
+      "provider": "together",
+      "actual": "together-flux-schnell",
+      "url": false,
+      "error": "Seçili Together görsel modeli şu an yanıt vermedi: Credit limit exceeded, please [add credits](https://api.together.ai/settings/billing). If you've already made a payment, please wait up to 5 minutes for balances to update and try again."
+    },
+    {
+      "model": "together-qwen-image",
+      "status": 502,
+      "ok": false,
+      "provider": "together",
+      "actual": "together-qwen-image",
+      "url": false,
+      "error": "Seçili Together görsel modeli şu an yanıt vermedi: A positive credit balance is required to use this model. Please navigate to https://api.together.ai/settings/billing to add additional credits."
+    },
+    {
+      "model": "together-flux2-dev",
+      "status": 502,
+      "ok": false,
+      "provider": "together",
+      "actual": "together-flux2-dev",
+      "url": false,
+      "error": "Seçili Together görsel modeli şu an yanıt vermedi: A positive credit balance is required to use this model. Please navigate to https://api.together.ai/settings/billing to add additional credits."
+    },
+    {
+      "model": "together-imagen4-fast",
+      "status": 502,
+      "ok": false,
+      "provider": "together",
+      "actual": "together-imagen4-fast",
+      "url": false,
+      "error": "Seçili Together görsel modeli şu an yanıt vermedi: A positive credit balance is required to use this model. Please navigate to https://api.together.ai/settings/billing to add additional credits."
+    }
+  ],
+  "chat": {
+    "status": 200,
+    "ok": true,
+    "actual": null,
+    "reply": "Bu model şu an cevap veremedi.\n\nMesajını aldım: \"Tek c?mleyle T?rk?e cevap ver: ?al???yor musun?\"\nFarklı bir model seçip tekrar deneyebilir veya biraz sonra yen",
+    "bad": true
+  }
+}

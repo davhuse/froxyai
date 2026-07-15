@@ -1,0 +1,29 @@
+{
+  "name": "Froxy AI - AI Platform",
+  "short_name": "Froxy AI",
+  "description": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI modelini tek panelde kullan. Yeni uyeler 100 ucretsiz krediyle baslar.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0F1A",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "froxy-logo-192-v260.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "froxy-logo-v260.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "lang": "tr",
+  "dir": "ltr"
+}

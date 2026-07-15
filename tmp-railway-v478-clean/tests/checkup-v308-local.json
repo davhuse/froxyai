@@ -1,0 +1,602 @@
+﻿{
+  "mode": "local",
+  "base": "http://127.0.0.1:3017",
+  "version": "v308",
+  "routeTotal": 24,
+  "routeFailures": 0,
+  "criticalFailures": 0,
+  "panelFailures": 0,
+  "routeResults": [
+    {
+      "path": "/",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 4753,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-home",
+        "ptab-chat"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/sohbet",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "AI Sohbet Paneli - ChatGPT, Claude ve Gemini | Froxy AI",
+      "textLength": 545,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-chat"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/dashboard",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "Froxy AI Dashboard - Tum AI Araclari Tek Ekranda",
+      "textLength": 1753,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-dash"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/gorsel",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "AI Gorsel Uretme Araci - Yapay Zeka ile Gorsel Uret | Froxy AI",
+      "textLength": 3984,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-img"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/galeri",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 322,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-gallery"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/ai-araclar",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "AI Araclari - ChatGPT, Claude, Gemini ve Daha Fazlasi | Froxy AI",
+      "textLength": 1732,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-tools"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/ajanlar",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "AI Ajanlar - Gorev Odakli Yapay Zeka Asistanlari | Froxy AI",
+      "textLength": 1951,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-agents"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/promptlar",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 1835,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-prompts"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/bilgi-bankasi",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 960,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-rag"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/magaza",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "Froxy AI Fiyatlandirma - 100 Ucretsiz Krediyle Dene",
+      "textLength": 2196,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-store"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/destek",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 1106,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-support"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/admin",
+      "viewport": "desktop",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 1577,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "ptab-chat",
+        "v-admin"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 4578,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-home",
+        "ptab-chat"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/sohbet",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "AI Sohbet Paneli - ChatGPT, Claude ve Gemini | Froxy AI",
+      "textLength": 315,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-chat"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/dashboard",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "Froxy AI Dashboard - Tum AI Araclari Tek Ekranda",
+      "textLength": 915,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-dash"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/gorsel",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "AI Gorsel Uretme Araci - Yapay Zeka ile Gorsel Uret | Froxy AI",
+      "textLength": 3705,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-img"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/galeri",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 165,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-gallery"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/ai-araclar",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "AI Araclari - ChatGPT, Claude, Gemini ve Daha Fazlasi | Froxy AI",
+      "textLength": 1575,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-tools"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/ajanlar",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "AI Ajanlar - Gorev Odakli Yapay Zeka Asistanlari | Froxy AI",
+      "textLength": 1794,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-agents"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/promptlar",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 1678,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-prompts"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/bilgi-bankasi",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 803,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-rag"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/magaza",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "Froxy AI Fiyatlandirma - 100 Ucretsiz Krediyle Dene",
+      "textLength": 2039,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-store"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/destek",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 949,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "v-chat",
+        "ptab-support"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "path": "/admin",
+      "viewport": "mobile",
+      "status": 200,
+      "title": "Froxy AI - 400+ AI Modeli Tek Panelde",
+      "textLength": 1449,
+      "badCount": 0,
+      "badSample": [],
+      "overflow": 0,
+      "skeleton": false,
+      "visibleRoots": [
+        "ptab-chat",
+        "v-admin"
+      ],
+      "hasToast": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    }
+  ],
+  "chatResults": [
+    {
+      "viewport": "desktop",
+      "open": true,
+      "countText": "61 sonuç",
+      "sortLabels": [
+        "Önerilen",
+        "En ucuz",
+        "En hızlı",
+        "En kaliteli"
+      ],
+      "itemCount": 12,
+      "filteredCount": 61,
+      "itemHeights": [
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76,
+        76
+      ],
+      "overlaps": 0,
+      "badCount": 0,
+      "overflow": 0,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "viewport": "mobile",
+      "open": true,
+      "countText": "61 sonuç",
+      "sortLabels": [
+        "Önerilen",
+        "En ucuz",
+        "En hızlı",
+        "En kaliteli"
+      ],
+      "itemCount": 12,
+      "filteredCount": 61,
+      "itemHeights": [
+        68,
+        68,
+        68,
+        68,
+        68,
+        68,
+        68,
+        68,
+        68,
+        68,
+        68,
+        68
+      ],
+      "overlaps": 0,
+      "badCount": 0,
+      "overflow": 0,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    }
+  ],
+  "imageResults": [
+    {
+      "viewport": "desktop",
+      "allCount": 34,
+      "editCount": 8,
+      "badEditModels": [],
+      "qualityLabels": [
+        "Ucuz Düzenle",
+        "Hızlı Düzenle",
+        "Kaliteli Edit",
+        "Premium Edit"
+      ],
+      "triggerText": "AI\nAkıllı Kalite - Gemini/GPT Image\n300 kredi · görsel modeli",
+      "triggerCostDisplay": "none",
+      "arrowCount": 1,
+      "badCount": 0,
+      "overflow": 0,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "viewport": "mobile",
+      "allCount": 34,
+      "editCount": 8,
+      "badEditModels": [],
+      "qualityLabels": [
+        "Ucuz Düzenle",
+        "Hızlı Düzenle",
+        "Kaliteli Edit",
+        "Premium Edit"
+      ],
+      "triggerText": "AI\nAkıllı Kalite - Gemini/GPT Image\n300 kredi · görsel modeli",
+      "triggerCostDisplay": "none",
+      "arrowCount": 1,
+      "badCount": 0,
+      "overflow": 0,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "ok": true
+    }
+  ],
+  "panelResults": {
+    "dashboard": {
+      "audioEngineCount": 0,
+      "audioCharacterCount": 0,
+      "voicePanelCount": 1,
+      "voicePanelVisible": true,
+      "apiKeyCount": 0,
+      "badCount": 0,
+      "overflow": 0,
+      "ok": true
+    },
+    "support": {
+      "inputs": 66,
+      "buttons": 253,
+      "hasSupportEmail": true,
+      "badCount": 0,
+      "ok": true
+    },
+    "admin": {
+      "textLength": 1577,
+      "hasAdminCopy": true,
+      "badCount": 0,
+      "ok": true
+    }
+  }
+}

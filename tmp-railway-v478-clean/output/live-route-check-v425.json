@@ -1,0 +1,75 @@
+{
+  "at": "2026-06-15T14:37:01.798Z",
+  "out": [
+    {
+      "route": "/",
+      "status": 200,
+      "ok": true,
+      "ms": 709,
+      "hasV425": true,
+      "hasAppLoader": true,
+      "badText": false,
+      "bytes": 36180
+    },
+    {
+      "route": "/sohbet",
+      "status": 200,
+      "ok": true,
+      "ms": 307,
+      "hasV425": true,
+      "hasAppLoader": true,
+      "badText": false,
+      "bytes": 162254
+    },
+    {
+      "route": "/gorsel",
+      "status": 200,
+      "ok": true,
+      "ms": 261,
+      "hasV425": true,
+      "hasAppLoader": true,
+      "badText": false,
+      "bytes": 162166
+    },
+    {
+      "route": "/promptlar",
+      "status": 200,
+      "ok": true,
+      "ms": 253,
+      "hasV425": true,
+      "hasAppLoader": true,
+      "badText": false,
+      "bytes": 157411
+    },
+    {
+      "route": "/ai-araclar",
+      "status": 200,
+      "ok": true,
+      "ms": 261,
+      "hasV425": true,
+      "hasAppLoader": true,
+      "badText": false,
+      "bytes": 161922
+    },
+    {
+      "route": "/galeri",
+      "status": 200,
+      "ok": true,
+      "ms": 256,
+      "hasV425": true,
+      "hasAppLoader": true,
+      "badText": false,
+      "bytes": 157405
+    },
+    {
+      "route": "/destek",
+      "status": 200,
+      "ok": true,
+      "ms": 251,
+      "hasV425": true,
+      "hasAppLoader": true,
+      "badText": false,
+      "bytes": 157405
+    }
+  ]
+}

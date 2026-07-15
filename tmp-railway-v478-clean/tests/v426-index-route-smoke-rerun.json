@@ -1,0 +1,104 @@
+[
+  {
+    "route": "/",
+    "status": 200,
+    "errors": [],
+    "classes": "theme-light-pre perf-v426 home-mode app-ready",
+    "bodyLen": 4777,
+    "hasMojibake": false,
+    "visible": [
+      "v-home"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nÖzellikler\nModeller\nDemo\nFiyatlandırma\nGüven\nSSS\nGiriş Yap\n100 Krediyle Dene\nTÜRKİYE MERKEZLİ "
+  },
+  {
+    "route": "/sohbet",
+    "status": 200,
+    "errors": [],
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 568,
+    "hasMojibake": false,
+    "visible": [
+      "v-chat",
+      "ptab-chat"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod"
+  },
+  {
+    "route": "/gorsel",
+    "status": 200,
+    "errors": [],
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 6533,
+    "hasMojibake": false,
+    "visible": [
+      "v-chat",
+      "ptab-img"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod"
+  },
+  {
+    "route": "/promptlar",
+    "status": 200,
+    "errors": [],
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 2003,
+    "hasMojibake": false,
+    "visible": [
+      "v-chat",
+      "ptab-prompts"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod"
+  },
+  {
+    "route": "/ai-araclar",
+    "status": 200,
+    "errors": [],
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 2162,
+    "hasMojibake": false,
+    "visible": [
+      "v-chat",
+      "ptab-tools"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod"
+  },
+  {
+    "route": "/galeri",
+    "status": 200,
+    "errors": [],
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 339,
+    "hasMojibake": false,
+    "visible": [
+      "v-chat",
+      "ptab-gallery"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod"
+  },
+  {
+    "route": "/destek",
+    "status": 200,
+    "errors": [],
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 1123,
+    "hasMojibake": false,
+    "visible": [
+      "v-chat",
+      "ptab-support"
+    ],
+    "sample": "Ana içeriğe atla\nFroxy AI\nYeni sohbet\nSohbete yaz\nSohbet\nKontrol Paneli\nGörsel Üret\nAI ajanlar\nPromptlar\nAI Araçları\nKod"
+  },
+  {
+    "route": "/admin",
+    "status": 200,
+    "errors": [],
+    "classes": "theme-light-pre perf-v426 app-ready",
+    "bodyLen": 226,
+    "hasMojibake": false,
+    "visible": [
+      "ptab-chat"
+    ],
+    "sample": "Ana içeriğe atla\nYönetici Oturumu Gerekli\n\nBu panele erişmek için yönetici yetkilerine sahip bir hesapla giriş yapmalısı"
+  }
+]

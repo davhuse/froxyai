@@ -1,0 +1,254 @@
+{
+  "/": {
+    "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+    "bad": [],
+    "overflow": 0,
+    "image": {
+      "previewGrid": false,
+      "legacySamples": false,
+      "showcaseImgs": [],
+      "imgLogos": [],
+      "fakeMonograms": []
+    },
+    "admin": {
+      "authMsg": false,
+      "usersTable": false
+    },
+    "robot": {
+      "root": true,
+      "custom": false
+    },
+    "consoleErrors": []
+  },
+  "/gorsel": {
+    "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+    "bad": [],
+    "overflow": 0,
+    "image": {
+      "previewGrid": true,
+      "legacySamples": false,
+      "showcaseImgs": [
+        "/assets/model-showcase/showcase-openai-2.png",
+        "/assets/model-showcase/showcase-cloudflare-2.png"
+      ],
+      "imgLogos": [
+        "/provider-logos/generic.svg",
+        "/provider-logos/generic.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/openai.svg",
+        "/provider-logos/gemini.svg"
+      ],
+      "fakeMonograms": []
+    },
+    "admin": {
+      "authMsg": false,
+      "usersTable": false
+    },
+    "robot": {
+      "root": true,
+      "custom": false
+    },
+    "consoleErrors": []
+  },
+  "/admin": {
+    "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+    "bad": [],
+    "overflow": 0,
+    "image": {
+      "previewGrid": true,
+      "legacySamples": false,
+      "showcaseImgs": [
+        "/assets/model-showcase/showcase-openai-2.png",
+        "/assets/model-showcase/showcase-cloudflare-2.png"
+      ],
+      "imgLogos": [
+        "/provider-logos/generic.svg",
+        "/provider-logos/generic.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/openai.svg",
+        "/provider-logos/gemini.svg"
+      ],
+      "fakeMonograms": []
+    },
+    "admin": {
+      "authMsg": true,
+      "usersTable": false
+    },
+    "robot": {
+      "root": true,
+      "custom": false
+    },
+    "consoleErrors": []
+  },
+  "/sohbet": {
+    "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 400+ Model | Froxy AI",
+    "bad": [],
+    "overflow": 0,
+    "image": {
+      "previewGrid": false,
+      "legacySamples": true,
+      "showcaseImgs": [],
+      "imgLogos": [
+        "/provider-logos/generic.svg",
+        "/provider-logos/generic.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/openai.svg",
+        "/provider-logos/gemini.svg"
+      ],
+      "fakeMonograms": []
+    },
+    "admin": {
+      "authMsg": false,
+      "usersTable": false
+    },
+    "robot": {
+      "root": true,
+      "custom": false
+    },
+    "consoleErrors": []
+  },
+  "/promptlar": {
+    "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+    "bad": [],
+    "overflow": 0,
+    "image": {
+      "previewGrid": true,
+      "legacySamples": false,
+      "showcaseImgs": [
+        "/assets/model-showcase/showcase-openai-2.png",
+        "/assets/model-showcase/showcase-cloudflare-2.png"
+      ],
+      "imgLogos": [
+        "/provider-logos/generic.svg",
+        "/provider-logos/generic.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/openai.svg",
+        "/provider-logos/gemini.svg"
+      ],
+      "fakeMonograms": []
+    },
+    "admin": {
+      "authMsg": false,
+      "usersTable": false
+    },
+    "robot": {
+      "root": true,
+      "custom": false
+    },
+    "consoleErrors": []
+  },
+  "/ai-araclar": {
+    "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+    "bad": [],
+    "overflow": 0,
+    "image": {
+      "previewGrid": true,
+      "legacySamples": false,
+      "showcaseImgs": [
+        "/assets/model-showcase/showcase-openai-2.png",
+        "/assets/model-showcase/showcase-cloudflare-2.png"
+      ],
+      "imgLogos": [
+        "/provider-logos/generic.svg",
+        "/provider-logos/generic.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/openai.svg",
+        "/provider-logos/gemini.svg"
+      ],
+      "fakeMonograms": []
+    },
+    "admin": {
+      "authMsg": false,
+      "usersTable": false
+    },
+    "robot": {
+      "root": true,
+      "custom": false
+    },
+    "consoleErrors": []
+  },
+  "/dashboard": {
+    "title": "Froxy AI Dashboard - Tüm AI Araçları Tek Ekranda",
+    "bad": [],
+    "overflow": 0,
+    "image": {
+      "previewGrid": true,
+      "legacySamples": false,
+      "showcaseImgs": [
+        "/assets/model-showcase/showcase-openai-2.png",
+        "/assets/model-showcase/showcase-cloudflare-2.png"
+      ],
+      "imgLogos": [
+        "/provider-logos/generic.svg",
+        "/provider-logos/generic.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/gemini.svg",
+        "/provider-logos/openai.svg",
+        "/provider-logos/gemini.svg"
+      ],
+      "fakeMonograms": []
+    },
+    "admin": {
+      "authMsg": false,
+      "usersTable": false
+    },
+    "robot": {
+      "root": true,
+      "custom": false
+    },
+    "consoleErrors": []
+  },
+  "robotDeep": {
+    "hasHost": true,
+    "hasShadow": true,
+    "parts": {
+      ".hit-head": {
+        "exists": false
+      },
+      ".hit-al": {
+        "exists": false
+      },
+      ".hit-ar": {
+        "exists": false
+      },
+      ".hit-ll": {
+        "exists": false
+      },
+      ".hit-rl": {
+        "exists": false
+      },
+      ".hit-ant": {
+        "exists": false
+      }
+    }
+  }
+}

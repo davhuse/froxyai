@@ -1,0 +1,240 @@
+﻿<!doctype html>
+<html>
+  <head>
+    <title>pollinations.ai - Docs</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+      /* Custom CSS */
+      
+      
+      /* Each table gets its own horizontal scroll, scoped to itself, so the
+         markdown container doesn't grow a second outer scrollbar that fights
+         with the scroll on adjacent code blocks. */
+      .scalar-app .markdown table {
+        display: block;
+        max-width: 100%;
+        width: max-content;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .scalar-app .markdown table th,
+      .scalar-app .markdown table td {
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+      }
+      
+      .scalar-app .markdown a {
+        color: #f59e0b;
+      }
+      .scalar-app .markdown a:hover {
+        color: #fbbf24;
+      }
+      
+      /* Hide Scalar's native download UI — we surface it via the floating
+         action cluster (see .ph-fab-cluster below) for layout consistency. */
+      .scalar-app .download-container { display: none !important; }
+      
+      /* Hide "Powered by Scalar" sidebar footer link. */
+      .scalar-app a[href="https://www.scalar.com"] { display: none !important; }
+      
+      /* Hide Scalar's IDE/MCP quick-launch buttons (VS Code, Cursor, Generate MCP).
+         These render in the sidebar regardless of showDeveloperTools. We target
+         by URL scheme so the rule survives class-name renames across Scalar
+         versions, plus the section wrapper via :has() in case the buttons render
+         inside a labeled group. */
+      .scalar-app a[href^="vscode:"],
+      .scalar-app a[href^="vscode-insiders:"],
+      .scalar-app a[href^="cursor:"],
+      .scalar-app a[href*="mcp.scalar.com"],
+      .scalar-app a[href*="generate-mcp"],
+      .scalar-app a[href*="modelcontextprotocol"] { display: none !important; }
+      .scalar-app section:has(> a[href^="vscode:"]),
+      .scalar-app section:has(> a[href^="cursor:"]) { display: none !important; }
+      
+      /* Hide Scalar's "Ask AI" feature (sidebar button + any floating widget).
+         Targeted by attribute and class fragments, case-insensitive, since the
+         CDN bundle may rename the underlying classes between releases. */
+      .scalar-app [class*="ask-ai" i],
+      .scalar-app [class*="askai" i],
+      .scalar-app [class*="ai-assistant" i],
+      .scalar-app [aria-label*="Ask AI" i],
+      .scalar-app [title*="Ask AI" i],
+      .scalar-app button[data-feature="ask-ai" i] { display: none !important; }
+      
+      /* Full-width prose for sections with no right-column code samples (Quick Start,
+         Auth, BYOP, CLI, MCP, Errors, Safety, plain Models/Account). Scalar lays
+         each tag out as two flex columns; the right column stays empty for prose-
+         only tags, wasting ~50% of the page. We collapse the empty column and let
+         the prose stretch. The same rule fixes the section header row above. */
+      .scalar-app .section-columns:has(> .section-column:nth-child(2):empty) > .section-column:first-child {
+          flex: 1 1 100% !important;
+          max-width: 100% !important;
+      }
+      .scalar-app .section-columns > .section-column:nth-child(2):empty {
+          display: none !important;
+      }
+      .scalar-app .section-header-wrapper:not(:has(> :nth-child(2))) {
+          grid-template-columns: 1fr !important;
+      }
+      
+      /* "Show more" buttons (tagged by our header script — see scanScalarButtons).
+         Promote to the amber action color so they don't disappear into the page. */
+      .scalar-app .ph-show-more {
+          background: #f59e0b !important;
+          color: #451a03 !important;
+          border-color: #f59e0b !important;
+      }
+      .scalar-app .ph-show-more:hover {
+          background: #fbbf24 !important;
+          border-color: #fbbf24 !important;
+      }
+      /* Force the chevron/triangle SVG inside the button to match text color
+         (otherwise it inherits Scalar's dim color and disappears on amber). */
+      .scalar-app .ph-show-more svg,
+      .scalar-app .ph-show-more svg * {
+          color: #451a03 !important;
+          fill: currentColor !important;
+          stroke: currentColor !important;
+      }
+      
+    </style>
+  </head>
+  <body><style>
+.ph-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 2147483000;
+    min-height: 48px; box-sizing: border-box;
+    background: #0a0a0a; border-bottom: 1px solid #1f1f23;
+    display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+    font: 13px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: #d4d4d8;
+}
+.ph-bar .ph-brand {
+    color: #fafafa; text-decoration: none;
+    display: inline-flex; align-items: center; flex-shrink: 0;
+}
+.ph-bar .ph-brand img { height: 18px; width: auto; display: block; }
+@media (min-width: 640px) { .ph-bar .ph-brand img { height: 20px; } }
+@media (max-width: 640px) {
+    .ph-bar { justify-content: center; padding: 8px 12px; }
+    .ph-bar .ph-brand img { height: 22px; }
+}
+
+.ph-fab-cluster {
+    position: fixed; top: 64px; right: 18px; z-index: 9999;
+    display: flex; gap: 8px; align-items: center;
+    justify-content: flex-end; max-width: calc(100vw - 36px);
+}
+.ph-fab {
+    padding: 10px 14px; border-radius: 999px;
+    border: 1px solid #f59e0b; background: #f59e0b; color: #451a03;
+    font: 600 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    box-shadow: 0 6px 20px rgba(245,158,11,.3);
+    cursor: pointer; text-decoration: none;
+    transition: background .15s, color .15s, box-shadow .15s, transform .1s;
+    display: inline-flex; align-items: center; gap: 6px; line-height: 1;
+}
+.ph-fab:hover {
+    background: #0a0a0a; color: #f59e0b;
+    box-shadow: 0 6px 24px rgba(245,158,11,.4);
+}
+.ph-fab:active { transform: translateY(1px); }
+.ph-fab svg { width: 16px; height: 16px; }
+@media (max-width: 640px) {
+    .ph-fab-cluster { top: 60px; right: 12px; }
+    .ph-fab { padding: 7px 11px; font-size: 12px; }
+    .ph-fab svg { width: 14px; height: 14px; }
+}
+
+/* Push Scalar's mount point down so its content (h1, version badges,
+   sidebar, mobile hamburger row) doesn't render under our fixed bar.
+   Body padding works because .ph-bar is position: fixed — it ignores
+   parent padding, so the bar stays at top while everything else shifts. */
+body { padding-top: 48px; }
+/* Match Scalar's mobile hamburger row background to our bar so the seam
+   between the two reads as one continuous header instead of a stripe. */
+@media (max-width: 1000px) {
+    .scalar-app [class*="lg:hidden"][class*="grid-area:header"] {
+        background: #0a0a0a !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+    }
+}
+</style>
+<header class="ph-bar">
+  <a href="/" class="ph-brand"><img src="/docs/logo.svg" alt="Pollinations" /></a>
+</header>
+<div class="ph-fab-cluster">
+  <button class="ph-fab ph-fab-copy" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    <span>Copy for LLMs</span>
+  </button>
+</div>
+<script>
+(function () {
+  // Copy for LLMs — always copies the full doc (api + integrations).
+  var copy = document.querySelector('.ph-fab-copy');
+  if (copy) {
+    var label = copy.querySelector('span');
+    copy.addEventListener('click', async function () {
+      var res = await fetch('/docs/llm.txt');
+      var text = await res.text();
+      await navigator.clipboard.writeText(text);
+      var prev = label.textContent;
+      label.textContent = 'Copied';
+      setTimeout(function () { label.textContent = prev; }, 1200);
+    });
+  }
+  // Text-based DOM scan for Scalar buttons whose class names get hashed
+  // by the CDN bundle — we tag them by their stable label so our CSS can
+  // hide ("Ask AI") or style ("Show more") them in amber.
+  function scanScalarButtons() {
+    var nodes = document.querySelectorAll('button, a, [role="button"]');
+    for (var i = 0; i < nodes.length; i++) {
+      var text = (nodes[i].textContent || '').trim();
+      if (/^ask ai\b/i.test(text)) nodes[i].style.display = 'none';
+      else if (/^show more\b/i.test(text)) nodes[i].classList.add('ph-show-more');
+    }
+  }
+  scanScalarButtons();
+  new MutationObserver(scanScalarButtons).observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+    <div id="app"></div>
+    <!-- Load the Script -->
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+
+    <!-- Initialize the Scalar API Reference -->
+    <script type="text/javascript">
+      Scalar.createApiReference('#app', {
+        "_integration": "hono",
+        "title": "pollinations.ai - Docs",
+        "favicon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAE9ElEQVR4nMVXaWhdVRB+7gsWNxQVQVxQEYsbIqhFsEjd/WGVWtHiTltccS1Yan9ocK1VqRoVqkUkFRUFUawWUxWVNG/m5ZlgXNLcmZtaWmuKJnkzTz0y55z78raQpYsDFx73nDvznTnffDMvl9sOWz/Uf9T64YFjcv+HrXVuTxT+FpV++MYl++1yACD0JAj9hsopKr2+ywJ3uI69UGgpCEte+Foo8+UorCC8rM/17bvTAYAmd6JQGYRuyN5hia8E4RFUWrRTg3dqcjYI/QPKrQ3AhFtQ2WGZZ25XEBB6EZRfqX5QaAWUk1kovBaUsc25Peq/c87tDkJfGzEL5fQiEHqh0Q+/3Ot69xkPwL+o9CsIfZY9xnR/OmVnjsf6FoUfr+xT/qnWB/fa+x63edq4AEB5cd3pdkOhx0ZBcEtDcKVFVevL6k+KSvfYWtFtOmDSAMxAqB2FB1DoqXDXdMkoMdPz/Tvh5f7kypirs8kCeLTJ+3ZUZnMAym2g1N/h0v29ICn9CMIfd7hfDgSlHlAujAVgzCvocZunQYlP9BwQXt7hNhzZBEBqvwsj/ceZDhQkuT5fpsusMjpLA6eEbFB3PYCi6zsChZ+I13NG3vUdNOp4ZOOxqOmDPr3xDkM6qQzKq0HpLvvA1A6Fh03/AyD+EpQ+AKU3jKT2zu8THkTld2Om5oPS2yBcqvO9DYWWdI30H5/zUiq0zdhd0IGzUGkDKL8Kkt6CQp/GDzZlJLQTRwBzPMOV21CSW0Oa0xmRC3Zajr+/8ECEnwXh3y1GkHHeamBzKHQbCg11Oz7UOxFah0IfZRkylCj8SVUZrvEAysnF1gtAKcESzQ4A+L2qfe12LVZBcW0lKhftt3EFhTaj8gPh7sO9tdrmILU8CG7j4TUcKCezQOhPnwXhmwxAJaUlmg0lutoTOPaILHBNQKElMXvPWaYLrv/g4LzEVxiRLJVFlxwCQltM/RoqoUwXGg8MSF7pjgxAQel2C2DBsZRe1VSghIeNjAXhayIZb64rE15oZLE7Rkmvi2q2uDkIGgrNp0Kqv/zJIz9q/dLd0dd86xP+u5iJBgPlVbYBlO/zrA93+VJDSSrfX8PqAGJp9R7jVCCel/bXPAChISN20+CZodK9fqNyFyp1RiYPWqMBpYcLSg9VOl8tgGdsLaxTuzE+nJy6rRLizNAybi8wQ0nPROHPG4JM9RFa16V8bm6yhpJMR+UFqPwWKHXYY85idzMilexkWZBQ83Gf0jt2/6Z8uR1pEEYwU7suUzzrAX44DUSck9vRlre5T/nnqFx/REZDpxs4DJXfRKUPowR/N8oX3mrNKlPIKRtKMheF/kbh763f+3rXdEbW6zMA2bBq92x7jIgo9FWoAF4wteBDdHQsydXNRrAIYGUGoN6CqvIqy4pvOpMGIEGMiiPJCc3WbQ4ApfeNeGON4/Ga3KSzUCilJ0ctcDZsVDS7ykDpkaoye7p+3f4tZbwwmc8Lnz5hAKhctMEUhed5dteN4V1Cp8XJqRWFnw/9ILmgxoeNbqFv3BiaHSWTAEB91pJt+LAKsJquXs9rel44eTLXl2XVnFAFYAUok3HJdMT3/gkDEJ7n/4AYCYW2gNI51etFV9zbyGdTU5BYWmPzYfUekOTUMMj4LFg1LJwwAA+izDNDm02mN1s3ENZSrdbrg1d8lPgkX5ZlunSsQP8BPbyNNiarxF0AAAAASUVORK5CYII=",
+        "darkMode": true,
+        "forceDarkModeState": "dark",
+        "hideDarkModeToggle": true,
+        "showDeveloperTools": "never",
+        "hideModels": true,
+        "hideClientButton": true,
+        "sources": [
+          {
+            "url": "/docs/open-api/generate-schema",
+            "title": "API"
+          }
+        ],
+        "authentication": {
+          "preferredSecurityScheme": "bearerAuth",
+          "securitySchemes": {
+            "bearerAuth": {
+              "token": ""
+            }
+          }
+        },
+        "theme": "saturn",
+        "customCss": "\n/* Each table gets its own horizontal scroll, scoped to itself, so the\n   markdown container doesn't grow a second outer scrollbar that fights\n   with the scroll on adjacent code blocks. */\n.scalar-app .markdown table {\n  display: block;\n  max-width: 100%;\n  width: max-content;\n  overflow-x: auto;\n  -webkit-overflow-scrolling: touch;\n}\n.scalar-app .markdown table th,\n.scalar-app .markdown table td {\n  word-break: normal !important;\n  overflow-wrap: normal !important;\n}\n\n.scalar-app .markdown a {\n  color: #f59e0b;\n}\n.scalar-app .markdown a:hover {\n  color: #fbbf24;\n}\n\n/* Hide Scalar's native download UI — we surface it via the floating\n   action cluster (see .ph-fab-cluster below) for layout consistency. */\n.scalar-app .download-container { display: none !important; }\n\n/* Hide \"Powered by Scalar\" sidebar footer link. */\n.scalar-app a[href=\"https://www.scalar.com\"] { display: none !important; }\n\n/* Hide Scalar's IDE/MCP quick-launch buttons (VS Code, Cursor, Generate MCP).\n   These render in the sidebar regardless of showDeveloperTools. We target\n   by URL scheme so the rule survives class-name renames across Scalar\n   versions, plus the section wrapper via :has() in case the buttons render\n   inside a labeled group. */\n.scalar-app a[href^=\"vscode:\"],\n.scalar-app a[href^=\"vscode-insiders:\"],\n.scalar-app a[href^=\"cursor:\"],\n.scalar-app a[href*=\"mcp.scalar.com\"],\n.scalar-app a[href*=\"generate-mcp\"],\n.scalar-app a[href*=\"modelcontextprotocol\"] { display: none !important; }\n.scalar-app section:has(> a[href^=\"vscode:\"]),\n.scalar-app section:has(> a[href^=\"cursor:\"]) { display: none !important; }\n\n/* Hide Scalar's \"Ask AI\" feature (sidebar button + any floating widget).\n   Targeted by attribute and class fragments, case-insensitive, since the\n   CDN bundle may rename the underlying classes between releases. */\n.scalar-app [class*=\"ask-ai\" i],\n.scalar-app [class*=\"askai\" i],\n.scalar-app [class*=\"ai-assistant\" i],\n.scalar-app [aria-label*=\"Ask AI\" i],\n.scalar-app [title*=\"Ask AI\" i],\n.scalar-app button[data-feature=\"ask-ai\" i] { display: none !important; }\n\n/* Full-width prose for sections with no right-column code samples (Quick Start,\n   Auth, BYOP, CLI, MCP, Errors, Safety, plain Models/Account). Scalar lays\n   each tag out as two flex columns; the right column stays empty for prose-\n   only tags, wasting ~50% of the page. We collapse the empty column and let\n   the prose stretch. The same rule fixes the section header row above. */\n.scalar-app .section-columns:has(> .section-column:nth-child(2):empty) > .section-column:first-child {\n    flex: 1 1 100% !important;\n    max-width: 100% !important;\n}\n.scalar-app .section-columns > .section-column:nth-child(2):empty {\n    display: none !important;\n}\n.scalar-app .section-header-wrapper:not(:has(> :nth-child(2))) {\n    grid-template-columns: 1fr !important;\n}\n\n/* \"Show more\" buttons (tagged by our header script — see scanScalarButtons).\n   Promote to the amber action color so they don't disappear into the page. */\n.scalar-app .ph-show-more {\n    background: #f59e0b !important;\n    color: #451a03 !important;\n    border-color: #f59e0b !important;\n}\n.scalar-app .ph-show-more:hover {\n    background: #fbbf24 !important;\n    border-color: #fbbf24 !important;\n}\n/* Force the chevron/triangle SVG inside the button to match text color\n   (otherwise it inherits Scalar's dim color and disappears on amber). */\n.scalar-app .ph-show-more svg,\n.scalar-app .ph-show-more svg * {\n    color: #451a03 !important;\n    fill: currentColor !important;\n    stroke: currentColor !important;\n}\n"})
+    </script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0b737f04a32481e',t:'MTc4MTQxNzkxNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

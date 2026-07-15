@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AIML API">
+  <rect width="64" height="64" rx="18" fill="#92400e"/>
+  <path d="M13 45 25 18h8l12 27h-9l-2-5H24l-2 5zm14-12h5l-3-7z" fill="#fff"/>
+  <path d="M47 18h5v27h-5z" fill="#facc15"/>
+</svg>

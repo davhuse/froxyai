@@ -1,0 +1,142 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary "Admin gezintisi" [ref=e3]:
+      - link "F froxy.admin" [ref=e5] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=e6]: F
+        - generic [ref=e7]: froxy.admin
+      - generic [ref=e8]:
+        - generic [ref=e9]: ✦
+        - generic [ref=e10]:
+          - text: Çalışma alanı
+          - strong [ref=e11]: Froxy Türkiye
+      - navigation "Admin bölümleri" [ref=e14]:
+        - generic [ref=e15]: MERKEZ
+        - button "Genel bakış" [ref=e16] [cursor=pointer]
+        - button "Kullanıcılar 2.481" [ref=e22] [cursor=pointer]:
+          - text: Kullanıcılar
+          - generic [ref=e26]: "2.481"
+        - button "Modeller" [ref=e27] [cursor=pointer]
+        - button "Krediler" [ref=e31] [cursor=pointer]
+        - generic [ref=e35]: SİSTEM
+        - button "Sistem sağlığı" [ref=e36] [cursor=pointer]
+      - generic [ref=e40]:
+        - link "Çalışma alanına dön" [ref=e41] [cursor=pointer]:
+          - /url: index.html
+        - generic [ref=e44]:
+          - generic [ref=e45]: HA
+          - generic [ref=e46]:
+            - strong [ref=e47]: Habil A.
+            - generic [ref=e48]: Yönetici
+          - button "Hesap ayarları" [ref=e49] [cursor=pointer]: •••
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e53]:
+          - text: FROXY TÜRKİYE / ADMIN
+          - heading "Genel bakış" [level=1] [ref=e54]
+        - generic [ref=e55]:
+          - button "Verileri yenile" [ref=e56] [cursor=pointer]
+          - generic [ref=e59]: Tüm sistemler çalışıyor
+          - button "HA" [ref=e61] [cursor=pointer]
+      - region "Genel bakış" [ref=e62]:
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - text: 15 TEMMUZ 2026, SALI
+            - heading [level=2] [ref=e65]:
+              - text: Bugünün nabzı
+              - emphasis [ref=e66]: temiz.
+            - paragraph [ref=e67]:
+              - text: "Froxy çalışma alanları akışta. Son eşitleme:"
+              - strong [ref=e68]: az önce
+              - text: .
+          - button "Raporu dışa aktar ↓" [ref=e69] [cursor=pointer]:
+            - text: Raporu dışa aktar
+            - generic [ref=e70]: ↓
+        - generic [ref=e71]:
+          - article [ref=e72]:
+            - generic [ref=e73]:
+              - generic [ref=e74]: Aktif kullanıcı
+              - generic [ref=e75]: ◉
+            - strong [ref=e76]: "2.481"
+            - paragraph [ref=e77]: ↑ 12,4% geçen haftaya göre
+          - article [ref=e86]:
+            - generic [ref=e87]:
+              - generic [ref=e88]: Mesaj hacmi
+              - generic [ref=e89]: ↗
+            - strong [ref=e90]: "18.920"
+            - paragraph [ref=e91]: ↑ 8,1% son 24 saat
+          - article [ref=e93]:
+            - generic [ref=e94]:
+              - generic [ref=e95]: Model maliyeti
+              - generic [ref=e96]: ₺
+            - strong [ref=e97]: ₺4.842
+            - paragraph [ref=e98]: ↓ 4,3% hedefin altında
+          - article [ref=e100]:
+            - generic [ref=e101]:
+              - generic [ref=e102]: Başarılı akış
+              - generic [ref=e103]: ✓
+            - strong [ref=e104]: "%99,98"
+            - paragraph [ref=e105]: ↑ 0,02% son 30 gün
+        - generic [ref=e119]:
+          - article [ref=e120]:
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - text: AKIŞ
+                - heading "Son etkinlikler" [level=3] [ref=e123]
+              - button "Tümünü gör →" [ref=e124] [cursor=pointer]
+            - generic [ref=e125]:
+              - generic [ref=e126]:
+                - generic [ref=e127]: EA
+                - paragraph [ref=e128]:
+                  - strong [ref=e129]: Elif Aras
+                  - text: Studio planına geçti.
+                  - generic [ref=e130]: 2 dk önce
+                - generic [ref=e131]: ₺299
+              - generic [ref=e132]:
+                - generic [ref=e133]: FB
+                - paragraph [ref=e134]:
+                  - strong [ref=e135]: Froxy Vision
+                  - text: için yeni varyasyon oluşturuldu.
+                  - generic [ref=e136]: 7 dk önce
+                - generic [ref=e137]: Tamamlandı
+              - generic [ref=e138]:
+                - generic [ref=e139]: ME
+                - paragraph [ref=e140]:
+                  - strong [ref=e141]: Mert Erdem
+                  - text: yeni bir proje alanı açtı.
+                  - generic [ref=e142]: 14 dk önce
+                - generic [ref=e143]: Yeni
+              - generic [ref=e144]:
+                - generic [ref=e145]: SE
+                - paragraph [ref=e146]:
+                  - strong [ref=e147]: Selin Ekin
+                  - text: araştırma dosyası ekledi.
+                  - generic [ref=e148]: 22 dk önce
+                - generic [ref=e149]: 1 dosya
+          - article [ref=e150]:
+            - generic [ref=e151]:
+              - generic [ref=e152]:
+                - text: SAĞLAYICILAR
+                - heading "Model geçidi" [level=3] [ref=e153]
+              - button "Yönet →" [ref=e154] [cursor=pointer]
+            - generic [ref=e155]:
+              - generic [ref=e156]:
+                - generic [ref=e157]: O
+                - paragraph [ref=e158]:
+                  - strong [ref=e159]: OpenAI
+                  - generic [ref=e160]: 2 model aktif
+                - generic [ref=e161]: "%99,99"
+              - generic [ref=e162]:
+                - generic [ref=e163]: G
+                - paragraph [ref=e164]:
+                  - strong [ref=e165]: Google AI
+                  - generic [ref=e166]: 1 model aktif
+                - generic [ref=e167]: "%99,97"
+              - generic [ref=e168]:
+                - generic [ref=e169]: A
+                - paragraph [ref=e170]:
+                  - strong [ref=e171]: Anthropic
+                  - generic [ref=e172]: 2 model aktif
+                - generic [ref=e173]: "%99,98"
+            - generic [ref=e174]: Akıllı yönlendirme maliyet hedefinde.
+  - status

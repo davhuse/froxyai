@@ -1,0 +1,55 @@
+{
+  "at": "2026-06-14T16:37:09.324Z",
+  "base": "https://www.froxyai.com",
+  "results": [
+    {
+      "route": "/api/health",
+      "status": 200,
+      "ok": true,
+      "ms": 1682,
+      "badText": false
+    },
+    {
+      "route": "/gorsel",
+      "status": 200,
+      "ok": true,
+      "ms": 356,
+      "badText": false
+    },
+    {
+      "route": "/sohbet",
+      "status": 200,
+      "ok": true,
+      "ms": 287,
+      "badText": false
+    },
+    {
+      "route": "/promptlar",
+      "status": 200,
+      "ok": true,
+      "ms": 274,
+      "badText": false
+    },
+    {
+      "route": "/ai-araclar",
+      "status": 200,
+      "ok": true,
+      "ms": 277,
+      "badText": false
+    },
+    {
+      "route": "/galeri",
+      "status": 200,
+      "ok": true,
+      "ms": 269,
+      "badText": false
+    },
+    {
+      "route": "/destek",
+      "status": 200,
+      "ok": true,
+      "ms": 269,
+      "badText": false
+    }
+  ]
+}

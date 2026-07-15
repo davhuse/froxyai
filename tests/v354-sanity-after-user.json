@@ -1,0 +1,86 @@
+{
+  "time": "2026-06-06T11:12:31.741Z",
+  "routes": {
+    "/": {
+      "overflow": 0,
+      "badText": false,
+      "visibleLegacyShowcase": 0,
+      "visiblePreview": 0,
+      "robot": true,
+      "adminAuth": false,
+      "consoleErrors": []
+    },
+    "/gorsel": {
+      "overflow": 0,
+      "badText": false,
+      "visibleLegacyShowcase": 0,
+      "visiblePreview": 1,
+      "robot": true,
+      "adminAuth": false,
+      "consoleErrors": []
+    },
+    "/admin": {
+      "overflow": 0,
+      "badText": false,
+      "visibleLegacyShowcase": 0,
+      "visiblePreview": 0,
+      "robot": true,
+      "adminAuth": true,
+      "consoleErrors": []
+    },
+    "/sohbet": {
+      "overflow": 0,
+      "badText": false,
+      "visibleLegacyShowcase": 0,
+      "visiblePreview": 0,
+      "robot": true,
+      "adminAuth": false,
+      "consoleErrors": []
+    },
+    "/promptlar": {
+      "overflow": 0,
+      "badText": false,
+      "visibleLegacyShowcase": 0,
+      "visiblePreview": 0,
+      "robot": true,
+      "adminAuth": false,
+      "consoleErrors": []
+    },
+    "/ai-araclar": {
+      "overflow": 0,
+      "badText": false,
+      "visibleLegacyShowcase": 0,
+      "visiblePreview": 0,
+      "robot": true,
+      "adminAuth": false,
+      "consoleErrors": []
+    },
+    "/dashboard": {
+      "overflow": 0,
+      "badText": false,
+      "visibleLegacyShowcase": 0,
+      "visiblePreview": 0,
+      "robot": true,
+      "adminAuth": false,
+      "consoleErrors": []
+    }
+  },
+  "fakeImageFailure": {
+    "status": 502,
+    "hasUrl": false,
+    "provider": "imagegpt",
+    "ok": false,
+    "error": "Seçili ImageGPT modeli şu an yanıt vermedi: ImageGPT image error"
+  },
+  "robot": {
+    "ok": true,
+    "hits": {
+      "headH": "head",
+      "alH": "left-arm",
+      "arH": "right-arm",
+      "llH": "left-leg",
+      "rlH": "right-leg",
+      "antH": "antenna"
+    }
+  }
+}

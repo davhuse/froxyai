@@ -1,0 +1,9 @@
+
+=== app.js (1 total) ===
+    1  len=5  U+011F U+0178 U+017D U+00AB U+0027  'ğŸŽ«''
+
+=== index.html (0 total) ===
+
+=== server.js (3 total) ===
+    2  len=5  U+011F U+0178 U+002C U+0020 U+00E2  'ğŸ, â'
+    1  len=5  U+011F U+0178 U+005B U+005E U+0020  'ğŸ[^ '

@@ -1,0 +1,44 @@
+{
+  "chatGroq": {
+    "status": 400,
+    "ok": false,
+    "hasReply": false,
+    "provider": null,
+    "error": {
+      "message": "Messages array required"
+    }
+  },
+  "chatOpenRouter": {
+    "status": 400,
+    "ok": false,
+    "hasReply": false,
+    "provider": null,
+    "error": {
+      "message": "Messages array required"
+    }
+  },
+  "imageFlux": {
+    "status": 200,
+    "ok": true,
+    "hasUrl": true,
+    "provider": "pollinations",
+    "model": "flux",
+    "error": null
+  },
+  "imageImageGPT": {
+    "status": 200,
+    "ok": true,
+    "hasUrl": true,
+    "provider": "imagegpt",
+    "model": "imagegpt-free",
+    "error": null
+  },
+  "oauthGoogle": {
+    "status": 302,
+    "locationHost": "https://accounts.google.com/o/oauth2/v2/auth?client_id=***&redirect_uri=https%3A%2F%2Ffroxyai-production.up.railway.app%2Fauth%2Fgoogle%2Fca"
+  },
+  "oauthGithub": {
+    "status": 302,
+    "locationHost": "https://github.com/login/oauth/authorize?client_id=***&scope=user:email&state=***&redirect_uri=https%3A%2F%2Ffroxyai-production.up.railway.a"
+  }
+}

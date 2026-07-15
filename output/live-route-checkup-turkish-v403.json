@@ -1,0 +1,69 @@
+{
+  "checkedAt": "2026-06-14T10:25:48.144Z",
+  "base": "https://www.froxyai.com",
+  "results": [
+    {
+      "route": "/api/health",
+      "status": 200,
+      "ms": 1778,
+      "bytes": 1617,
+      "badCount": 0,
+      "badSamples": [],
+      "ok": true
+    },
+    {
+      "route": "/gorsel",
+      "status": 200,
+      "ms": 338,
+      "bytes": 176960,
+      "badCount": 0,
+      "badSamples": [],
+      "ok": true
+    },
+    {
+      "route": "/promptlar",
+      "status": 200,
+      "ms": 281,
+      "bytes": 172180,
+      "badCount": 0,
+      "badSamples": [],
+      "ok": true
+    },
+    {
+      "route": "/sohbet",
+      "status": 200,
+      "ms": 272,
+      "bytes": 177048,
+      "badCount": 0,
+      "badSamples": [],
+      "ok": true
+    },
+    {
+      "route": "/ai-araclar",
+      "status": 200,
+      "ms": 297,
+      "bytes": 176716,
+      "badCount": 0,
+      "badSamples": [],
+      "ok": true
+    },
+    {
+      "route": "/galeri",
+      "status": 200,
+      "ms": 268,
+      "bytes": 172174,
+      "badCount": 0,
+      "badSamples": [],
+      "ok": true
+    },
+    {
+      "route": "/destek",
+      "status": 200,
+      "ms": 266,
+      "bytes": 172174,
+      "badCount": 0,
+      "badSamples": [],
+      "ok": true
+    }
+  ]
+}

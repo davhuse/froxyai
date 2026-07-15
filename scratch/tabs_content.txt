@@ -1,0 +1,106 @@
+
+================ TAB: ptab-tasks ================
+<div class="ptab" id="ptab-tasks">
+  <div class="panel-page" style="max-width:700px">
+    <div class="dash-header">
+      <div class="dash-greeting">
+        <h2>🎯 Günlük Görevler</h2>
+        <p>Görevleri tamamla, kredi kazan! Her gece 00:00'da sıfırlanır.</p>
+      </div>
+    </div>
+    <div class="dash-panel" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:var(--text2)">Bugünkü ilerleme</span>
+        <span style="font-size:13px;font-weight:700;color:var(--accent2)" id="tasks-earned-today">0 / 550 kredi</span>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;height:8px;overflow:hidden">
+        <div id="tasks-progress-bar" style="height:100%;background:linear-gradient(90deg,#7c3aed,#3b82f6);border-radius:8px;width:0%;transition:width .5s"></div>
+      </div>
+    </div>
+    <div id="tasks-list" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div class="dash-panel" style="margin-top:20px">
+      <h3>🔥 Giriş Serisi</h3>
+      <div id="tasks-streak-dots" style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"></div>
+      <div id="tasks-streak-info" style="font-size:13px;color:var(--text2)">Yükleniyor...</div>
+    </div>
+  </div>
+</div>
+
+
+
+================ TAB: ptab-memory ================
+<div class="ptab" id="ptab-memory">
+  <div class="panel-page" style="max-width:700px">
+    <div class="dash-header">
+      <div class="dash-greeting">
+        <h2>🧠 AI Hafıza</h2>
+        <p>AI seni tanısın! Eklediğin bilgiler her sohbette otomatik kullanılır.</p>
+      </div>
+    </div>
+    <div class="dash-panel" style="margin-bottom:16px">
+      <h3 style="margin-bottom:12px">➕ Yeni Hafıza Ekle</h3>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <textarea id="mem-input" placeholder="Örn: İstanbul'da yaşıyorum. Yazılım mühendisiyim. Türkçe yanıt tercih ederim." style="flex:1;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:13px;resize:vertical;min-height:80px" rows="3"></textarea>
+        <button onclick="addMemory()" class="btn btn-primary" style="white-space:nowrap;padding:10px 16px">+ Ekle</button>
+      </div>
+    </div>
+    <div class="dash-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3>📋 Kayıtlı Hafızalar (<span id="mem-count">0</span>)</h3>
+        <button onclick="clearAllMemory()" class="btn btn-sm" style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);font-size:12px;padding:4px 12px;border-radius:8px;cursor:pointer">🗑️ Tümünü Sil</button>
+      </div>
+      <div id="mem-list"></div>
+    </div>
+    <div class="dash-panel" style="margin-top:16px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15)">
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">
+        💡 <strong>Nasıl çalışır?</strong> Eklediğin bilgiler her yeni sohbette sistem mesajı olarak otomatik gönderilir. AI seni hatırlar!
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+================ TAB: ptab-video ================
+<div class="ptab" id="ptab-video">
+  <div class="panel-page" style="max-width:800px">
+    <div class="dash-header">
+      <div class="dash-greeting">
+        <h2>🎬 AI Video Üretici</h2>
+        <p>Metinden video üret — Ücretsiz ve ComfyUI / +18 modelleriyle!</p>
+      </div>
+    </div>
+    <div class="dash-panel">
+      <div class="fg">
+        <label>Video Açıklaması <small style="color:var(--text3)">(İngilizce daha iyi sonuç verir)</small></label>
+        <textarea id="vid-prompt" placeholder="A cinematic timelapse of Istanbul at sunset, aerial view, dramatic clouds..." style="width:100%;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:13px;resize:vertical;min-height:100px;box-sizing:border-box" rows="4"></textarea>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+        <div class="fg" style="flex:1;min-width:150px;margin:0">
+          <label>Model</label>
+          <select id="vid-model" style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font)">
+            <option value="animatediff">AnimateDiff (Animasyon)</option>
+            <option value="wan">Wan 2.1 (Gerçekçi)</option>
+            <option value="ltx">LTX Video (Hızlı)</option>
+            <option value="comfyui-hunyuan">ComfyUI: Hunyuan Video</option>
+            <option value="spicy-comfyui-video">Spicy ComfyUI Video (+18)</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="generateVideo()" id="vid-btn" class="btn btn-primary" style="margin-top:16px;width:100%;padding:13px;font-size:15px;font-weight:600">🎬 Video Üret</button>
+    </div>
+    <div id="vid-result" style="display:none" class="dash-panel">
+      <h3 style="margin-bottom:12px">✅ Üretilen Video</h3>
+      <video id="vid-player" controls style="width:100%;border-radius:12px;background:#000;max-height:400px"></video>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <a id="vid-download" download="aipaketim-video.mp4" class="btn btn-primary btn-sm">⬇️ İndir</a>
+        <button onclick="generateVideo()" class="btn btn-sm" style="background:var(--glass);border:1px solid var(--border);color:var(--text)">🔄 Yeniden Üret</button>
+      </div>
+    </div>
+    <div class="dash-panel" style="margin-top:16px;background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15)">
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">💡 <strong>İpucu:</strong> Detaylı İngilizce promptlar çok daha iyi sonuç verir.<br>Örn: <em>"slow motion ocean waves, golden hour, cinematic 4K, dramatic lighting"</em></p>
+    </div>
+  </div>
+</div>
+
+</main>

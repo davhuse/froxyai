@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Froxy AI - Landing Panel Demo</title>
+  <style>
+    :root {
+      --bg: #050711;
+      --panel: #0b1020;
+      --panel2: #111827;
+      --line: rgba(148, 163, 184, .16);
+      --line2: rgba(148, 163, 184, .28);
+      --text: #f8fafc;
+      --muted: #a7b3c8;
+      --dim: #6f7d94;
+      --cyan: #22d3ee;
+      --blue: #3b82f6;
+      --violet: #8b5cf6;
+      --green: #2ee6a8;
+      --orange: #f59e0b;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(900px 520px at 82% 18%, rgba(59,130,246,.14), transparent 62%),
+        radial-gradient(760px 480px at 16% 34%, rgba(139,92,246,.12), transparent 62%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+    }
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        linear-gradient(rgba(148,163,184,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,.035) 1px, transparent 1px);
+      background-size: 76px 76px;
+      mask-image: linear-gradient(#000, transparent 90%);
+    }
+    a, button { font: inherit; }
+    button { cursor: pointer; }
+    .demo-shell { position: relative; min-height: 100vh; overflow: hidden; }
+    .container { width: min(100% - 40px, 1220px); margin: 0 auto; }
+    .nav {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      z-index: 5;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 950; }
+    .brand img { width: 38px; height: 38px; border-radius: 10px; box-shadow: 0 16px 40px rgba(59,130,246,.22); }
+    .brand span span { color: var(--cyan); }
+    .nav-links { display: flex; gap: 6px; }
+    .nav-links a { color: #c3ccdc; text-decoration: none; font-size: 13px; font-weight: 850; padding: 9px 12px; border-radius: 8px; }
+    .nav-links a:hover { background: rgba(255,255,255,.055); color: #fff; }
+    .actions { display: flex; gap: 10px; align-items: center; }
+    .btn {
+      min-height: 44px;
+      border: 1px solid var(--line2);
+      border-radius: 10px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #fff;
+      background: rgba(255,255,255,.045);
+      text-decoration: none;
+      font-weight: 950;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .btn:hover { transform: translateY(-2px); border-color: rgba(34,211,238,.35); }
+    .btn.primary {
+      border: 0;
+      background: linear-gradient(135deg, var(--cyan), var(--blue) 50%, var(--violet));
+      color: #04111b;
+      box-shadow: 0 20px 46px rgba(59,130,246,.28);
+    }
+    .hero {
+      position: relative;
+      min-height: calc(100vh - 70px);
+      display: grid;
+      align-items: center;
+      padding: 64px 0 72px;
+    }
+    .float-logos {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .9;
+    }
+    .float-logo {
+      position: absolute;
+      min-width: 86px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      border: 1px solid rgba(148,163,184,.14);
+      border-radius: 999px;
+      background: rgba(2,6,23,.48);
+      backdrop-filter: blur(12px);
+      color: #dbeafe;
+      font-size: 11px;
+      font-weight: 950;
+      animation: drift 12s ease-in-out infinite;
+      box-shadow: 0 18px 48px rgba(0,0,0,.18);
+    }
+    .float-logo i {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: var(--c);
+      color: #fff;
+      font-style: normal;
+      font-size: 8px;
+    }
+    .float-logo.l1 { left: 8%; top: 18%; --c:#10a37f; }
+    .float-logo.l2 { right: 11%; top: 17%; --c:#d97706; animation-delay: -2s; }
+    .float-logo.l3 { left: 45%; top: 12%; --c:#4285f4; animation-delay: -5s; }
+    .float-logo.l4 { right: 6%; bottom: 20%; --c:#8b5cf6; animation-delay: -7s; }
+    .float-logo.l5 { left: 13%; bottom: 16%; --c:#06b6d4; animation-delay: -4s; }
+    .float-logo.l6 { left: 66%; bottom: 10%; --c:#ec4899; animation-delay: -9s; }
+    .hero-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(460px, 1.05fr);
+      gap: 58px;
+      align-items: center;
+    }
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 36px;
+      padding: 0 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(34,211,238,.22);
+      background: rgba(15,23,42,.58);
+      color: #cfe4f6;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .kicker i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 18px var(--green); }
+    h1 {
+      margin: 22px 0 18px;
+      max-width: 740px;
+      font-size: clamp(52px, 6.2vw, 92px);
+      line-height: .95;
+      letter-spacing: 0;
+      font-weight: 950;
+      text-wrap: balance;
+    }
+    h1 span {
+      display: block;
+      background: linear-gradient(90deg, var(--cyan), #60a5fa 34%, #a78bfa 74%, #f0abfc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .copy p {
+      max-width: 625px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.72;
+      font-weight: 720;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 32px; max-width: 650px; }
+    .proof-card {
+      min-height: 86px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(15,23,42,.70), rgba(2,6,23,.38));
+      position: relative;
+      overflow: hidden;
+    }
+    .proof-card:before { content:""; position:absolute; left:0; right:0; top:0; height:2px; background:linear-gradient(90deg,var(--cyan),var(--violet)); opacity:.65; }
+    .proof-card b { display:block; color:#fff; font-size:26px; line-height:1; font-weight:950; }
+    .proof-card small { display:block; margin-top:9px; color:#91a0b8; font-size:11px; font-weight:950; text-transform:uppercase; letter-spacing:.06em; }
+    .panel {
+      position: relative;
+      min-height: 600px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(15,23,42,.80), rgba(2,6,23,.50));
+      box-shadow: 0 38px 140px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06);
+      overflow: hidden;
+    }
+    .panel:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(380px 260px at 80% 18%, rgba(34,211,238,.10), transparent 62%),
+        radial-gradient(360px 260px at 24% 80%, rgba(139,92,246,.12), transparent 64%);
+      pointer-events: none;
+    }
+    .panel-head {
+      position: relative;
+      z-index: 2;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .panel-title { display:flex; align-items:center; gap:9px; color:#e6f6ff; font-size:12px; font-weight:950; letter-spacing:.08em; text-transform:uppercase; }
+    .panel-title i { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 16px var(--cyan); }
+    .tabs { display:flex; gap:6px; }
+    .tabs span { padding:7px 9px; border:1px solid var(--line); border-radius:8px; color:#a9b7ca; font-size:10px; font-weight:950; }
+    .prompt-box {
+      position: relative;
+      z-index: 2;
+      margin: 16px;
+      padding: 16px;
+      border: 1px solid rgba(34,211,238,.18);
+      border-radius: 14px;
+      background: rgba(2,6,23,.62);
+    }
+    .prompt-box small { display:block; color:#67e8f9; font-size:10px; font-weight:950; letter-spacing:.08em; text-transform:uppercase; margin-bottom:9px; }
+    .prompt-box p { margin:0; color:#f8fafc; font-size:14px; line-height:1.55; font-weight:800; }
+    .answers {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 16px;
+    }
+    .answer {
+      min-height: 210px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(15,23,42,.56);
+      padding: 14px;
+      overflow: hidden;
+    }
+    .answer-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+    .answer-head b { display:flex; align-items:center; gap:8px; font-size:13px; }
+    .mark { width:24px; height:24px; display:grid; place-items:center; border-radius:8px; background:var(--c); font-size:8px; }
+    .answer-head em { font-style:normal; color:#91a0b8; font-size:10px; font-weight:950; }
+    .answer p { margin:0; color:#aebbd0; font-size:12px; line-height:1.55; }
+    .answer .line { height:8px; border-radius:999px; background:rgba(148,163,184,.16); margin-top:10px; overflow:hidden; }
+    .answer .line i { display:block; height:100%; width:var(--w); border-radius:inherit; background:linear-gradient(90deg,var(--cyan),var(--violet)); }
+    .verdict {
+      position: relative;
+      z-index: 2;
+      margin: 12px 16px 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      border: 1px solid rgba(46,230,168,.22);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(46,230,168,.10), rgba(34,211,238,.06), rgba(139,92,246,.08));
+      padding: 16px;
+    }
+    .verdict small { color:#7fffd4; font-size:10px; font-weight:950; letter-spacing:.08em; text-transform:uppercase; }
+    .verdict b { display:block; margin-top:5px; color:#fff; font-size:18px; }
+    .verdict p { margin:6px 0 0; color:#aebbd0; font-size:12px; line-height:1.55; }
+    .credit { min-width:105px; text-align:center; border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:12px; background:rgba(2,6,23,.45); }
+    .credit strong { display:block; color:#fff; font-size:22px; }
+    .credit span { color:#91a0b8; font-size:10px; font-weight:950; text-transform:uppercase; }
+    .section { padding: 86px 0 0; }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:24px; }
+    .section-head span { color:var(--cyan); font-size:12px; font-weight:950; letter-spacing:.08em; text-transform:uppercase; }
+    .section-head h2 { margin:9px 0 0; font-size:clamp(30px,3.6vw,48px); line-height:1.08; }
+    .section-head p { max-width:520px; color:var(--muted); line-height:1.65; font-weight:650; }
+    .feature-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .feature {
+      min-height: 180px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:linear-gradient(180deg,rgba(15,23,42,.62),rgba(2,6,23,.34));
+      padding:18px;
+      transition:transform .18s ease,border-color .18s ease;
+    }
+    .feature:hover { transform:translateY(-4px); border-color:rgba(34,211,238,.30); }
+    .feature i { width:38px; height:38px; display:grid; place-items:center; border-radius:12px; background:linear-gradient(135deg,rgba(34,211,238,.22),rgba(139,92,246,.22)); color:#fff; font-style:normal; font-weight:950; margin-bottom:14px; }
+    .feature b { display:block; font-size:18px; margin-bottom:8px; }
+    .feature p { margin:0; color:#9dadc4; font-size:13px; line-height:1.55; }
+    @keyframes drift {
+      0%, 100% { transform: translate3d(0,0,0); opacity:.48; }
+      50% { transform: translate3d(18px,-18px,0); opacity:.9; }
+    }
+    @media(max-width: 980px) {
+      .nav-links { display:none; }
+      .hero-grid { grid-template-columns:1fr; gap:28px; }
+      .panel { min-height:auto; }
+      .answers { grid-template-columns:1fr; }
+      .answer { min-height:auto; }
+      .section-head { display:block; }
+      .section-head p { margin-top:12px; }
+      .feature-grid { grid-template-columns:1fr; }
+    }
+    @media(max-width: 640px) {
+      .container { width:min(100% - 28px,1220px); }
+      .nav { height:64px; }
+      .actions .btn:first-child { display:none; }
+      .actions .btn.primary { min-height:38px; padding:0 12px; font-size:12px; max-width:116px; text-align:center; color:#fff; }
+      .hero { padding:42px 0 52px; }
+      h1 { font-size:clamp(39px,12vw,54px); line-height:1.02; }
+      .copy p { font-size:15px; }
+      .hero-actions { display:grid; }
+      .hero-actions .btn { width:100%; }
+      .proof { grid-template-columns:1fr; }
+      .float-logo { opacity:.35; transform:scale(.86); }
+      .float-logo.l3,.float-logo.l6 { display:none; }
+      .panel-head { height:auto; align-items:flex-start; gap:10px; padding:12px; flex-direction:column; }
+      .tabs { width:100%; overflow-x:auto; }
+      .verdict { grid-template-columns:1fr; }
+      .credit { text-align:left; }
+    }
+    @media(prefers-reduced-motion: reduce) {
+      *, *:before, *:after { animation:none!important; transition:none!important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-shell">
+    <div class="float-logos" aria-hidden="true">
+      <span class="float-logo l1"><i>OA</i>OpenAI</span>
+      <span class="float-logo l2"><i>CL</i>Claude</span>
+      <span class="float-logo l3"><i>GE</i>Gemini</span>
+      <span class="float-logo l4"><i>OR</i>OpenRouter</span>
+      <span class="float-logo l5"><i>GR</i>Groq</span>
+      <span class="float-logo l6"><i>DS</i>DeepSeek</span>
+    </div>
+
+    <header class="nav container">
+      <div class="brand">
+        <img src="froxy-logo-192-v260.png" alt="Froxy AI">
+        <span>Froxy<span>AI</span></span>
+      </div>
+      <nav class="nav-links" aria-label="Demo menü">
+        <a href="#compare">Karşılaştır</a>
+        <a href="#features">Özellikler</a>
+        <a href="#pricing">Fiyatlar</a>
+        <a href="#trust">Güven</a>
+      </nav>
+      <div class="actions">
+        <a class="btn" href="/">Mevcut site</a>
+        <a class="btn primary" href="/sohbet">Sohbete Başla</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="copy">
+            <span class="kicker"><i></i> Tek prompt, çok model</span>
+            <h1>AI kurulunu <span>tek panelde çalıştır.</span></h1>
+            <p>ChatGPT, Claude, Gemini, Groq, DeepSeek ve görsel modellerini tek kredi havuzunda kullan. Aynı promptu modellerde karşılaştır, Froxy ortak sonucu ve maliyeti net göstersin.</p>
+            <div class="hero-actions">
+              <a class="btn primary" href="/sohbet">100 krediyle dene</a>
+              <a class="btn" href="#compare">AI Kurulunu Gör</a>
+              <a class="btn" href="#pricing">Paketleri Gör</a>
+            </div>
+            <div class="proof">
+              <div class="proof-card"><b>400+</b><small>model ve araç</small></div>
+              <div class="proof-card"><b>3 cevap</b><small>tek Froxy kararı</small></div>
+              <div class="proof-card"><b>8 kredi</b><small>örnek maliyet</small></div>
+            </div>
+          </div>
+
+          <aside class="panel" id="compare" aria-label="AI Kurulu ürün paneli">
+            <div class="panel-head">
+              <div class="panel-title"><i></i> AI Kurulu canlı önizleme</div>
+              <div class="tabs"><span>Chat</span><span>Görsel</span><span>Dosya</span><span>Araç</span></div>
+            </div>
+
+            <div class="prompt-box">
+              <small>Kullanıcı promptu</small>
+              <p>“Yeni çıkan AI ürünümüz için 10 saniyelik reklam fikri, slogan ve Instagram açıklaması üret.”</p>
+            </div>
+
+            <div class="answers">
+              <article class="answer">
+                <div class="answer-head"><b><span class="mark" style="--c:#10a37f">OA</span>GPT</b><em>2 kredi</em></div>
+                <p>Net kampanya fikri, kısa slogan ve hızlı sosyal medya metni önerir.</p>
+                <div class="line"><i style="--w:82%"></i></div>
+                <div class="line"><i style="--w:64%"></i></div>
+                <div class="line"><i style="--w:74%"></i></div>
+              </article>
+              <article class="answer">
+                <div class="answer-head"><b><span class="mark" style="--c:#d97706">CL</span>Claude</b><em>3 kredi</em></div>
+                <p>Daha akıcı, marka tonuna uygun ve güven veren reklam metnine odaklanır.</p>
+                <div class="line"><i style="--w:76%"></i></div>
+                <div class="line"><i style="--w:88%"></i></div>
+                <div class="line"><i style="--w:58%"></i></div>
+              </article>
+              <article class="answer">
+                <div class="answer-head"><b><span class="mark" style="--c:#4285f4">GE</span>Gemini</b><em>3 kredi</em></div>
+                <p>Görsel sahne, video promptu ve hızlı varyasyon fikriyle kampanyayı genişletir.</p>
+                <div class="line"><i style="--w:67%"></i></div>
+                <div class="line"><i style="--w:80%"></i></div>
+                <div class="line"><i style="--w:71%"></i></div>
+              </article>
+            </div>
+
+            <div class="verdict">
+              <div>
+                <small>Froxy kararı</small>
+                <b>3 modelin ortak önerisi hazır.</b>
+                <p>En güçlü slogan Claude’dan, hızlı reklam kurgusu GPT’den, görsel sahne Gemini’den alındı.</p>
+              </div>
+              <div class="credit"><strong>8</strong><span>kredi</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <span>Froxy farkı</span>
+              <h2>Tek panel hissi satışa dönüşür.</h2>
+            </div>
+            <p>Landing sayfanın ana amacı logoları göstermek değil, kullanıcıya ürünü satın almadan kullandığını hissettirmek.</p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature"><i>01</i><b>Model karşılaştırma</b><p>Aynı prompt GPT, Claude ve Gemini’de çalışır; kullanıcı sonuç farkını görür.</p></article>
+            <article class="feature"><i>02</i><b>Otomatik seçim</b><p>Kod, görsel, reklam veya dosya işine göre en uygun rota önerilir.</p></article>
+            <article class="feature"><i>03</i><b>Tek kredi havuzu</b><p>Ayrı abonelik yerine tüm modeller tek kredi sistemiyle çalışır.</p></article>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "5 dakikada iş içerik paketi üret.",
+      "active": [
+        "v-home"
+      ],
+      "bad": [],
+      "black": false,
+      "bodyLen": 5583
+    },
+    {
+      "route": "/sohbet",
+      "title": "AI Sohbet Paneli - Türkçe İş Asistanı | Froxy AI",
+      "h1": "AI sohbet paneli",
+      "active": [
+        "v-chat",
+        "ptab-chat"
+      ],
+      "bad": [],
+      "black": false,
+      "bodyLen": 574
+    },
+    {
+      "route": "/gorsel",
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "h1": "AI görsel üretme ve fotoğraf düzenleme",
+      "active": [
+        "v-chat",
+        "ptab-img"
+      ],
+      "bad": [],
+      "black": false,
+      "bodyLen": 1953
+    },
+    {
+      "route": "/promptlar",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "Yapay zeka modellerini tek panelden yönetin",
+      "active": [
+        "v-chat",
+        "ptab-prompts"
+      ],
+      "bad": [],
+      "black": false,
+      "bodyLen": 2003
+    },
+    {
+      "route": "/ai-araclar",
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "h1": "AI araçları merkezi",
+      "active": [
+        "v-chat",
+        "ptab-tools"
+      ],
+      "bad": [],
+      "black": false,
+      "bodyLen": 2162
+    },
+    {
+      "route": "/galeri",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "Yapay zeka modellerini tek panelden yönetin",
+      "active": [
+        "v-chat",
+        "ptab-gallery"
+      ],
+      "bad": [],
+      "black": false,
+      "bodyLen": 339
+    },
+    {
+      "route": "/destek",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "Yapay zeka modellerini tek panelden yönetin",
+      "active": [
+        "v-chat",
+        "ptab-support"
+      ],
+      "bad": [],
+      "black": false,
+      "bodyLen": 1118
+    },
+    {
+      "route": "/admin",
+      "title": "Froxy AI - Türkçe AI İş Asistanı",
+      "h1": "Yapay zeka modellerini tek panelden yönetin",
+      "active": [
+        "ptab-chat",
+        "v-admin"
+      ],
+      "bad": [],
+      "black": false,
+      "bodyLen": 348
+    }
+  ],
+  "chat": {
+    "ok": true,
+    "opened": true,
+    "before": 0,
+    "after": 360,
+    "closed": true,
+    "menuText": "Model Seçimi×FavorilerChatGPTÜcretsiz KaliteliLlamaÜcretsizTümüÜcretsiz Kaliteli (11)Llama 3.3 70BÜcretsiz Kaliteli (11)GPT-OSS 120B (Groq)Ücretsiz Kaliteli (11)GPT-OSS 20B (Groq)Ücretsiz Kaliteli (11)Llama 3.1 8B UltraÜcretsiz Kaliteli (11)DeepSeek R1 Distill 70BÜcretsiz Kaliteli (11)OpenRouter Free AutoÜcretsiz Kaliteli (11)DeepSeek R1 FreeÜcretsiz Kaliteli (11)Jan Local Chat (Free)Ücretsiz Kali",
+    "bodyClass": "theme-dark"
+  },
+  "img": {
+    "ok": true,
+    "opened": true,
+    "before": 0,
+    "after": 0,
+    "old": "pollinations-flux",
+    "newValue": "cf-sdxl-lightning",
+    "locked": "cf-sdxl-lightning",
+    "optionCount": 29,
+    "badQuestion": false,
+    "triggerText": "Cloudflare SDXL Lightning\nSeçili model kilitli: cf-sdxl-lightning"
+  },
+  "pay": {
+    "clicked": true,
+    "url": "http://127.0.0.1:3000/?cb=v483",
+    "hasDodo": false,
+    "hasAboutBlank": false,
+    "modalOpen": false
+  }
+}

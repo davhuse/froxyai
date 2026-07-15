@@ -1,0 +1,123 @@
+{
+  "value": "pollinations-flux",
+  "options": [
+    {
+      "id": "comfyui-local",
+      "selectExists": true,
+      "selectDisabled": false,
+      "text": "ComfyUI Local Image - Ready",
+      "pickerExists": true,
+      "pickerDisabled": false,
+      "pickerText": "ComfyUI DreamShaper8 LCM - Ready\n1 kredi · Hızlı\nGörsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu\n1"
+    },
+    {
+      "id": "fooocus-local",
+      "selectExists": true,
+      "selectDisabled": true,
+      "text": "Fooocus Local Image - Kurulum gerekli",
+      "pickerExists": true,
+      "pickerDisabled": true,
+      "pickerText": "Fooocus Local Image - Kurulum gerekli\n1 kredi · Hızlı\nGörsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu\n1"
+    },
+    {
+      "id": "a1111-local",
+      "selectExists": true,
+      "selectDisabled": false,
+      "text": "A1111 WebUI Local - Ready",
+      "pickerExists": true,
+      "pickerDisabled": false,
+      "pickerText": "A1111 WebUI Local - Ready\n1 kredi · Hızlı\nGörsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu\n1"
+    },
+    {
+      "id": "forge-local",
+      "selectExists": true,
+      "selectDisabled": true,
+      "text": "Forge Local - Kurulum gerekli",
+      "pickerExists": true,
+      "pickerDisabled": true,
+      "pickerText": "Forge Local - Kurulum gerekli\n1 kredi · Hızlı\nGörsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu\n1"
+    },
+    {
+      "id": "swarmui-local",
+      "selectExists": true,
+      "selectDisabled": false,
+      "text": "SwarmUI Local - Ready",
+      "pickerExists": true,
+      "pickerDisabled": false,
+      "pickerText": "SwarmUI Local - Ready\n1 kredi · Hızlı\nGörsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu\n1"
+    },
+    {
+      "id": "modal-sdxl",
+      "selectExists": true,
+      "selectDisabled": false,
+      "text": "Modal GPU SDXL - Cloud GPU Ready",
+      "pickerExists": true,
+      "pickerDisabled": false,
+      "pickerText": "SDXL - Cloud GPU Ready\n5 kredi · Hızlı\nCloudflare SDXL · Ucuz taslak, Hızlı deneme, Stil arama\n5"
+    },
+    {
+      "id": "modal-local-sd",
+      "selectExists": true,
+      "selectDisabled": false,
+      "text": "Modal Local SD Cloud - Cloud GPU Ready",
+      "pickerExists": true,
+      "pickerDisabled": false,
+      "pickerText": "Local SD Cloud - Cloud GPU Ready\n5 kredi · Hızlı\nGörsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu\n5"
+    },
+    {
+      "id": "modal-cloud-gpu",
+      "selectExists": true,
+      "selectDisabled": false,
+      "text": "Modal Cloud GPU - Cloud GPU Ready",
+      "pickerExists": true,
+      "pickerDisabled": false,
+      "pickerText": "Cloud GPU - Cloud GPU Ready\n5 kredi · Hızlı\nGörsel AI · Genel Üretim, Prompt deneme, Stil varyasyonu\n5"
+    }
+  ],
+  "status": {
+    "ok": true,
+    "comfyui": {
+      "ready": true,
+      "baseUrl": "http://127.0.0.1:8188",
+      "checkedPath": "/system_stats",
+      "checkpoint": "DreamShaper8_LCM.safetensors"
+    },
+    "fooocus": {
+      "ready": false,
+      "baseUrl": "http://127.0.0.1:8888",
+      "checkedPath": null
+    },
+    "a1111": {
+      "ready": true,
+      "baseUrl": "http://127.0.0.1:7860",
+      "checkedPath": "/sdapi/v1/sd-models"
+    },
+    "forge": {
+      "ready": false,
+      "baseUrl": "http://127.0.0.1:7861",
+      "checkedPath": null
+    },
+    "swarmui": {
+      "ready": true,
+      "baseUrl": "http://127.0.0.1:7801",
+      "checkedPath": "/API/GetNewSession"
+    },
+    "modal": {
+      "ready": true,
+      "baseUrl": "https://habilrencber--froxy-modal-image-generate.modal.run",
+      "checkedPath": "configured",
+      "models": [
+        "modal-sdxl",
+        "modal-local-sd",
+        "modal-cloud-gpu"
+      ]
+    },
+    "pcLocalPingEnabled": true,
+    "errors": {
+      "fooocus": "/docs: fetch failed | /: fetch failed | /ping: fetch failed",
+      "forge": "/sdapi/v1/sd-models: fetch failed | /docs: fetch failed | /: fetch failed"
+    },
+    "cached": true,
+    "cacheAgeMs": 1930
+  }
+}

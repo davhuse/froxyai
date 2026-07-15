@@ -1,0 +1,133 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary "Froxy gezinme menüsü" [ref=e3]:
+      - generic [ref=e4]:
+        - link "Froxy AI ana sayfa" [ref=e5] [cursor=pointer]:
+          - /url: "#chat"
+          - generic [ref=e6]: F
+          - generic [ref=e7]: froxy.
+        - button "Menüyü kapat" [ref=e8] [cursor=pointer]
+      - button "Yeni çalışma ⌘ K" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]: +
+        - text: Yeni çalışma
+        - generic [ref=e13]: ⌘ K
+      - navigation "Birincil" [ref=e14]:
+        - button "Sohbet" [ref=e15] [cursor=pointer]
+        - button "Keşfet Yeni" [ref=e18] [cursor=pointer]:
+          - text: Keşfet
+          - generic [ref=e21]: Yeni
+        - button "Dosyalar" [ref=e22] [cursor=pointer]
+        - button "Görsel stüdyo" [ref=e25] [cursor=pointer]
+        - button "Prompt kütüphanesi" [ref=e28] [cursor=pointer]
+        - button "Projeler" [ref=e31] [cursor=pointer]
+        - link "Açılış sayfası" [ref=e34] [cursor=pointer]:
+          - /url: landing.html
+        - link "Yönetim Admin" [ref=e37] [cursor=pointer]:
+          - /url: admin.html
+          - text: Yönetim
+          - generic [ref=e40]: Admin
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]: Bugün
+          - button "Geçmiş seçenekleri" [ref=e44] [cursor=pointer]: •••
+        - generic [ref=e45]:
+          - button "Froxy landing konsepti 2 dk önce" [ref=e46] [cursor=pointer]:
+            - generic [ref=e47]: ✦
+            - generic [ref=e48]:
+              - strong [ref=e49]: Froxy landing konsepti
+              - generic [ref=e50]: 2 dk önce
+          - button "İstanbul yaratıcı rota Dün" [ref=e51] [cursor=pointer]:
+            - generic [ref=e52]: ⌁
+            - generic [ref=e53]:
+              - strong [ref=e54]: İstanbul yaratıcı rota
+              - generic [ref=e55]: Dün
+          - button "Ürün fikrini doğrula Dün" [ref=e56] [cursor=pointer]:
+            - generic [ref=e57]: ↗
+            - generic [ref=e58]:
+              - strong [ref=e59]: Ürün fikrini doğrula
+              - generic [ref=e60]: Dün
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]: Bugünün akışı
+            - strong [ref=e65]: "%68"
+          - paragraph [ref=e68]: 3 net fikir, 1 sonraki adım.
+        - button "Hesap ayarları" [ref=e69] [cursor=pointer]:
+          - generic [ref=e70]: HA
+          - generic [ref=e71]:
+            - strong [ref=e72]: Habil A.
+            - generic [ref=e73]: Froxy Explorer
+    - main [ref=e76]:
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - button "Menüyü aç" [ref=e79] [cursor=pointer]
+          - generic [ref=e82]: FROXY STUDIO
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - button [ref=e86] [cursor=pointer]
+            - listbox "Model seç":
+              - option "Froxy Core Dengeli düşünme ve üretim" [selected]:
+                - generic:
+                  - strong: Froxy Core
+                  - generic: Dengeli düşünme ve üretim
+              - option "Froxy Swift Hızlı taslaklar ve özetler":
+                - generic:
+                  - strong: Froxy Swift
+                  - generic: Hızlı taslaklar ve özetler
+              - option "Froxy Vision Görsel ve dosya odaklı işler":
+                - generic:
+                  - strong: Froxy Vision
+                  - generic: Görsel ve dosya odaklı işler
+          - button "Paylaş" [ref=e88] [cursor=pointer]
+      - region "Sohbet çalışma alanı" [ref=e91]:
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - generic [ref=e94]: ✦
+            - text: Netlik için buradayım
+          - heading [level=1] [ref=e95]:
+            - text: Bugün neyi
+            - emphasis [ref=e96]: netleştirelim?
+          - paragraph [ref=e97]: Froxy; fikirleri, araştırmayı ve üretimi aynı akışta buluşturur.
+          - group "Çalışma modu" [ref=e98]:
+            - button "Fikir üret" [ref=e99] [cursor=pointer]
+            - button "Araştır" [ref=e100] [cursor=pointer]
+            - button "Planla" [ref=e101] [cursor=pointer]
+            - button "Yaz" [ref=e102] [cursor=pointer]
+          - generic "Önerilen başlangıçlar" [ref=e103]:
+            - button "↗ Bir ürün fikrini doğrula Hızlı test planı ve ilk sinyaller →" [ref=e104] [cursor=pointer]:
+              - generic [ref=e105]: ↗
+              - generic [ref=e106]:
+                - strong [ref=e107]: Bir ürün fikrini doğrula
+                - generic [ref=e108]: Hızlı test planı ve ilk sinyaller
+              - generic [ref=e109]: →
+            - button "⌘ Web sitesi için içerik planla Sayfa yapısı, mesaj ve CTA'lar →" [ref=e110] [cursor=pointer]:
+              - generic [ref=e111]: ⌘
+              - generic [ref=e112]:
+                - strong [ref=e113]: Web sitesi için içerik planla
+                - generic [ref=e114]: Sayfa yapısı, mesaj ve CTA'lar
+              - generic [ref=e115]: →
+            - button "◎ Karmaşık bir konuyu sadeleştir Örnekli, katmanlı açıklama →" [ref=e116] [cursor=pointer]:
+              - generic [ref=e117]: ◎
+              - generic [ref=e118]:
+                - strong [ref=e119]: Karmaşık bir konuyu sadeleştir
+                - generic [ref=e120]: Örnekli, katmanlı açıklama
+              - generic [ref=e121]: →
+            - button "⌁ Yaratıcı yol haritası çıkar Hedef, ritim ve ilk adım →" [ref=e122] [cursor=pointer]:
+              - generic [ref=e123]: ⌁
+              - generic [ref=e124]:
+                - strong [ref=e125]: Yaratıcı yol haritası çıkar
+                - generic [ref=e126]: Hedef, ritim ve ilk adım
+              - generic [ref=e127]: →
+          - generic [ref=e128]: Her iyi iş, net bir ilk soruyla başlar.
+        - generic "Sohbet mesajları" [ref=e130]
+      - generic [ref=e132]:
+        - generic [ref=e133]:
+          - button "Dosya ekle" [ref=e134] [cursor=pointer]
+          - textbox "Froxy'ye mesaj yaz" [ref=e137]:
+            - /placeholder: Froxy'ye bir şey sor...
+          - button "Gönder" [disabled] [ref=e138]
+        - generic [ref=e142]:
+          - generic [ref=e143]: ⌘
+          - generic [ref=e144]: Enter
+          - text: gönder
+  - status

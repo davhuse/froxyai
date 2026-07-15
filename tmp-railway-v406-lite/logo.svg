@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="leafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="#0a0e1a"/>
+  <!-- Fox/leaf icon -->
+  <g transform="translate(256,200)" filter="url(#glow)">
+    <!-- Left leaves -->
+    <path d="M-60,20 C-90,-40 -50,-90 -10,-60 C-30,-30 -40,0 -60,20Z" fill="url(#leafGrad)" opacity="0.9"/>
+    <path d="M-40,50 C-80,0 -60,-50 -20,-30 C-30,0 -35,30 -40,50Z" fill="url(#leafGrad)" opacity="0.75"/>
+    <!-- Right leaves -->
+    <path d="M60,20 C90,-40 50,-90 10,-60 C30,-30 40,0 60,20Z" fill="url(#leafGrad)" opacity="0.9"/>
+    <path d="M40,50 C80,0 60,-50 20,-30 C30,0 35,30 40,50Z" fill="url(#leafGrad)" opacity="0.75"/>
+    <!-- Bottom tail curl -->
+    <path d="M0,60 C20,70 50,65 70,40 C60,55 30,60 10,50 C-5,45 -5,55 0,60Z" fill="url(#leafGrad)" opacity="0.85"/>
+    <!-- Center dots -->
+    <rect x="-4" y="-75" width="6" height="6" rx="1" fill="#67e8f9" opacity="0.9"/>
+    <rect x="8" y="-75" width="6" height="6" rx="1" fill="#67e8f9" opacity="0.7"/>
+    <rect x="-4" y="-63" width="6" height="6" rx="1" fill="#67e8f9" opacity="0.7"/>
+    <rect x="8" y="-63" width="6" height="6" rx="1" fill="#818cf8" opacity="0.8"/>
+    <rect x="20" y="-75" width="6" height="6" rx="1" fill="#818cf8" opacity="0.6"/>
+    <rect x="20" y="-63" width="6" height="6" rx="1" fill="#a78bfa" opacity="0.5"/>
+  </g>
+  <!-- Froxy AI text -->
+  <text x="256" y="420" text-anchor="middle" font-family="'Orbitron','Rajdhani','Segoe UI',sans-serif" font-size="72" font-weight="700" fill="url(#textGrad)" letter-spacing="2">Froxy AI</text>
+</svg>

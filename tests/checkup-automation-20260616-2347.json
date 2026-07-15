@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-06-16T20:47:09.759Z",
+  "base": "https://www.froxyai.com",
+  "cwd": "C:\\Users\\habil\\.gemini\\antigravity\\scratch\\ApiMarket",
+  "policy": {
+    "mockedImageGenerationForModelLock": true,
+    "realProviderSmoke": false,
+    "noTogetherSpendDuringDefaultCheck": true
+  },
+  "fatal": "Protocol \"https:\" not supported. Expected \"http:\""
+}

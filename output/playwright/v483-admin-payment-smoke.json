@@ -1,0 +1,77 @@
+{
+  "adminApi": [
+    {
+      "path": "/api/me",
+      "status": 200,
+      "ok": true,
+      "keys": [
+        "user",
+        "limits"
+      ],
+      "user": {
+        "id": 3,
+        "email": "habilrencber111111111111111111111111@gmail.com1",
+        "plan": "enterprise",
+        "is_admin": 1
+      }
+    },
+    {
+      "path": "/api/admin/stats",
+      "status": 200,
+      "ok": true,
+      "keys": [
+        "totalUsers",
+        "newToday",
+        "totalCredits",
+        "totalChats",
+        "totalDocs",
+        "blockedUsers",
+        "adminCount",
+        "recentUsers",
+        "latestUser",
+        "latestLogin",
+        "recentLogins24h",
+        "galleryImages"
+      ]
+    },
+    {
+      "path": "/api/admin/users?limit=3",
+      "status": 200,
+      "ok": true,
+      "keys": [
+        "users",
+        "total",
+        "page",
+        "pages"
+      ]
+    },
+    {
+      "path": "/api/admin/guest-sessions",
+      "status": 200,
+      "ok": true,
+      "keys": [
+        "days",
+        "sessions"
+      ]
+    },
+    {
+      "path": "/api/admin/credit-usage?limit=3",
+      "status": 200,
+      "ok": true,
+      "keys": [
+        "rows"
+      ]
+    }
+  ],
+  "paymentModal": {
+    "exists": true,
+    "visible": true,
+    "hasDodo": false,
+    "hasAboutBlank": false,
+    "hasShopier": true,
+    "hasPayButton": true,
+    "intended": "https://www.shopier.com/froxyai/47408136",
+    "hrefBefore": "http://127.0.0.1:3000/?cb=v483",
+    "text": "GÜVENLİ ÖDEME\nBaşlangıç paketini onayla\nx\n5.000 krediDijital teslimat, ödeme sonrası otomatik yükleme\n₺129,99\n• Ödeme Shopier güvenli ödeme sayfasında tamamlanır.\n• Ödeme onayından sonra krediler hesabına otomatik yüklenir.\n• Kullanım şartları, iade/iptal ve destek süreci ödeme öncesi açıktır.\nKullanım Şartları, İade/İptal, Ön Bilgilendirme ve Mesafeli Satış metinlerini okudum, dijital teslimatı kabul ediyorum.\nVazgeç\nÖdemeye geç"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "date": "2026-06-12T11:55:09.222Z",
+  "results": [
+    {
+      "model": "pollinations-flux",
+      "ok": true,
+      "status": 200,
+      "provider": "pollinations",
+      "url": "/generated/gen_1781265279872.jpg",
+      "error": "",
+      "ms": 2762
+    },
+    {
+      "model": "pollinations-kontext",
+      "ok": false,
+      "status": 502,
+      "provider": "pollinations",
+      "url": "",
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata",
+      "ms": 3833
+    },
+    {
+      "model": "pollinations-nanobanana",
+      "ok": false,
+      "status": 502,
+      "provider": "pollinations",
+      "url": "",
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata",
+      "ms": 3809
+    },
+    {
+      "model": "pollinations-nanobanana-2",
+      "ok": false,
+      "status": 502,
+      "provider": "pollinations",
+      "url": "",
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata",
+      "ms": 3821
+    },
+    {
+      "model": "pollinations-seedream",
+      "ok": false,
+      "status": 502,
+      "provider": "pollinations",
+      "url": "",
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata",
+      "ms": 3869
+    },
+    {
+      "model": "pollinations-seedream5",
+      "ok": false,
+      "status": 502,
+      "provider": "pollinations",
+      "url": "",
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata",
+      "ms": 3773
+    },
+    {
+      "model": "pollinations-zimage",
+      "ok": true,
+      "status": 200,
+      "provider": "pollinations",
+      "url": "/generated/gen_1781265301401.jpg",
+      "error": "",
+      "ms": 2413
+    },
+    {
+      "model": "pollinations-gptimage",
+      "ok": false,
+      "status": 502,
+      "provider": "pollinations",
+      "url": "",
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata",
+      "ms": 3782
+    },
+    {
+      "model": "pollinations-gpt-image-2",
+      "ok": false,
+      "status": 502,
+      "provider": "pollinations",
+      "url": "",
+      "error": "Seçili görsel sağlayıcısı şu an yanıt vermedi: bilinmeyen hata",
+      "ms": 4035
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "ok": 2,
+    "fail": 7
+  }
+}

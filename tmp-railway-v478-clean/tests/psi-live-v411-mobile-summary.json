@@ -1,0 +1,50 @@
+﻿[
+    {
+        "route":  "/",
+        "url":  "https://www.froxyai.com/",
+        "score":  "ERR",
+        "error":  "Uzak sunucu hata döndürdü: (429) Too Many Requests."
+    },
+    {
+        "route":  "/sohbet",
+        "url":  "https://www.froxyai.com/sohbet",
+        "score":  "ERR",
+        "error":  "Uzak sunucu hata döndürdü: (429) Too Many Requests."
+    },
+    {
+        "route":  "/gorsel",
+        "url":  "https://www.froxyai.com/gorsel",
+        "score":  "ERR",
+        "error":  "Uzak sunucu hata döndürdü: (429) Too Many Requests."
+    },
+    {
+        "route":  "/promptlar",
+        "url":  "https://www.froxyai.com/promptlar",
+        "score":  "ERR",
+        "error":  "Uzak sunucu hata döndürdü: (429) Too Many Requests."
+    },
+    {
+        "route":  "/ai-araclar",
+        "url":  "https://www.froxyai.com/ai-araclar",
+        "score":  "ERR",
+        "error":  "Uzak sunucu hata döndürdü: (429) Too Many Requests."
+    },
+    {
+        "route":  "/galeri",
+        "url":  "https://www.froxyai.com/galeri",
+        "score":  "ERR",
+        "error":  "Uzak sunucu hata döndürdü: (429) Too Many Requests."
+    },
+    {
+        "route":  "/destek",
+        "url":  "https://www.froxyai.com/destek",
+        "score":  "ERR",
+        "error":  "Uzak sunucu hata döndürdü: (429) Too Many Requests."
+    },
+    {
+        "route":  "/admin",
+        "url":  "https://www.froxyai.com/admin",
+        "score":  "ERR",
+        "error":  "Uzak sunucu hata döndürdü: (429) Too Many Requests."
+    }
+]

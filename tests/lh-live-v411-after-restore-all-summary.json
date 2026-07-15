@@ -1,0 +1,74 @@
+﻿[
+    {
+        "route":  "/",
+        "score":  99,
+        "fcp":  "1.1Â s",
+        "lcp":  "2.0Â s",
+        "tbt":  "0Â ms",
+        "cls":  "0.001",
+        "file":  "tests/lh-live-v411-home-after-restore.json"
+    },
+    {
+        "route":  "/sohbet",
+        "score":  100,
+        "fcp":  "1.0Â s",
+        "lcp":  "1.0Â s",
+        "tbt":  "10Â ms",
+        "cls":  "0",
+        "file":  "tests/lh-live-v411-after-restore-sohbet-perfparam.json"
+    },
+    {
+        "route":  "/gorsel",
+        "score":  98,
+        "fcp":  "1.2Â s",
+        "lcp":  "1.2Â s",
+        "tbt":  "140Â ms",
+        "cls":  "0",
+        "file":  "tests/lh-live-v411-after-restore-gorsel-perfparam.json"
+    },
+    {
+        "route":  "/promptlar",
+        "score":  100,
+        "fcp":  "1.0Â s",
+        "lcp":  "1.0Â s",
+        "tbt":  "0Â ms",
+        "cls":  "0",
+        "file":  "tests/lh-live-v411-after-restore-promptlar-perfparam.json"
+    },
+    {
+        "route":  "/ai-araclar",
+        "score":  100,
+        "fcp":  "1.0Â s",
+        "lcp":  "1.0Â s",
+        "tbt":  "20Â ms",
+        "cls":  "0",
+        "file":  "tests/lh-live-v411-after-restore-ai-araclar-perfparam.json"
+    },
+    {
+        "route":  "/galeri",
+        "score":  100,
+        "fcp":  "1.0Â s",
+        "lcp":  "1.0Â s",
+        "tbt":  "0Â ms",
+        "cls":  "0",
+        "file":  "tests/lh-live-v411-after-restore-galeri-perfparam.json"
+    },
+    {
+        "route":  "/destek",
+        "score":  100,
+        "fcp":  "1.0Â s",
+        "lcp":  "1.0Â s",
+        "tbt":  "10Â ms",
+        "cls":  "0",
+        "file":  "tests/lh-live-v411-after-restore-destek-perfparam.json"
+    },
+    {
+        "route":  "/admin",
+        "score":  100,
+        "fcp":  "1.0Â s",
+        "lcp":  "1.0Â s",
+        "tbt":  "0Â ms",
+        "cls":  "0",
+        "file":  "tests/lh-live-v411-after-restore-admin-perfparam.json"
+    }
+]

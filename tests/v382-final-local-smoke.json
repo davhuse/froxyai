@@ -1,0 +1,201 @@
+{
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/sohbet",
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 400+ Model | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/gorsel",
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/promptlar",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/ai-araclar",
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/destek",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/admin",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/sohbet",
+      "title": "AI Sohbet Paneli - ChatGPT, Claude, Gemini ve 400+ Model | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/gorsel",
+      "title": "AI Görsel Üretme ve Fotoğraf Düzenleme Aracı | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/promptlar",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ai-araclar",
+      "title": "AI Araçları - ChatGPT, Claude, Gemini ve Daha Fazlası | Froxy AI",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/destek",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/admin",
+      "title": "Froxy AI - ChatGPT, Claude, Gemini ve 400+ AI Modeli Tek Panelde",
+      "overflow": 0,
+      "badText": false,
+      "veryFast": 0,
+      "appReady": true,
+      "prepaint": false,
+      "errors": []
+    }
+  ],
+  "imageModels": {
+    "generateCount": 27,
+    "editCount": 8,
+    "generate": [
+      "auto-quality",
+      "gemini-2.5-flash-image",
+      "gemini-3.1-flash-image",
+      "gemini-3-pro-image",
+      "imagen-4-fast",
+      "imagen-4",
+      "imagen-4-ultra",
+      "openai-gpt-image-2",
+      "gemini-3.1-flash-image-preview",
+      "gemini-3-pro-image-preview",
+      "cf-sdxl",
+      "flux",
+      "flux-realism",
+      "imagegpt-free",
+      "together-juggernaut-flux",
+      "together-flux-schnell",
+      "together-qwen-image",
+      "together-flux2-dev",
+      "together-flux-kontext-pro",
+      "together-flux2-pro"
+    ],
+    "edit": [
+      "auto-quality",
+      "gemini-2.5-flash-image",
+      "gemini-3.1-flash-image",
+      "gemini-3-pro-image",
+      "openai-gpt-image-2",
+      "gemini-3.1-flash-image-preview",
+      "gemini-3-pro-image-preview",
+      "style-dalle3"
+    ],
+    "labels": [
+      "Ucuz Düzenle",
+      "Hızlı Düzenle",
+      "Kaliteli Edit",
+      "Premium Edit"
+    ]
+  },
+  "failures": []
+}

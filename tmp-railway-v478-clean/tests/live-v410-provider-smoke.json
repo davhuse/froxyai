@@ -1,0 +1,349 @@
+{
+  "at": "2026-06-14T19:27:37.130Z",
+  "baseUrl": "https://www.froxyai.com",
+  "checks": {
+    "health": {
+      "ok": true,
+      "status": 200,
+      "data": {
+        "ok": true,
+        "app": "Froxy AI",
+        "version": "v64",
+        "uptime": 1005,
+        "time": "2026-06-14T19:27:38.923Z",
+        "database": {
+          "users": 13,
+          "chats": 0,
+          "documents": 0,
+          "admins": 1
+        },
+        "databaseStorage": {
+          "path": "/data/froxy-ai.sqlite",
+          "generatedPath": "/data/generated",
+          "persistent": true,
+          "source": "env-or-railway-volume"
+        },
+        "models": {
+          "remoteCached": 0,
+          "cacheAgeSeconds": null
+        },
+        "providers": {
+          "openai": true,
+          "gemini": true,
+          "claude": true,
+          "image": true,
+          "groq": true,
+          "openrouter": true,
+          "pollinations": true,
+          "cerebras": true,
+          "sambanova": true,
+          "mistral": false,
+          "nvidia": true,
+          "fireworks": false,
+          "together": true,
+          "xai": false,
+          "gemini_direct": true,
+          "google_direct": true,
+          "huggingface": true,
+          "cloudflare": true,
+          "deepseek_direct": false,
+          "chutes": false,
+          "aimlapi": true,
+          "jan_local": true,
+          "local_openai": true
+        },
+        "keyPools": {
+          "openai": {
+            "count": 4,
+            "rotation": true
+          },
+          "groq": {
+            "count": 12,
+            "rotation": true
+          },
+          "openrouter": {
+            "count": 15,
+            "rotation": true
+          },
+          "together": {
+            "count": 1,
+            "rotation": false
+          },
+          "gemini_direct": {
+            "count": 1,
+            "rotation": false
+          },
+          "google_direct": {
+            "count": 1,
+            "rotation": false
+          }
+        },
+        "videoProviders": {
+          "cloudflare": true,
+          "fal": false,
+          "replicate": true,
+          "vidu": false,
+          "wavespeed": false,
+          "pollinations": true,
+          "gemini_veo": true,
+          "hf_ltx": {
+            "configured": true,
+            "experimental": true
+          },
+          "note": "Pollinations video genellikle POLLINATIONS_KEY ister; anonim kullanım IP kuyruğuna takılabilir."
+        },
+        "imageProviders": {
+          "openai_image": true,
+          "cloudflare": true,
+          "runware": true,
+          "stability": true,
+          "aimlapi": true,
+          "together": true,
+          "imagegpt": true,
+          "gemini_imagen": true,
+          "pollinations": true,
+          "modal": true
+        },
+        "imageProviderStatus": {
+          "cloudflare": {
+            "at": 1781465258171,
+            "ready": true,
+            "detail": "reachable"
+          },
+          "pollinations": {
+            "configured": true,
+            "queueActive": 0,
+            "queuePending": 0,
+            "cooldowns": {}
+          },
+          "modal": {
+            "configured": true,
+            "endpoint": "configured"
+          }
+        },
+        "searchProviders": {
+          "tavily": false,
+          "brave": false,
+          "duckduckgo": true
+        }
+      }
+    },
+    "localProviders": {
+      "ok": true,
+      "status": 200,
+      "data": {
+        "ok": true,
+        "comfyui": {
+          "ready": false,
+          "baseUrl": "http://127.0.0.1:8188",
+          "checkedPath": null,
+          "checkpoint": "DreamShaper8_LCM.safetensors"
+        },
+        "fooocus": {
+          "ready": false,
+          "baseUrl": "http://127.0.0.1:8888",
+          "checkedPath": null
+        },
+        "a1111": {
+          "ready": false,
+          "baseUrl": "http://127.0.0.1:7860",
+          "checkedPath": null
+        },
+        "forge": {
+          "ready": false,
+          "baseUrl": "http://127.0.0.1:7861",
+          "checkedPath": null
+        },
+        "swarmui": {
+          "ready": false,
+          "baseUrl": "http://127.0.0.1:7801",
+          "checkedPath": null
+        },
+        "modal": {
+          "ready": true,
+          "baseUrl": "https://habilrencber--froxy-modal-image-generate.modal.run",
+          "checkedPath": "configured",
+          "models": [
+            "modal-sdxl",
+            "modal-local-sd"
+          ]
+        },
+        "errors": {
+          "comfyui": "/system_stats: fetch failed | /object_info: fetch failed",
+          "fooocus": "/docs: fetch failed | /: fetch failed | /ping: fetch failed",
+          "a1111": "/sdapi/v1/sd-models: fetch failed | /docs: fetch failed | /: fetch failed",
+          "forge": "/sdapi/v1/sd-models: fetch failed | /docs: fetch failed | /: fetch failed",
+          "swarmui": "/API/GetNewSession: fetch failed | /: fetch failed | /API/GetServerResourceInfo: fetch failed"
+        }
+      }
+    },
+    "modelCheck": {
+      "ok": true,
+      "status": 200,
+      "data": {
+        "ok": true,
+        "totalMs": 29560,
+        "chat": [
+          {
+            "label": "openai",
+            "ok": false,
+            "ms": 87,
+            "detail": "HTTP 500"
+          },
+          {
+            "label": "gemini",
+            "ok": true,
+            "ms": 178,
+            "detail": "reachable (404)"
+          },
+          {
+            "label": "claude",
+            "ok": false,
+            "ms": 116,
+            "detail": "HTTP 503"
+          },
+          {
+            "label": "groq",
+            "ok": true,
+            "ms": 138,
+            "detail": "reachable (404)"
+          },
+          {
+            "label": "openrouter",
+            "ok": true,
+            "ms": 233,
+            "detail": "reachable (400)"
+          },
+          {
+            "label": "cerebras",
+            "ok": true,
+            "ms": 232,
+            "detail": "reachable (404)"
+          },
+          {
+            "label": "sambanova",
+            "ok": true,
+            "ms": 123,
+            "detail": "reachable (404)"
+          },
+          {
+            "label": "nvidia",
+            "ok": true,
+            "ms": 179,
+            "detail": "reachable (404)"
+          },
+          {
+            "label": "together",
+            "ok": true,
+            "ms": 293,
+            "detail": "reachable (404)"
+          },
+          {
+            "label": "gemini_direct",
+            "ok": true,
+            "ms": 241,
+            "detail": "reachable (404)"
+          },
+          {
+            "label": "google_direct",
+            "ok": true,
+            "ms": 245,
+            "detail": "reachable (404)"
+          },
+          {
+            "label": "huggingface",
+            "ok": true,
+            "ms": 201,
+            "detail": "reachable (401)"
+          },
+          {
+            "label": "cloudflare",
+            "ok": true,
+            "ms": 1512,
+            "detail": "reachable (400)"
+          },
+          {
+            "label": "aimlapi",
+            "ok": true,
+            "ms": 154,
+            "detail": "reachable (401)"
+          },
+          {
+            "label": "gemini_direct",
+            "ok": false,
+            "ms": 140,
+            "detail": "HTTP 403"
+          },
+          {
+            "label": "pollinations",
+            "ok": true,
+            "ms": 486,
+            "detail": "reachable"
+          }
+        ],
+        "image": [
+          {
+            "label": "pollinations",
+            "ok": true,
+            "ms": 368,
+            "detail": "9 image model"
+          },
+          {
+            "label": "cloudflare",
+            "ok": true,
+            "ms": 1098,
+            "detail": "generation ok (jpg, 13283 bytes)"
+          },
+          {
+            "label": "runware",
+            "ok": false,
+            "ms": 596,
+            "detail": "HTTP 401"
+          },
+          {
+            "label": "stability",
+            "ok": true,
+            "ms": 91,
+            "detail": "credits: ?"
+          },
+          {
+            "label": "together",
+            "ok": true,
+            "ms": 481,
+            "detail": "reachable"
+          },
+          {
+            "label": "aimlapi",
+            "ok": true,
+            "ms": 150,
+            "detail": "reachable"
+          },
+          {
+            "label": "modal",
+            "ok": true,
+            "ms": 29550,
+            "detail": "generation ok (modal-sdxl)"
+          },
+          {
+            "label": "gemini_imagen",
+            "ok": false,
+            "ms": 166,
+            "detail": "HTTP 403"
+          }
+        ],
+        "summary": {
+          "chatOk": 13,
+          "chatTotal": 16,
+          "imageOk": 6,
+          "imageTotal": 8
+        }
+      }
+    },
+    "showcaseAsset": {
+      "ok": true,
+      "status": 200,
+      "type": "image/svg+xml; charset=utf-8",
+      "length": 0
+    }
+  }
+}

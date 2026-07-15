@@ -1,0 +1,68 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - link "F froxy." [ref=f1e4] [cursor=pointer]:
+        - /url: landing.html
+        - generic [ref=f1e5]: F
+        - generic [ref=f1e6]: froxy.
+      - generic [ref=f1e7]:
+        - generic [ref=f1e8]: Sakin bir başlangıç
+        - heading [level=1] [ref=f1e10]:
+          - text: İyi işler,
+          - emphasis [ref=f1e11]: netlik
+          - text: ister.
+        - paragraph [ref=f1e12]: Froxy ile düşüncelerini bir sonraki iyi adıma bağla.
+      - generic:
+        - generic:
+          - generic: Bugünün akışı
+          - strong: Tek bir net adım.
+        - generic: fikirden netliğe
+      - paragraph [ref=f1e13]: © 2026 Froxy AI
+    - main [ref=f1e14]:
+      - link "← Açılış sayfasına dön" [ref=f1e15] [cursor=pointer]:
+        - /url: landing.html
+      - generic [ref=f1e16]:
+        - tablist "Hesap işlemi" [ref=f1e17]:
+          - tab "Giriş yap" [ref=f1e18] [cursor=pointer]
+          - tab "Hesap oluştur" [selected] [ref=f1e19] [cursor=pointer]
+        - generic [ref=f1e20]:
+          - generic [ref=f1e21]: F
+          - heading "Kendi alanını aç." [level=2] [ref=f1e22]
+          - paragraph [ref=f1e23]: İlk netlik anın birkaç saniye uzakta.
+        - generic [ref=f1e24]:
+          - generic [ref=f1e25]:
+            - generic [ref=f1e26]: Adın
+            - textbox "Adın" [ref=f1e27]:
+              - /placeholder: Adın soyadın
+          - generic [ref=f1e28]: E-posta
+          - textbox "E-posta" [ref=f1e29]:
+            - /placeholder: ornek@eposta.com
+          - generic [ref=f1e30]:
+            - generic [ref=f1e31]: Şifre
+            - link "Şifremi unuttum" [ref=f1e32] [cursor=pointer]:
+              - /url: "#"
+          - generic [ref=f1e33]:
+            - textbox "Şifre" [ref=f1e34]:
+              - /placeholder: En az 8 karakter
+            - button "Şifreyi göster" [ref=f1e35] [cursor=pointer]
+          - generic [ref=f1e39]:
+            - checkbox "Froxy'nin kullanım koşullarını ve gizlilik notunu kabul ediyorum." [ref=f1e40]
+            - generic [ref=f1e41]:
+              - text: Froxy'nin
+              - link "kullanım koşullarını" [ref=f1e42] [cursor=pointer]:
+                - /url: "#"
+              - text: ve
+              - link "gizlilik notunu" [ref=f1e43] [cursor=pointer]:
+                - /url: "#"
+              - text: kabul ediyorum.
+          - button "Ücretsiz hesap oluştur →" [ref=f1e44] [cursor=pointer]:
+            - text: Ücretsiz hesap oluştur
+            - generic [ref=f1e45]: →
+        - generic [ref=f1e46]: veya
+        - button "G Google ile hesap oluştur" [ref=f1e48] [cursor=pointer]:
+          - generic [ref=f1e49]: G
+          - generic [ref=f1e50]: Google ile hesap oluştur
+        - paragraph [ref=f1e51]:
+          - text: Zaten hesabın var mı?
+          - button "Giriş yap" [ref=f1e52] [cursor=pointer]
+  - status
