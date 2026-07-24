@@ -83,3 +83,20 @@ desktop.ini
 test-results/
 lh-chrome-profile/
 playwright-report/
+
+# Historical snapshots and binary/corrupt audit artifacts must never enter a deployment source archive.
+diff_app.txt
+diff_backup_current.txt
+diff_v439_head.txt
+output/image-visible-models-final-20260612.json
+output/image-working-models-20260612.json
+output/media-model-smoke-20260612.json
+scratch/app_old.js
+scratch/diff_index.txt
+scratch/index_old.html
+scratch/style_old.css
+tests/checkup-v305-local.json
+tests/live-final-checkup-v278.json
+tests/live-final-checkup-v279.json
+tests/local-final-checkup-v279.json
+tests/local-final-checkup-v279b.json

@@ -1,9 +1,0 @@
-{
-  "before": "together-juggernaut-flux",
-  "target": "pollinations-flux",
-  "after": "pollinations-flux",
-  "ok": true,
-  "triggerText": "Flux Schnell - Pollinations\n10 kredi · görsel modeli",
-  "hasMojibake": false,
-  "errors": []
-}
