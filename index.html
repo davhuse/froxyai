@@ -1,11 +1,10 @@
- ﻿ 
 <html lang="tr">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title> Froxy AI - Türkçe AI İş Asistanı 
+    <title> Froxy AI | ChatGPT, Claude ve Gemini Tek Panelde 
     </title>
-    <meta name="description" content="KOBİ, ajans ve içerik üreticiler için Türkçe AI iş asistanı. 5 dakikada satış metni, sosyal medya postu, müşteri cevabı, görsel promptu ve reklam fikri üret.">
+    <meta name="description" content="ChatGPT, Claude, Gemini ve 1.100+ AI modelini tek panelde kullan. Kullandığın kadar kredi harca; yeni üyeler kart gerektirmeden 100 ücretsiz krediyle başlar.">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="robots" content="index, follow">
@@ -14,14 +13,14 @@
     <link rel="alternate" hreflang="x-default" href="https://froxyai.com/">
     <link rel="canonical" href="https://froxyai.com">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Froxy AI - Türkçe AI İş Asistanı">
-    <meta property="og:description" content="Satış metni, sosyal medya postu, müşteri cevabı ve görsel promptu tek akışta üret.">
+    <meta property="og:title" content="Froxy AI | Tek aboneliğe kilitlenme">
+    <meta property="og:description" content="ChatGPT, Claude, Gemini ve 1.100+ AI modeli tek panelde. Kullanım öncesi kredi maliyetini gör.">
     <meta property="og:image" content="https://froxyai.com/froxy-logo-v260.png">
     <meta property="og:url" content="https://froxyai.com">
     <meta property="og:site_name" content="Froxy AI">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Froxy AI - Türkçe AI İş Asistanı">
-    <meta name="twitter:description" content="Satış metni, sosyal medya postu, müşteri cevabı ve görsel promptu tek akışta üret.">
+    <meta name="twitter:title" content="Froxy AI | Tek aboneliğe kilitlenme">
+    <meta name="twitter:description" content="ChatGPT, Claude, Gemini ve 1.100+ AI modeli tek panelde.">
     <meta name="twitter:image" content="https://froxyai.com/froxy-logo-v260.png">
     <script type="application/ld+json">
  { "@context": "https://schema.org", "@graph": [ { "@type": "Organization", "@id": "https://froxyai.com/#organization", "name": "Froxy AI", "url": "https://froxyai.com/", "logo": "https://froxyai.com/froxy-logo-v260.png", "sameAs": [ "https://www.youtube.com/@Froxy_Ai_Tr", "https://www.instagram.com/froxyai/" ] }, { "@type": "WebSite", "@id": "https://froxyai.com/#website", "url": "https://froxyai.com/", "name": "Froxy AI", "description": "KOBİ, ajans ve içerik üreticileri için Türkçe AI iş asistanı.", "publisher": { "@id": "https://froxyai.com/#organization" }, "inLanguage": "tr-TR" }, { "@type": "SoftwareApplication", "@id": "https://froxyai.com/#app", "name": "Froxy AI", "applicationCategory": "ProductivityApplication", "operatingSystem": "Web", "url": "https://froxyai.com/", "description": "Satış metni, sosyal medya postu, müşteri cevabı, görsel promptu ve reklam fikrini tek akışta üret.", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY", "description": "Yeni üyeler için 100 ücretsiz kredi" }, "publisher": { "@id": "https://froxyai.com/#organization" } } ] } 
@@ -33,10 +32,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://image.pollinations.ai">
-    <script defer src="sentry-client-v475.js?v=v496">
+    <script>window.FROXY_RELEASE='v571';</script>
+    <script defer src="sentry-client-v475.js?v=v571">
     </script>
     <script>
- /* Theme bootstrap: FOUC olmasın diye diğer her şeyden önce. */ (function(){ try{ var saved = localStorage.getItem('ap_theme'); if(!saved){ var mq = window.matchMedia('(prefers-color-scheme: light)'); saved = mq && mq.matches ? 'light' : 'dark'; } if(saved === 'light') document.documentElement.classList.add('theme-light-pre'); }catch(e){} })(); 
+ /* Theme bootstrap: FOUC olmasın diye diğer her şeyden önce. */ (function(){ try{ var saved = localStorage.getItem('ap_theme'); if(saved === 'light'){ saved = 'dark'; localStorage.setItem('ap_theme','dark'); } if(!saved) saved = 'dark'; document.documentElement.classList.remove('theme-light-pre'); }catch(e){} })(); 
     </script>
     <script>
  (function(){ try{ var path=(location.pathname||'/').replace(/\/+$/,'')||'/'; var routeMap={ '/sohbet':'chat', '/dashboard':'dash', '/panel':'dash', '/gorsel':'img', '/gorsel-uret':'img', '/ai-araclar':'tools', '/ajanlar':'agents', '/ai-ajanlar':'agents', '/magaza':'store', '/destek':'support', '/galeri':'gallery', '/analitik':'analytics', '/promptlar':'prompts', '/bilgi-bankasi':'rag', '/admin':'admin' }; var target=routeMap[path]||''; var match=(location.search||'').match(/[?&](?:view|screen)=([^&]+)/i); if(match)target=decodeURIComponent(match[1]).toLowerCase(); if(target==='dashboard')target='dash'; if(target&&target!=='home'&&target!=='login'&&target!=='reg'){ document.documentElement.classList.add('app-route-prepaint','prepaint-'+target); window.__froxyRouteFailTimer=setTimeout(function(){try{document.documentElement.classList.add('app-route-load-failed')}catch(e){}},2200); } }catch(e){} })(); 
@@ -48,13 +48,33 @@
     <style>
  .ah-bg,.ah-bg span{display:none!important;animation:none!important;opacity:0!important} :root{--bg:#0B0F1A;--bg2:#111827;--text:#f8fafc;--text2:#94a3b8;--accent:#7c3aed;--accent2:#3b82f6;--font:'Inter',system-ui,-apple-system,sans-serif} *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font)}body{overflow-x:hidden} .v{display:none}.v.on{display:block}.nav{height:64px;background:#0b0f1a;border-bottom:1px solid rgba(255,255,255,.08)} #v-chat.on{display:block;min-height:100vh;background:linear-gradient(135deg,#0b0f1a,#111827)} .ai-panel-layout{min-height:100vh}.panel-sidebar{background:#0f172a;color:var(--text)} .ptab{display:none}.ptab.on{display:block}.panel-page{padding:20px;max-width:1180px;margin:0 auto} #app-route-skeleton{display:none} html.app-route-prepaint body{min-height:100vh;overflow:hidden} html.app-route-prepaint body>:not(#app-route-skeleton){display:none!important} html.app-route-prepaint #app-route-skeleton{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 18%,rgba(34,211,238,.13),transparent 32%),linear-gradient(135deg,#050814,#080d1b 58%,#06111f);color:#f8fafc} .app-route-skeleton-card{position:relative;display:grid;place-items:center;gap:13px;width:min(330px,calc(100vw - 40px));min-height:292px;padding:26px 22px;border:1px solid rgba(96,165,250,.22);border-radius:24px;background:linear-gradient(180deg,rgba(15,23,42,.78),rgba(8,13,25,.7));box-shadow:0 24px 80px rgba(0,0,0,.42),0 0 44px rgba(34,211,238,.08);overflow:hidden;text-align:center} .app-route-skeleton-card:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(34,211,238,.08),transparent);animation:froxyLoaderSweep 2.6s ease-in-out infinite} .app-route-skeleton-card>*{position:relative;z-index:1} .app-route-skeleton-logo{position:relative;width:104px;height:104px;display:grid;place-items:center;border-radius:28px;background:rgba(15,23,42,.55);border:1px solid rgba(148,163,184,.16)} .app-route-skeleton-logo:before,.app-route-skeleton-logo:after{content:"";position:absolute;inset:-7px;border-radius:32px;border:1px solid rgba(96,165,250,.2);animation:froxyLoaderPulse 2.1s ease-in-out infinite} .app-route-skeleton-logo:after{inset:9px;border-color:rgba(168,85,247,.22);animation-delay:.35s} .app-route-skeleton-logo img{width:74px;height:74px;border-radius:20px;box-shadow:0 0 26px rgba(46,211,255,.24)} .app-route-skeleton-card strong{display:block;font-size:23px;line-height:1.08;font-weight:950;letter-spacing:0} .app-route-skeleton-card p{max-width:270px;margin:0;color:#a8b5c8;font-size:13px;line-height:1.46;font-weight:750} .app-route-skeleton-steps{display:flex;gap:8px;align-items:center;justify-content:center;color:#c4d7ee;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em} .app-route-skeleton-steps em{font-style:normal;opacity:.62;animation:froxyStepBlink 1.4s ease-in-out infinite}.app-route-skeleton-steps em:nth-child(2){animation-delay:.18s}.app-route-skeleton-steps em:nth-child(3){animation-delay:.36s} .app-route-skeleton-bar{width:min(240px,68vw);height:8px;border-radius:999px;background:rgba(148,163,184,.14);overflow:hidden;border:1px solid rgba(255,255,255,.08)} .app-route-skeleton-bar i{display:block;width:42%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#22d3ee,#3b82f6,#8b5cf6);animation:froxyBarSlide 1.18s ease-in-out infinite} .app-route-skeleton-fallback{display:none;height:42px;border:0;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#7c3aed);color:#fff;font:800 13px/1 var(--font);cursor:pointer;box-shadow:0 14px 34px rgba(59,130,246,.28);padding:0 18px} html.app-route-load-failed .app-route-skeleton-fallback{display:inline-flex;align-items:center;justify-content:center} @keyframes froxyLoaderSweep{0%,100%{transform:translateX(-40%);opacity:.2}50%{transform:translateX(40%);opacity:.65}}@keyframes froxyLoaderPulse{0%,100%{transform:scale(.94);opacity:.42}50%{transform:scale(1.03);opacity:.82}}@keyframes froxyStepBlink{0%,100%{opacity:.38}50%{opacity:1}}@keyframes froxyBarSlide{0%{transform:translateX(-115%)}100%{transform:translateX(250%)}} .btn,.chat-action-pill,button{font-family:inherit}.grad-text{color:var(--accent)} 
     </style>
-    <link rel="stylesheet" href="home-critical.min.css?v=v496">
+    <style id="froxy-home-restore-critical">
+      #v-home.home-premium-v252 #froxy-ticker{position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:1100!important;height:36px!important;min-height:36px!important;overflow:hidden!important;isolation:isolate!important}
+      #v-home.home-premium-v252 #froxy-ticker>div,#v-home.home-premium-v252 #froxy-ticker .froxy-ticker-track{display:flex!important;align-items:center!important;width:max-content!important;min-width:max-content!important;animation:froxyTickerMarquee 13s linear infinite!important;will-change:transform!important}
+      #v-home.home-premium-v252 #froxy-ticker span{line-height:36px!important;white-space:nowrap!important}
+      #v-home.home-premium-v252 .ah-header{top:36px!important;z-index:1090!important}
+      #v-home.home-premium-v252 .ah-hero{padding-top:78px!important}
+      #v-home.home-premium-v252>section{content-visibility:visible!important;contain-intrinsic-size:auto!important}
+      @keyframes froxyTickerMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+      #v-home.home-premium-v252 .neo-growth-graphic .neo-float-card{will-change:transform,opacity!important;backface-visibility:hidden!important;contain:layout paint!important}
+      #v-home.home-premium-v252 .neo-growth-graphic .neo-float-card:after{animation:froxyFloatCardGlow 5.8s linear infinite!important;opacity:.72!important}
+      @keyframes froxyFloatCardOne{0%,100%{transform:translate3d(0,0,0) rotate(0deg)}50%{transform:translate3d(0,-12px,0) rotate(.35deg)}}
+      @keyframes froxyFloatCardTwo{0%,100%{transform:translate3d(0,0,0) rotate(0deg)}50%{transform:translate3d(10px,-8px,0) rotate(-.45deg)}}
+      @keyframes froxyFloatCardThree{0%,100%{transform:translate3d(0,0,0) rotate(0deg)}50%{transform:translate3d(-8px,-10px,0) rotate(.5deg)}}
+      @keyframes froxyFloatCardGlow{0%{transform:rotate(0deg);opacity:.46}50%{opacity:.9}100%{transform:rotate(360deg);opacity:.46}}
+      @media(min-width:769px){#v-home.home-premium-v252 .neo-growth-graphic .neo-float-card.c1{animation:froxyFloatCardOne 6.5s ease-in-out infinite!important}#v-home.home-premium-v252 .neo-growth-graphic .neo-float-card.c2{animation:froxyFloatCardTwo 7.2s ease-in-out .35s infinite!important}#v-home.home-premium-v252 .neo-growth-graphic .neo-float-card.c3{animation:froxyFloatCardThree 7.8s ease-in-out .7s infinite!important}}
+      @keyframes froxyCreditPillBreath{0%,100%{transform:translate3d(0,0,0);box-shadow:0 0 0 rgba(34,211,238,0)}50%{transform:translate3d(0,-3px,0);box-shadow:0 12px 30px rgba(34,211,238,.10)}}#v-home.home-premium-v252 .ah-hero-meta span,#v-home.home-premium-v252 .neo-growth-perks span{animation:froxyCreditPillBreath 4.8s ease-in-out infinite!important;will-change:transform!important}#v-home.home-premium-v252 .ah-hero-meta span:nth-child(2),#v-home.home-premium-v252 .neo-growth-perks span:nth-child(2){animation-delay:.28s!important}#v-home.home-premium-v252 .ah-hero-meta span:nth-child(3),#v-home.home-premium-v252 .neo-growth-perks span:nth-child(3){animation-delay:.56s!important}
+      @media(max-width:760px){#v-home.home-premium-v252 #froxy-ticker{height:32px!important;min-height:32px!important}#v-home.home-premium-v252 #froxy-ticker>div,#v-home.home-premium-v252 #froxy-ticker .froxy-ticker-track{animation-duration:10s!important}#v-home.home-premium-v252 #froxy-ticker span{font-size:11px!important;line-height:32px!important;padding-inline:14px!important}#v-home.home-premium-v252 .ah-header{top:32px!important}#v-home.home-premium-v252 .ah-hero{padding-top:46px!important}#v-home.home-premium-v252 .ah-hero-grid,#v-home.home-premium-v252 .ah-hero-copy,#v-home.home-premium-v252 .ah-mockup,#v-home.home-premium-v252 .ah-window,#v-home.home-premium-v252 .ah-window-body,#v-home.home-premium-v252 .ah-panel{min-width:0!important;width:100%!important;max-width:100%!important}#v-home.home-premium-v252 .ah-hero h1,#v-home.home-premium-v252 .ah-hero p{max-width:100%!important;overflow-wrap:break-word!important}#v-home.home-premium-v252 .neo-growth-graphic{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;width:100%!important;max-width:100%!important;overflow:hidden!important}#v-home.home-premium-v252 .neo-growth-graphic .neo-float-card{position:relative!important;inset:auto!important;width:100%!important;max-width:100%!important;min-height:112px!important;height:auto!important}#v-home.home-premium-v252 .neo-growth-graphic .neo-float-card.c1{animation:froxyFloatCardOne 5.4s ease-in-out infinite!important}#v-home.home-premium-v252 .neo-growth-graphic .neo-float-card.c2{animation:froxyFloatCardTwo 6s ease-in-out .25s infinite!important}#v-home.home-premium-v252 .neo-growth-graphic .neo-float-card.c3{animation:froxyFloatCardThree 6.6s ease-in-out .5s infinite!important}}
+      @media(max-width:760px){#v-home.home-premium-v252 .ah-header-inner{padding-inline:12px!important;gap:8px!important}#v-home.home-premium-v252 .ah-brand{font-size:15px!important;white-space:nowrap!important;min-width:0!important}#v-home.home-premium-v252 .ah-brand-logo img{width:28px!important;height:28px!important}#v-home.home-premium-v252 .ah-actions{gap:4px!important}#v-home.home-premium-v252 .ah-actions .ah-btn{padding:8px 10px!important;font-size:12px!important}#v-home.home-premium-v252 .ah-hero{padding-inline:16px!important}#v-home.home-premium-v252 .ah-hero h1{font-size:42px!important}#v-home.home-premium-v252 .ah-hero-actions{gap:8px!important}#v-home.home-premium-v252 .ah-hero-actions .ah-btn{min-width:0!important;padding:11px 14px!important}#v-home.home-premium-v252 .ah-hero-meta{align-items:center!important}}
+    </style>
+    <link rel="stylesheet" href="home-critical.min.css?v=v497">
+    <link id="full-css" rel="stylesheet" href="style.min.css?v=v571">
     <noscript>
-      <link rel="stylesheet" href="style.min.css?v=v496">
-      <link rel="stylesheet" href="model-picker-v294.min.css?v=v496">
+      <link rel="stylesheet" href="style.min.css?v=v571">
+      <link rel="stylesheet" href="model-picker-v294.min.css?v=v571">
     </noscript>
     <script>
- window.__loadPickerCss=function(){if(document.getElementById('picker-css'))return;var p=document.createElement('link');p.id='picker-css';p.rel='stylesheet';p.href='model-picker-v294.min.css?v=v496';document.head.appendChild(p)}; window.__loadFullCss=function(){if(!document.getElementById('full-css')){var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v496';document.head.appendChild(l)};window.__loadPickerCss&&window.__loadPickerCss()}; (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v496';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})(); ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})}); window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)}); 
+ window.__loadPickerCss=function(){if(document.getElementById('picker-css'))return;var p=document.createElement('link');p.id='picker-css';p.rel='stylesheet';p.href='model-picker-v294.min.css?v=v571';document.head.appendChild(p)}; window.__loadFullCss=function(){if(!document.getElementById('full-css')){var l=document.createElement('link');l.id='full-css';l.rel='stylesheet';l.href='style.min.css?v=v571';document.head.appendChild(l)}}; (function(){try{var path=(location.pathname||'/').replace(/\/+$/,'')||'/';var route=/^\/(sohbet|dashboard|panel|gorsel|gorsel-uret|ai-araclar|ajanlar|ai-ajanlar|magaza|destek|galeri|analitik|promptlar|bilgi-bankasi|admin)$/i.test(path);var view=/[?&](view|screen)=(chat|dash|dashboard|admin|img|tools|agents|store|support|gallery|analytics|prompts|rag)/i.test(location.search||'');if(route||view){window.__loadFullCss();if(!document.getElementById('app-js-preload')){var p=document.createElement('link');p.id='app-js-preload';p.rel='preload';p.as='script';p.href='app.min.js?v=v571';p.fetchPriority='high';document.head.appendChild(p);}}}catch(e){}})(); ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){window.addEventListener(ev,window.__loadFullCss,{once:true,passive:true,capture:true})}); window.addEventListener('load',function(){setTimeout(window.__loadFullCss,15000)}); 
     </script>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" sizes="192x192" href="froxy-logo-192-v260.png">
@@ -68,17 +88,74 @@
  window.loadPdfLib=function(cb){window.__loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js','pdfjs-lib',function(){if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';if(cb)cb();})}; // Highlight.js CSS'ini ilk paint sonrası ekle (kod bloklari sadece chat'te). window.__idle(function(){setTimeout(function(){ if(!document.getElementById('hljs-css')){ var l=document.createElement('link');l.id='hljs-css';l.rel='stylesheet'; l.href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'; document.head.appendChild(l); } window.__loadScriptOnce('https://cdn.jsdelivr.net/npm/marked/marked.min.js','marked-lib'); window.__loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js','dompurify-lib'); window.__loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js','hljs-lib'); },15000)}); 
     </script>
     <script>
- function clearTranslateCookie(){ var expires='expires=Thu, 01 Jan 1970 00:00:00 GMT'; document.cookie='googtrans=;path=/;'+expires; document.cookie='googtrans=;path=/;domain='+location.hostname+';'+expires; if(location.hostname.indexOf('.')>-1){document.cookie='googtrans=;path=/;domain=.'+location.hostname+';'+expires;} } (function(){ try{ var lang=localStorage.getItem('ap_translate_lang')||'tr'; if(lang==='tr')clearTranslateCookie(); }catch(e){clearTranslateCookie();} })(); function googleTranslateInit(){new google.translate.TranslateElement({pageLanguage:'tr',includedLanguages:'tr,en,ar,de,fr,es,ru,zh-CN,ja,ko',layout:google.translate.TranslateElement.InlineLayout.SIMPLE,autoDisplay:false},'google-translate-el')} function translatePage(lang){ try { clearTranslateCookie(); localStorage.setItem('ap_translate_lang',lang); if(lang !== 'tr') document.cookie='googtrans=/tr/'+lang+';path=/'; setTimeout(function(){ location.reload(); }, 50); } catch(e) { console.log('Translate error:', e); } } 
+ function clearTranslateCookie(){ var expires='expires=Thu, 01 Jan 1970 00:00:00 GMT'; document.cookie='googtrans=;path=/;'+expires; document.cookie='googtrans=;path=/;domain='+location.hostname+';'+expires; } clearTranslateCookie(); function translatePage(lang){ if(typeof window.froxySetLanguage==='function')return window.froxySetLanguage(lang); try{localStorage.setItem('ap_lang',lang==='en'?'en':'tr');localStorage.setItem('ap_translate_lang',lang==='en'?'en':'tr')}catch(e){} return lang; }
     </script>
     <script>
-function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google.com/translate_a/element.js?cb=googleTranslateInit','google-translate-script')}try{if((localStorage.getItem('ap_translate_lang')||'tr')!=='tr')window.__idle(loadGoogleTranslate)}catch(e){}
+function loadGoogleTranslate(){return false}
+    </script>
+    <script>
+function froxyCurrentLanguage(){try{return(localStorage.getItem('ap_lang')||localStorage.getItem('ap_translate_lang'))==='en'?'en':'tr'}catch(e){return'tr'}}
+function froxySyncLanguageButtons(){var lang=froxyCurrentLanguage();document.documentElement.setAttribute('data-froxy-lang',lang);document.querySelectorAll('[data-froxy-lang-option]').forEach(function(el){var active=el.getAttribute('data-lang')===lang;el.classList.toggle('active',active);el.setAttribute('aria-pressed',active?'true':'false')})}
+function froxyToggleLanguage(){var next=froxyCurrentLanguage()==='en'?'tr':'en';return translatePage(next)}
+document.addEventListener('DOMContentLoaded',froxySyncLanguageButtons);window.addEventListener('load',froxySyncLanguageButtons);
+function froxyInstallToolIconMotionPatch(){if(document.getElementById('froxy-tool-icon-motion-patch'))return;var st=document.createElement('style');st.id='froxy-tool-icon-motion-patch';st.textContent='@keyframes froxyToolIconIdleLate{0%,100%{translate:0 0;scale:1;filter:drop-shadow(0 0 0 rgba(34,211,238,0))}42%{translate:0 -7px;scale:1.07;filter:drop-shadow(0 10px 20px rgba(34,211,238,.28))}70%{translate:0 2px;scale:.99}}html body #v-chat #ptab-tools.ptab.on .ai-tools-page .ai-tool-card .froxy-v351-icon{animation-name:froxyToolIconIdleLate!important;animation-duration:4.2s!important;animation-timing-function:ease-in-out!important;animation-iteration-count:infinite!important}html body #v-chat #ptab-tools.ptab.on .ai-tools-page .ai-tool-card:nth-child(2n) .froxy-v351-icon{animation-duration:4.8s!important}html body #v-chat #ptab-tools.ptab.on .ai-tools-page .ai-tool-card:nth-child(3n) .froxy-v351-icon{animation-duration:5.4s!important}';document.head.appendChild(st);}
+document.addEventListener('DOMContentLoaded',froxyInstallToolIconMotionPatch);window.addEventListener('load',froxyInstallToolIconMotionPatch);
     </script>
     <script>
  if('serviceWorker' in navigator){ (function clearFroxyWorkers(){ navigator.serviceWorker.getRegistrations().then(function(regs){ regs.forEach(function(reg){reg.unregister();}); }).catch(function(){}); })(); } if('caches' in window){ caches.keys().then(function(keys){ keys.forEach(function(key){if(/^froxy-/i.test(key))caches.delete(key);}); }).catch(function(){}); } 
     </script>
-    <script defer src="image-picker-fix-v461.js?v=v496">
+    <script>
+ window.showLegal = function(key) {
+   var LEGAL = {
+     kvkk: {
+       title: 'KVKK Aydınlatma Metni',
+       body: `<h4>Veri Sorumlusu</h4><p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında, kişisel verileriniz veri sorumlusu sıfatıyla Froxy AI tarafından aşağıda açıklanan amaçlarla işlenmektedir.</p><h4>İşlenen Veriler</h4><p>Ad-soyad, e-posta adresi, IP adresi, kullanım logları ve API istek kayıtları.</p><h4>İşleme Amaçları</h4><p>Hizmet sunumu, kullanıcı desteği, güvenlik, yasal yükümlülükler ve hizmet geliştirme.</p><h4>Veri Aktarımı</h4><p>Kişisel verileriniz, API hizmeti kapsamında yurt dışındaki model sağlayıcılarına (OpenAI, Google vb.) aktarılabilir. Bu aktarım, hizmetin doğası gereği zorunludur.</p><h4>Haklarınız</h4><p>KVKK madde 11 kapsamında; verilerinize erişim, düzeltme, silme, aktarım ve işlemeye itiraz haklarına sahipsiniz. Başvurularınızı <strong>info@froxyai.com</strong> adresine iletebilirsiniz. Genel destek: <strong>destek@froxyai.com</strong>.</p>`
+     },
+     privacy: {
+       title: 'Gizlilik Politikası',
+       body: `<h4>1. Veri Toplama</h4><p>Froxy AI, yalnızca hizmet sunumu için gerekli kişisel verileri toplar: ad, e-posta adresi ve kullanım istatistikleri. Kredi kartı bilgileri tarafımızca saklanmaz; ödeme işlemleri Shopier altyapısı üzerinden güvenle gerçekleştirilir.</p><h4>2. Veri Kullanımı</h4><p>Toplanan veriler yalnızca hesap yönetimi, hizmet iyileştirme ve yasal yükümlülüklerin yerine getirilmesi amacıyla kullanılır. Verileriniz üçüncü taraflarla paylaşılmaz veya satılmaz.</p><h4>3. Çerezler</h4><p>Platform, oturum yönetimi ve kullanıcı deneyimini iyileştirmek amacıyla çerezler kullanır. Tarayıcı ayarlarınızdan çerezleri yönetebilirsiniz.</p><h4>4. Veri Güvenliği</h4><p>Tüm veriler SSL/TLS şifreleme ile korunur. API anahtarları hash'lenerek saklanır ve düz metin olarak erişilemez.</p><h4>5. İletişim</h4><p>Gizlilik ile ilgili sorularınız için: <strong>info@froxyai.com</strong>. Genel destek: <strong>destek@froxyai.com</strong>.</p>`
+     },
+     terms: {
+       title: 'Kullanım artları',
+       body: `<h4>1. Hizmet Tanımı</h4><p>Froxy AI, üçüncü taraf yapay zeka modellerine (OpenAI, Google, Anthropic vb.) API erişimi sağlayan bir aracı platformdur. Platform, bu modellerin çıktılarının doğruluğunu garanti etmez.</p><h4>2. Hesap Sorumluluğu</h4><p>Kullanıcı, hesabının güvenliğinden ve API anahtarının korunmasından sorumludur. Yetkisiz erişimden kaynaklanan zararlardan Froxy AI sorumlu tutulamaz.</p><h4>3. Kullanım Sınırları</h4><p>Her plan belirli token limitleri içerir. Aşım durumunda ek ücretlendirme yapılabilir veya hizmet geçici olarak kısıtlanabilir.</p><h4>4. Yasaklı Kullanımlar</h4><p>Platform; yasa dışı içerik üretimi, spam, kötü amaçlı yazılım geliştirme veya üçüncü taraf haklarını ihlal eden kullanımlar için kullanılamaz.</p><h4>5. Hizmet Değişiklikleri</h4><p>Froxy AI, fiyatlandırma ve hizmet kapsamında değişiklik yapma hakkını saklı tutar. Önemli değişiklikler en az 7 gün önceden bildirilir.</p><h4>6. İletişim</h4><p>Sorularınız için: <strong>info@froxyai.com</strong>. Teknik destek: <strong>destek@froxyai.com</strong>.</p>`
+     },
+     refund: {
+       title: 'İade ve İptal Politikası',
+       body: `<h4>1. İptal Koşulları</h4><p>Kullanıcılar satın aldıkları kredi veya paketleri diledikleri zaman kullanabilirler. Tek seferlik satın alımlarda herhangi bir mükerrer çekim veya iptal gerektiren süreç bulunmamaktadır. Gelecek dönem abonelik iptalleri hesap ayarları üzerinden tek tıkla yapılabilir.</p><h4>2. İade Koşulları</h4><p>Froxy AI tarafından sunulan hizmetler anında ifa edilen dijital içerik niteliğindedir. Satın alınan paketlerdeki krediler hesaba yüklendikten ve kısmen veya tamamen kullanıldıktan sonra iade işlemi gerçekleştirilemez. Teknik bir hata sonucu hesaba tanımlanmayan veya mükerrer çekilen ödemeler, incelenerek 7 iş günü içerisinde alıcının ödeme yöntemine iade edilir.</p><h4>3. Hak Dışı Durumlar</h4><p>Kullanım şartlarının ihlal edilmesi veya platformun kötüye kullanılması sebebiyle engellenen hesapların bakiye iadeleri yapılmamaktadır.</p><h4>4. İletişim</h4><p>İade ve iptal talepleriniz için: <strong>destek@froxyai.com</strong></p>`
+     },
+     disclaimer: {
+       title: 'Sorumluluk Reddi',
+       body: `<h4>Genel</h4><p>Froxy AI, üçüncü taraf yapay zeka modellerine erişim sağlayan bir aracı platformdur. Üretilen içeriklerin doğruluğu, güvenilirliği veya uygunluğu konusunda herhangi bir garanti verilmez.</p><h4>İçerik Sorumluluğu</h4><p>AI modelleri tarafından üretilen tüm içeriklerin hukuki, etik ve ticari sorumluluğu tamamen kullanıcıya aittir. Froxy AI, üretilen içeriklerden doğabilecek zararlardan sorumlu tutulamaz.</p><h4>Hizmet Sürekliliği</h4><p>Platform, %99.9 uptime hedeflemekle birlikte, bakım, güncelleme veya üçüncü taraf kaynaklı kesintiler yaşanabilir. Bu kesintilerden doğan zararlardan sorumluluk kabul edilmez.</p><h4>Üçüncü Taraf Hizmetleri</h4><p>Platform, OpenAI, Google, Anthropic gibi üçüncü taraf sağlayıcılara bağımlıdır. Bu sağlayıcıların hizmet değişiklikleri veya kesintileri Froxy AI'in kontrolü dışındadır.</p><h4>İletişim</h4><p>Genel sorular için: <strong>info@froxyai.com</strong>. Teknik destek: <strong>destek@froxyai.com</strong>.</p>`
+     },
+     sales: {
+       title: 'Mesafeli Satış Sözleşmesi',
+       body: `<h4>1. Taraflar</h4><p>İşbu sözleşme, alıcı (Kullanıcı) ile satıcı (Froxy AI - Adres: Maslak, İstanbul, E-posta: destek@froxyai.com) arasında, alıcının platform üzerinden elektronik ortamda siparişini verdiği dijital hizmetlerin satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince düzenlenmiştir.</p><h4>2. Sözleşme Konusu</h4><p>Sözleşmenin konusu, alıcının platform üzerinden satın aldığı token/kredi paketinin satışı ve teslimi ile ilgili şartların belirlenmesidir. Hizmet dijital ortamda anında teslim edilir ve kullanıma sunulur.</p><h4>3. Teslimat ve Kullanım</h4><p>Satın alınan krediler ödeme onayının ardından anında kullanıcının hesabına tanımlanır. Krediler dijital içerik niteliğinde olup fiziki teslimatı bulunmamaktadır.</p><h4>4. Cayma Hakkı</h4><p>Mesafeli Sözleşmeler Yönetmeliği'nin 15. maddesinin (ğ) bendi uyarınca, "Elektronik ortamda anında ifa edilen hizmetler veya tüketiciye anında teslim edilen gayrimaddi mallara ilişkin sözleşmeler" cayma hakkının istisnası kapsamında olup, satın alınan kredilerin/tokenların kısmen veya tamamen kullanılması veya hesaba tanımlanmasıyla birlikte cayma hakkı ve iade talebi geçerli olmamaktadır.</p><h4>5. İletişim</h4><p>Destek ve sözleşme detayları için: <strong>destek@froxyai.com</strong></p>`
+     }
+   };
+   // Keep the registration/footer terms readable before the full app bundle
+   // loads as well; the same notice is mirrored in app.js.
+   if (key === 'terms') {
+     LEGAL.terms = {
+       title: 'Kullan\u0131m \u015eartlar\u0131',
+       body: '<h4>1. Hizmet Tan\u0131m\u0131</h4><p>Froxy AI, \u00fc\u00e7\u00fcnc\u00fc taraf yapay zeka modellerine eri\u015fim sa\u011flayan bir arac\u0131 platformdur. Model \u00e7\u0131kt\u0131lar\u0131n\u0131n do\u011frulu\u011fu garanti edilmez.</p><h4>2. Model Kullan\u0131labilirli\u011fi</h4><p>Model katalo\u011fu ve sa\u011flay\u0131c\u0131lar zaman i\u00e7inde de\u011fi\u015febilir. Sa\u011flay\u0131c\u0131 kaynakl\u0131 kota, bak\u0131m, g\u00fcvenlik k\u0131s\u0131t\u0131, gecikme veya model kald\u0131r\u0131lmas\u0131 nedeniyle belirli bir modelin kesintisiz ya da her istek i\u00e7in \u00e7al\u0131\u015faca\u011f\u0131 garanti edilmez. Uygun oldu\u011funda sistem \u00e7al\u0131\u015fan alternatif modele y\u00f6nlendirme yapar.</p><h4>3. Kullan\u0131m S\u0131n\u0131rlar\u0131</h4><p>Her plan belirli kredi ve istek limitleri i\u00e7erir. Yasa d\u0131\u015f\u0131 veya \u00fc\u00e7\u00fcnc\u00fc taraf haklar\u0131n\u0131 ihlal eden kullan\u0131mlar yasakt\u0131r.</p><h4>4. \u0130leti\u015fim</h4><p>Teknik destek: <strong>destek@froxyai.com</strong>.</p>'
+     };
+   }
+   var d = LEGAL[key];
+   if (!d) return;
+   var title = document.getElementById('legal-title'),
+       body = document.getElementById('legal-body'),
+       modal = document.getElementById('legal-modal');
+   if (title && body && modal) {
+     title.textContent = d.title;
+     body.innerHTML = d.body;
+     modal.classList.add('open');
+   }
+   if (window.__loadFroxyApp) window.__loadFroxyApp();
+ };
     </script>
-    <script defer src="interaction-fix-v469.js?v=v496">
+    <script defer src="image-picker-fix-v461.js?v=v518">
+    </script>
+    <script defer src="interaction-fix-v469.js?v=v518">
     </script>
   
 
@@ -187,6 +264,10 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
 
 </head>
   <body>
+    <div class="froxy-lang-switch froxy-lang-toggle-fixed" role="group" aria-label="Dil / Language" data-no-translate>
+      <button type="button" class="froxy-lang-option" data-froxy-lang-option data-lang="tr" aria-label="Türkçe" title="Türkçe"><span class="froxy-flag froxy-flag-tr" aria-hidden="true"></span></button>
+      <button type="button" class="froxy-lang-option" data-froxy-lang-option data-lang="en" aria-label="English" title="English"><span class="froxy-flag froxy-flag-us" aria-hidden="true"></span></button>
+    </div>
     <a href="#main-content" class="skip-to-content" style="position:absolute;top:-40px;left:0;background:#7c3aed;color:#fff;padding:8px 16px;z-index:100;text-decoration:none;font-weight:600;" onfocus="this.style.top='0'" onblur="this.style.top='-40px'"> Ana içeriğe atla 
     </a>
     <div id="app-route-skeleton" aria-hidden="true">
@@ -339,6 +420,18 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
             <span>
             </span>
           </div>
+          <!-- Discount ticker banner -->
+          <div id="froxy-ticker" style="background:linear-gradient(90deg,#4f46e5,#7c3aed,#a855f7,#7c3aed,#4f46e5);background-size:300% 100%;animation:tickerGrad 6s linear infinite;overflow:hidden;padding:0;height:36px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,0.08);width:100%;">
+            <div class="froxy-ticker-track" style="display:flex;align-items:center;white-space:nowrap;animation:tickerScroll 13s linear infinite;width:max-content;gap:0;">
+              <span style="color:#fff;font-size:13px;font-weight:700;padding:0 20px;letter-spacing:0.04em;display:inline-block;">Yeni &uuml;yelere &ouml;zel: <strong style="color:#fde68a;">AI20</strong> kodu ile %20 indirim! &nbsp;&middot;&nbsp; <span data-model-count-live>1.100+</span> geli&#351;mi&#351; AI modeli tek platformda &nbsp;&middot;&nbsp; &#10024; 100 kredi ile &uuml;cretsiz deneyin &nbsp;&middot;&nbsp;</span>
+              <span aria-hidden="true" style="color:#fff;font-size:13px;font-weight:700;padding:0 20px;letter-spacing:0.04em;display:inline-block;">Yeni &uuml;yelere &ouml;zel: <strong style="color:#fde68a;">AI20</strong> kodu ile %20 indirim! &nbsp;&middot;&nbsp; <span data-model-count-live>1.100+</span> geli&#351;mi&#351; AI modeli tek platformda &nbsp;&middot;&nbsp; &#10024; 100 kredi ile &uuml;cretsiz deneyin &nbsp;&middot;&nbsp;</span>
+            </div>
+          </div>
+          <style>
+            @keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+            @keyframes tickerGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+          </style>
+
           <header class="ah-header">
             <div class="ah-container ah-header-inner">
               <a class="ah-brand" href="?view=home" aria-label="Froxy AI">
@@ -377,30 +470,29 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
               <div class="ah-hero-copy">
                 <span class="ah-eyebrow">
                   <i>
-                  </i> KOBİ, ajans ve içerik üreticiler için 
+                  </i> Çoklu sağlayıcı, tek kredi sistemi 
                 </span>
-                <h1> 5 dakikada 
-                  <span> iş içerik paketi üret. 
+                <h1> Tek aboneliğe 
+                  <span> kilitlenme. 
                   </span>
                 </h1>
-                <p> İşini veya ürününü yaz; Froxy satış metni, Instagram postu, müşteri cevabı, görsel promptu ve reklam hook'u hazırlasın. Yeni üyeler 100 ücretsiz krediyle başlar, kart bilgisi gerekmez. 
+                <p> ChatGPT, Claude, Gemini ve 1.100+ AI modelini tek panelden kullan. İhtiyacına göre modeli seç, kullandığın kadar kredi harca. 
                 </p>
                 <div class="ah-hero-actions">
-                  <button type="button" class="ah-btn ah-btn-primary ah-btn-lg" onclick="modal('reg')"> İş Paketini Ücretsiz Dene 
+                  <button type="button" class="ah-btn ah-btn-primary ah-btn-lg" onclick="modal('reg')"> 100 ücretsiz krediyle dene 
                   </button>
-                  <button type="button" class="ah-btn ah-btn-ghost ah-btn-lg" onclick="go('chat')"> Örnek Akışı Aç 
+                  <button type="button" class="ah-btn ah-btn-ghost ah-btn-lg" onclick="go('chat')"> Modelleri karşılaştır 
                   </button>
                 </div>
                 <div class="ah-hero-meta">
-                  <span> 100 ücretsiz başlangıç kredisi 
-                  </span>
                   <span> Kart bilgisi gerekmez 
                   </span>
-                  <span> Satış metni • Sosyal medya • Müşteri cevabı • Görsel prompt 
+                  <span> Kredi maliyeti işlemden önce görünür 
                   </span>
-                  <span> KVKK uyumlu 
+                  <span> Tek panelde çoklu sağlayıcı 
                   </span>
                 </div>
+                <p class="ah-credit-trial-note"><strong>100 krediyle önce dene:</strong> sohbet et, farklı modelleri karşılaştır veya ilk görselini üret. Kart gerekmez.</p>
               </div>
               <div class="ah-mockup" aria-label="Froxy AI panel önizlemesi">
                 <div class="ah-window">
@@ -463,7 +555,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                         </span>
                         <span> AI Ajanlar 
                         </span>
-                        <span class="ok"> ● Hazır 
+                        <span class="ok">  Hazır 
                         </span>
                       </div>
                       <article class="ah-msg ah-user">
@@ -491,7 +583,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                         </p>
                       </article>
                       <div class="ah-input"> Model seç, mesaj yaz veya görsel üret... 
-                        <button type="button" aria-label="Gönder"> ➤ 
+                        <button type="button" aria-label="Gönder">  
                         </button>
                       </div>
                     </section>
@@ -512,7 +604,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                   <button class="ah-btn ah-btn-ghost ah-btn-lg" onclick="go('img')">Görsel Üretmeyi Dene</button>
                 </div>
                 <div class="neo-growth-perks">
-                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> 20+ kayıtlı kullanıcı</span>
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> Kredi maliyeti işlemden önce görünür</span>
                   <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> KOBİ ve içerik odaklı</span>
                   <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> Tek panel, kredi takibi</span>
                 </div>
@@ -522,7 +614,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                   <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                   <div>
                     <span class="card-title">AI Sohbet</span>
-                    <span class="card-subtitle">30+ Gelişmiş Model</span>
+                    <span class="card-subtitle"><span data-model-count-live>1.100+</span> Geli&#351;mi&#351; Model</span>
                   </div>
                 </div>
                 <div class="neo-float-card c2">
@@ -608,8 +700,8 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
             <div class="neo-container">
               <div class="neo-section-header">
                 <span class="neo-kicker">Modeller</span>
-                <h2>Popüler sağlayıcılar <span>tek seçicide.</span></h2>
-                <p>GPT, Claude, Gemini, DeepSeek, Llama ve OpenRouter. Yüzlerce modele tek panelden erişin.</p>
+                <h2>Canlı katalogdan seçilen <span>model aileleri.</span></h2>
+                <p>Vitrin, erişilebilir model kataloğu yüklendiğinde güncellenir; paket ve sağlayıcı durumunu seçicide kontrol edin.</p>
               </div>
               <div class="neo-models-layout">
                 <div class="neo-models-grid">
@@ -692,12 +784,12 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 </div>
                 <h3> ₺129.99 
                 </h3>
-                <p> 5.000 krediyle temel kullanım ve hızlı deneme. 
+                <p><strong>Başlangıç paketi:</strong> günlük sohbet ve temel işler için 5.000 kredi. 
                 </p>
                 <ul>
                   <li> 5.000 kredi 
                   </li>
-                  <li> Tüm modellere erişim 
+                  <li> Erişim paket ve model durumuna bağlı 
                   </li>
                   <li> 200 istek/gün limiti 
                   </li>
@@ -718,12 +810,12 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 </div>
                 <h3> ₺249.99 
                 </h3>
-                <p> 15.000 kredi, görsel üretim ve daha geniş günlük limit. 
+                <p> Düzenli içerik ve görsel üretim için 15.000 kredi. 
                 </p>
                 <ul>
                   <li> 15.000 kredi 
                   </li>
-                  <li> Tüm modellere erişim 
+                  <li> Erişim paket ve model durumuna bağlı 
                   </li>
                   <li> 500 istek/gün limiti 
                   </li>
@@ -742,12 +834,12 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 </div>
                 <h3> ₺449.99 
                 </h3>
-                <p> 50.000 kredi, profesyonel iş akışları ve öncelikli destek. 
+                <p> Yoğun kullanım, araştırma ve ekip işleri için 50.000 kredi. 
                 </p>
                 <ul>
                   <li> 50.000 kredi 
                   </li>
-                  <li> Tüm modellere erişim 
+                  <li> Erişim paket ve model durumuna bağlı 
                   </li>
                   <li> 1.500 istek/gün limiti 
                   </li>
@@ -765,7 +857,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
               </span>
               <h2> Güvenli ödeme, açık kullanım şartları ve destek sistemi. 
               </h2>
-              <p> Kredi kullanımı, ödeme adımları, gizlilik metinleri ve destek kanalları kullanıcı için net tutulur. 
+              <p> Ödeme, kredi tanımlama, iade/iptal ve destek adımları tek yerde açıkça gösterilir. 
               </p>
             </div>
             <div class="ah-trust-console-v308">
@@ -774,7 +866,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 </span>
                 <strong> Kullanıcı ne harcadığını, nereden destek alacağını ve hangi metinleri kabul ettiğini net görür. 
                 </strong>
-                <p> Kart bilgisi gerektirmeyen deneme, açık kredi sistemi ve destek akışı tek hesapta tutulur. 
+                <p> Referans ve destek kanalı, ödeme sonrası kredi tanımlama süreci ile iade/iptal bağlantıları aynı güven alanında tutulur. 
                 </p>
               </div>
               <div class="ah-legal-grid">
@@ -789,9 +881,9 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 <button type="button" onclick="showLegal('refund')">
                   <i> PAY 
                   </i>
-                  <b> Güvenli ödeme altyapısı 
+                  <b> Ödeme, kredi ve iade bilgisi 
                   </b>
-                  <small> Ödeme, paket ve iade bilgileri ayrı metinlerde sunulur. 
+                  <small> Ödeme sonrası kredi durumunu takip et; iade ve iptal koşullarına aynı alandan ulaş. 
                   </small>
                 </button>
                 <button type="button" onclick="showLegal('kvkk')">
@@ -872,7 +964,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 </button>
                 <button type="button" onclick="showLegal('privacy')"> Gizlilik 
                 </button>
-                <button type="button" onclick="showLegal('terms')"> Kullanım Şartları 
+                <button type="button" onclick="showLegal('terms')"> Kullanım artları 
                 </button>
                 <button type="button" onclick="showLegal('refund')"> İade ve İptal 
                 </button>
@@ -936,12 +1028,12 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                   <input type="email" id="l-email" placeholder="ornek@mail.com" autocomplete="email">
                 </div>
                 <div class="fg">
-                  <label for="l-pass"> Şifre 
+                  <label for="l-pass">Şifre
                   </label>
                   <input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth('login')">
                 </div>
                 <div class="auth-row-between">
-                  <a href="#" onclick="tab('forgot');return false;" class="auth-link"> Şifremi unuttum 
+                  <a href="#" onclick="tab('forgot');return false;" class="auth-link">Şifremi unuttum
                   </a>
                 </div>
                 <button class="btn btn-primary btn-block auth-primary-btn" onclick="doAuth('login')" type="button">
@@ -984,6 +1076,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 </h2>
                 <p class="auth-sub"> Saniyeler içinde kayıt ol, 100 krediyle hemen başla. 
                 </p>
+                <div class="auth-trial-note" role="note"><strong>100 krediyle önce dene:</strong> sohbet et, farklı modelleri karşılaştır veya ilk görselini üret. Kart gerekmez.</div>
                 <div class="fg">
                   <label for="r-user"> Kullanıcı Adı 
                   </label>
@@ -995,7 +1088,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                   <input type="email" id="r-email" placeholder="ornek@mail.com" autocomplete="email">
                 </div>
                 <div class="fg">
-                  <label for="r-pass"> Şifre 
+                  <label for="r-pass">Şifre
                   </label>
                   <input type="password" id="r-pass" placeholder="En az 6 karakter" autocomplete="new-password">
                 </div>
@@ -1019,8 +1112,8 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                   <label class="auth-consent-row">
                     <input type="checkbox" id="r-terms-accepted">
                     <span>
-                      <a href="#" onclick="showLegal&&showLegal('terms');return false;"> Kullanım Şartları 
-                      </a> ve dijital hizmet koşullarını kabul ediyorum. 
+                      <a href="#" onclick="showLegal&&showLegal('terms');return false;"> Kullanım &#350;artları
+                      </a> ve dijital hizmet koşullarını; üçüncü taraf modellerin zaman zaman değişebileceğini, geçici hata verebileceğini veya kullanılamayabileceğini kabul ediyorum.
                     </span>
                   </label>
                   <label class="auth-consent-row optional">
@@ -1051,7 +1144,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 </p>
               </div>
               <div id="f-forgot" class="auth-form" style="display:none">
-                <h2 class="auth-title"> Şifreni mi unuttun 
+                <h2 class="auth-title">Şifreni mi unuttun
                 </h2>
                 <p class="auth-sub"> E-posta adresini gir, sıfırlama bağlantısı gönderelim. 
                 </p>
@@ -1199,7 +1292,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 <span class="auth-hero-pill">
                   <i>
                   </i>
-                  <strong> 300+ 
+                  <strong data-model-count-live> 1.100+ 
                   </strong>
                   <span> model 
                   </span>
@@ -1267,7 +1360,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 </div>
                 <div class="hero-stats">
                   <div class="stat">
-                    <strong> 300+ 
+                    <strong data-model-count-live> 1.100+ 
                     </strong>
                     <span> Sohbet modeli 
                     </span>
@@ -1448,7 +1541,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                 </div>
                 <div class="ps-item">
                   <span class="ps-dot purple">
-                  </span> 300+ model hazır 
+                  </span> <span data-model-count-live>1.100+</span> model hazır 
                 </div>
               </div>
             </div>
@@ -1471,7 +1564,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                   </button>
                 </div>
                 <div class="bot-mini-stack" aria-label="Aktif özellikler">
-                  <span> 300+ sohbet modeli 
+                  <span> <span data-model-count-live>1.100+</span> sohbet modeli 
                   </span>
                   <span> AI ajanlar 
                   </span>
@@ -2661,7 +2754,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                   </button>
                   <button type="button" class="footer-link" data-legal="privacy" onclick="showLegal('privacy')"> Gizlilik Politikası 
                   </button>
-                  <button type="button" class="footer-link" data-legal="terms" onclick="showLegal('terms')"> Kullanım Şartları 
+                  <button type="button" class="footer-link" data-legal="terms" onclick="showLegal('terms')"> Kullanım &#350;artları
                   </button>
                   <button type="button" class="footer-link" data-legal="disclaimer" onclick="showLegal('disclaimer')"> Sorumluluk Reddi 
                   </button>
@@ -2808,7 +2901,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                       <span class="notif-badge" id="notif-badge" style="display:none"> 0 
                       </span>
                     </button>
-                    <button type="button" class="ps-icon-btn" onclick="go('home')" title="Ana sayfa">
+                    <button type="button" class="ps-icon-btn" onclick="location.assign('/')" title="Ana sayfa">
                       <svg class="si-s" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                         <polyline points="9 22 9 12 15 12 15 22" />
@@ -2861,13 +2954,13 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                       <span id="model-count" style="display:none"></span>
                     </div>
                     <div class="ai-chat-top-actions">
-                      <button type="button" class="ai-top-btn ai-home-btn" onclick="go('home')" title="Ana sayfa" aria-label="Ana sayfa">
+                      <button type="button" class="ai-top-btn ai-home-btn" onclick="location.assign('/')" title="Ana sayfa" aria-label="Ana sayfa">
                         <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                           <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
                       </button>
-                      <button type="button" class="ai-top-btn" data-action="settings" onclick="document.getElementById('settings-modal').style.display='flex'" title="Ayarlar">
+                      <button type="button" class="ai-top-btn mobile-settings-action" data-action="settings" onclick="document.getElementById('settings-modal').style.display='flex'" title="Ayarlar" aria-label="Ayarlar">
                         <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <circle cx="12" cy="12" r="3" />
                           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z" />
@@ -3757,6 +3850,17 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                                 <option value="openai-gpt-image-2"> GPT Image 2 — OpenAI 
                                 </option>
                               </optgroup>
+                              <optgroup label="EvoLink - Test Edilmiş Görsel Modelleri">
+                                <option value="evolink-img-z-image-turbo">Z-Image Turbo — EvoLink</option>
+                                <option value="evolink-img-wan2.5-text-to-image">WAN 2.5 Text to Image — EvoLink</option>
+                                <option value="evolink-img-gemini-3.1-flash-lite-image">Gemini 3.1 Flash Lite Image — EvoLink</option>
+                                <option value="evolink-img-gemini-3.1-flash-image">Gemini 3.1 Flash Image — EvoLink</option>
+                                <option value="evolink-img-gpt-image-2">GPT Image 2 — EvoLink</option>
+                                <option value="evolink-img-gpt-image-1.5">GPT Image 1.5 — EvoLink</option>
+                                <option value="evolink-img-doubao-seedream-5.0-lite">Seedream 5.0 Lite — EvoLink</option>
+                                <option value="evolink-img-doubao-seedream-4.5">Seedream 4.5 — EvoLink</option>
+                                <option value="evolink-img-nano-banana-2-lite-beta">Nano Banana 2 Lite — EvoLink</option>
+                              </optgroup>
                               <optgroup label="Google Preview">
                                 <option value="gemini-3.1-flash-image-preview"> Gemini 3.1 Flash Image Preview 
                                 </option>
@@ -3976,6 +4080,15 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                       <div id="img-result" class="img-gen-result">
                       </div>
                     </div>
+                    <section id="generation-center" class="generation-center" aria-live="polite">
+                      <div class="generation-center-head">
+                        <div><span>ÜRETİM MERKEZİ</span><h3>Görsel işleri</h3></div>
+                        <button type="button" onclick="refreshGenerationJobs(true)">Yenile</button>
+                      </div>
+                      <div id="generation-job-list" class="generation-job-list">
+                        <p class="generation-empty">Henüz üretim işi yok.</p>
+                      </div>
+                    </section>
                     <div class="img-history-panel" style="margin-top:24px">
                       <div class="mini-panel-head">
                         <div>
@@ -4275,7 +4388,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                           <input type="text" id="a-baseurl" placeholder="https://api.shenfengwl.fun/v1">
                         </div>
                         <div class="fg">
-                          <label> Admin Şifresi 
+                          <label>Admin Şifresi
                           </label>
                           <input type="password" id="a-pass" placeholder="Yeni şifre">
                         </div>
@@ -5430,7 +5543,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
  function loadDemoVideo(btn){ var id=btn&&btn.getAttribute('data-youtube-id'); if(!id)return; var iframe=document.createElement('iframe'); iframe.title='Froxy AI demo video'; iframe.loading='lazy'; iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'; iframe.allowFullscreen=true; iframe.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&mute=1&loop=1&playlist='+id+'&rel=0&modestbranding=1&playsinline=1'; btn.replaceWith(iframe); } 
                   </script>
                   <script>
- (function(){ var appLoaded=false, appLoading=false, callbacks=[], appBootStarted=Date.now(); var APP_LOADER_MIN_MS=900, APP_LOADER_MAX_MS=1600; var domReady=document.readyState!=='loading'; if(!domReady)document.addEventListener('DOMContentLoaded',function(){domReady=true},{once:true}); var appRoutes={ '/sohbet':1,'/chat':1,'/panel':1,'/dashboard':1,'/kontrol-paneli':1,'/gorsel':1,'/gorsel-uret':1,'/araclar':1,'/ai-araclar':1,'/ai-araclari':1,'/ajanlar':1,'/ai-ajanlar':1,'/magaza':1,'/fiyatlandirma':1,'/destek':1,'/galeri':1,'/analitik':1,'/promptlar':1,'/bilgi-bankasi':1,'/giris':1,'/kayit':1,'/admin':1 }; function currentPath(){try{return decodeURIComponent(location.pathname.replace(/\/+$/,'')||'/').toLowerCase()}catch(e){return '/'}} function hasStoredSession(){try{return !!(localStorage.getItem('ap_user')||localStorage.getItem('saas_token')||localStorage.getItem('saas_user'))}catch(e){return false}} function hasOAuthCallback(){try{var p=new URLSearchParams(location.search||'');return !!(p.get('auth_provider')||p.get('auth_error')||p.get('auth_token')||p.get('auth_user')||p.get('auth_email'))}catch(e){return false}} function syncHomeSessionCta(){if(!hasStoredSession())return;document.querySelectorAll('[data-home-actions="1"]').forEach(function(el){el.innerHTML="<button type=\"button\" class=\"ah-btn ah-btn-primary\" onclick=\"go('chat')\">Panele Git</button><button type=\"button\" class=\"ah-btn ah-btn-ghost\" onclick=\"logout&&logout()\">Çıkış</button>"});document.querySelectorAll('.ah-hero-actions').forEach(function(el){el.innerHTML="<button type=\"button\" class=\"ah-btn ah-btn-primary ah-btn-lg\" onclick=\"go('chat')\">Panele Git</button><button type=\"button\" class=\"ah-btn ah-btn-ghost ah-btn-lg\" onclick=\"go('chat')\">Sohbete Geç</button>"})} window.__loadFroxyApp=function(cb){ if(cb)callbacks.push(cb); if(appLoaded){while(callbacks.length){try{callbacks.shift()()}catch(e){}}return;} if(appLoading)return; appLoading=true; if(window.__loadFullCss)window.__loadFullCss(); var sc=document.createElement('script'); sc.fetchPriority='high'; sc.src='app.min.js?v=v496'; sc.defer=true; sc.onload=function(){ appLoaded=true; try{window.__loadImagePickerFixV461&&window.__loadImagePickerFixV461()}catch(e){} try{window.__froxyInstallInteractionFixV463&&window.__froxyInstallInteractionFixV463()}catch(e){} try{if(window.__froxyRouteFailTimer){clearTimeout(window.__froxyRouteFailTimer);window.__froxyRouteFailTimer=null}document.documentElement.classList.remove('app-route-load-failed')}catch(e){} if(domReady){try{document.dispatchEvent(new Event('DOMContentLoaded'))}catch(e){}} var release=function(){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ try{document.documentElement.classList.remove('app-route-prepaint');document.documentElement.classList.add('app-ready')}catch(e){} setTimeout(function(){while(callbacks.length){try{callbacks.shift()()}catch(e){}}},0); }); }); }; var elapsed=Date.now()-appBootStarted; setTimeout(release,Math.max(0,APP_LOADER_MIN_MS-elapsed)); setTimeout(function(){try{if(window.__froxyRouteFailTimer){clearTimeout(window.__froxyRouteFailTimer);window.__froxyRouteFailTimer=null}document.documentElement.classList.remove('app-route-prepaint');document.documentElement.classList.remove('app-route-load-failed')}catch(e){}},APP_LOADER_MAX_MS); }; sc.onerror=function(){try{document.documentElement.classList.add('app-route-load-failed')}catch(e){}}; document.body.appendChild(sc); }; window.modal=function _p_modal(t){window.__loadFroxyApp(function(){if(window.modal&&window.modal!==_p_modal)window.modal(t)})}; window.go=function _p_go(v){window.__loadFroxyApp(function(){if(window.go&&window.go!==_p_go)window.go(v)})}; window.buyTokensById=function _p_buy(id){window.__loadFroxyApp(function(){if(window.buyTokensById&&window.buyTokensById!==_p_buy)window.buyTokensById(id)})}; window.toggleModelPicker=function(ev){if(ev){ev.preventDefault&&ev.preventDefault();ev.stopPropagation&&ev.stopPropagation()}window.__loadFroxyApp(function(){if(window.toggleModelPicker)window.toggleModelPicker(ev)})}; window.openModelPicker=function(ev){if(ev){ev.preventDefault&&ev.preventDefault();ev.stopPropagation&&ev.stopPropagation()}window.__loadFroxyApp(function(){if(window.openModelPicker)window.openModelPicker(ev)})}; window.closeModelPicker=function(){var p=document.getElementById('model-picker'),o=document.getElementById('model-picker-overlay');if(p){p.classList.remove('open');p.style.display='';p.setAttribute('aria-hidden','true')}if(o){o.classList.remove('open');o.style.display='';o.setAttribute('aria-hidden','true')}document.body.classList.remove('model-picker-open')}; window.filterModels=function(q){window.__loadFroxyApp(function(){if(window.filterModels)window.filterModels(q)})}; window.selectModel=function(id){window.__loadFroxyApp(function(){if(window.selectModel)window.selectModel(id)})}; syncHomeSessionCta(); var pathNow=currentPath(); var isAppRouteNow=!!appRoutes[pathNow]; if(isAppRouteNow||hasOAuthCallback())window.__loadFroxyApp(); })(); 
+ (function(){ var appLoaded=false, appLoading=false, callbacks=[], appBootStarted=Date.now(); var APP_LOADER_MIN_MS=900, APP_LOADER_MAX_MS=1600; var domReady=document.readyState!=='loading'; if(!domReady)document.addEventListener('DOMContentLoaded',function(){domReady=true},{once:true}); var appRoutes={ '/sohbet':1,'/chat':1,'/panel':1,'/dashboard':1,'/kontrol-paneli':1,'/gorsel':1,'/gorsel-uret':1,'/araclar':1,'/ai-araclar':1,'/ai-araclari':1,'/ajanlar':1,'/ai-ajanlar':1,'/magaza':1,'/fiyatlandirma':1,'/destek':1,'/galeri':1,'/analitik':1,'/promptlar':1,'/bilgi-bankasi':1,'/giris':1,'/kayit':1,'/admin':1 }; function currentPath(){try{return decodeURIComponent(location.pathname.replace(/\/+$/,'')||'/').toLowerCase()}catch(e){return '/'}} function hasStoredSession(){try{return !!localStorage.getItem('saas_token')}catch(e){return false}} function hasOAuthCallback(){try{var p=new URLSearchParams(location.search||'');return !!(p.get('auth_provider')||p.get('auth_error')||p.get('auth_token')||p.get('auth_user')||p.get('auth_email'))}catch(e){return false}} function syncHomeSessionCta(){if(!hasStoredSession())return;document.querySelectorAll('[data-home-actions="1"]').forEach(function(el){el.innerHTML="<button type=\"button\" class=\"ah-btn ah-btn-primary\" onclick=\"go('chat')\">Panele Git</button><button type=\"button\" class=\"ah-btn ah-btn-ghost\" onclick=\"logout&&logout()\">Çıkış</button>"});document.querySelectorAll('.ah-hero-actions').forEach(function(el){el.innerHTML="<button type=\"button\" class=\"ah-btn ah-btn-primary ah-btn-lg\" onclick=\"go('chat')\">Panele Git</button><button type=\"button\" class=\"ah-btn ah-btn-ghost ah-btn-lg\" onclick=\"go('chat')\">Sohbete Geç</button>"})} window.__loadFroxyApp=function(cb){ if(cb)callbacks.push(cb); if(appLoaded){while(callbacks.length){try{callbacks.shift()()}catch(e){}}return;} if(appLoading)return; appLoading=true; if(window.__loadFullCss)window.__loadFullCss(); var sc=document.createElement('script'); sc.fetchPriority='high'; sc.src='app.min.js?v=v571'; sc.defer=true; sc.onload=function(){ appLoaded=true; window.__appLoaded=true; try{window.__loadImagePickerFixV461&&window.__loadImagePickerFixV461()}catch(e){} try{window.__froxyInstallInteractionFixV463&&window.__froxyInstallInteractionFixV463()}catch(e){} try{if(window.__froxyRouteFailTimer){clearTimeout(window.__froxyRouteFailTimer);window.__froxyRouteFailTimer=null}document.documentElement.classList.remove('app-route-load-failed')}catch(e){} if(domReady){try{document.dispatchEvent(new Event('DOMContentLoaded'))}catch(e){}} var release=function(){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ try{document.documentElement.classList.remove('app-route-prepaint');document.documentElement.classList.add('app-ready')}catch(e){} setTimeout(function(){while(callbacks.length){try{callbacks.shift()()}catch(e){}}},0); }); }); }; var elapsed=Date.now()-appBootStarted; setTimeout(release,Math.max(0,APP_LOADER_MIN_MS-elapsed)); setTimeout(function(){try{if(window.__froxyRouteFailTimer){clearTimeout(window.__froxyRouteFailTimer);window.__froxyRouteFailTimer=null}document.documentElement.classList.remove('app-route-prepaint');document.documentElement.classList.remove('app-route-load-failed')}catch(e){}},APP_LOADER_MAX_MS); }; sc.onerror=function(){try{document.documentElement.classList.add('app-route-load-failed')}catch(e){}}; document.body.appendChild(sc); }; window.modal=function _p_modal(t){window.__loadFroxyApp(function(){if(window.modal&&window.modal!==_p_modal)window.modal(t)})}; window.go=function _p_go(v){window.__loadFroxyApp(function(){if(window.go&&window.go!==_p_go)window.go(v)})}; window.buyTokensById=function _p_buy(id){window.__loadFroxyApp(function(){if(window.buyTokensById&&window.buyTokensById!==_p_buy)window.buyTokensById(id)})}; window.toggleModelPicker=function(ev){if(ev){ev.preventDefault&&ev.preventDefault();ev.stopPropagation&&ev.stopPropagation()}window.__loadFroxyApp(function(){if(window.toggleModelPicker)window.toggleModelPicker(ev)})}; window.openModelPicker=function(ev){if(ev){ev.preventDefault&&ev.preventDefault();ev.stopPropagation&&ev.stopPropagation()}window.__loadFroxyApp(function(){if(window.openModelPicker)window.openModelPicker(ev)})}; window.closeModelPicker=function(){var p=document.getElementById('model-picker'),o=document.getElementById('model-picker-overlay');if(p){p.classList.remove('open');p.style.display='';p.setAttribute('aria-hidden','true')}if(o){o.classList.remove('open');o.style.display='';o.setAttribute('aria-hidden','true')}document.body.classList.remove('model-picker-open')}; window.filterModels=function(q){window.__loadFroxyApp(function(){if(window.filterModels)window.filterModels(q)})}; window.selectModel=function(id){window.__loadFroxyApp(function(){if(window.selectModel)window.selectModel(id)})}; syncHomeSessionCta(); var pathNow=currentPath(); var isAppRouteNow=!!appRoutes[pathNow]; if(isAppRouteNow||hasOAuthCallback())window.__loadFroxyApp(); })(); 
                   </script>
                   <script>
  document.addEventListener('DOMContentLoaded', function() { setTimeout(function() { var pm = document.querySelector('.panel-main'); if (!pm) return; /* GÖREVLER SEKMESI */ var tasksTab = document.createElement('div'); tasksTab.className = 'ptab'; tasksTab.id = 'ptab-tasks'; tasksTab.innerHTML = ` <div class="panel-page" style="max-width:700px"> <div class="dash-header"> <div class="dash-greeting"> <h2>Günlük Görevler</h2> <p>Görevleri tamamla, kredi kazan! Her gece 00:00'da sıfırlanır.</p> </div> </div> <div class="dash-panel" style="margin-bottom:16px"> <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"> <span style="font-size:13px;color:var(--text2)">Bugünkü ilerleme</span> <span style="font-size:13px;font-weight:700;color:var(--accent2)" id="tasks-earned-today">0 / 550 kredi</span> </div> <div style="background:var(--bg);border-radius:8px;height:8px;overflow:hidden"> <div id="tasks-progress-bar" style="height:100%;background:linear-gradient(90deg,#7c3aed,#3b82f6);border-radius:8px;width:0%;transition:width .5s"></div> </div> </div> <div id="tasks-list" style="display:flex;flex-direction:column;gap:12px"></div> <div class="dash-panel" style="margin-top:20px"> <h3>Giriş Serisi</h3> <div id="tasks-streak-dots" style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"></div> <div id="tasks-streak-info" style="font-size:13px;color:var(--text2)"><span class="inline-skeleton inline-skeleton-short" aria-label="Görev serisi hazırlanıyor"></span></div> </div> </div>`; pm.appendChild(tasksTab); /* AI HAFIZA SEKMESI: statik bilgi bankası sekmesinde (ptab-rag) zaten tanımlı, dinamik sürüm aynı ID'leri (mem-input/mem-list/mem-count) duplike ettiği için kaldırıldı. VİDEO ÜRETİCİ SEKMESİ: 2026'da ücretsiz video API'leri güvenilir çalışmadığı için kullanıcı deneyimini bozmamak adına tamamen kaldırıldı. Server tarafı endpoint'ler (.env key'leri varsa) hala çalışır; UI ileride geri eklenebilir. */ if (typeof initTasks === 'function') initTasks(); if (typeof initMemory === 'function') initMemory(); /* === FAZ 2+3 PANEL TABS === */ /* Add search box to chat list */ const chatListHeader = document.querySelector('.ch-header'); if (chatListHeader && !document.getElementById('chat-search')) { const searchBox = document.createElement('input'); searchBox.id = 'chat-search'; searchBox.type = 'text'; searchBox.placeholder = 'Sohbet ara...'; searchBox.style.cssText = 'width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:12px;margin-top:8px;font-family:var(--font)'; searchBox.oninput = function() { if(typeof searchChats==='function') searchChats(this.value) }; chatListHeader.appendChild(searchBox); } }, 5000); }); 
@@ -5481,24 +5594,7 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                               <div class="stc-check"> ✓ 
                               </div>
                             </button>
-                            <button class="settings-theme-card premium-theme-card" data-theme="light" onclick="setThemeByName('light')">
-                              <div class="theme-preview arctic">
-                                <span>
-                                </span>
-                                <span>
-                                </span>
-                                <span>
-                                </span>
-                              </div>
-                              <div class="stc-info">
-                                <span class="stc-name"> Arctic 
-                                </span>
-                                <span class="stc-sub"> Temiz açık 
-                                </span>
-                              </div>
-                              <div class="stc-check"> ✓ 
-                              </div>
-                            </button>
+                            <!-- Light theme card removed -->
                             <button class="settings-theme-card premium-theme-card" data-theme="ocean" onclick="setThemeByName('ocean')">
                               <div class="theme-preview oceanic">
                                 <span>
@@ -5548,31 +5644,9 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                             <span> Dil seçimi 
                             </span>
                           </div>
-                          <div class="settings-lang-grid premium-lang-grid">
-                            <button class="btn btn-sm lang-btn" data-lang="tr">
-                              <span> TR 
-                              </span> Türkçe 
-                            </button>
-                            <button class="btn btn-sm lang-btn" data-lang="en">
-                              <span> EN 
-                              </span> English 
-                            </button>
-                            <button class="btn btn-sm lang-btn" data-lang="ar">
-                              <span> AR 
-                              </span> Arabic 
-                            </button>
-                            <button class="btn btn-sm lang-btn" data-lang="de">
-                              <span> DE 
-                              </span> Deutsch 
-                            </button>
-                            <button class="btn btn-sm lang-btn" data-lang="fr">
-                              <span> FR 
-                              </span> Français 
-                            </button>
-                            <button class="btn btn-sm lang-btn" data-lang="ru">
-                              <span> RU 
-                              </span> Russian 
-                            </button>
+                          <div class="settings-lang-grid premium-lang-grid froxy-settings-lang-switch" role="group" aria-label="Dil / Language" data-no-translate>
+                            <button class="btn btn-sm lang-btn froxy-settings-lang-option" data-froxy-lang-option data-lang="tr" aria-label="Türkçe"><span class="froxy-flag froxy-flag-tr" aria-hidden="true"></span><b>Türkçe</b></button>
+                            <button class="btn btn-sm lang-btn froxy-settings-lang-option" data-froxy-lang-option data-lang="en" aria-label="English"><span class="froxy-flag froxy-flag-us" aria-hidden="true"></span><b>English</b></button>
                           </div>
                         </div>
                       </div>
@@ -5593,6 +5667,11 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                       <button class="mp-close-btn" onclick="closeModelPicker()" aria-label="Model seçiciyi kapat"> × 
                       </button>
                     </div>
+                    <div id="mp-mode-toggle" class="mp-mode-toggle" role="group" aria-label="Model seçici görünümü">
+                      <button type="button" data-mp-mode="simple" onclick="setModelPickerMode('simple')">Basit</button>
+                      <button type="button" data-mp-mode="advanced" onclick="setModelPickerMode('advanced')">Gelişmiş</button>
+                    </div>
+                    <div id="mp-status" class="mp-status-card" aria-live="polite"></div>
                     <label class="mp-search-shell" for="mp-search">
                       <span class="mp-search-icon" aria-hidden="true">
                       </span>
@@ -5624,9 +5703,9 @@ function loadGoogleTranslate(){window.__loadScriptOnce('https://translate.google
                   <script>
  setTimeout(function() { var splash = document.getElementById('froxy-splash'); if (splash) { console.warn('[Failsafe] Splash screen auto-dismissed by inline fallback timeout.'); splash.classList.add('is-hidden'); setTimeout(function() { if (splash && splash.parentNode) { splash.parentNode.removeChild(splash); } }, 620); } }, 4000); 
                   </script>
-                  <script defer src="froxy-final-fix-v474.js?v=v496">
-                  </script>
-                  <script defer src="robot-widget?v=v496">
+                  <script defer src="froxy-i18n-v518.js?v=v525"></script>
+                  <!-- Disabled: froxy-final-fix-v474.js caused renderer lockups during route audit. -->
+                  <script defer src="robot-widget?v=v571">
                   </script>
                 </body>
               </html>
