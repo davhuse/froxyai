@@ -8041,6 +8041,37 @@ function renderStore(){
       <button class="btn btn-primary btn-block" onclick="buyTokens(${i})">Sat?n Al</button>
     </article>`;
   }).join('');
+  cleanStoreCopyV573();
+}
+function cleanStoreCopyV573(){
+  const root=document.getElementById('ptab-store');
+  if(!root)return;
+  const english=String(window.currentLang||'tr')==='en';
+  const copy=english?{
+    'Tüm modellere erişim':'Access to active models included in your plan',
+    'Sınırsız istek':'High daily request limit',
+    'Limitsiz kullanım, özel sunucu ve white-label deneyimi.':'For dedicated infrastructure and white-label needs.',
+    'Sınırsız ücretsiz model, hızlı yanıt ve yüksek kredi dengesiyle en güvenli başlangıç.':'A balanced start with visible credit costs for daily work.',
+    'Canlı sıralama':'Community activity',
+    'Top kullanıcılar':'Anonymous usage summary',
+    'Erişim':'Plan access',
+    '7/24':'Clear',
+    '15M':'Multi-model'
+  }:{
+    'Tüm modellere erişim':'Paket kapsamındaki aktif modellere erişim',
+    'Sınırsız istek':'Yüksek günlük istek limiti',
+    'Limitsiz kullanım, özel sunucu ve white-label deneyimi.':'Özel sunucu ve white-label kullanım ihtiyaçları için.',
+    'Sınırsız ücretsiz model, hızlı yanıt ve yüksek kredi dengesiyle en güvenli başlangıç.':'Günlük sohbet ve temel işler için kredi maliyeti görünür, dengeli bir başlangıç paketi.',
+    'Canlı sıralama':'Topluluk etkinliği',
+    'Top kullanıcılar':'Anonim kullanım özeti',
+    'Erişim':'Paket erişimi',
+    '7/24':'Net',
+    '15M':'Çoklu model'
+  };
+  root.querySelectorAll('p,small,span,b,strong,li,.store-pack-desc').forEach(function(el){
+    const value=(el.textContent||'').trim();
+    if(copy[value])el.textContent=copy[value];
+  });
 }
 function buyTokens(i){
   const pack=STORE_PACKS[i];
