@@ -527,6 +527,13 @@
 
   function boot() {
     setLanguage(readLanguage());
+    // Several panel layers render after the initial page paint. Re-scan a few
+    // times only for the active English view so late DOM does not remain mixed.
+    if (readLanguage() === 'en') {
+      [450, 1400, 3200, 6200].forEach((delay) => setTimeout(() => {
+        if (readLanguage() === 'en') translateTree(document.body, 'en');
+      }, delay));
+    }
     document.addEventListener('click', (event) => {
       const button = event.target.closest('[data-froxy-lang-option],.lang-btn');
       if (!button) return;
