@@ -11304,7 +11304,10 @@ function setLang(lang){
 function enforcePublicImageDefaultV572(){
   if(!document.getElementById('img-prompt'))return;
   const remembered=LS.get('ap_img_last_manual_model','');
-  if(remembered)return;
+  // These were historical automatic defaults, not a deliberate choice. Do not
+  // let them keep a guest on a locked model after the public default changed.
+  const legacyPaidDefaults=new Set(['auto-quality','evolink-img-z-image-turbo']);
+  if(remembered&&!legacyPaidDefaults.has(String(remembered)))return;
   const sel=document.getElementById('img-model');
   if(!sel)return;
   try{ if(typeof window.__froxyEnsureImageProvidersV410==='function')window.__froxyEnsureImageProvidersV410(); }catch(e){}
