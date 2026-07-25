@@ -30212,6 +30212,16 @@ button,.btn,.ah-btn,.tool-chip,.chat-task-chip,.mp-cat,.mp-sort button,.img-qual
 @media(max-width:560px){
   #v-home.home-premium-v252 .ah-credit-trial-note{margin-top:14px;padding:11px 12px;font-size:12.5px}
 }
+
+/* Store privacy: rankings are anonymized and individual credit totals stay private. */
+#leaderboard-list > div > span:last-child{display:none!important}
+
+/* Give desktop registration enough room for consent and submit controls. */
+@media (min-width:861px){
+  #auth-modal.auth-modal-v2{align-items:center!important;padding:16px!important;overflow-y:auto!important}
+  #auth-modal.auth-modal-v2 .auth-shell{width:min(980px,calc(100vw - 32px))!important;max-width:980px!important;height:auto!important;max-height:calc(100dvh - 32px)!important}
+  #auth-modal.auth-modal-v2 .auth-panel{max-height:calc(100dvh - 32px)!important;padding:34px 38px 30px!important}
+}
 @media (max-width:760px){
   #froxy-robot-root{display:none!important;visibility:hidden!important;pointer-events:none!important}
 }

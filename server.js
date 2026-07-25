@@ -434,7 +434,7 @@ db.exec(`
   );
   CREATE TABLE IF NOT EXISTS generation_guest_credits (
     guest_id TEXT PRIMARY KEY,
-    credits INTEGER NOT NULL DEFAULT 30,
+    credits INTEGER NOT NULL DEFAULT 100,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
   CREATE TABLE IF NOT EXISTS reset_tokens (
@@ -679,6 +679,13 @@ try {
   if (!done) {
     db.prepare("UPDATE users SET credits = ? WHERE plan = 'free' AND COALESCE(is_admin, 0) = 0").run(FREE_STARTER_CREDITS);
     db.prepare("INSERT OR REPLACE INTO app_meta (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)").run('free_credit_normalized_v184', '1');
+  }
+} catch(e) {}
+try {
+  const done = db.prepare("SELECT value FROM app_meta WHERE key = 'guest_credit_normalized_v572'").get();
+  if (!done) {
+    db.prepare('UPDATE generation_guest_credits SET credits = 100 WHERE credits = 30').run();
+    db.prepare("INSERT OR REPLACE INTO app_meta (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)").run('guest_credit_normalized_v572', '1');
   }
 } catch(e) {}
 
@@ -8432,7 +8439,7 @@ function generationImagePlanLabel(model) {
 function generationOwnerRemaining(owner) {
   if (owner.userId) return Number(db.prepare('SELECT credits FROM users WHERE id = ?').get(owner.userId)?.credits || 0);
   const row = owner.guestId ? db.prepare('SELECT credits FROM generation_guest_credits WHERE guest_id = ?').get(owner.guestId) : null;
-  return row ? Number(row.credits || 0) : 30;
+  return row ? Number(row.credits || 0) : 100;
 }
 
 function publicGenerationJob(row) {
@@ -8469,7 +8476,7 @@ function reserveGenerationCredits(userId, cost, model, provider, guestId = null)
       throw Object.assign(new Error(`${generationImagePlanLabel(model)} paketi gerekli`), { status: 403, code: 'plan_required', requiredPlan: generationImagePlanLabel(model) });
     }
     const guestTx = db.transaction(() => {
-      db.prepare('INSERT OR IGNORE INTO generation_guest_credits (guest_id, credits) VALUES (?, 30)').run(guestId);
+      db.prepare('INSERT OR IGNORE INTO generation_guest_credits (guest_id, credits) VALUES (?, 100)').run(guestId);
       const guest = db.prepare('SELECT credits FROM generation_guest_credits WHERE guest_id = ?').get(guestId);
       if (Number(guest?.credits || 0) < cost) {
         throw Object.assign(new Error('Yetersiz kredi'), { status: 402, code: 'insufficient_credit', required: cost, remaining: Number(guest?.credits || 0) });
@@ -8499,7 +8506,7 @@ function reserveGenerationCredits(userId, cost, model, provider, guestId = null)
 function refundGenerationCredits(row, reason = 'refunded') {
   if (row?.guest_id && row.credit_state === 'reserved_guest') {
     const guestTx = db.transaction(() => {
-      db.prepare('INSERT OR IGNORE INTO generation_guest_credits (guest_id, credits) VALUES (?, 30)').run(row.guest_id);
+      db.prepare('INSERT OR IGNORE INTO generation_guest_credits (guest_id, credits) VALUES (?, 100)').run(row.guest_id);
       db.prepare('UPDATE generation_guest_credits SET credits = credits + ?, updated_at = CURRENT_TIMESTAMP WHERE guest_id = ?').run(Number(row.reserved_cost || 0), row.guest_id);
       db.prepare("UPDATE generation_jobs SET credit_state = 'refunded', updated_at = CURRENT_TIMESTAMP WHERE id = ? AND credit_state = 'reserved_guest'").run(row.id);
     });

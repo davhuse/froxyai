@@ -1,6 +1,13 @@
 // ===== SAAS & AUTH =====
 let authToken = localStorage.getItem('saas_token') || null;
 let authUser = JSON.parse(localStorage.getItem('saas_user') || 'null');
+const HAS_OAUTH_CALLBACK_AT_BOOT = (() => {
+  try {
+    return Boolean(new URLSearchParams(location.search || '').get('auth_provider'));
+  } catch (_) {
+    return false;
+  }
+})();
 const GOOGLE_OAUTH_CLIENT_ID = '580593981475-6pk360d9pn1mmhtdteo4h1vc3f3u1673.apps.googleusercontent.com';
 const DEFAULT_REMOTE_API_ORIGIN = 'https://www.froxyai.com';
 const DEFAULT_LOCAL_API_ORIGIN = '';
@@ -52,7 +59,16 @@ var VERIFIED_IMAGE_GENERATE_MODELS = new Set([
   'together-juggernaut-flux',
   'together-flux-schnell',
   'together-flux-kontext-pro',
-  'together-flux2-pro'
+  'together-flux2-pro',
+  'evolink-img-z-image-turbo',
+  'evolink-img-wan2.5-text-to-image',
+  'evolink-img-gemini-3.1-flash-lite-image',
+  'evolink-img-gemini-3.1-flash-image',
+  'evolink-img-gpt-image-2',
+  'evolink-img-gpt-image-1.5',
+  'evolink-img-doubao-seedream-5.0-lite',
+  'evolink-img-doubao-seedream-4.5',
+  'evolink-img-nano-banana-2-lite-beta'
 ]);
 function imageModelCanGenerate(model){
   const m = String(model || '').toLowerCase();
@@ -148,6 +164,19 @@ var DAILY_TASKS = [];
   ];
   const SKIP_TAGS = new Set(['SCRIPT','STYLE','TEXTAREA','CODE','PRE','NOSCRIPT','SVG']);
   let observer;
+  let repairFrame=0;
+  const pendingRepairNodes=new Set();
+  const repairObserverOptions={
+    subtree:true,
+    childList:true,
+    characterData:true,
+    attributes:true,
+    attributeFilter:['title','aria-label','placeholder','alt','value']
+  };
+  const REPAIR_HINT=/[\u00c2\u00c3\u00c4\u00c5\u00e2\u0178\ufffd]|[A-Za-zÇĞİÖŞÜçğıöşü]\?[A-Za-zÇĞİÖŞÜçğıöşü]|(?:^|\s)\?(?:cret|ye|yelik|zellik|neri|yi|deme|stek|ifre|artlar)|\b(?:Toplam gorsel|Veri alinamadi|Baslat|Toplu Uretim|uretiliyor|Giris yapin)\b/i;
+  function needsTextRepair(value){
+    return typeof value==='string' && value.length>0 && REPAIR_HINT.test(value);
+  }
   function tryDecodeMojibake(value){
     if(!/[\u00c2\u00c3\u00c4\u00c5\u00e2\u011f]/.test(value))return value;
     try{
@@ -162,6 +191,7 @@ var DAILY_TASKS = [];
   }
   function repairText(value){
     if(typeof value!=='string' || !value)return value;
+    if(!needsTextRepair(value))return value;
     let out=tryDecodeMojibake(value);
     out=out
       .replace(/\u00c2\u00a9/g,'\u00a9')
@@ -265,7 +295,7 @@ var DAILY_TASKS = [];
       if(after!==before)el.setAttribute('value', after);
     }
   }
-  function repairNode(node){
+  function repairNode(node, forceDeep){
     if(!node)return;
     if(node.nodeType===3){
       const parent=node.parentElement;
@@ -277,6 +307,12 @@ var DAILY_TASKS = [];
     }
     if(node.nodeType!==1 || SKIP_TAGS.has(node.tagName))return;
     repairAttributes(node);
+    // Live DOM mutations are overwhelmingly valid UTF-8. Avoid walking an
+    // entire panel unless its visible text actually contains a repair hint.
+    if(!forceDeep && !needsTextRepair(node.textContent || ''))return;
+    // Large catalogs are repaired explicitly after render. Walking thousands
+    // of model-card descendants from the global observer stalls chat frames.
+    if(!forceDeep && node.getElementsByTagName && node.getElementsByTagName('*').length>240)return;
     const walker=document.createTreeWalker(node, NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT, {
       acceptNode(n){
         if(n.nodeType===1 && SKIP_TAGS.has(n.tagName))return NodeFilter.FILTER_REJECT;
@@ -292,23 +328,53 @@ var DAILY_TASKS = [];
   }
   function repairTree(root){
     if(observer)observer.disconnect();
-    try{repairNode(root || document.body);}
-    finally{if(observer && document.body && window.__froxyTextRepairLive)observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['title','aria-label','placeholder','alt','value']});}
+    try{repairNode(root || document.body,true);}
+    finally{if(observer && document.body && window.__froxyTextRepairLive)observer.observe(document.body,repairObserverOptions);}
+  }
+  function queueRepairNode(node){
+    if(!node || (node.nodeType!==1 && node.nodeType!==3))return;
+    pendingRepairNodes.add(node);
+    if(repairFrame)return;
+    repairFrame=requestAnimationFrame(flushRepairNodes);
+  }
+  function flushRepairNodes(){
+    repairFrame=0;
+    if(!pendingRepairNodes.size)return;
+    const queued=Array.from(pendingRepairNodes);
+    pendingRepairNodes.clear();
+    const roots=[];
+    const queuedElements=new Set(queued.filter(node=>node.nodeType===1));
+    for(const node of queued){
+      const anchor=node.nodeType===3 ? node.parentElement : node;
+      if(!anchor || !anchor.isConnected || SKIP_TAGS.has(anchor.tagName))continue;
+      let covered=false;
+      let parent=anchor.parentElement;
+      while(parent){
+        if(queuedElements.has(parent)){
+          covered=true;
+          break;
+        }
+        parent=parent.parentElement;
+      }
+      if(!covered)roots.push(node);
+    }
+    if(observer)observer.disconnect();
+    try{
+      for(const node of roots)repairNode(node);
+    }finally{
+      if(observer && document.body && window.__froxyTextRepairLive)observer.observe(document.body,repairObserverOptions);
+    }
   }
   window.fixTurkishUiText = repairTree;
   document.addEventListener('DOMContentLoaded', function(){
     observer = new MutationObserver(function(mutations){
       for(const m of mutations){
-        if(m.type==='characterData')repairNode(m.target);
-        else if(m.type==='attributes')repairAttributes(m.target);
-        else m.addedNodes && m.addedNodes.forEach(repairNode);
+        if(m.type==='characterData' || m.type==='attributes')queueRepairNode(m.target);
+        else if(m.addedNodes) m.addedNodes.forEach(queueRepairNode);
       }
     });
     window.__froxyTextRepairLive=true;
     repairTree(document.body);
-    [300,1200,3000,8000].forEach(function(ms){
-      setTimeout(function(){repairTree(document.body);}, ms);
-    });
   });
 })();
 
@@ -1385,16 +1451,19 @@ function restoreLocalSession(){
 }
 
 async function checkAuth() {
-  if (!authToken) {
-    restoreLocalSession();
-    if(typeof updateSidebarAuthActions==='function')updateSidebarAuthActions();
-    closeM();
-    return false;
-  }
+  const tokenAtStart = authToken;
   try {
-    const res = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + authToken } });
+    const headers = authToken ? { 'Authorization': 'Bearer ' + authToken } : {};
+    // Google OAuth also leaves a secure HttpOnly session cookie. Checking the
+    // server even when localStorage has no token prevents a completed login
+    // redirect from rendering the panel as "Misafir".
+    const res = await fetch('/api/me', { headers, credentials: 'include' });
     const data = await readApiJson(res);
     if (res.ok && data.user) {
+      if (data.token) {
+        authToken = data.token;
+        localStorage.setItem('saas_token', authToken);
+      }
       authUser = data.user;
       authUser.plan = normalizePlanId(authUser.plan || 'free');
       syncAuthUserToLocal();
@@ -1410,13 +1479,35 @@ async function checkAuth() {
       }, 500);
       return true;
     } else {
-      throw new Error('Token invalid');
+      const authInvalid = res.status === 401 || (res.status === 403 && data?.code === 'invalid_token');
+      const error = new Error(data?.error || 'Oturum doğrulanamadı');
+      error.authInvalid = authInvalid;
+      throw error;
     }
   } catch (e) {
-    localStorage.removeItem('saas_token');
-    localStorage.removeItem('saas_user');
-    authToken = null;
-    authUser = null;
+    // A temporary network/server failure must not turn a signed-in user into a
+    // guest. Clear the session only when the backend explicitly rejects both
+    // the bearer token and the cookie-backed session.
+    if(e?.authInvalid){
+      // The OAuth callback owns session mutation for this document. A boot
+      // probe may finish later, but it must never erase the callback result.
+      if (HAS_OAUTH_CALLBACK_AT_BOOT) return Boolean(authToken || authUser);
+      // OAuth callback may have installed a newer token while an older,
+      // cookie-less /api/me request was still in flight. A stale 401 must
+      // never delete the freshly completed Google/GitHub session.
+      if (tokenAtStart !== authToken && authToken) return true;
+      localStorage.removeItem('saas_token');
+      localStorage.removeItem('saas_user');
+      if(!allowLocalFallback())LS.del('ap_user');
+      authToken = null;
+      authUser = null;
+      if(!allowLocalFallback())user = null;
+    }else if(authUser){
+      syncAuthUserToLocal();
+      if(typeof loginUI==='function')loginUI();
+      if(typeof updateCreditsUI==='function')updateCreditsUI();
+      return true;
+    }
     if(restoreLocalSession())return true;
     if(typeof updateSidebarAuthActions==='function')updateSidebarAuthActions();
     closeM();
@@ -1636,7 +1727,10 @@ function updateCreditsUI() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  checkAuth();
+  // handleOAuthCallback owns authentication while an OAuth result is present.
+  // Running checkAuth in parallel used to create a race where its late 401
+  // deleted the token that the callback had just stored.
+  if (!HAS_OAUTH_CALLBACK_AT_BOOT) checkAuth();
 });
 
 // ===== CONFIG =====
@@ -1653,6 +1747,8 @@ const ALL_MODELS = [
   {id:'mistral-saba-24b',name:'Mistral Saba 24B',tier:'free',provider:'groq',cat:'mistral'},
   {id:'deepseek-r1-distill-llama-70b',name:'DeepSeek R1 Distill 70B',tier:'free',provider:'groq',cat:'qualityfree'},
   {id:'openrouter/free',name:'OpenRouter Free Auto',tier:'free',provider:'openrouter',cat:'qualityfree'},
+  {id:'evolink/auto',name:'EvoLink Akıllı Yönlendirme',tier:'pro',provider:'evolink',cat:'qualityfree'},
+  {id:'hcnsec-auto',name:'Huancheng Akıllı Yönlendirme',tier:'free',provider:'hcnsec',cat:'qualityfree'},
   {id:'deepseek/deepseek-r1:free',name:'DeepSeek R1 Free',tier:'free',provider:'openrouter',cat:'qualityfree'},
   {id:'jan-local-auto',name:'Jan Local Chat (Free)',tier:'free',provider:'jan-local',cat:'qualityfree'},
   {id:'local-openai-auto',name:'Local OpenAI-Compatible Chat',tier:'free',provider:'local-openai',cat:'qualityfree'},
@@ -1701,9 +1797,6 @@ const ALL_MODELS = [
   {id:'ministral-8b-latest',name:'Ministral 8B Latest',tier:'free',provider:'mistral',cat:'mistral'},
   {id:'deepseek-chat-direct',name:'DeepSeek Sohbet Doğrudan',tier:'pro',provider:'deepseek_direct',cat:'deepseek'},
   {id:'deepseek-reasoner-direct',name:'DeepSeek Reasoner Direct',tier:'pro',provider:'deepseek_direct',cat:'deepseek'},
-  {id:'Qwen/Qwen2.5-72B-Instruct',name:'HF Qwen 2.5 72B',tier:'free',provider:'huggingface',cat:'qwen'},
-  {id:'meta-llama/Llama-3.1-70B-Instruct',name:'HF Llama 3.1 70B',tier:'free',provider:'huggingface',cat:'llama'},
-  {id:'mistralai/Mistral-7B-Instruct-v0.3',name:'HF Mistral 7B Instruct',tier:'free',provider:'huggingface',cat:'mistral'},
   {id:'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',name:'Together Llama 3.3 70B',tier:'free',provider:'together',cat:'llama',apiId:'meta-llama/Llama-3.3-70B-Instruct-Turbo'},
   {id:'deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free',name:'Together DeepSeek R1',tier:'free',provider:'together',cat:'deepseek',apiId:'deepseek-ai/DeepSeek-R1-Distill-Llama-70B'},
   {id:'grok-4-fast-reasoning',name:'xAI Grok 4 Fast Reasoning',tier:'pro',provider:'xai',cat:'gpt'},
@@ -1773,7 +1866,7 @@ const ALL_MODELS = [
   {id:'microsoft/phi-4:free',name:'Microsoft: Phi-4 Free',tier:'free',provider:'openrouter',cat:'other'},
 ];
 const PLANS = {
-  guest: { name: 'Misafir', tokens: 30, price: 0, daily_chat: 5, daily_image: 1 },
+  guest: { name: 'Misafir', tokens: 100, price: 0, daily_chat: 5, daily_image: 1 },
   free: { name: 'Ücretsiz', tokens: 100, price: 0, daily_chat: 10, daily_image: 3 },
   starter: { name: 'Başlangıç', tokens: 5000, price: 129.99, daily_chat: 200, daily_image: 50 },
   popular: { name: 'Pop\u00fcler', tokens: 15000, price: 249.99, daily_chat: 500, daily_image: 150 },
@@ -1785,7 +1878,7 @@ const PLANS = {
   business: { name: 'İşletme', tokens: 150000, price: 799.99, daily_chat: 5000, daily_image: 1500 },
   enterprise: { name: 'Kurumsal', tokens: 500000, price: 1499.99, daily_chat: 999999, daily_image: 999999 }
 };
-const GUEST_STARTER_CREDITS = 30;
+const GUEST_STARTER_CREDITS = 100;
 const FREE_STARTER_CREDITS = 100;
 const DAILY_LOGIN_BONUS = 10;
 const DAILY_LOGIN_STREAK_BONUS = 100;
@@ -2031,6 +2124,66 @@ function getSelectedPersonaSkills(){
   return [...document.querySelectorAll('#persona-skill-picker input:checked')].map(x=>x.value);
 }
 
+const VERIFIED_PROVIDER_CHAT_MODELS_V528 = {
+  evolink: [
+    'MiniMax-M2.5','doubao-seed-2.0-pro','doubao-seed-2.0-lite','doubao-seed-2.0-mini','doubao-seed-2.0-code',
+    'gpt-5.1-chat','deepseek-v4-flash','deepseek-v4-pro','deepseek-chat','deepseek-reasoner',
+    'claude-sonnet-4-5-20250929','claude-haiku-4-5-20251001','claude-opus-4-5-20251101','claude-opus-4-6','claude-opus-4-7',
+    'MiniMax-M3','gpt-5.1','gpt-5.2','gpt-5.4','gemini-2.5-flash','gemini-3.1-pro-preview','claude-sonnet-4-6',
+    'glm-5.2','claude-opus-4-8','gemini-3-pro-preview','gemini-3-flash-preview','gemini-3.1-flash-lite-preview','gemini-3.5-flash',
+    'claude-sonnet-5','claude-fable-5','gemini-2.5-pro','gemini-2.5-flash-lite','gemini-3.1-pro-preview-customtools',
+    'gpt-5.5','gpt-5.6-sol','gpt-5.6-terra','gpt-5.6-luna','gemini-3.1-flash-lite','kimi-k3'
+  ],
+  hcnsec: [
+    'DeepSeek-V4-Flash','glm-5.2','kat-coder-pro-v2','kat-coder-pro-v2.5','MiniMax-M2.7','MiniMax-M3',
+    'Qwen3-Coder-Next-FP8','Qwen3.5-397B-A17B','Qwen3.6-35B-A3B','Spark-X2-Flash',
+    'step-3.5-flash','step-3.5-flash-2603','step-3.7-flash','step-router-v1'
+  ]
+};
+
+function verifiedProviderModelCategoryV528(id) {
+  const value = String(id || '').toLowerCase();
+  if (value.includes('claude')) return 'claude';
+  if (value.includes('gemini')) return 'gemini';
+  if (value.includes('deepseek')) return 'deepseek';
+  if (value.includes('qwen')) return 'qwen';
+  if (value.includes('gpt')) return 'gpt';
+  return 'other';
+}
+
+function verifiedProviderModelNameV528(id) {
+  return String(id || '')
+    .replace(/-/g, ' ')
+    .replace(/\bdeepseek\b/gi, 'DeepSeek')
+    .replace(/\bclaude\b/gi, 'Claude')
+    .replace(/\bgemini\b/gi, 'Gemini')
+    .replace(/\bminimax\b/gi, 'MiniMax')
+    .replace(/\bdoubao\b/gi, 'Doubao')
+    .replace(/\bglm\b/gi, 'GLM')
+    .replace(/\bgpt\b/gi, 'GPT')
+    .replace(/\bkimi\b/gi, 'Kimi')
+    .replace(/\bqwen/gi, 'Qwen')
+    .replace(/\bkat\b/gi, 'KAT')
+    .replace(/\bspark\b/gi, 'Spark')
+    .replace(/\bstep\b/gi, 'Step');
+}
+
+Object.entries(VERIFIED_PROVIDER_CHAT_MODELS_V528).forEach(([provider, ids]) => {
+  ids.forEach(apiId => {
+    const id = provider + '/' + apiId;
+    if (ALL_MODELS.some(model => model.id === id)) return;
+    ALL_MODELS.push({
+      id,
+      apiId,
+      name: verifiedProviderModelNameV528(apiId) + (provider === 'evolink' ? ' · EvoLink' : ' · Huancheng'),
+      tier: provider === 'evolink' ? 'pro' : 'free',
+      provider,
+      cat: verifiedProviderModelCategoryV528(apiId),
+      verified: true
+    });
+  });
+});
+
 let user = LS.get('ap_user',null);
 let admin = false;
 let chats = LS.get('ap_chats',[]);
@@ -2040,8 +2193,10 @@ let BASE_URL = '';
 let enabledModels = ALL_MODELS.map(m=>m.id);
 let modelCatalogLoaded=false;
 let modelCatalogPromise=null;
-let remoteModelCount=0;
-const REMOTE_MODEL_TARGET_COUNT=632;
+let remoteModelCount=Math.max(0,Number(LS.get('ap_live_model_count',0))||0);
+let healthyModelIds=null;
+let modelHealthValidationActive=false;
+const REMOTE_MODEL_TARGET_COUNT=0;
 const MODEL_TIER_LEVEL={free:0,starter:1,pro:2,enterprise:3};
 const PLAN_MODEL_LEVEL={guest:0,free:0,starter:1,popular:1,pro:2,creator:2,developer:3,power:3,agency_start:3,business:3,enterprise:3};
 const CLIENT_EXTRA_REMOTE_MODELS=[
@@ -2095,6 +2250,9 @@ function remainingUserCredits(){
 function canUseModel(model){
   if(!model)return false;
   if(admin||authUser?.is_admin)return true;
+  const modelLevel=MODEL_TIER_LEVEL[String(model.tier||'enterprise').toLowerCase()] ?? MODEL_TIER_LEVEL.enterprise;
+  const planLevel=PLAN_MODEL_LEVEL[activePlanId()] ?? PLAN_MODEL_LEVEL.free;
+  if(planLevel<modelLevel)return false;
   const cost=getClientModelCreditCost(model.apiId||model.id,model.provider,model.cat==='image'?'image':'chat');
   return cost<=remainingUserCredits();
 }
@@ -2102,7 +2260,8 @@ function baseEnabledModels(){
   return ALL_MODELS;
 }
 function getEnabledModelsForUser(){
-  return baseEnabledModels();
+  const models=baseEnabledModels();
+  return healthyModelIds ? models.filter(model=>healthyModelIds.has(model.id)) : models;
 }
 function getAllowedModelsForUser(){
   const models=baseEnabledModels().filter(canUseModel);
@@ -2134,7 +2293,46 @@ function modelCountLabel(){
   return liveCount.toLocaleString('tr-TR')+' model';
 }
 function visibleModelCount(){
-  return Math.max(remoteModelCount||0, REMOTE_MODEL_TARGET_COUNT);
+  if(healthyModelIds)return healthyModelIds.size;
+  return Math.max(remoteModelCount||0, ALL_MODELS.length, REMOTE_MODEL_TARGET_COUNT);
+}
+function syncMarketingModelCounts(){
+  const count=visibleModelCount();
+  if(!count)return;
+  const label=count.toLocaleString('tr-TR')+'+';
+  document.querySelectorAll('[data-model-count-live]').forEach(el=>{el.textContent=label});
+  document.querySelectorAll('[data-model-count-welcome]').forEach(el=>{
+    el.textContent=count.toLocaleString('tr-TR')+(el.dataset.modelCountSuffix||'');
+  });
+}
+function syncFeaturedHomeModels(){
+  const cards=[...document.querySelectorAll('#home-models-v252 .neo-model-card')];
+  if(!cards.length)return;
+  const active=ALL_MODELS.filter(model=>enabledModels.includes(model.id)&&(!healthyModelIds||healthyModelIds.has(model.id)));
+  if(!active.length)return;
+  const specs=[
+    /(?:gpt|openai)/i,
+    /(?:claude|anthropic)/i,
+    /(?:gemini|google)/i,
+    /(?:deepseek)/i,
+    /(?:flux|imagen|image|visual|görsel)/i,
+    /(?:llama|qwen|mistral|groq)/i
+  ];
+  const used=new Set();
+  cards.forEach((card,index)=>{
+    const match=specs[index];
+    const model=active.find(item=>!used.has(item.id)&&match.test(`${item.id} ${item.name} ${item.provider} ${item.cat||''}`));
+    if(!model){card.hidden=true;return;}
+    used.add(model.id);
+    const providerName=providerLabel(model.provider||'');
+    const small=card.querySelector('small');
+    const title=card.querySelector('strong');
+    const detail=card.querySelector('span');
+    if(small)small.textContent=providerName;
+    if(title)title.textContent=model.name||model.id;
+    if(detail)detail.textContent='Canlı katalogda erişilebilir';
+    card.hidden=false;
+  });
 }
 function syncAuthUserToLocal(){
   if(!authUser)return;
@@ -2207,10 +2405,12 @@ async function loadRemoteModelCatalog(){
   }
   try{
     normalizeModelCatalogCounts();
+    healthyModelIds=d.healthFiltered&&Array.isArray(d.availableIds)?new Set(d.availableIds):null;
+    modelHealthValidationActive=Boolean(d.healthRunActive && !d.healthFiltered);
     const seen=new Set(ALL_MODELS.map(m=>m.id));
     let added=0;
     const mergedModels=[...(d.models||[])];
-    CLIENT_EXTRA_REMOTE_MODELS.forEach(m=>{
+    (!healthyModelIds?CLIENT_EXTRA_REMOTE_MODELS:[]).forEach(m=>{
       if(!mergedModels.some(x=>x&&x.id===m.id))mergedModels.push(m);
     });
     mergedModels.forEach(m=>{
@@ -2228,11 +2428,12 @@ async function loadRemoteModelCatalog(){
     });
     const uniqueTotal=normalizeModelCatalogCounts();
     remoteModelCount = Math.max(
-      remoteModelCount,
+      healthyModelIds?0:remoteModelCount,
       Number(d.count || 0),
-      uniqueTotal,
-      REMOTE_MODEL_TARGET_COUNT
+      healthyModelIds?0:uniqueTotal,
+      healthyModelIds?0:REMOTE_MODEL_TARGET_COUNT
     );
+    LS.set('ap_live_model_count',remoteModelCount);
     LS.set('ap_models',enabledModels);
     modelCatalogLoaded=true;
     try{renderModelsAdmin();}catch(uiErr){console.warn('[MODELS] Admin render skipped:',uiErr.message)}
@@ -2240,7 +2441,12 @@ async function loadRemoteModelCatalog(){
     try{renderModelPicker();}catch(uiErr){console.warn('[MODELS] Picker render skipped:',uiErr.message)}
     try{renderModelHealthSummary();}catch(uiErr){console.warn('[MODELS] Health render skipped:',uiErr.message)}
     try{updDash();}catch(uiErr){console.warn('[MODELS] Dashboard refresh skipped:',uiErr.message)}
+    try{syncMarketingModelCounts();}catch(uiErr){console.warn('[MODELS] Marketing count sync skipped:',uiErr.message)}
+    try{syncFeaturedHomeModels();}catch(uiErr){console.warn('[MODELS] Featured home models skipped:',uiErr.message)}
     try{const c=chats.find(x=>x.id===activeChat);if(c && !c.messages.length)renderMsgs({stickToBottom:true})}catch(uiErr){console.warn('[MODELS] Welcome refresh skipped:',uiErr.message)}
+    if(d.healthRunActive){
+      setTimeout(()=>{modelCatalogPromise=null;loadRemoteModelCatalog().catch(()=>{});},30000);
+    }
     if(added){
     console.log('[MODELS] Remote catalog loaded:', added, 'new models, total:', ALL_MODELS.length);
     }
@@ -2275,9 +2481,14 @@ document.addEventListener('DOMContentLoaded',()=>{
     loginUI();
   }
   if(typeof updateHomeAuthActions==='function')updateHomeAuthActions();
-  if(startupView==='admin') go('admin');
-  else if(startupView==='home') go('home');
-  else if(startupView==='dash'){ go('chat'); panelTab('dash'); }
+  const logged = !!authToken || !!(authUser && authUser.id) || (user && !user.guest && user.id !== 'guest');
+  let finalStartupView = startupView;
+  if(logged && startupView === 'home') {
+    finalStartupView = 'chat';
+  }
+  if(finalStartupView==='admin') go('admin');
+  else if(finalStartupView==='home') go('home');
+  else if(finalStartupView==='dash'){ go('chat'); panelTab('dash'); }
   else{go('chat');if(startupTab!=='chat')panelTab(startupTab)}
   const routeTarget=getRouteTarget();
   if((routeTarget==='login'||routeTarget==='reg')&&typeof modal==='function'){
@@ -2303,6 +2514,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(isHomeStartup) initFX();
   else runDeferredStartup(()=>{try{initFX()}catch(e){}},6500);
   renderModelSelect();
+  // The full provider catalogue is intentionally deferred so first paint stays
+  // quick, but it must still start automatically. Previously it only loaded
+  // after opening the picker, leaving the chat welcome counter at the small
+  // bootstrap list and making models look as if they had disappeared.
+  if(!isHomeStartup){
+    loadRemoteModelCatalog().catch(err=>console.warn('[MODELS] Catalog load failed:',err.message));
+  }
   runDeferredStartup(()=>{
     if(startupView==='admin')renderModelsAdmin();
     renderImageHistory();
@@ -2316,6 +2534,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 // ===== MODAL =====
 function modal(t){
+  const logged = !!authToken && !!(authUser && authUser.id);
+  if(logged){
+    go('chat');
+    return;
+  }
   const m = document.getElementById('auth-modal');
   if(m) { m.style.display=''; m.classList.add('open'); }
   tab(t||'login');
@@ -2472,6 +2695,15 @@ function closeM(){
     'imagen-4': { brand: 'I4', desc: 'Imagen 4 - Google', cost: 300, costType: 'pro' },
     'imagen-4-ultra': { brand: 'IU', desc: 'Imagen 4 Ultra - Google', cost: 900, costType: 'pro' },
     'openai-gpt-image-2': { brand: 'G2', desc: 'GPT Image 2 - OpenAI', cost: 300, costType: 'pro' },
+    'evolink-img-z-image-turbo': { brand: 'EZ', desc: 'Z-Image Turbo - EvoLink', cost: 30, costType: 'pro' },
+    'evolink-img-wan2.5-text-to-image': { brand: 'EW', desc: 'WAN 2.5 Text to Image - EvoLink', cost: 120, costType: 'pro' },
+    'evolink-img-gemini-3.1-flash-lite-image': { brand: 'EL', desc: 'Gemini 3.1 Flash Lite Image - EvoLink', cost: 180, costType: 'pro' },
+    'evolink-img-gemini-3.1-flash-image': { brand: 'EG', desc: 'Gemini 3.1 Flash Image - EvoLink', cost: 300, costType: 'pro' },
+    'evolink-img-gpt-image-2': { brand: 'E2', desc: 'GPT Image 2 - EvoLink', cost: 300, costType: 'pro' },
+    'evolink-img-gpt-image-1.5': { brand: 'E1', desc: 'GPT Image 1.5 - EvoLink', cost: 250, costType: 'pro' },
+    'evolink-img-doubao-seedream-5.0-lite': { brand: 'E5', desc: 'Seedream 5.0 Lite - EvoLink', cost: 220, costType: 'pro' },
+    'evolink-img-doubao-seedream-4.5': { brand: 'E4', desc: 'Seedream 4.5 - EvoLink', cost: 240, costType: 'pro' },
+    'evolink-img-nano-banana-2-lite-beta': { brand: 'EN', desc: 'Nano Banana 2 Lite - EvoLink', cost: 150, costType: 'pro' },
     'cf-sdxl': { brand: 'CF', desc: 'Cloudflare SDXL — Önerilen', cost: 10, costType: 'free' },
     'cf-sdxl-lightning': { brand: 'CL', desc: 'SDXL Lightning - Cloudflare', cost: 10, costType: 'free' },
     'cf-dreamshaper-lcm': { brand: 'CD', desc: 'DreamShaper LCM - Cloudflare', cost: 10, costType: 'free' },
@@ -2611,6 +2843,11 @@ function init(){
 
     function imagePickerProviderFamily(model){
       const id = String(model || '').toLowerCase();
+      if(id.startsWith('evolink-img-')){
+        if(id.includes('gpt-image')) return 'openai';
+        if(id.includes('gemini') || id.includes('nano-banana')) return 'gemini';
+        return 'evolink';
+      }
       if(id === 'modal-sdxl' || id.startsWith('modal-')) return 'modal';
       if(id === 'auto-quality') return 'gemini';
       if(id.includes('comfyui') || id.includes('fooocus') || id.includes('a1111') || id.includes('forge') || id.includes('swarmui') || id.includes('perchance')) return 'local';
@@ -2625,15 +2862,18 @@ function init(){
       return 'generic';
     }
     function imagePickerLogoProviderKey(model){
-      const provider = imagePickerProviderFamily(model);
-      if(provider === 'imagegpt') return 'openai';
-      if(provider === 'flux') return 'together';
-      if(provider === 'local' || provider === 'modal') return 'generic';
-      return provider || 'generic';
+      const id = String(model || '').trim();
+      const family = imagePickerProviderFamily(id);
+      if(family === 'local' || family === 'modal') return 'generic';
+      const meta = NAME_MAP[id] || {};
+      if(typeof providerBrandKey === 'function'){
+        return providerBrandKey({ id, apiId: id, name: meta.desc || id, provider: family, cat: 'image' }, family);
+      }
+      return family || 'generic';
     }
     function imagePickerLogoHtml(model, klass){
       const provider = imagePickerLogoProviderKey(model);
-      const label = ({openai:'OpenAI',gemini:'Gemini',together:'Together',qwen:'Qwen',cloudflare:'Cloudflare',pollinations:'Pollinations',generic:'AI'})[provider] || 'AI';
+      const label = (typeof providerLabel === 'function' ? providerLabel(provider) : provider) || 'Model';
       return `<span class="${klass} img-provider-logo-v354" data-provider="${provider}" title="${label}" aria-hidden="true">${providerBrandIconSvg(provider)}</span>`;
     }
     window.__froxyApplyImagePickerLogoV426 = function(target, model){
@@ -2967,7 +3207,15 @@ function socialLogin(provider){
   const names={github:'GitHub',google:'Google'};
   const pName=names[provider]||provider;
   const origin=(OAUTH_ORIGIN||DEFAULT_REMOTE_API_ORIGIN||'').replace(/\/$/,'');
-  const authUrl=origin+'/auth/'+provider+'?return_to='+encodeURIComponent(location.origin);
+  // Keep OAuth on one canonical production origin. Starting the flow on
+  // froxyai.com but completing it on www.froxyai.com previously split the
+  // host-only session cookie and could make a successful Google login render
+  // as a guest session. Preserve the current app route, but always return to
+  // the same host that owns the production OAuth endpoint.
+  const route=(location.pathname&&location.pathname.startsWith('/'))?location.pathname:'/';
+  const returnOrigin=IS_LOCAL_PREVIEW?location.origin:origin;
+  const returnTo=returnOrigin+route+(location.hash||'');
+  const authUrl=origin+'/auth/'+provider+'?return_to='+encodeURIComponent(returnTo);
   msg(pName+' giri\u015f sayfas\u0131na y\u00f6nlendiriliyorsunuz...','info');
   window.location.href=authUrl;
 }
@@ -3046,6 +3294,13 @@ async function checkFirstTime(){
 }
 
 // Handle OAuth callback — auto-register/login when redirected back with auth params
+function clearOAuthCallbackParams(){
+  try{
+    const cleanPath=(location.pathname||'/')+(location.hash||'');
+    history.replaceState(null,'',cleanPath);
+  }catch(e){}
+}
+
 function handleOAuthCallback(){
   const params=new URLSearchParams(location.search);
   const provider=params.get('auth_provider');
@@ -3057,7 +3312,7 @@ function handleOAuthCallback(){
     else if(authError==='google_popup_only') msg('Google girişi artık popup ile çalışıyor. Sayfayı yenileyip Google ile girişe tekrar basın.','info');
     else msg('Giriş hatası: '+authError,'err');
     // Clean URL
-    history.replaceState(null,'','/');
+    clearOAuthCallbackParams();
     return;
   }
   
@@ -3066,7 +3321,7 @@ function handleOAuthCallback(){
   const backendToken=params.get('auth_token')||'';
   const backendUserRaw=params.get('auth_user')||'';
   if(backendToken){
-    history.replaceState(null,'','/');
+    clearOAuthCallbackParams();
     (async()=>{
       try{
         authToken=backendToken;
@@ -3107,7 +3362,7 @@ function handleOAuthCallback(){
   
   const name=params.get('auth_name')||'Kullanıcı';
   if(!allowLocalFallback()){
-    history.replaceState(null,'','/');
+    clearOAuthCallbackParams();
     msg('Google oturumu icin backend token alinamadi. Lutfen tekrar giris yapin.','err');
     setTimeout(()=>{try{modal('login')}catch(e){}},120);
     return;
@@ -3117,7 +3372,7 @@ function handleOAuthCallback(){
   const avatar=params.get('auth_avatar')||'';
   
   // Clean URL immediately
-  history.replaceState(null,'','/');
+  clearOAuthCallbackParams();
   
   if(!email){msg('OAuth ile e-posta alınamadı!','err');return;}
   
@@ -3296,6 +3551,8 @@ function logout(){
   }catch(e){}
   if (typeof authToken !== 'undefined') authToken = null;
   if (typeof authUser !== 'undefined') authUser = null;
+  try{updateSidebarAuthActions()}catch(e){}
+  try{updateHomeAuthActions()}catch(e){}
   try{ if (typeof chats !== 'undefined' && Array.isArray(chats)) chats.length = 0; }catch(e){}
   try{ if (typeof activeChat !== 'undefined') activeChat = null; }catch(e){}
 
@@ -3311,18 +3568,35 @@ function logout(){
   }, 400);
 }
 function updateSidebarAuthActions(){
-  const isGuest=!authToken && (!user || user.guest || user.id==='guest');
+  // UI cache may retain a guest-shaped `user` object after logout. The real
+  // session authority is the server token/user, not that cached object.
+  const isGuest=!(authToken || authUser?.id);
   const loginIcon=document.getElementById('ps-login-link');
   const loginCta=document.getElementById('ps-auth-cta');
   const logoutIcon=document.getElementById('ps-logout-link');
   const adminLink=document.getElementById('ps-admin-link');
-  if(loginIcon)loginIcon.style.display=isGuest?'flex':'none';
-  if(loginCta)loginCta.style.display=isGuest?'flex':'none';
-  if(logoutIcon)logoutIcon.style.display=isGuest?'none':'flex';
-  if(adminLink)adminLink.style.display=admin&&!isGuest?'flex':'none';
+  // The footer CTA is the single guest entry point; do not duplicate it with
+  // a second login/exit-shaped icon in the action row.
+  if(loginIcon){loginIcon.hidden=true;loginIcon.style.setProperty('display','none','important')}
+  if(loginCta){loginCta.hidden=!isGuest;loginCta.style.setProperty('display',isGuest?'flex':'none','important')}
+  if(logoutIcon){logoutIcon.hidden=isGuest;logoutIcon.style.setProperty('display',isGuest?'none':'flex','important')}
+  if(adminLink){const showAdmin=admin&&!isGuest;adminLink.hidden=!showAdmin;adminLink.style.setProperty('display',showAdmin?'flex':'none','important')}
+  if(isGuest){
+    const psName=document.getElementById('ps-name');
+    const psAva=document.getElementById('ps-ava');
+    const psPlan=document.getElementById('ps-plan');
+    const nrAuth=document.getElementById('nr-auth');
+    const nrUser=document.getElementById('nr-user');
+    if(psName)psName.textContent='Misafir';
+    if(psAva)psAva.textContent='M';
+    if(psPlan)psPlan.textContent='Misafir';
+    if(nrAuth)nrAuth.style.display='flex';
+    if(nrUser)nrUser.style.display='none';
+  }
+  document.body?.classList.toggle('froxy-guest-session',isGuest);
 }
 function updateHomeAuthActions(){
-  const logged=!!authToken || !!(authUser&&authUser.id) || !!(user&&!user.guest&&user.id!=='guest');
+  const logged=!!authToken && !!(authUser&&authUser.id);
   document.querySelectorAll('[data-home-actions="1"]').forEach(el=>{
     el.innerHTML=logged
       ? "<button type=\"button\" class=\"ah-btn ah-btn-primary\" onclick=\"go('chat')\">Panele Git</button><button type=\"button\" class=\"ah-btn ah-btn-ghost\" onclick=\"logout()\">Çıkış</button>"
@@ -3337,17 +3611,24 @@ function updateHomeAuthActions(){
   });
 }
 function loginUI(){
-  document.getElementById('nr-auth').style.display='none';
-  document.getElementById('nr-user').style.display='flex';
-  document.getElementById('nl-land').style.display='none';
-  if(admin){document.getElementById('nl-admin').style.display='flex';document.getElementById('nl-user').style.display='none'}
-  else{document.getElementById('nl-user').style.display='flex';document.getElementById('nl-admin').style.display='none'}
+  const nrAuth=document.getElementById('nr-auth');
+  const nrUser=document.getElementById('nr-user');
+  const nlLand=document.getElementById('nl-land');
+  const nlAdmin=document.getElementById('nl-admin');
+  const nlUser=document.getElementById('nl-user');
+  if(nrAuth)nrAuth.style.display='none';
+  if(nrUser)nrUser.style.display='flex';
+  if(nlLand)nlLand.style.display='none';
+  if(admin){if(nlAdmin)nlAdmin.style.display='flex';if(nlUser)nlUser.style.display='none'}
+  else{if(nlUser)nlUser.style.display='flex';if(nlAdmin)nlAdmin.style.display='none'}
   
   const activeUser = typeof authUser !== 'undefined' && authUser ? authUser : (typeof user !== 'undefined' ? user : {username:'U'});
   const uName = activeUser.username || activeUser.name || 'Kullanıcı';
   
-  document.getElementById('n-ava').textContent=uName.charAt(0).toUpperCase();
-  document.getElementById('n-name').textContent=uName;
+  const nAva=document.getElementById('n-ava');
+  const nName=document.getElementById('n-name');
+  if(nAva)nAva.textContent=uName.charAt(0).toUpperCase();
+  if(nName)nName.textContent=uName;
   const psName=document.getElementById('ps-name');
   const psAva=document.getElementById('ps-ava');
   const psPlan=document.getElementById('ps-plan');
@@ -3397,7 +3678,7 @@ function panelTab(tab){
   });
 
   if(tab==='dash'){updDash();if(typeof renderUserAnnouncements==='function')renderUserAnnouncements()}
-  if(tab==='img'){renderImageHistory()}
+  if(tab==='img'){renderImageHistory();refreshGenerationJobs(false)}
   if(tab==='support'){if(typeof renderMyTickets==='function')renderMyTickets();if(typeof renderUserAnnouncements==='function')renderUserAnnouncements()}
   if(tab==='prompts'){if(typeof renderPrompts==='function')renderPrompts()}
   if(tab==='tools'){if(typeof renderAIToolsHub==='function')renderAIToolsHub()}
@@ -3530,24 +3811,23 @@ function preferGuestFreeModel(){
   if(btn)btn.textContent='GPT Sınırsız';
 }
 
-const CLIENT_MODEL_CREDIT_COST = {free:3,light:8,mid:20,heavy:50,image_free:10,image_mid:300,image_ultra:900};
+const CLIENT_MODEL_CREDIT_COST = {free:3,light:8,mid:20,heavy:50,ultra:100,image_free:10,image_mid:300,image_ultra:900};
+const CLIENT_IMAGE_MODEL_CREDIT_OVERRIDES={
+  'imagegpt-free':15,
+  'together-juggernaut-flux':30,'together-flux-schnell':40,'together-qwen-image':90,
+  'together-flux2-dev':220,'together-imagen4-fast':300,'together-flux-kontext-pro':600,
+  'together-flux2-pro':450,'together-gemini-flash-image':600,'together-qwen-image-pro':1000,
+  'together-gemini-pro-image':1800,
+  'evolink-img-z-image-turbo':30,'evolink-img-wan2.5-text-to-image':120,
+  'evolink-img-gemini-3.1-flash-lite-image':180,'evolink-img-gemini-3.1-flash-image':300,
+  'evolink-img-gpt-image-2':300,'evolink-img-gpt-image-1.5':250,
+  'evolink-img-doubao-seedream-5.0-lite':220,'evolink-img-doubao-seedream-4.5':240,
+  'evolink-img-nano-banana-2-lite-beta':150
+};
 function getClientModelCreditCost(model,provider,kind){
   const id=String(model||'').toLowerCase();
   const p=String(provider||'').toLowerCase();
-  const togetherImageCosts={
-    'imagegpt-free':15,
-    'together-juggernaut-flux':30,
-    'together-flux-schnell':40,
-    'together-qwen-image':90,
-    'together-flux2-dev':220,
-    'together-imagen4-fast':300,
-    'together-flux-kontext-pro':600,
-    'together-flux2-pro':450,
-    'together-gemini-flash-image':600,
-    'together-qwen-image-pro':1000,
-    'together-gemini-pro-image':1800
-  };
-  if(kind==='image' && togetherImageCosts[id])return togetherImageCosts[id];
+  if(kind==='image' && CLIENT_IMAGE_MODEL_CREDIT_OVERRIDES[id])return CLIENT_IMAGE_MODEL_CREDIT_OVERRIDES[id];
   if(kind==='image' && id.startsWith('pollinations-'))return CLIENT_MODEL_CREDIT_COST.image_free;
   if(kind==='image' && id.startsWith('cf-'))return CLIENT_MODEL_CREDIT_COST.image_free;
   if(kind==='image' && (id==='comfyui-local' || id==='fooocus-local' || id==='a1111-local' || id==='forge-local' || id==='swarmui-local' || id==='perchance-experimental'))return 1;
@@ -3563,6 +3843,8 @@ function getClientModelCreditCost(model,provider,kind){
   }
   if(p==='pollinations' || p==='groq' || p==='cerebras' || p==='cloudflare' || id==='openrouter/free' || id.includes(':free'))return CLIENT_MODEL_CREDIT_COST.free;
   if(['llama-3.1-8b','llama-3.3-70b','llama-4-scout','llama-4-maverick','gpt-oss-20b','gpt-oss-120b','qwen/qwen3-32b','qwq-32b','mistral-saba','deepseek-r1-distill','gemma2-9b','gemma-3-12b','gemini-flash-latest'].some(x=>id.includes(x)))return CLIENT_MODEL_CREDIT_COST.free;
+  if(/gpt-5\.6|claude-(sonnet|fable)-5|claude-opus-5/.test(id))return CLIENT_MODEL_CREDIT_COST.ultra;
+  if(/gemini-3\.5-flash/.test(id))return CLIENT_MODEL_CREDIT_COST.mid;
   if(['gpt-5.5','gpt-5.4','gpt-5.3-codex','gpt-4.5','claude-opus','claude-sonnet-4-5','o3','o1-pro','gemini-3.1-pro','deepseek-v3.2'].some(x=>id.includes(x)) && !id.includes('mini') && !id.includes('spark'))return CLIENT_MODEL_CREDIT_COST.heavy;
   if(['gpt-5.4-mini','gpt-5.2','o3-mini','claude-sonnet-4','claude-sonnet-4-6','gemini-3-pro','gemini-2.5-pro','deepseek-v3.1','deepseek-v3','deepseek-v4','grok-3','grok-2'].some(x=>id.includes(x)))return CLIENT_MODEL_CREDIT_COST.mid;
   if(['claude-haiku','gpt-5.3-codex-spark','gemini-3-flash','gemini-2.5-flash','gemini-2.0-flash','gemma-3','minimax','gpt-5-mini','gpt-5-nano'].some(x=>id.includes(x)))return CLIENT_MODEL_CREDIT_COST.light;
@@ -3576,6 +3858,7 @@ function syncActiveCreditDisplay(remaining,cost){
       user.totalTokens=Math.max(Number(user.totalTokens||0),Number(remaining));
       user.usedTokens=Math.max(0,Number(user.totalTokens||0)-Number(remaining));
       if(authUser)LS.set('ap_user',user);
+      else if(user.guest)LS.set('ap_guest_user',user);
     }
   }
   if(typeof updateQuota==='function')updateQuota();
@@ -3737,12 +4020,21 @@ function go(v){
     return;
   }
   if(v==='home'){
+    const logged = !!authToken || !!(authUser && authUser.id) || (user && !user.guest && user.id !== 'guest');
+    if(logged){
+      panelTab('dash');
+      return;
+    }
+    const homeEl=document.getElementById('v-home');
+    if(!homeEl || homeEl.children.length<=1 || !homeEl.querySelector('.ah-header')){
+      location.href='/';
+      return;
+    }
     document.documentElement.classList.add('home-mode');
     document.body.classList.add('home-mode');
     if(typeof updateHomeAuthActions==='function')updateHomeAuthActions();
     document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));
-    const home=document.getElementById('v-home');
-    if(home)home.classList.add('on');
+    homeEl.classList.add('on');
     const nav=document.getElementById('nav');
     if(nav)nav.style.display='none';
     window.scrollTo(0,0);
@@ -3905,6 +4197,19 @@ function getSelectedImageCost(){
   const model=document.getElementById('img-model')?.value||'flux';
   return getClientModelCreditCost(model,imageProviderForModel(model),'image');
 }
+function clientImageRequiredPlanLevel(model){
+  const id=String(model||'').toLowerCase();
+  if(id.startsWith('evolink-img-')||id.startsWith('together-')||id.startsWith('openai-')||id.startsWith('gemini-')||id.startsWith('imagen-')||id==='auto-quality'||id==='style-dalle3')return 2;
+  return 0;
+}
+function selectedImageAccess(){
+  const model=document.getElementById('img-model')?.value||'flux';
+  const cost=getClientModelCreditCost(model,imageProviderForModel(model),'image');
+  const planLevel=PLAN_MODEL_LEVEL[activePlanId()] ?? PLAN_MODEL_LEVEL.free;
+  const requiredLevel=clientImageRequiredPlanLevel(model);
+  const option=Array.from(document.getElementById('img-model')?.options||[]).find(item=>item.value===model);
+  return {model,cost,planLevel,requiredLevel,planAllowed:planLevel>=requiredLevel,available:!!option&&!option.disabled};
+}
 function updateImageCreditSurface(){
   const box=document.querySelector('.img-gen-credits-info');
   if(!box)return;
@@ -3912,8 +4217,19 @@ function updateImageCreditSurface(){
   const cost=getSelectedImageCost();
   const rem=Number.isFinite(remainingUserCredits())?Math.max(0,remainingUserCredits()):999999;
   const after=Math.max(0,rem-cost);
+  const modelDef=ALL_MODELS.find(m=>m.id===model);
+  const access=selectedImageAccess();
+  const allowed=access.available&&access.planAllowed&&(!modelDef||canUseModel(modelDef));
   box.classList.add('image-credit-surface-v188');
-  box.innerHTML='<span><b>Kalan</b><strong>'+rem.toLocaleString('tr-TR')+'</strong></span><span><b>Seçili model</b><strong>'+cost.toLocaleString('tr-TR')+' kredi</strong></span><span><b>Üretim sonrası</b><strong>'+after.toLocaleString('tr-TR')+'</strong></span>';
+  box.classList.toggle('blocked',!allowed||rem<cost);
+  box.innerHTML='<span><b>Seçili model</b><strong>'+esc(getImageModelLabel(model)||model)+'</strong></span><span><b>İşlem maliyeti</b><strong>'+cost.toLocaleString('tr-TR')+' kredi</strong></span><span><b>Kalan / Sonra</b><strong>'+rem.toLocaleString('tr-TR')+' / '+after.toLocaleString('tr-TR')+'</strong></span>'+(!allowed||rem<cost?'<button type="button" onclick="panelTab(\'store\')">Paketleri incele</button>':'');
+}
+function showImagePlanBlock(model,cost,requiredLevel){
+  const target=document.getElementById('img-result');
+  const planNames=['Ücretsiz','Başlangıç / Popüler','Pro','Geliştirici / İşletme'];
+  const required=planNames[requiredLevel]||planNames[3];
+  if(target)target.innerHTML='<div class="credit-alert-card-v188"><div class="credit-alert-orb"><span></span></div><div class="credit-alert-body"><strong>'+required+' paketi gerekli</strong><p>'+esc(getImageModelLabel(model)||model)+' modeli '+cost.toLocaleString('tr-TR')+' kredi maliyetli ve mevcut paketinde kilitli.</p><div class="credit-alert-actions"><button type="button" onclick="panelTab(\'store\')">Paketleri incele</button></div></div></div>';
+  msg('Bu görsel modeli için '+required+' paketi gerekiyor.','err');
 }
 function showCreditBlock(kind,cost,remaining,modelName){
   const rem=Math.max(0,Number(remaining||0));
@@ -4066,22 +4382,26 @@ function providerLabel(name){
     groq:'Groq',openrouter:'OpenRouter',pollinations:'Pollinations',cerebras:'Cerebras',
     sambanova:'SambaNova',mistral:'Mistral',nvidia:'NVIDIA',fireworks:'Fireworks',together:'Together AI',xai:'xAI',
     gemini_direct:'Gemini Direct',google_direct:'Google Direct',huggingface:'HuggingFace',deepseek_direct:'DeepSeek Direct',
-    cloudflare:'Cloudflare Image',jan_local:'Jan Local',local_openai:'Local OpenAI',fal:'fal.ai',replicate:'Replicate',vidu:'Vidu Video'
+    cloudflare:'Cloudflare Image',hcnsec:'Huancheng AI',evolink:'EvoLink',jan_local:'Jan Local',local_openai:'Local OpenAI',fal:'fal.ai',replicate:'Replicate',vidu:'Vidu Video',
+    meta:'Meta / Llama',qwen:'Qwen',deepseek:'DeepSeek',generic:'Model'
   };
   return labels[name]||name;
 }
 function providerBrandKey(model,provider){
   const p=String(provider||model?.provider||'').toLowerCase();
-  const modelText=[model?.id,model?.name,model?.cat].join(' ').toLowerCase();
+  const modelText=[model?.id,model?.apiId,model?.name,model?.provider,model?.cat,provider].join(' ').toLowerCase();
   if(/claude|anthropic/.test(modelText))return 'claude';
   if(/gemini|google|gemma/.test(modelText))return 'gemini';
-  if(/openai|gpt|codex|\bo1\b|\bo3\b|\bo4\b/.test(modelText))return 'openai';
+  if(/openai|gpt|gpt-oss|codex|\bo1\b|\bo3\b|\bo4\b|\bo5\b|\bo\d\b/.test(modelText))return 'openai';
   if(/deepseek/.test(modelText))return 'deepseek';
   if(/qwen|qwq/.test(modelText))return 'qwen';
-  if(/llama|meta/.test(modelText))return 'meta';
+  if(/llama|meta-llama|\bmeta\b/.test(modelText))return 'meta';
   if(/mistral|mixtral/.test(modelText))return 'mistral';
   if(/nvidia|nemotron/.test(modelText))return 'nvidia';
   if(/xai|grok/.test(modelText))return 'xai';
+  if(/flux|black-forest|bfl/.test(modelText))return 'together';
+  if(/hcnsec|huancheng/.test(p))return 'hcnsec';
+  if(/evolink/.test(p))return 'evolink';
   if(/groq/.test(p))return 'groq';
   if(/openrouter/.test(p))return 'openrouter';
   if(/cloudflare/.test(p))return 'cloudflare';
@@ -4104,30 +4424,34 @@ function providerBrandClass(key){
 }
 function providerBrandAssetUrl(key){
   const assets={
-    openai:'provider-logos/openai.svg',
-    gemini:'provider-logos/gemini.svg',
-    claude:'provider-logos/claude.svg',
-    openrouter:'provider-logos/openrouter.svg',
-    deepseek:'provider-logos/deepseek.svg',
-    qwen:'provider-logos/qwen.svg',
-    meta:'provider-logos/generic.svg',
-    mistral:'provider-logos/mistral.svg',
-    nvidia:'provider-logos/nvidia.svg',
-    cloudflare:'provider-logos/cloudflare.svg',
-    huggingface:'provider-logos/huggingface.svg',
-    xai:'provider-logos/xai.svg',
-    groq:'provider-logos/groq.svg',
-    together:'provider-logos/together.svg',
-    cerebras:'provider-logos/cerebras.svg',
-    sambanova:'provider-logos/sambanova.svg',
-    pollinations:'provider-logos/pollinations.svg',
-    generic:'provider-logos/generic.svg'
+    openai:'/provider-logos/openai.svg',
+    gemini:'/provider-logos/gemini.svg',
+    claude:'/provider-logos/claude.svg',
+    openrouter:'/provider-logos/openrouter.svg',
+    deepseek:'/provider-logos/deepseek.svg',
+    qwen:'/provider-logos/qwen.svg',
+    meta:'/provider-logos/meta.svg',
+    mistral:'/provider-logos/mistral.svg',
+    nvidia:'/provider-logos/nvidia.svg',
+    cloudflare:'/provider-logos/cloudflare.svg',
+    huggingface:'/provider-logos/huggingface.svg',
+    xai:'/provider-logos/xai.svg',
+    groq:'/provider-logos/groq.svg',
+    together:'/provider-logos/together.svg',
+    cerebras:'/provider-logos/cerebras.svg',
+    // Keep SambaNova inline: an external SVG using currentColor can render as
+    // an empty/broken badge when loaded through <img> in Chromium.
+    sambanova:'',
+    pollinations:'/provider-logos/pollinations.svg',
+    hcnsec:'',
+    evolink:'',
+    generic:''
   };
   return assets[key]||'';
 }
 function providerBrandIconSvg(key){
   const asset=providerBrandAssetUrl(key);
-  if(asset)return '<img class="mp-provider-logo-img" src="'+asset+'" alt="" loading="lazy" decoding="async">';
+  if(asset)return '<img class="mp-provider-logo-img" src="'+asset+'" alt="" loading="lazy" decoding="async" onerror="this.remove()">';
   const icons={
     openai:'<svg viewBox="0 0 24 24" role="img"><g fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.7c1.75-1.02 3.95.17 4.06 2.18 1.95-.08 3.48 1.77 2.84 3.63 1.62 1.02 1.54 3.44-.15 4.32.44 1.88-1.25 3.52-3.08 3.18-.72 1.82-3.1 2.28-4.4.82-1.58 1.22-3.9.28-4.28-1.7-1.95-.1-3.25-2.12-2.4-3.87-1.42-1.25-1.05-3.62.7-4.36-.2-1.98 1.7-3.48 3.55-2.8C9.54 3.45 11.2 3.06 12 3.7Z"/><path d="M8.85 5.1 15.2 8.8v7.3"/><path d="m16.05 5.9-6.38 3.7-3.28 5.68"/><path d="m18.9 9.5-6.36 3.68-6.28-.04"/><path d="m15.68 17.02-3.2-5.72-6.3-3.62"/><path d="m7.02 16.1 6.34-3.68 3.18-5.52"/></g></svg>',
     gemini:'<svg viewBox="0 0 24 24" role="img"><path fill="currentColor" d="M12 2.8c1.08 4.62 3.02 7.1 7.2 8.96-4.18 1.86-6.12 4.34-7.2 8.96-1.08-4.62-3.02-7.1-7.2-8.96 4.18-1.86 6.12-4.34 7.2-8.96Z"/><path fill="currentColor" opacity=".72" d="M18.6 2.7c.36 1.55 1.02 2.38 2.42 3-1.4.63-2.06 1.46-2.42 3-.36-1.54-1.02-2.37-2.42-3 1.4-.62 2.06-1.45 2.42-3Z"/></svg>',
@@ -4146,6 +4470,8 @@ function providerBrandIconSvg(key){
     cerebras:'<svg viewBox="0 0 24 24" role="img"><g fill="currentColor"><rect x="5" y="5" width="6" height="6" rx="1.2"/><rect x="13" y="5" width="6" height="6" rx="1.2" opacity=".72"/><rect x="5" y="13" width="6" height="6" rx="1.2" opacity=".72"/><rect x="13" y="13" width="6" height="6" rx="1.2"/></g></svg>',
     huggingface:'<svg viewBox="0 0 24 24" role="img"><g fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M8.5 10.2h.02M15.5 10.2h.02"/><path d="M8.4 14.3c1.75 1.45 5.45 1.45 7.2 0"/><path d="M5.4 7.5 3.7 5M18.6 7.5 20.3 5"/></g></svg>',
     xai:'<svg viewBox="0 0 24 24" role="img"><path fill="none" stroke="currentColor" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round" d="M5 5.2 19 18.8M19 5.2 5 18.8"/><path fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" d="M12 5.2v13.6"/></svg>',
+    hcnsec:'<svg viewBox="0 0 24 24" role="img"><rect x="3.5" y="4.5" width="17" height="15" rx="4" fill="currentColor" opacity=".16"/><path fill="currentColor" d="M6.5 8h2v3h3V8h2v8h-2v-3h-3v3h-2V8Zm8.3 4c0-2.55 1.55-4.2 4.15-4.2.55 0 1.05.08 1.55.25v1.8a4 4 0 0 0-1.3-.22c-1.48 0-2.3.83-2.3 2.35 0 1.55.84 2.4 2.35 2.4.46 0 .9-.08 1.3-.24v1.8c-.48.17-1 .26-1.55.26-2.64 0-4.2-1.58-4.2-4.2Z"/></svg>',
+    evolink:'<svg viewBox="0 0 24 24" role="img"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.2 12c0-3 1.7-5 4.2-5 3.6 0 4.5 10 7.8 10 2.1 0 3.6-1.8 3.6-5s-1.5-5-3.7-5c-3.4 0-4.4 10-7.8 10-2.5 0-4.1-2-4.1-5Z"/><circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/></g></svg>',
     generic:'<svg viewBox="0 0 24 24" role="img"><path fill="currentColor" d="M12 3.2c.82 3.5 2.28 5.38 5.45 6.78-3.17 1.42-4.63 3.3-5.45 6.82-.82-3.52-2.28-5.4-5.45-6.82C9.72 8.58 11.18 6.7 12 3.2Z"/><circle cx="18.2" cy="17.4" r="2.1" fill="currentColor" opacity=".72"/></svg>'
   };
   return icons[key]||icons.generic;
@@ -4158,6 +4484,9 @@ function applyProviderBrandIcon(el,model,provider){
   el.title=providerLabel(provider||model?.provider||key);
   el.innerHTML=providerBrandIconSvg(key);
 }
+window.__froxyProviderBrandKey=providerBrandKey;
+window.__froxyProviderBrandIconSvg=providerBrandIconSvg;
+window.__froxyApplyProviderBrandIcon=applyProviderBrandIcon;
 function renderModelHealthSummary(){
   const totalEl=document.getElementById('mh-total');
   if(!totalEl)return;
@@ -4221,6 +4550,16 @@ async function runModelHealthCheck(opts){
 let mpActiveCat='all';
 let mpSortMode=LS.get('ap_mp_sort','recommended');
 let mpTaskIntent=LS.get('ap_mp_task_intent','');
+let mpMode=LS.get('ap_mp_mode','simple')==='advanced'?'advanced':'simple';
+const MP_SIMPLE_TASKS=[
+  {id:'general',label:'Günlük sohbet',icon:'message'},
+  {id:'code',label:'Kodlama',icon:'file'},
+  {id:'research',label:'Araştırma',icon:'search'},
+  {id:'vision',label:'Görsel analiz',icon:'image'},
+  {id:'fast',label:'En hızlı',icon:'bolt'},
+  {id:'free',label:'Ücretsiz',icon:'sparkles'},
+  {id:'quality',label:'En kaliteli',icon:'chart'}
+];
 const CAT_INFO={
   qualityfree:{icon:'sparkles',label:'Ücretsiz Kaliteli',color:'#22c55e'},
   gpt:{icon:'bot',label:'GPT',color:'#10b981'},gemini:{icon:'sparkles',label:'Google',color:'#4285f4'},
@@ -4273,6 +4612,9 @@ function modelTaskScore(m,intent){
   if(intent==='research')return (/gemini|gpt|claude|sonnet|perplexity|search|web/i.test(txt)?28:0)+modelQualityScore(m)-Math.min(modelSortCost(m),18);
   if(intent==='fast')return (modelIsFast(m)?42:0)+(m?.provider==='groq'?16:0)-modelSortCost(m);
   if(intent==='long')return (/claude|gemini|gpt|llama.*70b|120b|long|context/i.test(txt)?34:0)+modelQualityScore(m);
+  if(intent==='quality')return modelQualityScore(m)*2-modelSortCost(m)*.15;
+  if(intent==='free')return (String(m?.tier||'').toLowerCase()==='free'?70:-80)+(modelIsRecommended(m)?20:0)+modelQualityScore(m)-modelSortCost(m);
+  if(intent==='general')return (modelIsRecommended(m)?48:0)+(modelIsFast(m)?12:0)+modelQualityScore(m)-modelSortCost(m);
   return 0;
 }
 function modelCapabilityTags(m,cost){
@@ -4305,7 +4647,7 @@ function setModelPickerSort(mode){
   renderModelPicker(document.getElementById('mp-search')?.value||'');
 }
 function setModelTaskIntent(intent){
-  mpTaskIntent=['code','vision','research','fast','long'].includes(intent)?intent:'';
+  mpTaskIntent=['general','code','vision','research','fast','long','free','quality'].includes(intent)?intent:'';
   if(mpTaskIntent==='fast')mpSortMode='fast';
   if(mpTaskIntent==='code')mpActiveCat='code';
   if(mpTaskIntent==='vision')mpActiveCat='vision';
@@ -4313,6 +4655,18 @@ function setModelTaskIntent(intent){
   renderModelPicker(document.getElementById('mp-search')?.value||'');
   updateChatCreditEstimate();
 }
+function setModelPickerMode(mode){
+  mpMode=mode==='advanced'?'advanced':'simple';
+  if(mpMode==='simple'&&!mpTaskIntent)mpTaskIntent='general';
+  if(mpMode==='advanced')mpActiveCat='all';
+  LS.set('ap_mp_mode',mpMode);
+  LS.set('ap_mp_task_intent',mpTaskIntent);
+  const search=document.getElementById('mp-search');
+  if(search&&mpMode==='simple')search.value='';
+  window.__mpRenderLimit=160;
+  renderModelPicker(search?.value||'');
+}
+window.setModelPickerMode=setModelPickerMode;
 function updateChatCreditEstimate(){
   const host=document.getElementById('chat-credit-estimate');
   if(!host)return;
@@ -4321,8 +4675,12 @@ function updateChatCreditEstimate(){
   const model=ALL_MODELS.find(m=>m.id===modelId)||{};
   const provider=modelProviderKey(model)||getModelProvider(modelId);
   const cost=getClientModelCreditCost(model.apiId||modelId,provider,'chat');
+  const remaining=Math.max(0,Number(remainingUserCredits()||0));
+  const after=Math.max(0,remaining-cost);
+  const allowed=!model.id||canUseModel(model);
   const intentLabel={code:'Kod',vision:'Görsel',research:'Araştırma',fast:'Hızlı',long:'Uzun metin'}[mpTaskIntent]||'Genel';
-  host.innerHTML='<span>Tahmini</span><b>'+Number(cost||1).toLocaleString('tr-TR')+' kredi</b><em>'+esc(intentLabel)+'</em>';
+  host.classList.toggle('blocked',!allowed||remaining<cost);
+  host.innerHTML='<span>'+esc(model.name||modelId||'Model')+'</span><b>'+Number(cost||1).toLocaleString('tr-TR')+' kredi</b><em>Kalan '+remaining.toLocaleString('tr-TR')+' · Sonra '+after.toLocaleString('tr-TR')+'</em><i>'+esc(intentLabel)+'</i>'+(!allowed||remaining<cost?'<button type="button" onclick="panelTab(\'store\')">Paketleri incele</button>':'');
 }
 function modelUseCase(m){
   if(modelSupportsVisionId(m))return 'Görsel okuma ve çok modlu yanıt';
@@ -4348,12 +4706,21 @@ function renderModelPickerStatus(currentModel){
   if(!m){host.innerHTML='';return}
   const provider=modelProviderKey(m);
   const cost=getClientModelCreditCost(m.apiId||m.id,provider,m.cat==='image'?'image':'chat');
+  const notice=window.__modelAccessNotice;
+  const noticeHtml=notice?`<div class="mp-access-notice" role="status"><span><b>${esc(notice.title)}</b><small>${esc(notice.body)}</small></span><button type="button" onclick="openModelUpgradePath()">${esc(notice.action)}</button></div>`:'';
   host.innerHTML=`<div class="mp-status-main">
     ${providerBrandMark(m,provider,true)}
     <div><b>${esc(m.name||m.id)}</b><small>${esc(providerLabel(provider))} · ${esc(modelUseCase(m))}</small></div>
   </div>
-  <div class="mp-status-pills"><span>${cost} kredi</span><span>${modelSupportsVisionId(m)?'Görsel okur':'Metin modeli'}</span><span>Fallback şeffaf</span></div>`;
+  <div class="mp-status-pills"><span>${cost} kredi</span><span>${modelSupportsVisionId(m)?'Görsel okur':'Metin modeli'}</span><span>Fallback şeffaf</span></div>${noticeHtml}`;
 }
+function openModelUpgradePath(){
+  const logged=!!authToken||!!authUser?.id||!!(user&&!user.guest&&user.id!=='guest');
+  window.__modelAccessNotice=null;
+  closeModelPicker();
+  if(logged)panelTab('store');else modal('reg');
+}
+window.openModelUpgradePath=openModelUpgradePath;
 function ensureFloatingPanelsRoot(){
   ['settings-modal','model-picker-overlay','model-picker'].forEach(id=>{
     const el=document.getElementById(id);
@@ -4367,6 +4734,7 @@ function openModelPicker(event){
     event.stopPropagation?.();
     event.stopImmediatePropagation?.();
   }
+  window.__loadPickerCss?.();
   ensureFloatingPanelsRoot();
   const p=document.getElementById('model-picker');
   const o=document.getElementById('model-picker-overlay');
@@ -4397,7 +4765,7 @@ function toggleModelPicker(event){
   const p=document.getElementById('model-picker');
   if(!p)return;
   if(p.classList.contains('open')){
-    if(event&&Date.now()-(window.__froxyModelPickerOpenedAt||0)<700)return true;
+    if(event)return true;
     closeModelPicker();
   }
   else openModelPicker(event);
@@ -4484,6 +4852,21 @@ function renderModelPicker(filter){
   const listEl=document.getElementById('mp-list');
   const countEl=document.getElementById('mp-count');
   if(!catsEl||!listEl)return;
+  const rawFilter=String(filter||'').trim();
+  if(mpMode==='simple'&&!mpTaskIntent){
+    mpTaskIntent='general';
+    LS.set('ap_mp_task_intent','general');
+  }
+  if(rawFilter&&mpMode==='simple'){
+    mpMode='advanced';
+    LS.set('ap_mp_mode','advanced');
+  }
+  document.querySelectorAll('#mp-mode-toggle [data-mp-mode]').forEach(btn=>{
+    const active=btn.dataset.mpMode===mpMode;
+    btn.classList.toggle('active',active);
+    btn.setAttribute('aria-pressed',active?'true':'false');
+  });
+  document.getElementById('model-picker')?.classList.toggle('simple-mode',mpMode==='simple');
   if(pickerOpen&&!modelCatalogLoaded && ALL_MODELS.length<REMOTE_MODEL_TARGET_COUNT){
     if(countEl)countEl.textContent=REMOTE_MODEL_TARGET_COUNT.toLocaleString('tr-TR')+' model yükleniyor';
     catsEl.innerHTML='<button type="button" class="mp-cat active">'+figIcon('globe','inline')+' <span>Tümü</span><em class="mp-cat-count">'+REMOTE_MODEL_TARGET_COUNT+'</em></button><button type="button" class="mp-cat">'+figIcon('sparkles','inline')+' <span>Ücretsiz</span><em class="mp-cat-count">...</em></button>';
@@ -4501,13 +4884,17 @@ function renderModelPicker(filter){
   models.forEach(m=>{const p=modelProviderKey(m);providerCounts[p]=(providerCounts[p]||0)+1});
   const quickCats=MP_QUICK_FILTERS.map(f=>({...f,count:f.id==='all'?totalCount:models.filter(m=>mpFilterMatches(m,f.id)).length})).filter(f=>f.id==='all'||f.count>0);
   const providerCats=Object.entries(providerCounts).sort((a,b)=>b[1]-a[1]).slice(0,7).map(([p,count])=>({id:'provider:'+p,label:providerLabel(p),icon:'brand:'+p,count,provider:p}));
-  const allCats=[...quickCats,{id:'fav',label:'Favoriler',icon:'sparkles',count:favorites.length},...providerCats];
+  const simpleCats=MP_SIMPLE_TASKS.map(task=>({ ...task, count:models.filter(m=>task.id==='vision'?modelSupportsVisionId(m):task.id==='code'?modelSupportsCode(m):task.id==='fast'?modelIsFast(m):task.id==='free'?String(m.tier||'').toLowerCase()==='free':true).length }));
+  const allCats=mpMode==='simple'?simpleCats:[...quickCats,{id:'fav',label:'Favoriler',icon:'sparkles',count:favorites.length},...providerCats];
   catsEl.innerHTML=allCats.map(cat=>{
     const icon=String(cat.icon||'').startsWith('brand:')?providerBrandMark({provider:cat.provider||cat.icon.slice(6)},cat.provider||cat.icon.slice(6),true):figIcon(cat.icon,'inline');
     const catClass='mp-cat-'+String(cat.id||'all').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-    return '<button type="button" class="mp-cat '+catClass+' '+(mpActiveCat===cat.id?'active':'')+'" data-mp-cat="'+esc(cat.id)+'" onclick="mpActiveCat=\''+jsStr(cat.id)+'\';renderModelPicker(document.getElementById(\'mp-search\')?.value)">'+icon+' <span>'+esc(cat.label)+'</span><em class="mp-cat-count">'+Number(cat.count||0).toLocaleString('tr-TR')+'</em></button>';
-  }).join('');
-  const rawFilter=String(filter||'').trim();
+    const active=mpMode==='simple'?mpTaskIntent===cat.id:mpActiveCat===cat.id;
+    const action=mpMode==='simple'?"setModelTaskIntent('"+jsStr(cat.id)+"')":"mpActiveCat='"+jsStr(cat.id)+"';renderModelPicker(document.getElementById('mp-search')?.value)";
+    return '<button type="button" class="mp-cat '+catClass+' '+(active?'active':'')+'" data-mp-cat="'+esc(cat.id)+'" onclick="'+action+'">'+icon+' <span>'+esc(cat.label)+'</span><em class="mp-cat-count">'+Number(cat.count||0).toLocaleString('tr-TR')+'</em></button>';
+  }).join('')+(mpMode==='simple'
+    ? '<button type="button" class="mp-cat mp-simple-all" data-mp-cat="advanced" onclick="setModelPickerMode(\'advanced\')">'+figIcon('globe','inline')+' <span>Tüm modeller</span><em class="mp-cat-count">'+totalCount.toLocaleString('tr-TR')+'</em></button>'
+    : '');
   let filtered=models;
   if(rawFilter){
     const q=rawFilter.toLowerCase();
@@ -4521,6 +4908,12 @@ function renderModelPicker(filter){
         String(m.cat||'').toLowerCase().includes(q)||
         String(m.tier||'').toLowerCase().includes(q);
     });
+  }else if(mpMode==='simple'){
+    const intent=mpTaskIntent||'general';
+    if(intent==='code')filtered=filtered.filter(modelSupportsCode);
+    else if(intent==='vision')filtered=filtered.filter(modelSupportsVisionId);
+    else if(intent==='fast')filtered=filtered.filter(modelIsFast);
+    else if(intent==='free')filtered=filtered.filter(m=>String(m.tier||'').toLowerCase()==='free');
   }else if(mpActiveCat==='fav')filtered=filtered.filter(m=>favorites.includes(m.id));
   else filtered=filtered.filter(m=>mpFilterMatches(m,mpActiveCat));
   const clearBtn=document.getElementById('mp-search-clear');
@@ -4528,6 +4921,7 @@ function renderModelPicker(filter){
   if(countEl)countEl.textContent=rawFilter?(filtered.length.toLocaleString('tr-TR')+' sonuç'):modelCountLabel();
   const sortEl=document.getElementById('mp-sort');
   if(sortEl){
+    sortEl.hidden=mpMode==='simple';
     const sortLabels={recommended:'Önerilen',cheap:'En ucuz',fast:'En hızlı',quality:'En kaliteli'};
     sortEl.innerHTML=Object.entries(sortLabels).map(([id,label])=>'<button type="button" class="'+(!mpTaskIntent&&mpSortMode===id?'active':'')+'" onclick="setModelPickerSort(\''+id+'\')">'+esc(label)+'</button>').join('');
   }
@@ -4536,25 +4930,47 @@ function renderModelPicker(filter){
   const currentModel=sel?.value||'';
   renderModelPickerStatus(currentModel);
   if(!filtered.length){listEl.innerHTML='<div class="mp-empty-state"><strong>Model bulunamadı</strong><span>Aramayı temizle veya farklı bir sağlayıcı, model adı ya da yetenek yaz.</span></div>';return}
-  listEl.innerHTML=filtered.map((m,i)=>{
+  const renderLimit=mpMode==='simple'?16:Math.max(160,Number(window.__mpRenderLimit||160));
+  const renderedModels=filtered.slice(0,renderLimit);
+  listEl.innerHTML=renderedModels.map((m,i)=>{
     const provider=modelProviderKey(m);
     const cost=getClientModelCreditCost(m.apiId||m.id,provider,m.cat==='image'?'image':'chat');
     const badgeClass=cost<=3?'mp-badge-free':cost<=8?'mp-badge-starter':cost<=20?'mp-badge-pro':'mp-badge-ent';
     const badge='<span class="mp-badge '+badgeClass+'">'+cost+' kredi</span>';
+    const planKey=String(m.tier||'enterprise').toLowerCase();
+    const planLabel=({free:'Ücretsiz',starter:'Başlangıç / Popüler',pro:'Pro',enterprise:'Geliştirici / İşletme'})[planKey]||'Geliştirici / İşletme';
+    const planBadge='<span class="mp-badge '+(planKey==='free'?'mp-badge-free':planKey==='starter'?'mp-badge-starter':planKey==='pro'?'mp-badge-pro':'mp-badge-ent')+'">'+planLabel+'</span>';
+    const allowed=canUseModel(m);
+    const lockBadge=allowed?'':'<span class="mp-lock-badge" aria-label="Bu model mevcut paket veya krediyle kilitli">Kilitli</span>';
     const sel2=m.id===currentModel;
     const fav=isModelFavorite(m.id);
     const useCase=esc(modelUseCase(m));
     const tags=modelCapabilityTags(m,cost).map(t=>'<span class="mp-tag">'+esc(t)+'</span>').join('');
-    return '<div class="mp-item '+(sel2?'selected':'')+' '+(fav?'is-favorite':'')+'" data-model-id="'+esc(m.id)+'" role="button" tabindex="0" onclick="selectModel(\''+jsStr(m.id)+'\')">'+providerBrandMark(m,provider,false)+'<div class="mp-item-info"><div class="mp-item-name">'+esc(m.name)+'</div><div class="mp-item-meta">'+badge+'<span class="mp-provider-name">'+esc(providerLabel(provider))+'</span><span class="mp-use-case">'+useCase+'</span></div><div class="mp-tags">'+tags+'</div></div><button type="button" class="mp-star '+(fav?'on':'')+'" onclick="toggleModelFavorite(\''+jsStr(m.id)+'\',event)" aria-pressed="'+(fav?'true':'false')+'" aria-label="'+(fav?'Favoriden çıkar':'Favoriye ekle')+'" title="'+(fav?'Favoriden çıkar':'Favoriye ekle')+'"><span aria-hidden="true">'+(fav?'★':'☆')+'</span></button></div>';
-  }).join('');
+    return '<div class="mp-item '+(sel2?'selected':'')+' '+(fav?'is-favorite':'')+' '+(allowed?'':'locked')+'" data-model-id="'+esc(m.id)+'" data-model-locked="'+(allowed?'false':'true')+'" role="button" tabindex="0" aria-label="'+esc(m.name)+(allowed?'':' — kilit ayrıntılarını göster')+'" onclick="selectModel(\''+jsStr(m.id)+'\')">'+lockBadge+providerBrandMark(m,provider,false)+'<div class="mp-item-info"><div class="mp-item-name">'+esc(m.name)+'</div><div class="mp-item-meta">'+badge+planBadge+'<span class="mp-provider-name">'+esc(providerLabel(provider))+'</span><span class="mp-use-case">'+useCase+'</span></div><div class="mp-tags">'+tags+'</div></div><button type="button" class="mp-star '+(fav?'on':'')+'" onclick="toggleModelFavorite(\''+jsStr(m.id)+'\',event)" aria-pressed="'+(fav?'true':'false')+'" aria-label="'+(fav?'Favoriden çıkar':'Favoriye ekle')+'" title="'+(fav?'Favoriden çıkar':'Favoriye ekle')+'"><span aria-hidden="true">'+(fav?'★':'☆')+'</span></button></div>';
+  }).join('')+(filtered.length>renderedModels.length?(mpMode==='simple'?'<button type="button" class="mp-load-more mp-open-advanced" onclick="setModelPickerMode(\'advanced\')">Tüm '+visibleModelCount().toLocaleString('tr-TR')+' modeli göster</button>':'<button type="button" class="mp-load-more" onclick="window.__mpRenderLimit=(window.__mpRenderLimit||160)+160;renderModelPicker(document.getElementById(\'mp-search\')?.value)">Daha fazla model göster ('+Number(filtered.length-renderedModels.length).toLocaleString('tr-TR')+' kaldı)</button>'):'');
 }
-function filterModels(q){renderModelPicker(q)}
+function filterModels(q){if(String(q||'').trim())mpMode='advanced';LS.set('ap_mp_mode',mpMode);window.__mpRenderLimit=160;renderModelPicker(q)}
 function selectModel(id){
   const m=ALL_MODELS.find(x=>x.id===id);
   if(m&&!canUseModel(m)){
     const cost=getClientModelCreditCost(m.apiId||m.id,m.provider,m.cat==='image'?'image':'chat');
     const left=Math.floor(remainingUserCredits());
-    msg('Bu model '+cost+' kredi ister. Kalan krediniz '+left+'; yeterli kredi varsa plan fark etmeden kullanabilirsiniz.','err');
+    const modelLevel=MODEL_TIER_LEVEL[String(m.tier||'enterprise').toLowerCase()] ?? MODEL_TIER_LEVEL.enterprise;
+    const planLevel=PLAN_MODEL_LEVEL[activePlanId()] ?? PLAN_MODEL_LEVEL.free;
+    const planNames=['Ücretsiz','Başlangıç / Popüler','Pro','Geliştirici / İşletme'];
+    const needsPlan=planLevel<modelLevel;
+    const logged=!!authToken||!!authUser?.id||!!(user&&!user.guest&&user.id!=='guest');
+    window.__modelAccessNotice=needsPlan?{
+      title:planNames[modelLevel]+' paketi gerekli',
+      body:m.name+' seçili planınla kullanılamaz. '+(logged?'Paketini yükseltip yeniden deneyebilirsin.':'Giriş yapıp uygun pakete yükseltebilirsin.'),
+      action:logged?'Paketleri incele':'Giriş yap ve yükselt'
+    }:{
+      title:'Kredi yetersiz',
+      body:m.name+' için '+cost+' kredi gerekiyor; mevcut kredin '+left+'.',
+      action:logged?'Paketleri incele':'Giriş yap ve kredi al'
+    };
+    renderModelPickerStatus(document.getElementById('model-sel')?.value||'');
+    msg(needsPlan?'Bu model için '+planNames[modelLevel]+' paketi gerekir. Yükseltme seçeneği yukarıda gösterildi.':'Bu model '+cost+' kredi ister. Kalan krediniz '+left+'.','err');
     return;
   }
   const sel=document.getElementById('model-sel');
@@ -4726,7 +5142,8 @@ function renderMsgs(opts={}){
       msgsEl.innerHTML='<div class="quark-welcome"><div class="quark-orbit"><span>'+esc(initial)+'</span></div><p class="quark-kicker">'+esc(actP.name)+' modu aktif</p><h3>'+esc(actP.name)+' ile yeni sohbet</h3><p class="quark-sub">&quot;'+esc(actP.prompt)+'&quot;</p><div class="quark-prompt-grid">'+skillButtons+'<button onclick="clearPersona()">Rol\u00fc iptal et</button></div></div>';
     }else{
       const liveModelCount=typeof visibleModelCount==='function'?visibleModelCount():((typeof getEnabledModelsForUser==='function'?getEnabledModelsForUser():ALL_MODELS).length||ALL_MODELS.length);
-      msgsEl.innerHTML=`<div class="quark-welcome"><div class="quark-orbit"><img src="froxy-logo-192-v260.png" alt="Froxy AI" width="76" height="76"></div><p class="quark-kicker">Froxy AI çalışma alanı</p><h3>Bugün ne üretelim?</h3><p class="quark-sub">${liveModelCount.toLocaleString('tr-TR')} güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.</p><div class="quark-prompt-grid"><button onclick="chatInsertHelper('Kendini kısaca tanıt ve nasıl yardımcı olabileceğini anlat. ')">Kendini tanıt</button><button onclick="chatInsertHelper('Bu fikri profesyonel bir plana çevir: ')">Plan çıkar</button><button onclick="chatInsertHelper('Webden araştır ve kaynaklı özetle: ')">İnternetten ara</button><button onclick="chatInsertHelper('Bu metni daha iyi Türkçe ile düzenle: ')">Türkçe düzelt</button></div></div>`;
+      const welcomeModelLabel=!modelCatalogLoaded&&liveModelCount<200?'Model kataloğu yükleniyor…':liveModelCount.toLocaleString('tr-TR')+' güncel model';
+      msgsEl.innerHTML=`<div class="quark-welcome"><div class="quark-orbit"><img src="froxy-logo-192-v260.png" alt="Froxy AI" width="76" height="76"></div><p class="quark-kicker">Froxy AI çalışma alanı</p><h3>Bugün ne üretelim?</h3><p class="quark-sub"><span data-model-count-welcome data-model-count-suffix=" güncel model">${welcomeModelLabel}</span>, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.</p><div class="quark-prompt-grid"><button onclick="chatInsertHelper('Kendini kısaca tanıt ve nasıl yardımcı olabileceğini anlat. ')">Kendini tanıt</button><button onclick="chatInsertHelper('Bu fikri profesyonel bir plana çevir: ')">Plan çıkar</button><button onclick="chatInsertHelper('Webden araştır ve kaynaklı özetle: ')">İnternetten ara</button><button onclick="chatInsertHelper('Bu metni daha iyi Türkçe ile düzenle: ')">Türkçe düzelt</button></div></div>`;
     }
     return;
   }
@@ -5100,6 +5517,60 @@ function autoRenameChat(text){
   saveChats();renderChatList();
 }
 
+function renderAssistantReplySmooth(botMsg,textEl,reply){
+  const content=String(reply||'');
+  if(!textEl||!content)return Promise.resolve();
+  const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced||content.length<48){
+    botMsg.content=content;
+    textEl.innerHTML=formatMsg(content);
+    scrollChatToBottom();
+    return Promise.resolve();
+  }
+  // The backend currently returns a complete response. Reveal it in a short,
+  // frame-batched sweep so it feels live without the old syllable-by-syllable
+  // typewriter effect or repeated Markdown work.
+  const duration=Math.max(120,Math.min(420,content.length*0.18));
+  const minChunk=Math.max(24,Math.min(96,Math.ceil(content.length/20)));
+  document.body.classList.add('froxy-response-streaming');
+  return new Promise(resolve=>{
+    const started=performance.now();
+    const previousWhiteSpace=textEl.style.whiteSpace;
+    textEl.style.whiteSpace='pre-wrap';
+    let shown=0;
+    let lastPaint=0;
+    let lastScroll=0;
+    const frame=now=>{
+      const progress=Math.min(1,(now-started)/duration);
+      let target=progress>=1?content.length:Math.max(shown+minChunk,Math.floor(content.length*progress));
+      target=Math.min(content.length,target);
+      if(target<content.length){
+        const forward=content.slice(target,Math.min(content.length,target+24)).search(/\s/);
+        if(forward>=0)target+=forward+1;
+      }
+      if(progress>=1||now-lastPaint>=16){
+        shown=Math.max(shown,target);
+        botMsg.content=content.slice(0,shown);
+        // Intermediate frames stay as text. Re-running Markdown/highlighting
+        // for every chunk caused long main-thread tasks and visible stutter.
+        textEl.textContent=botMsg.content;
+        lastPaint=now;
+        if(now-lastScroll>=80||progress>=1){scrollChatToBottom();lastScroll=now}
+      }
+      if(progress<1&&shown<content.length)requestAnimationFrame(frame);
+      else{
+        botMsg.content=content;
+        textEl.style.whiteSpace=previousWhiteSpace;
+        textEl.innerHTML=formatMsg(content);
+        scrollChatToBottom();
+        document.body.classList.remove('froxy-response-streaming');
+        resolve();
+      }
+    };
+    requestAnimationFrame(frame);
+  });
+}
+
 async function sendMsg(){
   ensureGuestChatSession();
   const inp=document.getElementById('chat-in');
@@ -5313,13 +5784,7 @@ async function sendMsg(){
     const tokUsed=data.usage?.total_tokens||Math.ceil(reply.length/4);
     const lastRow=msgsEl.lastElementChild;
     const textEl=lastRow?.querySelector('.msg-text');
-    if(textEl){
-      for(let i=0;i<reply.length;i++){
-        botMsg.content=reply.substring(0,i+1);
-        textEl.innerHTML=formatMsg(botMsg.content);
-        if(i%5===0){scrollChatToBottom();await sleep(8)}
-      }
-    }
+    if(textEl)await renderAssistantReplySmooth(botMsg,textEl,reply);
     const activeModel=data.__model||requestedModel;
     const activeDef=ALL_MODELS.find(m=>m.id===activeModel);
     botMsg.meta={
@@ -6456,11 +6921,11 @@ async function loadAdminStats(){
   adminRenderRecent(d.recentUsers||[]);
   renderAdminProviderSummary();
   // Provider health
-  try{var hr=await fetch('/api/health/providers');var h=await hr.json();var el2=document.getElementById('admin-provider-list');var el2b=document.getElementById('admin-health-providers');if(h.providers){var providerHtml=Object.entries(h.providers).map(function(entry){var n=entry[0];var i=entry[1];var ok=(i.status==='configured'||i.status==='available');var color=ok?'#22c55e':'#ef4444';var dot=ok?'\u25CF':'\u25CB';return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.1)"><span style="color:'+color+';font-weight:900;font-size:18px">'+dot+'</span><strong style="text-transform:capitalize;color:#fff">'+n+'</strong><span style="color:var(--text3);margin-left:auto;font-size:12px">'+i.status+(i.keys?' ('+i.keys+' key)':'')+'</span></div>';}).join('');if(el2)el2.innerHTML=providerHtml;if(el2b)el2b.innerHTML=providerHtml;}}catch(e){}
+  try{var hr=await adminApiJson('/api/health/providers');var h=hr.ok?hr.data:null;var el2=document.getElementById('admin-provider-list');var el2b=document.getElementById('admin-health-providers');if(h&&h.providers){var providerHtml=Object.entries(h.providers).map(function(entry){var n=entry[0];var i=entry[1];var ok=(i.status==='configured'||i.status==='available');var color=ok?'#22c55e':'#ef4444';var dot=ok?'\u25CF':'\u25CB';return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.1)"><span style="color:'+color+';font-weight:900;font-size:18px">'+dot+'</span><strong style="text-transform:capitalize;color:#fff">'+n+'</strong><span style="color:var(--text3);margin-left:auto;font-size:12px">'+i.status+(i.keys?' ('+i.keys+' key)':'')+'</span></div>';}).join('');if(el2)el2.innerHTML=providerHtml;if(el2b)el2b.innerHTML=providerHtml;}}catch(e){}
   // Image stats
-  try{var ir=await fetch('/api/admin/image-stats').then(function(r){return r.json();});var el3=document.getElementById('admin-img-stats');if(el3 && ir && typeof ir.count!=='undefined'){el3.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center"><div><strong style="font-size:24px;color:#fff">'+ir.count+'</strong><br><small style="color:var(--text3)">Toplam görsel</small></div><div><strong style="font-size:24px;color:#fff">'+(ir.totalSizeMB||'0')+' MB</strong><br><small style="color:var(--text3)">Disk</small></div></div>';}else if(el3){el3.innerHTML='<div class="admin-empty">Veri yok</div>';}}catch(e){var el3=document.getElementById('admin-img-stats');if(el3)el3.innerHTML='<div class="admin-empty">Veri alınamadı</div>';}
+  try{var imageStatsApi=await adminApiJson('/api/admin/image-stats');var ir=imageStatsApi.ok?imageStatsApi.data:null;var el3=document.getElementById('admin-img-stats');if(el3 && ir && typeof ir.count!=='undefined'){el3.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center"><div><strong style="font-size:24px;color:#fff">'+ir.count+'</strong><br><small style="color:var(--text3)">Toplam görsel</small></div><div><strong style="font-size:24px;color:#fff">'+(ir.totalSizeMB||'0')+' MB</strong><br><small style="color:var(--text3)">Disk</small></div></div>';}else if(el3){el3.innerHTML='<div class="admin-empty">Veri yok</div>';}}catch(e){var el3=document.getElementById('admin-img-stats');if(el3)el3.innerHTML='<div class="admin-empty">Veri alınamadı</div>';}
   // Image stats
-  try{var ir=await fetch('/api/admin/image-stats').then(function(r){return r.json();});var el3=document.getElementById('admin-img-stats');if(el3)el3.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center"><div><strong style="font-size:24px;color:#fff">'+ir.count+'</strong><br><small style="color:var(--text3)">Toplam görsel</small></div><div><strong style="font-size:24px;color:#fff">'+ir.totalSizeMB+' MB</strong><br><small style="color:var(--text3)">Disk</small></div></div>';}catch(e){}
+  try{var imageStatsApi2=await adminApiJson('/api/admin/image-stats');var ir2=imageStatsApi2.ok?imageStatsApi2.data:null;var el3=document.getElementById('admin-img-stats');if(el3&&ir2)el3.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center"><div><strong style="font-size:24px;color:#fff">'+ir2.count+'</strong><br><small style="color:var(--text3)">Toplam görsel</small></div><div><strong style="font-size:24px;color:#fff">'+ir2.totalSizeMB+' MB</strong><br><small style="color:var(--text3)">Disk</small></div></div>';}catch(e){}
 }
 function adminTab(t){
   ensureAdminShell();
@@ -7018,7 +7483,18 @@ function msg(t,type){const el=document.getElementById('toast');el.textContent=t;
 
 function ensureChatPolish(){
   const inputArea=document.querySelector('.chat-input-area');
-  if(!inputArea||document.getElementById('chat-smartbar'))return;
+  if(!inputArea)return;
+  const existingBar=document.getElementById('chat-smartbar');
+  if(existingBar){
+    if(!document.getElementById('chat-credit-estimate')){
+      existingBar.insertAdjacentHTML('beforeend','<span id="chat-credit-estimate" class="chat-credit-estimate"></span>');
+    }
+    if(!existingBar.querySelector('.chat-task-picks')){
+      existingBar.insertAdjacentHTML('beforeend','<span class="chat-task-picks"><button class="chat-task-chip" data-task-intent="code" onclick="setModelTaskIntent(\'code\')">Kod</button><button class="chat-task-chip" data-task-intent="vision" onclick="setModelTaskIntent(\'vision\')">G\u00f6rsel</button><button class="chat-task-chip" data-task-intent="research" onclick="setModelTaskIntent(\'research\')">Ara\u015ft\u0131rma</button><button class="chat-task-chip" data-task-intent="fast" onclick="setModelTaskIntent(\'fast\')">H\u0131zl\u0131</button><button class="chat-task-chip" data-task-intent="long" onclick="setModelTaskIntent(\'long\')">Uzun metin</button></span>');
+    }
+    updateChatCreditEstimate();
+    return;
+  }
   const bar=document.createElement('div');
   bar.id='chat-smartbar';
   bar.className='chat-smartbar';
@@ -7100,7 +7576,10 @@ function refineAssistantMessage(idx,mode){
   if(ta){ta.value=(prompts[mode]||prompts.tr)+old;ta.focus()}
 }
 document.addEventListener('DOMContentLoaded',()=>setTimeout(ensureChatPolish,150));
-setInterval(()=>{try{ensureChatPolish();updateChatCreditEstimate();}catch(e){}},2500);
+setInterval(()=>{
+  if(document.hidden||!document.querySelector('#v-chat.on,#ptab-chat.active,#ptab-chat.on'))return;
+  try{ensureChatPolish();updateChatCreditEstimate();}catch(e){}
+},4000);
 
 // ===== PROMPT LIBRARY =====
 const PROMPT_LIB=[
@@ -7226,15 +7705,17 @@ const THEMES={
     chatBg:'#08130e',chatGrid:'rgba(52,211,153,.055)',chatGlow1:'rgba(52,211,153,.18)',chatGlow2:'rgba(14,165,233,.08)',sidebarBg:'linear-gradient(180deg,rgba(10,28,18,.95),rgba(6,19,13,.98))',topbarBg:'rgba(7,20,14,.68)',composerBg:'linear-gradient(180deg,rgba(15,35,24,.96),rgba(7,20,14,.96))',dockBg:'rgba(10,31,20,.74)',chipBg:'rgba(16,45,29,.76)',sendGrad:'linear-gradient(135deg,#34d399,#0ea5e9)'
   }
 };
-const THEME_LABELS={dark:'Midnight',light:'Arctic',ocean:'Oceanic',forest:'Emerald'};
+const THEME_LABELS={dark:'Midnight',ocean:'Oceanic',forest:'Emerald'};
 let currentTheme=LS.get('ap_theme','dark');
+if(currentTheme==='light'){currentTheme='dark';LS.set('ap_theme','dark')}
 function toggleTheme(){
-  const names=Object.keys(THEMES);
+  const names=['dark','ocean','forest'];
   const idx=(names.indexOf(currentTheme)+1)%names.length;
   currentTheme=names[idx];LS.set('ap_theme',currentTheme);applyTheme();
   msg((THEME_LABELS[currentTheme]||currentTheme)+' temas\u0131 aktif','ok');
 }
 function applyTheme(){
+  if(currentTheme==='light'){currentTheme='dark';LS.set('ap_theme','dark')}
   const t=THEMES[currentTheme]||THEMES.dark;
   const r=document.documentElement.style;
   r.setProperty('--bg',t.bg);r.setProperty('--bg2',t.bg2);r.setProperty('--bg3',t.bg3);
@@ -7266,6 +7747,7 @@ function applyTheme(){
   });
 }
 function setThemeByName(name){
+  if(name==='light')name='dark';
   if(!THEMES[name])return;
   const overlay = document.createElement('div');
   overlay.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999999;opacity:0;pointer-events:none;transition:opacity 0.35s ease;background:'+THEMES[name].bg;
@@ -7599,12 +8081,12 @@ async function renderLeaderboard(){
   try{
     const res=await fetch('/api/leaderboard?limit=10',{headers:{'Accept':'application/json'}});
     const data=await readApiJson(res);
-    if(res.ok&&Array.isArray(data.users))byUsage=data.users.map(u=>({name:u.username,plan:u.plan,spentCredits:Number(u.spentCredits||0)}));
+    if(res.ok&&Array.isArray(data.users))byUsage=data.users.map(u=>({plan:u.plan,spentCredits:Number(u.spentCredits||0)}));
   }catch(e){}
   if(!byUsage.length){
     byUsage=LS.get('ap_users',[])
       .filter(u=>u.status!=='blocked')
-      .map(u=>({name:u.name,plan:u.plan,spentCredits:Number(u.usedTokens||0)}))
+      .map(u=>({plan:u.plan,spentCredits:Number(u.usedTokens||0)}))
       .sort((a,b)=>(b.spentCredits||0)-(a.spentCredits||0))
       .slice(0,10);
   }
@@ -7931,7 +8413,7 @@ const LEGAL={
   sales:{title:'Mesafeli Satış Sözleşmesi',body:`<h4>1. Taraflar</h4><p>İşbu sözleşme, alıcı (Kullanıcı) ile satıcı (Froxy AI - Adres: Maslak, İstanbul, E-posta: destek@froxyai.com) arasında, alıcının platform üzerinden elektronik ortamda siparişini verdiği dijital hizmetlerin satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince düzenlenmiştir.</p><h4>2. Sözleşme Konusu</h4><p>Sözleşmenin konusu, alıcının platform üzerinden satın aldığı token/kredi paketinin satışı ve teslimi ile ilgili şartların belirlenmesidir. Hizmet dijital ortamda anında teslim edilir ve kullanıma sunulur.</p><h4>3. Teslimat ve Kullanım</h4><p>Satın alınan krediler ödeme onayının ardından anında kullanıcının hesabına tanımlanır. Krediler dijital içerik niteliğinde olup fiziki teslimatı bulunmamaktadır.</p><h4>4. Cayma Hakkı</h4><p>Mesafeli Sözleşmeler Yönetmeliği'nin 15. maddesinin (ğ) bendi uyarınca, "Elektronik ortamda anında ifa edilen hizmetler veya tüketiciye anında teslim edilen gayrimaddi mallara ilişkin sözleşmeler" cayma hakkının istisnası kapsamında olup, satın alınan kredilerin/tokenların kısmen veya tamamen kullanılması veya hesaba tanımlanmasıyla birlikte cayma hakkı ve iade talebi geçerli olmamaktadır.</p><h4>5. İletişim</h4><p>Destek ve sözleşme detayları için: <strong>destek@froxyai.com</strong></p>`},
   refund:{title:'İade ve İptal Politikası',body:`<h4>1. İptal Koşulları</h4><p>Kullanıcılar satın aldıkları kredi veya paketleri diledikleri zaman kullanabilirler. Tek seferlik satın alımlarda herhangi bir mükerrer çekim veya iptal gerektiren süreç bulunmamaktadır. Gelecek dönem abonelik iptalleri hesap ayarları üzerinden tek tıkla yapılabilir.</p><h4>2. İade Koşulları</h4><p>Froxy AI tarafından sunulan hizmetler anında ifa edilen dijital içerik niteliğindedir. Satın alınan paketlerdeki krediler hesaba yüklendikten ve kısmen veya tamamen kullanıldıktan sonra iade işlemi gerçekleştirilemez. Teknik bir hata sonucu hesaba tanımlanmayan veya mükerrer çekilen ödemeler, incelenerek 7 iş günü içerisinde alıcının ödeme yöntemine iade edilir.</p><h4>3. Hak Dışı Durumlar</h4><p>Kullanım şartlarının ihlal edilmesi veya platformun kötüye kullanılması sebebiyle engellenen hesapların bakiye iadeleri yapılmamaktadır.</p><h4>4. İletişim</h4><p>İade ve iptal talepleriniz için: <strong>destek@froxyai.com</strong></p>`},
   privacy:{title:'Gizlilik Politikası',body:`<h4>1. Veri Toplama</h4><p>Froxy AI, yalnızca hizmet sunumu için gerekli kişisel verileri toplar: ad, e-posta adresi ve kullanım istatistikleri. Kredi kartı bilgileri tarafımızca saklanmaz; ödeme işlemleri Shopier altyapısı üzerinden güvenle gerçekleştirilir.</p><h4>2. Veri Kullanımı</h4><p>Toplanan veriler yalnızca hesap yönetimi, hizmet iyileştirme ve yasal yükümlülüklerin yerine getirilmesi amacıyla kullanılır. Verileriniz üçüncü taraflarla paylaşılmaz veya satılmaz.</p><h4>3. Çerezler</h4><p>Platform, oturum yönetimi ve kullanıcı deneyimini iyileştirmek amacıyla çerezler kullanır. Tarayıcı ayarlarınızdan çerezleri yönetebilirsiniz.</p><h4>4. Veri Güvenliği</h4><p>Tüm veriler SSL/TLS şifreleme ile korunur. API anahtarları hash'lenerek saklanır ve düz metin olarak erişilemez.</p><h4>5. İletişim</h4><p>Gizlilik ile ilgili sorularınız için: <strong>info@froxyai.com</strong>. Genel destek için: <strong>destek@froxyai.com</strong>.</p>`},
-  terms:{title:'Kullanım Şartları',body:`<h4>1. Hizmet Tanımı</h4><p>Froxy AI, üçüncü taraf yapay zeka modellerine (OpenAI, Google, Anthropic vb.) API erişimi sağlayan bir aracı platformdur. Platform, bu modellerin çıktılarının doğruluğunu garanti etmez.</p><h4>2. Hesap Sorumluluğu</h4><p>Kullanıcı, hesabının güvenliğinden ve API anahtarının korunmasından sorumludur. Yetkisiz erişimden kaynaklanan zararlardan Froxy AI sorumlu tutulamaz.</p><h4>3. Kullanım Sınırları</h4><p>Her plan belirli token limitleri içerir. Aşım durumunda ek ücretlendirme yapılabilir veya hizmet geçici olarak kısıtlanabilir.</p><h4>4. Yasaklı Kullanımlar</h4><p>Platform; yasa dışı içerik üretimi, spam, kötü amaçlı yazılım geliştirme veya üçüncü taraf haklarını ihlal eden kullanımlar için kullanılamaz.</p><h4>5. Hizmet Değişiklikleri</h4><p>Froxy AI, fiyatlandırma ve hizmet kapsamında değişiklik yapma hakkını saklı tutar. Önemli değişiklikler en az 7 gün önceden bildirilir.</p><h4>6. İletişim</h4><p>Sorularınız için: <strong>info@froxyai.com</strong>. Teknik destek: <strong>destek@froxyai.com</strong>.</p>`},
+  terms:{title:'Kullanım Şartları',body:`<h4>1. Hizmet Tanımı</h4><p>Froxy AI, üçüncü taraf yapay zeka modellerine (OpenAI, Google, Anthropic vb.) API erişimi sağlayan bir aracı platformdur. Platform, bu modellerin çıktılarının doğruluğunu garanti etmez.</p><h4>2. Model Kullanılabilirliği</h4><p>Model kataloğu ve sağlayıcılar zaman içinde değişebilir. Sağlayıcı kaynaklı kota, bakım, güvenlik kısıtı, gecikme veya model kaldırılması nedeniyle belirli bir modelin kesintisiz ya da her istek için çalışacağı garanti edilmez. Uygun olduğunda sistem çalışan alternatif modele yönlendirme yapar.</p><h4>3. Hesap Sorumluluğu</h4><p>Kullanıcı, hesabının güvenliğinden ve API anahtarının korunmasından sorumludur. Yetkisiz erişimden kaynaklanan zararlardan Froxy AI sorumlu tutulamaz.</p><h4>4. Kullanım Sınırları</h4><p>Her plan belirli token limitleri içerir. Aşım durumunda ek ücretlendirme yapılabilir veya hizmet geçici olarak kısıtlanabilir.</p><h4>5. Yasaklı Kullanımlar</h4><p>Platform; yasa dışı içerik üretimi, spam, kötü amaçlı yazılım geliştirme veya üçüncü taraf haklarını ihlal eden kullanımlar için kullanılamaz.</p><h4>6. Hizmet Değişiklikleri</h4><p>Froxy AI, fiyatlandırma ve hizmet kapsamında değişiklik yapma hakkını saklı tutar.</p><h4>7. İletişim</h4><p>Sorularınız için: <strong>info@froxyai.com</strong>. Teknik destek: <strong>destek@froxyai.com</strong>.</p>`},
   kvkk:{title:'KVKK Aydınlatma Metni',body:`<h4>Veri Sorumlusu</h4><p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında, kişisel verileriniz veri sorumlusu sıfatıyla Froxy AI tarafından aşağıda açıklanan amaçlarla işlenmektedir.</p><h4>İşlenen Veriler</h4><p>Ad-soyad, e-posta adresi, IP adresi, kullanım logları ve API istek kayıtları.</p><h4>İşleme Amaçları</h4><p>Hizmet sunumu, kullanıcı desteği, güvenlik, yasal yükümlülükler ve hizmet geliştirme.</p><h4>Veri Aktarımı</h4><p>Kişisel verileriniz, API hizmeti kapsamında yurt dışındaki model sağlayıcılarına (OpenAI, Google vb.) aktarılabilir. Bu aktarım, hizmetin doğası gereği zorunludur.</p><h4>Haklarınız</h4><p>KVKK madde 11 kapsamında; verilerinize erişim, düzeltme, silme, aktarım ve işlemeye itiraz haklarına sahipsiniz. Başvurularınızı <strong>info@froxyai.com</strong> adresine iletebilirsiniz. Genel destek: <strong>destek@froxyai.com</strong>.</p>`},
   disclaimer:{title:'Sorumluluk Reddi',body:`<h4>Genel</h4><p>Froxy AI, üçüncü taraf yapay zeka modellerine erişim sağlayan bir aracı platformdur. Üretilen içeriklerin doğruluğu, güvenilirliği veya uygunluğu konusunda herhangi bir garanti verilmez.</p><h4>İçerik Sorumluluğu</h4><p>AI modelleri tarafından üretilen tüm içeriklerin hukuki, etik ve ticari sorumluluğu tamamen kullanıcıya aittir. Froxy AI, üretilen içeriklerden doğabilecek zararlardan sorumlu tutulamaz.</p><h4>Hizmet Sürekliliği</h4><p>Platform, %99.9 uptime hedeflemekle birlikte, bakım, güncelleme veya üçüncü taraf kaynaklı kesintiler yaşanabilir. Bu kesintilerden doğan zararlardan sorumluluk kabul edilmez.</p><h4>Üçüncü Taraf Hizmetleri</h4><p>Platform, OpenAI, Google, Anthropic gibi üçüncü taraf sağlayıcılara bağımlıdır. Bu sağlayıcıların hizmet değişiklikleri veya kesintileri Froxy AI'in kontrolü dışındadır.</p><h4>İletişim</h4><p>Genel sorular için: <strong>info@froxyai.com</strong>. Teknik destek: <strong>destek@froxyai.com</strong>.</p>`}
 };
@@ -8005,8 +8487,8 @@ function imageQualityRecommendedModel(mode){
     quality:['openai-gpt-image-2','gemini-2.5-flash-image','together-gemini-flash-image','auto-quality'],
     premium:['openai-gpt-image-2','gemini-3-pro-image','together-gemini-pro-image','gemini-2.5-flash-image']
   }:{
-    cheap:['pollinations-flux','pollinations-zimage','modal-sdxl','fooocus-local','comfyui-local','together-flux-schnell'],
-    fast:['pollinations-flux','pollinations-zimage','modal-sdxl','fooocus-local','comfyui-local','together-flux-schnell'],
+    cheap:['flux','cf-sdxl','pollinations-flux','pollinations-zimage','modal-sdxl','fooocus-local','comfyui-local','together-flux-schnell'],
+    fast:['flux','cf-sdxl','pollinations-flux','pollinations-zimage','modal-sdxl','fooocus-local','comfyui-local','together-flux-schnell'],
     quality:['pollinations-zimage','pollinations-flux','together-flux-schnell'],
     premium:['pollinations-zimage','pollinations-flux','together-flux2-pro','together-flux-kontext-pro','together-flux-schnell']
   };
@@ -8030,15 +8512,7 @@ function setImageQualityMode(mode,selectRecommended=true){
   if(typeof window.__renderImgModelPicker==='function')window.__renderImgModelPicker();
 }
 function ensureImageQualityModes(){
-  const picker=document.getElementById('img-model-picker')||document.getElementById('img-model');
-  if(!picker||document.getElementById('img-quality-modes'))return;
-  const box=document.createElement('div');
-  box.id='img-quality-modes';
-  box.className='img-quality-modes';
-  box.innerHTML=[
-    ['cheap','Ucuz'],['fast','Hızlı'],['quality','Kaliteli'],['premium','Premium']
-  ].map(([id,label])=>`<button type="button" data-img-quality="${id}" onclick="setImageQualityMode('${id}')">${label}</button>`).join('');
-  picker.parentElement.insertBefore(box,picker);
+  // Quality modes button row is removed as requested by the user.
   setImageQualityMode(imageQualityMode,false);
 }
 
@@ -8312,6 +8786,102 @@ function clearImageHistory(){
   msg('Görsel geçmişi temizlendi','ok');
 }
 
+let generationJobs=[];
+let generationJobsTimer=null;
+const renderedGenerationJobIds=new Set();
+function generationApiHeaders(extra={}){
+  const headers={'Content-Type':'application/json',...extra};
+  if(authToken)headers.Authorization='Bearer '+authToken;
+  return headers;
+}
+function generationStatusLabel(status){
+  return ({queued:'Sırada',running:'Üretiliyor',retrying:'Yeniden denenecek',completed:'Tamamlandı',failed:'Başarısız',cancelled:'İptal edildi'})[status]||status;
+}
+function generationRetryText(job){
+  if(job.status!=='retrying'||!job.nextRetryAt)return '';
+  const seconds=Math.max(0,Math.ceil((new Date(job.nextRetryAt).getTime()-Date.now())/1000));
+  return seconds?' · '+seconds+' sn sonra':'';
+}
+function renderGenerationJobs(){
+  const list=document.getElementById('generation-job-list');
+  const center=document.getElementById('generation-center');
+  if(!list||!center)return;
+  center.classList.toggle('has-active',generationJobs.some(j=>['queued','running','retrying'].includes(j.status)));
+  if(!generationJobs.length){list.innerHTML='<p class="generation-empty">Henüz üretim işi yok.</p>';return}
+  list.innerHTML=generationJobs.map(job=>{
+    const active=['queued','running','retrying'].includes(job.status);
+    const retry=['failed','cancelled'].includes(job.status);
+    const thumb=job.resultUrl?'<img src="'+esc(job.resultUrl)+'" alt="Üretilen görsel" loading="lazy">':'<span class="generation-job-orb"></span>';
+    return '<article class="generation-job '+esc(job.status)+'">'+thumb+'<div class="generation-job-copy"><b>'+esc(getImageModelLabel(job.model)||job.model)+'</b><p>'+esc(String(job.prompt||'').slice(0,110))+'</p><small>'+generationStatusLabel(job.status)+generationRetryText(job)+' · '+Number(job.reservedCost||0).toLocaleString('tr-TR')+' kredi</small>'+(job.errorMessage?'<em>'+esc(job.errorMessage)+'</em>':'')+'<div class="generation-progress"><i style="width:'+Math.max(0,Math.min(100,Number(job.progress||0)))+'%"></i></div></div><div class="generation-job-actions">'+(job.resultUrl?'<button type="button" onclick="openGenerationResult(\''+jsStr(job.id)+'\')">Aç</button>':'')+(active&&job.status!=='running'?'<button type="button" onclick="cancelGenerationJob(\''+jsStr(job.id)+'\')">İptal</button>':'')+(retry?'<button type="button" onclick="retryGenerationJob(\''+jsStr(job.id)+'\')">Tekrar dene</button>':'')+'</div></article>';
+  }).join('');
+}
+async function refreshGenerationJobs(force=false){
+  if(!document.getElementById('generation-job-list'))return;
+  try{
+    const res=await fetch('/api/generation-jobs',{headers:generationApiHeaders()});
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Üretim işleri alınamadı');
+    generationJobs=Array.isArray(data.jobs)?data.jobs:[];
+    if(Number.isFinite(Number(data.remaining)))syncActiveCreditDisplay(Number(data.remaining),0);
+    renderGenerationJobs();
+    const completed=generationJobs.find(j=>j.status==='completed'&&j.resultUrl&&!renderedGenerationJobIds.has(j.id));
+    if(completed){
+      renderedGenerationJobIds.add(completed.id);
+      const result=document.getElementById('img-result');
+      if(result)await renderImageResult(result,completed.resultUrl,completed.prompt,completed.result?.model||completed.model,(completed.result?.provider||completed.provider||'AI')+' ile üretildi');
+      renderImageHistory();
+    }
+  }catch(err){if(force)msg(err.message,'err')}
+  scheduleGenerationJobsPoll();
+}
+function scheduleGenerationJobsPoll(){
+  if(generationJobsTimer)clearTimeout(generationJobsTimer);
+  const active=generationJobs.some(j=>['queued','running','retrying'].includes(j.status));
+  if(!active)return;
+  generationJobsTimer=setTimeout(()=>refreshGenerationJobs(false),document.hidden?8000:2000);
+}
+async function enqueuePersistentImageJob({prompt,model,imageSize,btn,resEl}){
+  btn.disabled=true;
+  btn.innerHTML=figIcon('sparkles','inline')+' Sıraya alınıyor...';
+  resEl.innerHTML=imageLoadingHtml(prompt,getImageModelLabel(model)+' · Üretim merkezi');
+  const idempotencyKey=(crypto?.randomUUID?.()||('img-'+Date.now()+'-'+Math.random().toString(16).slice(2)));
+  try{
+    const provider=imageProviderForModel(model);
+    const res=await fetch('/api/generation-jobs/image',{method:'POST',headers:generationApiHeaders({'Idempotency-Key':idempotencyKey}),body:JSON.stringify({prompt,model,provider,qualityMode:imageQualityMode,imageSize:imageSize.key,width:imageSize.width,height:imageSize.height,aspectRatio:imageSize.aspect,size:imageSize.size})});
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Üretim işi oluşturulamadı');
+    if(Number.isFinite(Number(data.remaining)))syncActiveCreditDisplay(Number(data.remaining),Number(data.job?.reservedCost||0));
+    generationJobs=[data.job,...generationJobs.filter(j=>j.id!==data.job.id)];
+    renderGenerationJobs();
+    scheduleGenerationJobsPoll();
+    msg('Görsel üretim merkezine eklendi','ok');
+  }catch(err){
+    renderImageErrorCard(resEl,prompt,model,imageProviderForModel(model),err.message);
+    msg(err.message,'err');
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML=figIcon('image','inline')+' Görsel Üret';
+  }
+}
+async function cancelGenerationJob(id){
+  const res=await fetch('/api/generation-jobs/'+encodeURIComponent(id)+'/cancel',{method:'POST',headers:generationApiHeaders()});
+  const data=await res.json();
+  if(!res.ok)return msg(data.error||'İş iptal edilemedi','err');
+  await refreshGenerationJobs(true);updateQuota();
+}
+async function retryGenerationJob(id){
+  const res=await fetch('/api/generation-jobs/'+encodeURIComponent(id)+'/retry',{method:'POST',headers:generationApiHeaders()});
+  const data=await res.json();
+  if(!res.ok)return msg(data.error||'İş tekrar başlatılamadı','err');
+  await refreshGenerationJobs(true);updateQuota();
+}
+function openGenerationResult(id){const job=generationJobs.find(j=>j.id===id);if(job?.resultUrl)window.open(imageUrlForDownload(job.resultUrl),'_blank')}
+document.addEventListener('visibilitychange',()=>scheduleGenerationJobsPoll());
+window.refreshGenerationJobs=refreshGenerationJobs;
+window.cancelGenerationJob=cancelGenerationJob;
+window.retryGenerationJob=retryGenerationJob;
+window.openGenerationResult=openGenerationResult;
+
 async function genImage(){
   const promptEl = document.getElementById('img-prompt');
   const modelEl = document.getElementById('img-model');
@@ -8347,10 +8917,19 @@ async function genImage(){
   }
   const estimatedCost=getClientModelCreditCost(model,imageProviderForModel(model),'image');
   const currentRemaining=remainingUserCredits();
+  const imageAccess=selectedImageAccess();
+  if(!imageAccess.available||!imageAccess.planAllowed){
+    showImagePlanBlock(model,estimatedCost,imageAccess.requiredLevel);
+    updateImageCreditSurface();
+    return;
+  }
   if(Number.isFinite(currentRemaining)&&currentRemaining<estimatedCost){
     showCreditBlock('image',estimatedCost,currentRemaining,getImageModelLabel(model)||model);
     return;
   }
+  lastImgPrompt=prompt;
+  lastImgModel=model;
+  return enqueuePersistentImageJob({prompt,model,imageSize,btn,resEl});
   
   btn.disabled = true;
   btn.innerHTML = figIcon('sparkles','inline')+' Üretiliyor...';
@@ -8661,6 +9240,10 @@ function makeSafeAdultModeStrip(surface) {
 }
 
 function renderSafeAdultModePanels() {
+  // The public chat/image UI must remain brand-safe. Adult-oriented shortcuts
+  // are deliberately not injected unless a future verified, age-gated surface
+  // explicitly opts in.
+  return;
   injectSafeAdultModeStyles();
   const chatInput = document.getElementById('chat-in') || document.getElementById('chat-input');
   if (chatInput && !document.querySelector('[data-safe-adult-surface="chat"]')) {
@@ -8942,6 +9525,15 @@ document.addEventListener('click',function(e){
     'together-gemini-flash-image',
     'together-qwen-image-pro',
     'together-gemini-pro-image'
+    ,'evolink-img-z-image-turbo'
+    ,'evolink-img-wan2.5-text-to-image'
+    ,'evolink-img-gemini-3.1-flash-lite-image'
+    ,'evolink-img-gemini-3.1-flash-image'
+    ,'evolink-img-gpt-image-2'
+    ,'evolink-img-gpt-image-1.5'
+    ,'evolink-img-doubao-seedream-5.0-lite'
+    ,'evolink-img-doubao-seedream-4.5'
+    ,'evolink-img-nano-banana-2-lite-beta'
   ]);
   const LOCAL_IMAGE_MODEL_OPTIONS = {
     'comfyui-local': 'ComfyUI Local Image',
@@ -9032,11 +9624,10 @@ document.addEventListener('click',function(e){
   window.renderSafeAdultModePanels = function renderSafeAdultModePanelsV387(){
     if (typeof injectSafeAdultModeStyles === 'function') injectSafeAdultModeStyles();
     removeChatAdultStrip();
-    const imgPrompt = document.getElementById('img-prompt') || document.getElementById('image-prompt');
-    if (imgPrompt && !document.querySelector('[data-safe-adult-surface="image"]') && typeof makeSafeAdultModeStrip === 'function') {
-      const anchor = imgPrompt.closest('label,.img-gen-field') || imgPrompt.parentElement;
-      if (anchor && anchor.parentElement) anchor.parentElement.insertBefore(makeSafeAdultModeStrip('image'), anchor);
-    }
+    // Public image creation intentionally has no adult shortcut strip.  Keep the
+    // legacy function callable, but do not surface it until an age-gated area is
+    // deliberately introduced.
+    document.querySelectorAll('[data-safe-adult-surface="image"]').forEach(function(el){ el.remove(); });
     if (previousRenderSafeAdultModePanels && previousRenderSafeAdultModePanels !== window.renderSafeAdultModePanels) removeChatAdultStrip();
   };
 
@@ -9068,7 +9659,7 @@ document.addEventListener('click',function(e){
         return {
           label: grp.label || '',
           options: (grp.options || []).filter(function(opt){
-            return opt.value !== 'comfyui-local' && opt.value !== 'fooocus-local' && opt.value !== 'a1111-local' && opt.value !== 'forge-local' && opt.value !== 'swarmui-local' && opt.value !== 'modal-sdxl' && opt.value !== 'modal-local-sd' && opt.value !== 'modal-cloud-gpu';
+            return opt.value !== 'comfyui-local' && opt.value !== 'fooocus-local' && opt.value !== 'a1111-local' && opt.value !== 'forge-local' && opt.value !== 'swarmui-local' && opt.value !== 'modal-sdxl' && opt.value !== 'modal-local-sd' && opt.value !== 'modal-cloud-gpu' && opt.value !== 'modal-realisticvision' && opt.value !== 'modal-dreamshaper';
           })
         };
       }).filter(function(grp){
@@ -10521,12 +11112,13 @@ function providerKeyFor(provider){
 }
 function imageProviderForModel(model){
   if(!model)return '';
+  if(model.startsWith('evolink-img-'))return 'evolink';
   if(model==='comfyui-local')return 'comfyui-local';
   if(model==='fooocus-local')return 'fooocus-local';
   if(model==='a1111-local')return 'a1111-local';
   if(model==='forge-local')return 'forge-local';
   if(model==='swarmui-local')return 'swarmui-local';
-  if(model==='modal-sdxl')return 'modal';
+  if(model.startsWith('modal-'))return 'modal';
   if(model==='perchance-experimental')return 'perchance-experimental';
   if(model==='auto-quality')return 'gemini';
   if(model.startsWith('imagegpt-'))return 'imagegpt';
@@ -10700,7 +11292,31 @@ const I18N={
 };
 let currentLang=LS.get('ap_lang','tr');
 function t(key){return(I18N[currentLang]||I18N.tr)[key]||key}
-function setLang(lang){msg('Dil değişikliği için sağ üstteki çeviri widget\'ını kullanın','info')}
+function setLang(lang){
+  currentLang=lang==='en'?'en':'tr';
+  LS.set('ap_lang',currentLang);
+  if(typeof window.froxySetLanguage==='function')window.froxySetLanguage(currentLang);
+}
+
+// A first-time visitor must never land on a locked paid image model.  Legacy
+// picker layers can restore an old selection while booting, so settle the
+// initial state after those layers have populated the native select.
+function enforcePublicImageDefaultV572(){
+  if(!document.getElementById('img-prompt'))return;
+  const remembered=LS.get('ap_img_last_manual_model','');
+  if(remembered)return;
+  const sel=document.getElementById('img-model');
+  if(!sel)return;
+  try{ if(typeof window.__froxyEnsureImageProvidersV410==='function')window.__froxyEnsureImageProvidersV410(); }catch(e){}
+  const free=Array.from(sel.options||[]).find(function(opt){return opt.value==='pollinations-flux'&&!opt.disabled;});
+  if(!free)return;
+  sel.value=free.value;
+  window.__froxyImageModelLock=free.value;
+  if(typeof window.__renderImgModelPicker==='function')window.__renderImgModelPicker();
+  try{sel.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(enforcePublicImageDefaultV572,900);},{once:true});
+else setTimeout(enforcePublicImageDefaultV572,900);
 
 // ===================================================================
 // FAZ 3.7: SOHBET DALLANMA (Branch/Fork)
@@ -10738,7 +11354,8 @@ document.addEventListener("click", e => {
     e.preventDefault();
     e.stopPropagation();
     const lang = langBtn.getAttribute("data-lang");
-    if(typeof translatePage === "function") translatePage(lang);
+    if(typeof window.froxySetLanguage === "function") window.froxySetLanguage(lang);
+    else if(typeof translatePage === "function") translatePage(lang);
   }
 }, true);
 
@@ -10752,38 +11369,7 @@ document.addEventListener("click", e => {
 
   // === 1. SCROLL-TRIGGERED REVEAL ===
   function initScrollReveal() {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-    const selectors = [
-      '.card', '.pc', '.step-card', '.sec-head',
-      '.m-card', '.testim-card', '.faq-item',
-      '.bot-demo-grid > *', '.hero-stats .stat',
-      '.cta-box', '.code-block', '.usage-calculator',
-      '.hero-ops > div'
-    ];
-
-    function applyReveal() {
-      document.querySelectorAll(selectors.join(',')).forEach((el, i) => {
-        if (!el.classList.contains('reveal') && !el.classList.contains('visible')) {
-          el.classList.add('reveal');
-          const siblingIndex = Array.from(el.parentElement?.children || []).indexOf(el);
-          if (siblingIndex > 0 && siblingIndex < 7) {
-            el.classList.add('reveal-d' + siblingIndex);
-          }
-          observer.observe(el);
-        }
-      });
-    }
-
-    applyReveal();
-    new MutationObserver(() => setTimeout(applyReveal, 200))
-      .observe(document.body, { childList: true, subtree: true });
+    document.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'));
   }
 
   // === 2. 3D TILT EFFECT ===
@@ -11269,6 +11855,14 @@ function renderImageStudioEnhancements(){
       <button type="button" onclick="enhanceCurrentImagePrompt()">${iconSvg('sparkles',14)} Promptu güçlendir</button>
       <button type="button" onclick="randomImageIdea()">${iconSvg('refresh',14)} Rastgele fikir</button>
     </div>`;
+  // Adult presets are not part of the public image studio. Keep legacy
+  // compatibility private until a separate age-gated surface exists.
+  box.querySelectorAll('[onclick*="applyAdultImagePreset"]').forEach(function(button){
+    const group=button.closest('.ist-chips');
+    const heading=group?.previousElementSibling;
+    group?.remove();
+    if (heading && /18\+|yetiÅŸkin/i.test(heading.textContent || '')) heading.remove();
+  });
   field.insertAdjacentElement('afterend',box);
 }
 
@@ -11363,12 +11957,16 @@ function renderImageHistory(){
   const box=document.getElementById('img-history');
   const count=document.getElementById('img-history-count');
   if(!box)return;
-  const items=getImageHistory();
-  if(count)count.textContent=items.length.toLocaleString('tr-TR');
-  if(!items.length){
+  const allItems=getImageHistory();
+  if(count)count.textContent=allItems.length.toLocaleString('tr-TR');
+  if(!allItems.length){
     box.innerHTML='<div class="img-history-empty">Henüz görsel yok. Ürettiğin görseller burada saklanacak.</div>';
     return;
   }
+  // The studio already has a compact recent-gallery strip. Rendering every
+  // historic image below it makes the mobile image page progressively slower.
+  const renderLimit=window.matchMedia&&window.matchMedia('(max-width:760px)').matches?8:12;
+  const items=allItems.slice(0,renderLimit);
   box.innerHTML=items.map((item,i)=>{
     const date=item.date?new Date(item.date).toLocaleString('tr-TR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
     return `<div class="img-history-card pro-history-card">
@@ -11386,7 +11984,7 @@ function renderImageHistory(){
         <button type="button" onclick="openImageHistory(${i})">Aç</button>
       </div>
     </div>`;
-  }).join('');
+  }).join('')+(allItems.length>items.length?`<button type="button" class="img-history-more" onclick="panelTab('gallery')">Tüm ${allItems.length.toLocaleString('tr-TR')} görseli galeride aç</button>`:'');
 }
 
 if(typeof renderProfessionalFeatureLayer==='function'&&!window.__imageStudioWrapped){
@@ -12205,7 +12803,8 @@ function renderProfessionalDashboard(){
     window.toggleTheme = function(){
       var cur;
       try { cur = localStorage.getItem('ap_theme'); } catch(e){}
-      var next = cur === 'light' ? 'dark' : 'light';
+      var cycle = ['dark','ocean','forest'];
+      var next = cycle[(cycle.indexOf(cur) + 1) % cycle.length] || 'dark';
       try { localStorage.setItem('ap_theme', next); } catch(e){}
       applyTheme(next);
     };
@@ -12215,10 +12814,7 @@ function renderProfessionalDashboard(){
     if (typeof window.applyTheme === 'function') return;
     var saved;
     try { saved = localStorage.getItem('ap_theme'); } catch(e){}
-    if (!saved){
-      var mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)');
-      saved = mq && mq.matches ? 'light' : 'dark';
-    }
+    if (!saved || saved === 'light') saved = 'dark';
     applyTheme(saved);
   }
 
@@ -12329,7 +12925,7 @@ window.updateSupportBadge = updateSupportBadge;
 // Login / LS degisimi / sekme gecislerinde guncel tut
 document.addEventListener('DOMContentLoaded', function(){
   updateSupportBadge();
-  setInterval(updateSupportBadge, 15000);
+  setInterval(function(){if(!document.hidden)updateSupportBadge()},30000);
 });
 window.addEventListener('storage', function(ev){
   if (ev.key === 'ap_tickets') updateSupportBadge();
@@ -13122,6 +13718,12 @@ const VERSION='v433';
       btn.classList.toggle('is-active',active);
       btn.setAttribute('aria-current',active?'page':'false');
     });
+    const menuOpen=!!document.getElementById('v-chat')?.classList.contains('sidebar-open');
+    document.querySelectorAll('.mobile-app-nav-menu').forEach(btn=>{
+      btn.classList.toggle('active',menuOpen);
+      btn.classList.toggle('is-active',menuOpen);
+      btn.setAttribute('aria-expanded',menuOpen?'true':'false');
+    });
   }
   function setSidebar(open){
     const root=document.getElementById('v-chat');
@@ -13133,6 +13735,7 @@ const VERSION='v433';
     side.classList.toggle('open',next);
     document.body.classList.toggle('sidebar-open',next);
     if(back)back.classList.toggle('open',next);
+    syncBottomNav();
     return next;
   }
   function bind(){
@@ -13796,8 +14399,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
 /* v192.1: small interaction feedback for dock, model-adjacent controls and
    bottom navigation. UI only; model/provider/credit logic is untouched. */
 (function(){
-  function bindPressFeedback(){
-    const selectors=[
+  const pressSelector=[
       '.professional-tool-dock button',
       '.professional-tool-dock .tool-chip',
       '.ai-composer-tools button',
@@ -13809,7 +14411,12 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
       '[data-tab="img"]',
       '[data-panel="img"]'
     ].join(',');
-    document.querySelectorAll(selectors).forEach(btn=>{
+  function bindPressFeedback(root){
+    const scope=root&&root.nodeType===1?root:document;
+    const buttons=[];
+    if(scope.matches&&scope.matches(pressSelector))buttons.push(scope);
+    if(scope.querySelectorAll)buttons.push(...scope.querySelectorAll(pressSelector));
+    buttons.forEach(btn=>{
       if(btn.dataset.v1921Press==='1')return;
       btn.dataset.v1921Press='1';
       const pulse=function(){
@@ -13829,7 +14436,11 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindPressFeedback);
   else bindPressFeedback();
   if(typeof MutationObserver!=='undefined'){
-    const obs=new MutationObserver(()=>bindPressFeedback());
+    const obs=new MutationObserver(mutations=>{
+      mutations.forEach(m=>m.addedNodes&&m.addedNodes.forEach(node=>{
+        if(node.nodeType===1)bindPressFeedback(node);
+      }));
+    });
     if(document.body)obs.observe(document.body,{childList:true,subtree:true});
     else document.addEventListener('DOMContentLoaded',()=>obs.observe(document.body,{childList:true,subtree:true}));
   }
@@ -13846,35 +14457,35 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     { bad: 'g\u011fY\u00a5\u2030', good: '\ud83e\udd49' },
     { bad: 'g\u011fY\u00a5', good: '\ud83e\udd47' }
   ];
-  function fixAllText(){
-    if(!document.body)return;
-    if(document.body.textContent && document.body.textContent.indexOf('g\u011fY')===-1)return;
-    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  function fixTextNode(node){
+    if(!node||node.nodeType!==3)return;
+    var t=node.nodeValue;
+    if(!t||t.indexOf('g\u011fY')===-1)return;
+    for(var i=0;i<FIXES.length;i++){
+      if(t.indexOf(FIXES[i].bad)!==-1)t=t.split(FIXES[i].bad).join(FIXES[i].good);
+    }
+    if(t!==node.nodeValue)node.nodeValue=t;
+  }
+  function fixAllText(root){
+    if(!root)return;
+    if(root.nodeType===3)return fixTextNode(root);
+    if(root.nodeType!==1&&root.nodeType!==9)return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
     var node;
     while(node = walker.nextNode()){
-      var t = node.nodeValue;
-      if(!t || !/g\u011fY/.test(t))continue;
-      var changed = false;
-      for(var i=0;i<FIXES.length;i++){
-        if(t.indexOf(FIXES[i].bad) !== -1){
-          t = t.split(FIXES[i].bad).join(FIXES[i].good);
-          changed = true;
-        }
-      }
-      if(changed)node.nodeValue = t;
+      fixTextNode(node);
     }
   }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(fixAllText, 8000); });
-  } else {
-    setTimeout(fixAllText, 8000);
-  }
   if(typeof MutationObserver !== 'undefined'){
-    var to = null;
-    var obs = new MutationObserver(function(){ if(to)clearTimeout(to); to = setTimeout(fixAllText, 200); });
-    var startObserver=function(){ if(document.body) obs.observe(document.body, { childList: true, subtree: true, characterData: true }); };
-    if(document.body) setTimeout(startObserver, 9000);
-    else document.addEventListener('DOMContentLoaded', function(){ setTimeout(startObserver, 9000); });
+    var obs = new MutationObserver(function(mutations){
+      mutations.forEach(function(m){
+        if(m.type==='characterData')fixTextNode(m.target);
+        else m.addedNodes&&m.addedNodes.forEach(fixAllText);
+      });
+    });
+    var startObserver=function(){if(document.body)obs.observe(document.body,{childList:true,subtree:true,characterData:true});};
+    if(document.body)startObserver();
+    else document.addEventListener('DOMContentLoaded',startObserver,{once:true});
   }
 })();
 
@@ -14340,10 +14951,16 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
 
   function openCheckoutConfirm(planId){
     const pack=(typeof STORE_PACKS!=='undefined'?STORE_PACKS:[]).find(p=>p.id===planId)||{id:planId,name:'Kredi paketi',tokens:0,price:0};
-    document.getElementById('froxy-checkout-modal')?.remove();
+    const current=document.getElementById('froxy-checkout-modal');
+    if(current?.dataset.planId===String(planId)){
+      current.querySelector('.froxy-checkout-card')?.focus?.();
+      return;
+    }
+    current?.remove();
     const modal=document.createElement('div');
     modal.id='froxy-checkout-modal';
     modal.className='froxy-checkout-backdrop';
+    modal.dataset.planId=String(planId);
     modal.innerHTML=`<div class="froxy-checkout-card" role="dialog" aria-modal="true" aria-label="Ödeme onayı">
       <div class="froxy-checkout-head"><div><span>Güvenli ödeme</span><h3>${esc(pack.name)} paketini onayla</h3></div><button type="button" class="froxy-checkout-close" aria-label="Kapat">x</button></div>
       <div class="froxy-checkout-body">
@@ -14364,9 +14981,12 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
   async function startDodoCheckout(planId,modal){
     const accepted=!!modal.querySelector('#checkout-contract-accepted')?.checked;
     if(!accepted){if(typeof msg==='function')msg('Ödeme için sözleşme ve dijital teslimat onayını işaretleyin.','err');return;}
+    const submit=modal.querySelector('.froxy-checkout-primary');
+    if(submit?.dataset.busy==='1')return;
+    if(submit){submit.dataset.busy='1';submit.disabled=true;submit.textContent='Yönlendiriliyor...';}
     const popup=window.open('about:blank','_blank','noopener,noreferrer');
     const fallback=window.getShopierPlanUrl(planId);
-    if(!authToken){if(popup)popup.location.href=fallback;else window.location.href=fallback;return;}
+    if(!authToken){if(popup)popup.location.href=fallback;else window.location.href=fallback;modal.remove();return;}
     try{
       const res=await fetch('/api/dodo/start',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},body:JSON.stringify({plan:planId,checkoutConsentAccepted:true})});
       const data=await res.json().catch(()=>({}));
@@ -14391,7 +15011,9 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
   };
   try{buyTokens=window.buyTokens;buyTokensById=window.buyTokensById}catch(e){}
 
-  // Global fetch interceptor for automatic logout and modal redirect on 401/403 expired sessions
+  // Global fetch interceptor for an explicitly rejected authenticated request.
+  // A regular 403 (plan lock, admin guard, moderation, quota...) is not an
+  // expired session and must never log the user out.
   (function() {
     const originalFetch = window.fetch;
     window.fetch = async function(...args) {
@@ -14400,13 +15022,25 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
         const status = res.status;
         if (status === 401 || status === 403) {
           const url = typeof args[0] === 'string' ? args[0] : (args[0] instanceof URL ? args[0].href : (args[0] && args[0].url));
-          if (url && (url.startsWith('/api/') || url.includes('/api/')) && !url.includes('/api/me') && !url.includes('/api/register-ip')) {
+          const requestHeaders=args[1]?.headers || (args[0] instanceof Request ? args[0].headers : null);
+          const authorization=requestHeaders instanceof Headers
+            ? requestHeaders.get('Authorization')
+            : (requestHeaders?.Authorization || requestHeaders?.authorization || '');
+          let invalidSession=status===401 && /^Bearer\s+\S+/i.test(String(authorization||''));
+          if(status===403){
+            const errorData=await res.clone().json().catch(()=>null);
+            invalidSession=errorData?.code==='invalid_token';
+          }
+          if (invalidSession && url && (url.startsWith('/api/') || url.includes('/api/')) && !url.includes('/api/login') && !url.includes('/api/register')) {
             if (localStorage.getItem('saas_token')) {
               localStorage.removeItem('saas_token');
               localStorage.removeItem('saas_user');
+              try{LS.del('ap_user')}catch(_){}
               if (typeof authToken !== 'undefined') authToken = null;
               if (typeof authUser !== 'undefined') authUser = null;
+              if (typeof user !== 'undefined') user = null;
               if (typeof updateSidebarAuthActions === 'function') updateSidebarAuthActions();
+              if (typeof updateHomeAuthActions === 'function') updateHomeAuthActions();
               if (typeof msg === 'function') msg('Oturumunuz sonlandırıldı. Lütfen tekrar giriş yapın.', 'err');
               if (typeof openM === 'function') openM('auth-modal');
             }
@@ -14631,6 +15265,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
   },true);
 
   setInterval(function(){
+    if(document.hidden||!document.querySelector('#v-admin.on'))return;
     var active=document.querySelector('#v-admin .admin-tab.active');
     if(!active)return;
     var tab=(active.id||'').replace(/^at-/,'');
@@ -14642,7 +15277,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     }else{
       adminV356ClearStuckSkeleton(tab);
     }
-  },350);
+  },1200);
 })();
 
 /* v364: keep /admin route visible. Older auth/layout wrappers can briefly switch
@@ -14689,7 +15324,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
   }
   window.addEventListener('popstate',function(){setTimeout(keepAdminOpen,0)});
   document.addEventListener('DOMContentLoaded',function(){setTimeout(keepAdminOpen,120);setTimeout(keepAdminOpen,900)});
-  setInterval(keepAdminOpen,900);
+  setInterval(function(){if(!document.hidden&&wantsAdminRoute())keepAdminOpen()},1800);
 })();
 
 /* v368: keep admin actions bound to the live admin shell. Hidden legacy admin
@@ -14939,7 +15574,10 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     if(!btn)return;
     setTimeout(disableLegacyAdminDom,0);
   },true);
-  setInterval(disableLegacyAdminDom,1200);
+  setInterval(function(){
+    if(document.hidden||!document.querySelector('#v-admin.on'))return;
+    disableLegacyAdminDom();
+  },2400);
 })();
 
 // v286: keep photo edit mode above late image-generation wrappers.
@@ -15248,7 +15886,8 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     if(document.querySelector("#ptab-prompts.on"))window.renderPrompts(window.__activePromptCat||"Tümü");
     if(document.querySelector("#ptab-img.on")||document.querySelector("#v-img.on")){window.__renderImgModelPicker&&window.__renderImgModelPicker();repairPicker();}
     polishHome();
-    window.fixTurkishUiText&&window.fixTurkishUiText(document.body);
+    const repairRoot=document.querySelector('#ptab-img.on #img-model-showcase-v350,#v-img.on #img-model-showcase-v350');
+    if(repairRoot&&window.fixTurkishUiText)window.fixTurkishUiText(repairRoot);
   }
   const prevPanel=window.panelTab||(typeof panelTab==="function"?panelTab:null);
   if(prevPanel&&!window.__froxyV351PanelWrapped){
@@ -15274,7 +15913,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
   function runV354(){
     try{window.repairImageLogosV354&&window.repairImageLogosV354();}catch(e){}
     try{window.renderImageModelShowcaseV354&&window.renderImageModelShowcaseV354();}catch(e){}
-    try{window.fixTurkishUiText&&window.fixTurkishUiText(document.body);}catch(e){}
+    try{const root=document.querySelector('#ptab-img.on #img-model-showcase-v350,#v-img.on #img-model-showcase-v350');if(root&&window.fixTurkishUiText)window.fixTurkishUiText(root);}catch(e){}
   }
   const prevPanel=window.panelTab||(typeof panelTab==='function'?panelTab:null);
   if(prevPanel&&!window.__froxyV354PanelWrappedLast){
@@ -15321,7 +15960,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     document.querySelectorAll('.img-model-picker-option').forEach(btn=>{const flag=btn.querySelector('.img-model-picker-option-flag');if(flag&&typeof window.__froxyApplyImagePickerLogoV426==='function')window.__froxyApplyImagePickerLogoV426(flag,btn.getAttribute('data-value')||'');});
     const flag=document.querySelector('.img-model-picker-trigger .img-model-picker-flag'); if(flag&&typeof window.__froxyApplyImagePickerLogoV426==='function')window.__froxyApplyImagePickerLogoV426(flag,model());
   }
-  function run(){logosFix();writeShowcase();try{window.fixTurkishUiText&&window.fixTurkishUiText(document.body)}catch(e){}}
+  function run(){logosFix();writeShowcase();try{const root=document.querySelector('#ptab-img.on #img-model-showcase-v350,#v-img.on #img-model-showcase-v350');if(root&&window.fixTurkishUiText)window.fixTurkishUiText(root)}catch(e){}}
   window.applyImageShowcasePromptV350=function(i){const item=(window.__imageShowcaseSamplesV350||[])[i];const p=document.getElementById('img-prompt');if(!item||!p)return;p.value=item[1];p.focus();window.msg&&msg('Örnek prompt alana aktarıldı','ok')};
   window.__froxyV354HardShowcase=run;
   const prev=window.__renderImgModelPicker;if(typeof prev==='function'&&!window.__froxyV354HardPicker){window.__froxyV354HardPicker=true;window.__renderImgModelPicker=function(){const out=prev.apply(this,arguments);requestAnimationFrame(run);setTimeout(run,120);return out;};}
@@ -16237,7 +16876,13 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
     const title=document.querySelector('.img-model-picker-trigger .img-model-picker-info strong');
     const sub=document.querySelector('.img-model-picker-trigger .img-model-picker-info span');
     if(title&&opt)title.textContent=fixCommonTurkishMojibake(opt.textContent||selected);
-    if(sub)sub.textContent='Seçili model kilitli: '+selected;
+    if(sub){
+      const access=typeof selectedImageAccess==='function'?selectedImageAccess():null;
+      const planNames=['Ücretsiz','Başlangıç / Popüler','Pro','Geliştirici / İşletme'];
+      sub.textContent=access&&(!access.available||!access.planAllowed)
+        ?(access.available?(planNames[access.requiredLevel]+' paketi gerekli'):'Model şu anda kullanılamıyor')
+        :((getClientModelCreditCost(selected,imageProviderForModel(selected),'image')||0)+' kredi · üretime hazır');
+    }
   }
   function throttleV433(fn,wait){
     let last=0,timer=null,args,ctx;
@@ -16270,7 +16915,12 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
 
   const originalRenderPickerV433=window.__renderImgModelPicker;
   let pickerLastV433=0,pickerPendingV433=false;
+  function imageSurfaceActiveV433(){
+    return /^\/(gorsel|gorsel-uret)(?:\/|$)/i.test(location.pathname||'') ||
+      !!document.querySelector('#ptab-img.on,#v-img.on');
+  }
   window.__renderImgModelPicker=function(){
+    if(!imageSurfaceActiveV433())return;
     if(window.__froxyPickerRenderingV433)return;
     const t=now();
     if(t-pickerLastV433<220){
@@ -16309,6 +16959,7 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(renderGrowthLayer,80
   }
   const prevRepairV433=window.repairImageModelSelect||safe(()=>repairImageModelSelect);
   window.repairImageModelSelect=repairImageModelSelect=function(){
+    if(!imageSurfaceActiveV433())return;
     const sel=document.getElementById('img-model');
     const locked=sel?.value||window.__froxyImageModelLock||window.__froxyLastManualImageModel||'';
     try{if(typeof prevRepairV433==='function')prevRepairV433.apply(this,arguments)}catch(e){}
@@ -16924,4 +17575,48 @@ window.toggleModelPicker = typeof toggleModelPicker !== 'undefined' ? toggleMode
 window.openModelPicker = typeof openModelPicker !== 'undefined' ? openModelPicker : window.openModelPicker;
 window.filterModels = typeof filterModels !== 'undefined' ? filterModels : window.filterModels;
 window.selectModel = typeof selectModel !== 'undefined' ? selectModel : window.selectModel;
+
+/* v484: keep Modal cloud models separate from health-gated Local PC models. */
+(function(){
+  if(window.__froxyModalCloudGroupV484)return;
+  window.__froxyModalCloudGroupV484=true;
+  const MODAL_IDS=new Set(['modal-sdxl','modal-local-sd','modal-cloud-gpu','modal-dreamshaper','modal-realisticvision','modal-a1111-compatible']);
+  function isModal(value){return MODAL_IDS.has(String(value||'').trim().toLowerCase())}
+  function regroupCache(sel,key){
+    if(!Array.isArray(sel[key]))return;
+    const modal=[];
+    const groups=[];
+    sel[key].forEach(function(group){
+      if(!group||!Array.isArray(group.options)){groups.push(group);return}
+      const rest=[];
+      group.options.forEach(function(opt){(isModal(opt&&opt.value)?modal:rest).push(opt)});
+      if(rest.length)groups.push(Object.assign({},group,{options:rest}));
+    });
+    if(modal.length)groups.push({label:'Cloud GPU / Modal',options:modal});
+    sel[key]=groups;
+  }
+  function regroup(){
+    const sel=document.getElementById('img-model');
+    if(!sel)return;
+    let group=Array.from(sel.querySelectorAll('optgroup')).find(function(item){return item.label==='Cloud GPU / Modal'});
+    const modalOptions=Array.from(sel.querySelectorAll('option')).filter(function(opt){return isModal(opt.value)});
+    if(modalOptions.length){
+      if(!group){group=document.createElement('optgroup');group.label='Cloud GPU / Modal';sel.appendChild(group)}
+      modalOptions.forEach(function(opt){if(opt.parentElement!==group)group.appendChild(opt)});
+    }
+    regroupCache(sel,'__froxyAllOptions');
+    regroupCache(sel,'__froxyMasterOptions');
+    Array.from(sel.querySelectorAll('optgroup')).forEach(function(item){if(!item.querySelector('option'))item.remove()});
+  }
+  let queued=false;
+  function queue(){
+    if(queued)return;
+    queued=true;
+    setTimeout(function(){queued=false;regroup()},0);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',regroup,{once:true});else regroup();
+  const root=document.getElementById('img-model');
+  if(root)new MutationObserver(queue).observe(root,{childList:true,subtree:true});
+  [100,400,1000,2500,6000,12000].forEach(function(ms){setTimeout(regroup,ms)});
+})();
 

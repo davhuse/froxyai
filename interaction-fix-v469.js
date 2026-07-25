@@ -1,4 +1,4 @@
-﻿(function(){
+(function(){
   if(window.__froxyInteractionFixV463)return;
   window.__froxyInteractionFixV463=true;
 
@@ -75,22 +75,15 @@
   function closeHiddenModalPicker(){
     var p=document.getElementById('model-picker');
     var o=document.getElementById('model-picker-overlay');
-    document.body.classList.remove('model-picker-open');
     if(p){
-      p.classList.remove('open');
-      p.setAttribute('aria-hidden','true');
-      p.style.display='none';
-      p.style.pointerEvents='none';
-      p.style.visibility='hidden';
-      p.style.opacity='0';
+      p.style.removeProperty('pointer-events');
+      p.style.removeProperty('visibility');
+      p.style.removeProperty('opacity');
     }
     if(o){
-      o.classList.remove('open');
-      o.setAttribute('aria-hidden','true');
-      o.style.display='none';
-      o.style.pointerEvents='none';
-      o.style.visibility='hidden';
-      o.style.opacity='0';
+      o.style.removeProperty('pointer-events');
+      o.style.removeProperty('visibility');
+      o.style.removeProperty('opacity');
     }
   }
   function modelOptions(){
@@ -108,9 +101,9 @@
     return rows;
   }
   function paintChatTrigger(value,label){
-    var clean=(label||value||'Model').replace(/^(Ãœcretsiz|Pro)\\s*-\\s*/i,'');
+    var clean=(label||value||'Model').replace(/^(Ücretsiz|Pro)\\s*-\\s*/i,'');
     document.querySelectorAll('#mpb-name,.model-picker-chip .dock-label').forEach(function(el){el.textContent=clean;el.title=clean;});
-    document.querySelectorAll('.ai-top-chip,.model-picker-chip').forEach(function(el){el.title='Model seÃ§: '+clean;el.setAttribute('aria-label','Model seÃ§: '+clean);});
+    document.querySelectorAll('.ai-top-chip,.model-picker-chip').forEach(function(el){el.title='Model seç: '+clean;el.setAttribute('aria-label','Model seç: '+clean);});
   }
   function selectChatModel(value,label){
     var sel=document.getElementById('model-sel');
@@ -191,7 +184,7 @@
     rows.forEach(function(row){if(!seen[row.group]){seen[row.group]=[];groups.push(row.group)}seen[row.group].push(row);});
     var body=groups.map(function(group){
       var options=(seen[group]||[]).filter(function(row){return row.value;}).map(function(row){
-        return '<button type="button" class="chat-model-stable-option '+(row.value===sel.value?'selected':'')+'" data-value="'+esc(row.value)+'" '+(row.disabled?'disabled aria-disabled="true"':'')+'>'+chatLogo(row.value,row.label,group)+'<span class="chat-model-stable-option-body"><strong>'+esc(row.label.replace(/^(Ãœcretsiz|Pro)\\s*-\\s*/i,''))+'</strong><small>'+esc(group)+'</small></span></button>';
+        return '<button type="button" class="chat-model-stable-option '+(row.value===sel.value?'selected':'')+'" data-value="'+esc(row.value)+'" '+(row.disabled?'disabled aria-disabled="true"':'')+'>'+chatLogo(row.value,row.label,group)+'<span class="chat-model-stable-option-body"><strong>'+esc(row.label.replace(/^(Ücretsiz|Pro)\\s*-\\s*/i,''))+'</strong><small>'+esc(group)+'</small></span></button>';
       }).join('');
       return options?'<div class="chat-model-stable-group">'+esc(group)+'</div>'+options:'';
     }).join('');
@@ -201,7 +194,7 @@
     menu.style.top=top+'px';
     menu.style.width=width+'px';
     menu.style.maxHeight=maxHeight+'px';
-    menu.innerHTML='<div class="chat-model-stable-head"><strong>Model SeÃ§imi</strong><button type="button" aria-label="Kapat">x</button></div><div class="chat-model-stable-list">'+body+'</div>';
+    menu.innerHTML='<div class="chat-model-stable-head"><strong>Model Seçimi</strong><button type="button" aria-label="Kapat">x</button></div><div class="chat-model-stable-list">'+body+'</div>';
     applyStableLayout(menu,menu.querySelector('.chat-model-stable-list'),fitPanel(trigger,360));
     menu.querySelector('.chat-model-stable-head button').addEventListener('click',closeChatMenu);
     menu.addEventListener('click',function(e){
@@ -227,40 +220,22 @@
     return renderChatMenu(trigger);
   }
   function install(){
-    closeHiddenModalPicker();
-    window.openModelPicker=function(ev){return openFromTrigger(ev)};
-    window.toggleModelPicker=function(ev){
-      if(isChatMenuOpen()){
-        if(ev){ev.preventDefault&&ev.preventDefault();ev.stopPropagation&&ev.stopPropagation();ev.stopImmediatePropagation&&ev.stopImmediatePropagation();}
-        closeChatMenu();closeHiddenModalPicker();return false;
-      }
-      return openFromTrigger(ev);
-    };
-    window.closeModelPicker=function(){closeChatMenu();closeHiddenModalPicker();};
-    window.selectModel=function(id){
-      var opt=Array.from(document.getElementById('model-sel')?.options||[]).find(function(o){return o.value===id;});
-      return selectChatModel(id,opt&&opt.textContent);
-    };
-    return true;
+    // Chat uses the advanced #model-picker from app.js. Do not hide it here:
+    // previous versions made the real picker appear non-functional.
+    closeChatMenu();
+    return false;
   }
   if(!window.__froxyInteractionFixV463Bound){
     window.__froxyInteractionFixV463Bound=true;
     document.addEventListener('click',function(e){
       var trigger=e.target&&e.target.closest&&e.target.closest('.ai-top-chip,.model-picker-chip,[data-open-model-picker]');
       if(trigger&&!trigger.closest('.chat-model-stable-menu-v463')){
-        if(isChatMenuOpen()){
-          e.preventDefault();e.stopPropagation();e.stopImmediatePropagation&&e.stopImmediatePropagation();
-          closeChatMenu();closeHiddenModalPicker();return false;
-        }
-        openFromTrigger(e,trigger);
-        return false;
+        // app.js owns chat triggers and opens the advanced picker.
+        return true;
       }
       if(e.target&&e.target.closest&&e.target.closest('#model-picker-overlay,.mp-close-btn')){
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation&&e.stopImmediatePropagation();
         closeHiddenModalPicker();
-        return false;
+        return true;
       }
       if(!(e.target&&e.target.closest&&e.target.closest('.chat-model-stable-menu-v463')))closeChatMenu();
     },true);
@@ -276,5 +251,3 @@
   install();
   [180,650,1500,3200,6500].forEach(function(ms){setTimeout(install,ms);});
 })();
-
-
