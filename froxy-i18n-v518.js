@@ -342,6 +342,29 @@
     ,'Henüz görsel yok. İlk üretimden sonra favoriler ve koleksiyonlar burada görünecek.': 'No images yet. Favorites and collections will appear after your first generation.'
   }));
 
+  // Current UI strings are UTF-8. Keep these canonical keys separate from the
+  // legacy mojibake map above so dynamically rendered panels translate fully.
+  Object.entries({
+    'Bugün ne üretelim?':'What shall we create today?',
+    'güncel model, görsel araçları, web arama, dosya analizi ve ajanlar tek profesyonel sohbet alanında.':'current models, image tools, web search, file analysis and agents in one professional workspace.',
+    'Kalan':'Remaining', 'Sonra':'After', 'Genel':'General', 'Kod':'Code',
+    'Araştırma':'Research', 'Hızlı':'Fast', 'Uzun metin':'Long-form',
+    'Görsel Üretici':'Image Generator', 'AI ile profesyonel görseller oluşturun':'Create professional images with AI',
+    'Model Seçimi':'Model Selection', 'Boyut':'Size', 'Prompt':'Prompt',
+    'Yeni üret':'New generation', 'Fotoğrafı düzenle':'Edit photo',
+    'Promptu güçlendir':'Improve prompt', 'Rastgele fikir':'Random idea',
+    'Görsel Üret':'Generate Image', 'Seçili model':'Selected model',
+    'İşlem maliyeti':'Cost per generation', 'Kalan / Sonra':'Remaining / After',
+    'Paketleri incele':'View packages', 'Görsel işleri':'Image jobs',
+    'Üretim galerisi':'Generation gallery', 'Görsel Geçmişi':'Image history',
+    'Henüz üretim işi yok.':'No generation jobs yet.', 'Henüz görsel yok. Ürettiğin görseller burada saklanacak.':'No images yet. Your generated images will be saved here.',
+    'Paket kapsamındaki aktif modellere erişim':'Access to active models included in your plan',
+    'Yüksek günlük istek limiti':'High daily request limit',
+    'Topluluk etkinliği':'Community activity', 'Anonim kullanım özeti':'Anonymous usage summary',
+    'Kredi maliyeti işlemden önce görünür':'Credit cost is shown before you start',
+    'Günlük sohbet ve temel işler için kredi maliyeti görünür, dengeli bir başlangıç paketi.':'A balanced starter package with visible credit costs for daily work.'
+  }).forEach(([tr,en]) => TR_EN.set(tr,en));
+
   const PHRASES = [
     ['kodu ile %20 indirim!', 'get 20% off with code!'],
     ['1.100+ gelişmiş AI modeli tek platformda', '1,100+ advanced AI models on one platform'],
