@@ -11346,6 +11346,8 @@ function enforcePublicImageDefaultV572(){
   if(!free)return;
   sel.value=free.value;
   window.__froxyImageModelLock=free.value;
+  window.__froxyLastManualImageModel=free.value;
+  try{LS.set('ap_img_last_manual_model',free.value);}catch(e){}
   if(typeof window.__renderImgModelPicker==='function')window.__renderImgModelPicker();
 }
 function schedulePublicImageDefaultV572(){
