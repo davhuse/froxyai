@@ -164,7 +164,7 @@
     'Kartla güvenli öde, kredin hesabına tanımlansın. Paketler tek panelde sohbet, görsel üretim ve AI araçları için kullanılır.': 'Pay securely by card and receive credits in your account. Use them for chat, image generation and AI tools.',
     'Başlangıç': 'Starter',
     '5.000 krediyle temel kullanım ve hızlı deneme.': '5,000 credits for essential use and quick testing.',
-    'Tüm modellere erişim': 'Access to all models',
+    'Tüm modellere erişim': 'Access to active models included in your plan',
     '200 istek/gün limiti': '200 requests/day',
     'Topluluk desteği': 'Community support',
     "Shopier'de Satın Al": 'Buy on Shopier',
@@ -400,6 +400,16 @@
     if (!clean) return value;
     if (TR_EN.has(clean)) return leading + TR_EN.get(clean) + trailing;
     let translated = clean;
+    // Dynamic counters and late-rendered status strings cannot be represented
+    // as exact dictionary keys, so translate their stable Turkish fragments.
+    translated = translated
+      .replace(/(\d[\d.,]*)\s+güncel model/gi, '$1 current models')
+      .replace(/görsel araçları/gi, 'image tools')
+      .replace(/web arama/gi, 'web search')
+      .replace(/dosya analizi/gi, 'file analysis')
+      .replace(/tek profesyonel sohbet alanında/gi, 'in one professional chat workspace')
+      .replace(/Kalan\s+(\d[\d.,]*)\s*·\s*Sonra\s+(\d[\d.,]*)/gi, 'Remaining $1 · After $2')
+      .replace(/(\d[\d.,]*)\s+kredi/gi, '$1 credits');
     for (const [tr, en] of PHRASES) translated = translated.split(tr).join(en);
     return translated === clean ? value : leading + translated + trailing;
   }
