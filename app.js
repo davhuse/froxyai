@@ -11315,8 +11315,14 @@ function enforcePublicImageDefaultV572(){
   if(typeof window.__renderImgModelPicker==='function')window.__renderImgModelPicker();
   try{sel.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(enforcePublicImageDefaultV572,900);},{once:true});
-else setTimeout(enforcePublicImageDefaultV572,900);
+function schedulePublicImageDefaultV572(){
+  setTimeout(enforcePublicImageDefaultV572,900);
+  // A couple of legacy bootstrap hooks run after the first paint. Re-check once
+  // they finish, without touching a model deliberately chosen by the visitor.
+  setTimeout(enforcePublicImageDefaultV572,2300);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedulePublicImageDefaultV572,{once:true});
+else schedulePublicImageDefaultV572();
 
 // ===================================================================
 // FAZ 3.7: SOHBET DALLANMA (Branch/Fork)
