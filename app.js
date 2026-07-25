@@ -11316,13 +11316,13 @@ function enforcePublicImageDefaultV572(){
   sel.value=free.value;
   window.__froxyImageModelLock=free.value;
   if(typeof window.__renderImgModelPicker==='function')window.__renderImgModelPicker();
-  try{sel.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}
 }
 function schedulePublicImageDefaultV572(){
-  setTimeout(enforcePublicImageDefaultV572,900);
-  // A couple of legacy bootstrap hooks run after the first paint. Re-check once
-  // they finish, without touching a model deliberately chosen by the visitor.
-  setTimeout(enforcePublicImageDefaultV572,2300);
+  // Legacy bootstrap hooks are staggered; settle the safe default after each
+  // one without dispatching a synthetic change event back into those hooks.
+  [350,900,1500,2400,3600,4800,5700].forEach(function(delay){
+    setTimeout(enforcePublicImageDefaultV572,delay);
+  });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedulePublicImageDefaultV572,{once:true});
 else schedulePublicImageDefaultV572();
