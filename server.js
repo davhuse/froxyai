@@ -457,6 +457,13 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
   );
+  CREATE TABLE IF NOT EXISTS oauth_handoffs (
+    ticket_hash TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
   CREATE TABLE IF NOT EXISTS registration_otps (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
@@ -1028,6 +1035,28 @@ function upsertOAuthUser({ provider, email, name }) {
 
 function oauthSuccessRedirect(returnTo, provider, profile, auth) {
   const url = new URL(returnTo);
+  const handoffOrigins = new Set([
+    'https://froxy-web-production.up.railway.app',
+    ...(process.env.OAUTH_HANDOFF_ORIGINS || '').split(',').map(value => value.trim()).filter(Boolean)
+  ]);
+  if (handoffOrigins.has(url.origin)) {
+    const ticket = crypto.randomBytes(32).toString('base64url');
+    const ticketHash = crypto.createHash('sha256').update(ticket).digest('hex');
+    // Keep the value in SQLite's native UTC datetime format. ISO timestamps
+    // containing `T` do not compare reliably with CURRENT_TIMESTAMP.
+    const expiresAt = new Date(Date.now() + OAUTH_HANDOFF_TTL_MS)
+      .toISOString()
+      .replace('T', ' ')
+      .replace(/\.\d{3}Z$/, '');
+    db.prepare('DELETE FROM oauth_handoffs WHERE expires_at <= CURRENT_TIMESTAMP').run();
+    db.prepare('INSERT INTO oauth_handoffs (ticket_hash, user_id, expires_at) VALUES (?, ?, ?)')
+      .run(ticketHash, auth.user.id, expiresAt);
+    url.searchParams.set('auth_ticket', ticket);
+    return url.toString();
+  }
+
+  // Legacy Froxy pages still consume this payload. New frontends must use the
+  // short-lived handoff above instead of receiving a bearer token in the URL.
   url.searchParams.set('auth_provider', provider);
   url.searchParams.set('auth_name', profile.name || profile.login || profile.email || '');
   url.searchParams.set('auth_email', profile.email || '');
@@ -4051,11 +4080,35 @@ function publicBaseUrl(req) {
   return `${proto}://${host}`;
 }
 
+const OAUTH_HANDOFF_TTL_MS = 5 * 60 * 1000;
+const DEFAULT_OAUTH_RETURN_ORIGINS = [
+  'https://froxyai.com',
+  'https://www.froxyai.com',
+  'https://froxy-web-production.up.railway.app'
+];
+
+function allowedOAuthReturnOrigins(req) {
+  return new Set([
+    ...DEFAULT_OAUTH_RETURN_ORIGINS,
+    publicBaseUrl(req),
+    ...(process.env.OAUTH_RETURN_ORIGINS || '').split(',').map(value => value.trim()).filter(Boolean)
+  ]);
+}
+
+function safeOAuthReturnTo(value, req) {
+  try {
+    const target = new URL(String(value || ''));
+    if (allowedOAuthReturnOrigins(req).has(target.origin)) return target.toString();
+  } catch (e) {}
+  return '';
+}
+
 function oauthReturnTo(req) {
-  const raw = String(req.query.return_to || '');
-  if (/^https?:\/\//i.test(raw)) return raw.replace(/\/+$/, '');
+  const direct = safeOAuthReturnTo(req.query.return_to, req);
+  if (direct) return direct;
   const ref = req.get('referer') || req.get('origin') || '';
-  try { if (ref) return new URL(ref).origin; } catch(e) {}
+  const fromReferrer = safeOAuthReturnTo(ref, req);
+  if (fromReferrer) return fromReferrer;
   return process.env.FRONTEND_ORIGIN || publicBaseUrl(req);
 }
 
@@ -4066,7 +4119,8 @@ function encodeOAuthState(value) {
 function decodeOAuthState(value, req) {
   try {
     const parsed = JSON.parse(Buffer.from(String(value || ''), 'base64url').toString('utf8'));
-    if (parsed.returnTo && /^https?:\/\//i.test(parsed.returnTo)) return parsed.returnTo.replace(/\/+$/, '');
+    const returnTo = safeOAuthReturnTo(parsed.returnTo, req);
+    if (returnTo) return returnTo;
   } catch(e) {}
   return process.env.FRONTEND_ORIGIN || publicBaseUrl(req);
 }
@@ -4192,6 +4246,28 @@ app.get('/auth/google/callback', async (req, res) => {
     }, auth));
   } catch (e) {
     res.redirect(`${returnTo}/?auth_error=` + encodeURIComponent(e.message));
+  }
+});
+
+// The redesigned frontend exchanges a short-lived, one-time ticket here after
+// OAuth. This keeps the bearer token out of redirect URLs and out of its
+// browser-visible JavaScript.
+app.post('/api/oauth/exchange', authLimiter, (req, res) => {
+  const ticket = String(req.body?.ticket || '').trim();
+  if (!ticket) return res.status(400).json({ error: 'OAuth bileti eksik.' });
+  const ticketHash = crypto.createHash('sha256').update(ticket).digest('hex');
+  try {
+    const handoff = db.prepare(
+      "SELECT user_id FROM oauth_handoffs WHERE ticket_hash = ? AND expires_at > CURRENT_TIMESTAMP"
+    ).get(ticketHash);
+    // Consume before issuing a session so the same ticket cannot be replayed.
+    db.prepare('DELETE FROM oauth_handoffs WHERE ticket_hash = ?').run(ticketHash);
+    if (!handoff) return res.status(401).json({ error: 'OAuth bileti geçersiz veya süresi dolmuş.' });
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(handoff.user_id);
+    if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+    return res.json(loginPayloadForUser(user));
+  } catch (e) {
+    return res.status(500).json({ error: 'OAuth oturumu tamamlanamadı.' });
   }
 });
 
