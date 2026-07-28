@@ -8355,7 +8355,13 @@ function resolveImageSize(input = {}) {
     const clamp = n => Math.max(512, Math.min(1536, Math.round(n / 64) * 64));
     const width = clamp(rawW);
     const height = clamp(rawH);
-    return { width, height, size: `${width}x${height}`, aspectRatio: input.aspectRatio || nestedSize?.aspectRatio || `${width}:${height}` };
+    // Providers such as EvoLink only accept reduced aspect ratios (1:1,
+    // 16:9, etc.). Preserve an explicitly supplied ratio, otherwise reduce
+    // the numeric dimensions instead of leaking values such as "512:512".
+    const gcd = (a, b) => b ? gcd(b, a % b) : a;
+    const divisor = gcd(width, height) || 1;
+    const inferredAspectRatio = `${width / divisor}:${height / divisor}`;
+    return { width, height, size: `${width}x${height}`, aspectRatio: input.aspectRatio || nestedSize?.aspectRatio || inferredAspectRatio };
   }
   return byKey || presets.square;
 }
