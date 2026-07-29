@@ -6870,7 +6870,6 @@ app.get('/api/model-catalog', async (req, res) => {
         };
       });
 
-    modelCatalogCache = { at: now, models };
     let togetherModels = [];
     try {
       const togetherKey = getTogetherKey();

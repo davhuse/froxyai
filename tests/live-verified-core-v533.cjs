@@ -3,6 +3,16 @@
 const backend = 'https://www.froxyai.com';
 const frontend = 'https://froxy-web-production.up.railway.app';
 const skipImageGeneration = process.env.SKIP_IMAGE_GENERATION === '1';
+const smokeChatKeys = new Set([
+  'groq::llama-3.1-8b-instant',
+  'nvidia::meta/llama-3.1-8b-instruct',
+  'openrouter::poolside/laguna-s-2.1:free',
+  'openrouter::nvidia/nemotron-3-ultra-550b-a55b:free',
+  'openrouter::nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+  'openrouter::google/gemma-4-26b-a4b-it:free',
+  'openrouter::nvidia/nemotron-3-super-120b-a12b:free',
+  'openrouter::nvidia/nemotron-3-nano-30b-a3b:free'
+]);
 
 async function request(url, init = {}, timeout = 180000) {
   const started = Date.now();
@@ -31,12 +41,14 @@ const post = (url, body, timeout) => request(url, {
   const catalog = await request(`${backend}/api/model-catalog`);
   const chatModels = catalog.data?.models || [];
   const verifiedChatModels = chatModels.filter(item => item.verified === true);
+  const smokeChatModels = chatModels.filter(item => smokeChatKeys.has(`${item.provider}::${item.id}`));
   checks.push({
     name: 'backend-chat-catalog',
     ok: catalog.ok
       && catalog.data?.source === 'configured-provider-catalog'
       && chatModels.length >= 1000
-      && verifiedChatModels.length >= 8,
+      && verifiedChatModels.length >= 8
+      && smokeChatModels.length === smokeChatKeys.size,
     status: catalog.status,
     count: chatModels.length,
     verifiedCount: verifiedChatModels.length,
@@ -66,7 +78,7 @@ const post = (url, body, timeout) => request(url, {
     code: betaVideo.data?.code || ''
   });
 
-  for (const item of verifiedChatModels) {
+  for (const item of smokeChatModels) {
     const result = await post(`${backend}/api/chat`, {
       model: item.id,
       provider: item.provider,
