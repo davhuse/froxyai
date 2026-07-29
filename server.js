@@ -4820,7 +4820,13 @@ const PROVIDERS = {
 // every discovered model were usable.
 const VERIFIED_PUBLIC_CHAT_MODELS = [
   { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant', tier: 'free', provider: 'groq', cat: 'llama', remote: true },
-  { id: 'meta/llama-3.1-8b-instruct', name: 'Llama 3.1 8B (NVIDIA)', tier: 'free', provider: 'nvidia', cat: 'llama', remote: true }
+  { id: 'meta/llama-3.1-8b-instruct', name: 'Llama 3.1 8B (NVIDIA)', tier: 'free', provider: 'nvidia', cat: 'llama', remote: true },
+  { id: 'poolside/laguna-s-2.1:free', name: 'Laguna S 2.1', tier: 'free', provider: 'openrouter', cat: 'coding', remote: true },
+  { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', name: 'Nemotron 3 Ultra', tier: 'free', provider: 'openrouter', cat: 'reasoning', remote: true },
+  { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', name: 'Nemotron 3 Nano Omni', tier: 'free', provider: 'openrouter', cat: 'reasoning', remote: true },
+  { id: 'google/gemma-4-26b-a4b-it:free', name: 'Gemma 4 26B', tier: 'free', provider: 'openrouter', cat: 'general', remote: true },
+  { id: 'nvidia/nemotron-3-super-120b-a12b:free', name: 'Nemotron 3 Super', tier: 'free', provider: 'openrouter', cat: 'reasoning', remote: true },
+  { id: 'nvidia/nemotron-3-nano-30b-a3b:free', name: 'Nemotron 3 Nano 30B', tier: 'free', provider: 'openrouter', cat: 'general', remote: true }
 ];
 const VERIFIED_PUBLIC_CHAT_MODEL_MAP = new Map(
   VERIFIED_PUBLIC_CHAT_MODELS.map(item => [`${item.id}::${item.provider}`, item])

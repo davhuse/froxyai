@@ -32,7 +32,7 @@ const post = (url, body, timeout) => request(url, {
   const chatModels = catalog.data?.models || [];
   checks.push({
     name: 'backend-chat-catalog',
-    ok: catalog.ok && catalog.data?.healthFiltered === true && chatModels.length === 2,
+    ok: catalog.ok && catalog.data?.healthFiltered === true && chatModels.length === 8,
     status: catalog.status,
     count: chatModels.length,
     ids: chatModels.map(item => `${item.provider}:${item.id}`)
@@ -110,7 +110,7 @@ const post = (url, body, timeout) => request(url, {
   const frontendCatalog = await request(`${frontend}/api/froxy/model-catalog`);
   checks.push({
     name: 'frontend-bff-chat-catalog',
-    ok: frontendCatalog.ok && frontendCatalog.data?.models?.length === 2,
+    ok: frontendCatalog.ok && frontendCatalog.data?.models?.length === 8,
     status: frontendCatalog.status,
     count: frontendCatalog.data?.models?.length || 0
   });
