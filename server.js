@@ -403,6 +403,27 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
   );
+  CREATE TABLE IF NOT EXISTS oauth_identities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    provider TEXT NOT NULL,
+    provider_user_id TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
+    email TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(provider, provider_user_id),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_oauth_identities_user ON oauth_identities(user_id);
+  CREATE TABLE IF NOT EXISTS user_preferences (
+    user_id INTEGER PRIMARY KEY,
+    global_memory TEXT DEFAULT '',
+    system_prompt TEXT DEFAULT '',
+    favorite_models_json TEXT DEFAULT '[]',
+    notifications_json TEXT DEFAULT '{}',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
   CREATE TABLE IF NOT EXISTS generation_jobs (
     id TEXT PRIMARY KEY,
     owner_key TEXT NOT NULL,
@@ -896,32 +917,23 @@ if (ADMIN_EMAIL && ADMIN_PASSWORD) {
   }
 }
 
-const FORCE_ADMIN_EMAILS = [
-  process.env.ADMIN_EMAIL,
-  process.env.ADMIN_USERNAME || '',
-  ...(process.env.FORCE_ADMIN_EMAILS || '').split(','),
-  ...(process.env.FORCE_ADMIN_IDENTITIES || '').split(','),
-  'habilrencber@gmail.com',
-  'habilrencber'
-]
-  .join(',')
-  .split(',')
-  .map(x => x.trim().toLowerCase())
-  .filter(Boolean)
-  .filter((x, i, arr) => arr.indexOf(x) === i);
+const EXCLUSIVE_ADMIN_EMAIL = String(
+  process.env.EXCLUSIVE_ADMIN_EMAIL || 'habilrencber@gmail.com'
+).trim().toLowerCase();
+const FORCE_ADMIN_EMAILS = EXCLUSIVE_ADMIN_EMAIL ? [EXCLUSIVE_ADMIN_EMAIL] : [];
 
 function isForceAdminEmail(email) {
   return FORCE_ADMIN_EMAILS.includes(String(email || '').trim().toLowerCase());
 }
 
 function isForceAdminIdentity(email, username) {
-  return isForceAdminEmail(email) || isForceAdminEmail(username);
+  return isForceAdminEmail(email);
 }
 
 function syncForceAdminEmail(email) {
   if (!isForceAdminEmail(email)) return false;
   const clean = String(email).trim().toLowerCase();
-  const r = db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise' WHERE lower(email) = ? OR lower(username) = ?").run(clean, clean);
+  const r = db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise' WHERE lower(email) = ?").run(clean);
   if (r.changes) console.log(`[ADMIN] OK Force admin yetkisi verildi: ${email}`);
   return !!r.changes;
 }
@@ -933,10 +945,10 @@ function getForceAdminCandidateForIdentity(identity) {
   return db.prepare(`
     SELECT *
     FROM users
-    WHERE lower(email) IN (${placeholders}) OR lower(username) IN (${placeholders})
+    WHERE lower(email) IN (${placeholders})
     ORDER BY is_admin DESC, id ASC
     LIMIT 1
-  `).get(...FORCE_ADMIN_EMAILS, ...FORCE_ADMIN_EMAILS);
+  `).get(...FORCE_ADMIN_EMAILS);
 }
 
 function syncForceAdminUserId(userId) {
@@ -968,10 +980,6 @@ function syncForceAdminDecoded(decoded) {
     if (isForceAdminIdentity(email, username)) syncForceAdminEmail(email || username);
     row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE lower(email) = ?').get(email);
   }
-  if (!row && username && isForceAdminEmail(username)) {
-    syncForceAdminEmail(username);
-    row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE lower(username) = ?').get(username);
-  }
   if (row && isForceAdminIdentity(row.email, row.username) && (!row.is_admin || row.plan !== 'enterprise')) {
     db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise' WHERE id = ?").run(row.id);
     row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(row.id);
@@ -980,6 +988,14 @@ function syncForceAdminDecoded(decoded) {
 }
 
 try {
+  if (EXCLUSIVE_ADMIN_EMAIL) {
+    const revoked = db.prepare(
+      'UPDATE users SET is_admin = 0 WHERE is_admin = 1 AND lower(email) <> ?'
+    ).run(EXCLUSIVE_ADMIN_EMAIL);
+    if (revoked.changes) {
+      console.log(`[ADMIN] ${revoked.changes} eski admin yetkisi kaldirildi.`);
+    }
+  }
   FORCE_ADMIN_EMAILS.forEach(syncForceAdminEmail);
 } catch(e) {
   console.error('[ADMIN] Force admin sync hatasi:', e.message);
@@ -1011,11 +1027,20 @@ function issueUserToken(row) {
   return jwt.sign({ id: row.id, username: row.username, email: row.email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
 }
 
-function upsertOAuthUser({ provider, email, name }) {
+function upsertOAuthUser({ provider, providerUserId, email, name, emailVerified = false }) {
   const cleanEmail = String(email || '').trim().toLowerCase();
+  const cleanProvider = String(provider || '').trim().toLowerCase();
+  const cleanProviderUserId = String(providerUserId || '').trim();
   if (!cleanEmail) throw new Error('OAuth e-posta bilgisi alınamadı.');
+  if (!cleanProvider || !cleanProviderUserId) throw new Error('OAuth kimlik bilgisi eksik.');
+  if (!emailVerified) throw new Error('OAuth sağlayıcısı doğrulanmış e-posta döndürmedi.');
   const usernameBase = String(name || cleanEmail.split('@')[0] || provider || 'user').trim().slice(0, 36) || 'user';
-  let row = db.prepare('SELECT * FROM users WHERE lower(email) = ?').get(cleanEmail);
+  const identity = db.prepare(
+    'SELECT user_id FROM oauth_identities WHERE provider = ? AND provider_user_id = ?'
+  ).get(cleanProvider, cleanProviderUserId);
+  let row = identity
+    ? db.prepare('SELECT * FROM users WHERE id = ?').get(identity.user_id)
+    : db.prepare('SELECT * FROM users WHERE lower(email) = ?').get(cleanEmail);
   if (!row) {
     let username = usernameBase;
     let suffix = 1;
@@ -1027,6 +1052,14 @@ function upsertOAuthUser({ provider, email, name }) {
       .run(username, cleanEmail, hash, 'free', FREE_STARTER_CREDITS);
     row = db.prepare('SELECT * FROM users WHERE id = ?').get(info.lastInsertRowid);
   }
+  db.prepare(`
+    INSERT INTO oauth_identities (provider, provider_user_id, user_id, email)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(provider, provider_user_id) DO UPDATE SET
+      user_id = excluded.user_id,
+      email = excluded.email,
+      updated_at = CURRENT_TIMESTAMP
+  `).run(cleanProvider, cleanProviderUserId, row.id, cleanEmail);
   if (isForceAdminEmail(cleanEmail)) syncForceAdminEmail(cleanEmail);
   db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(row.id);
   row = db.prepare('SELECT * FROM users WHERE id = ?').get(row.id);
@@ -2454,7 +2487,15 @@ app.put('/api/admin/users/:id/block', adminMiddleware, (req, res) => {
 app.put('/api/admin/users/:id/role', adminMiddleware, (req, res) => {
   const { is_admin } = req.body;
   try {
-    db.prepare('UPDATE users SET is_admin = ? WHERE id = ?').run(is_admin ? 1 : 0, req.params.id);
+    const target = db.prepare('SELECT email FROM users WHERE id = ?').get(req.params.id);
+    if (!target) return res.status(404).json({ error: 'Kullanici bulunamadi' });
+    const targetIsExclusiveAdmin = isForceAdminEmail(target.email);
+    if (Boolean(is_admin) !== targetIsExclusiveAdmin) {
+      return res.status(403).json({
+        error: `Admin yetkisi yalniz ${EXCLUSIVE_ADMIN_EMAIL} hesabina aittir.`
+      });
+    }
+    db.prepare('UPDATE users SET is_admin = ? WHERE id = ?').run(targetIsExclusiveAdmin ? 1 : 0, req.params.id);
     logActivity(req.user.id, 'role_change', `User ${req.params.id}: is_admin=${is_admin}`);
     res.json({ success: true });
   } catch(e) { res.status(500).json({error: e.message}); }
@@ -2806,6 +2847,11 @@ app.post('/api/admin/make-admin-by-email', (req, res) => {
   if (!bootstrapSecret) return res.status(403).json({error: 'Bootstrap devre disi. ADMIN_BOOTSTRAP_SECRET env ayarlanmali.'});
   const { secret, email } = req.body;
   if(secret !== bootstrapSecret) return res.status(403).json({error: 'Geçersiz secret'});
+  if (!isForceAdminEmail(email)) {
+    return res.status(403).json({
+      error: `Admin yetkisi yalniz ${EXCLUSIVE_ADMIN_EMAIL} hesabina aittir.`
+    });
+  }
   try {
     const r = db.prepare('UPDATE users SET is_admin = 1 WHERE email = ?').run(email);
     logActivity(0, 'bootstrap_admin', `Email: ${email}`);
@@ -3724,6 +3770,86 @@ Object.assign(SEO_PAGES, {
   '/600-ai-model': { title: '1.100+ AI Model Kataloğu ve Sağlayıcılar | Froxy AI', description: 'Farklı AI sağlayıcılarını, model ailelerini ve kredi bazlı kullanım mantığını tek panel yaklaşımıyla keşfet.' }
 });
 
+app.get('/api/preferences', authMiddleware, (req, res) => {
+  try {
+    const row = db.prepare(`
+      SELECT global_memory, system_prompt, favorite_models_json, notifications_json, updated_at
+      FROM user_preferences
+      WHERE user_id = ?
+    `).get(req.user.id);
+    const parsePreferenceJson = (value, fallback) => {
+      try {
+        return value ? JSON.parse(value) : fallback;
+      } catch {
+        return fallback;
+      }
+    };
+    res.json({
+      global_memory: row?.global_memory || '',
+      system_prompt: row?.system_prompt || '',
+      favorite_models: parsePreferenceJson(row?.favorite_models_json, []),
+      notifications: parsePreferenceJson(row?.notifications_json, {}),
+      updated_at: row?.updated_at || null
+    });
+  } catch (e) {
+    res.status(500).json({ error: 'Tercihler okunamadi' });
+  }
+});
+
+app.put('/api/preferences', authMiddleware, (req, res) => {
+  try {
+    const current = db.prepare(`
+      SELECT global_memory, system_prompt, favorite_models_json, notifications_json
+      FROM user_preferences WHERE user_id = ?
+    `).get(req.user.id) || {};
+    const globalMemory = req.body?.global_memory === undefined
+      ? String(current.global_memory || '')
+      : String(req.body.global_memory || '').slice(0, 12000);
+    const systemPrompt = req.body?.system_prompt === undefined
+      ? String(current.system_prompt || '')
+      : String(req.body.system_prompt || '').slice(0, 12000);
+    const favoriteModels = Array.isArray(req.body?.favorite_models)
+      ? req.body.favorite_models
+        .filter(item => typeof item === 'string')
+        .map(item => item.slice(0, 160))
+        .slice(0, 100)
+      : (() => {
+        try { return JSON.parse(current.favorite_models_json || '[]'); }
+        catch { return []; }
+      })();
+    const notifications = req.body?.notifications &&
+      typeof req.body.notifications === 'object' &&
+      !Array.isArray(req.body.notifications)
+      ? req.body.notifications
+      : (() => {
+        try { return JSON.parse(current.notifications_json || '{}'); }
+        catch { return {}; }
+      })();
+    const notificationsJson = JSON.stringify(notifications).slice(0, 4000);
+
+    db.prepare(`
+      INSERT INTO user_preferences (
+        user_id, global_memory, system_prompt, favorite_models_json, notifications_json, updated_at
+      ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(user_id) DO UPDATE SET
+        global_memory = excluded.global_memory,
+        system_prompt = excluded.system_prompt,
+        favorite_models_json = excluded.favorite_models_json,
+        notifications_json = excluded.notifications_json,
+        updated_at = CURRENT_TIMESTAMP
+    `).run(
+      req.user.id,
+      globalMemory,
+      systemPrompt,
+      JSON.stringify(favoriteModels),
+      notificationsJson
+    );
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Tercihler kaydedilemedi' });
+  }
+});
+
 Object.assign(SEO_CONTENT, {
   '/chatgpt-claude-gemini-tek-panel': {
     h1: 'ChatGPT, Claude ve Gemini tek panelde',
@@ -4176,22 +4302,23 @@ app.get('/auth/github/callback', async (req, res) => {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    // Fetch email (may be private)
-    let email = profile.email;
-    if (!email) {
-      const emails = await httpsRequest('https://api.github.com/user/emails', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (Array.isArray(emails)) {
-        const primary = emails.find(e => e.primary) || emails[0];
-        email = primary?.email;
-      }
+    // Always use a verified GitHub email. Synthetic @github.com addresses
+    // create duplicate accounts for users whose email is private.
+    const emails = await httpsRequest('https://api.github.com/user/emails', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    let verifiedEmail = null;
+    if (Array.isArray(emails)) {
+      verifiedEmail = emails.find(e => e.primary && e.verified) || emails.find(e => e.verified) || null;
     }
+    if (!verifiedEmail?.email) throw new Error('GitHub hesabında doğrulanmış e-posta bulunamadı.');
     
     const auth = upsertOAuthUser({
       provider: 'github',
-      email: email || `${profile.login}@github.com`,
-      name: profile.name || profile.login
+      providerUserId: profile.id,
+      email: verifiedEmail.email,
+      name: profile.name || profile.login,
+      emailVerified: true
     });
     setUserSessionCookie(res, auth.token);
     res.redirect(oauthSuccessRedirect(returnTo, 'github', {
@@ -4235,8 +4362,10 @@ app.get('/auth/google/callback', async (req, res) => {
     
     const auth = upsertOAuthUser({
       provider: 'google',
+      providerUserId: profile.id,
       email: profile.email || '',
-      name: profile.name || profile.email || 'Google User'
+      name: profile.name || profile.email || 'Google User',
+      emailVerified: profile.verified_email === true
     });
     setUserSessionCookie(res, auth.token);
     res.redirect(oauthSuccessRedirect(returnTo, 'google', {
@@ -4280,8 +4409,10 @@ app.post('/api/oauth/google-token', async (req, res) => {
     });
     const auth = upsertOAuthUser({
       provider: 'google',
+      providerUserId: profile.id,
       email: profile.email || '',
-      name: profile.name || profile.email || 'Google User'
+      name: profile.name || profile.email || 'Google User',
+      emailVerified: profile.verified_email === true
     });
     sendLoginPayload(res, { token: auth.token, user: auth.user });
   } catch (e) {
@@ -5080,7 +5211,8 @@ app.get('/api/provider-status', (req, res) => {
 });
 
 app.get('/api/image-models', (req, res) => {
-  const models = publicImageCatalog();
+  const verifiedOnly = String(req.query.verified || '') === '1';
+  const models = publicImageCatalog().filter(item => !verifiedOnly || item.verified);
   res.json({
     source: 'configured-provider-catalog',
     count: models.length,
