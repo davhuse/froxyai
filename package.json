@@ -24,18 +24,25 @@
     "cors": "^2.8.6",
     "edge-tts-node": "^1.5.7",
     "express": "^5.2.1",
-    "express-rate-limit": "^8.4.1",
+    "express-rate-limit": "^8.6.1",
     "iconv-lite": "^0.7.2",
     "jsonwebtoken": "^9.0.3",
     "msedge-tts": "^2.0.5",
-    "nodemailer": "^6.10.1",
+    "nodemailer": "^9.0.3",
     "pdf-parse": "^2.4.5",
     "redis": "^5.12.1",
     "standardwebhooks": "^1.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "fast-check": "^4.8.0"
+  },
+  "overrides": {
+    "axios": "^1.19.0",
+    "body-parser": "^2.3.0",
+    "form-data": "^4.0.6",
+    "qs": "^6.15.3",
+    "ws": "^8.21.1"
   }
 }
