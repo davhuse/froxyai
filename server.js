@@ -4836,6 +4836,73 @@ const VERIFIED_PUBLIC_IMAGE_MODELS = [
   { id: 'together-flux-schnell', name: 'FLUX.1 Schnell', provider: 'together', tier: 'starter' },
   { id: 'modal-sdxl', name: 'Modal GPU SDXL', provider: 'modal', tier: 'starter' }
 ];
+const PUBLIC_IMAGE_MODEL_DEFINITIONS = [
+  ...Object.entries(CLOUDFLARE_IMAGE_MODELS).map(([id, config]) => ({ id, name: config.name || id, provider: 'cloudflare', tier: 'free' })),
+  ...Object.keys(TOGETHER_IMAGE_MODELS).map(id => ({ id, name: id.replace(/^together-/, '').replaceAll('-', ' '), provider: 'together', tier: 'starter' })),
+  ...Array.from(MODAL_IMAGE_MODEL_ALIASES).map(id => ({ id, name: id.replace(/^modal-/, 'Modal ').replaceAll('-', ' '), provider: 'modal', tier: 'starter' })),
+  ...[
+    'evolink-img-z-image-turbo',
+    'evolink-img-wan2.5-text-to-image',
+    'evolink-img-gemini-3.1-flash-lite-image',
+    'evolink-img-gemini-3.1-flash-image',
+    'evolink-img-gpt-image-2',
+    'evolink-img-gpt-image-1.5'
+  ].map(id => ({ id, name: id.replace(/^evolink-img-/, '').replaceAll('-', ' '), provider: 'evolink', tier: 'starter' })),
+  ...Object.keys(RUNWARE_IMAGE_MODELS).map(id => ({ id, name: id.replace(/^runware-/, 'Runware ').replaceAll('-', ' '), provider: 'runware', tier: 'starter' })),
+  ...Object.keys(AIML_IMAGE_MODELS).map(id => ({ id, name: id.replace(/^aiml-/, 'AIML ').replaceAll('-', ' '), provider: 'aimlapi', tier: 'starter' })),
+  ...Object.keys(POLLINATIONS_IMAGE_MODEL_ALIASES)
+    .filter(id => id.startsWith('pollinations-'))
+    .map(id => ({ id, name: id.replace(/^pollinations-/, '').replaceAll('-', ' '), provider: 'pollinations', tier: 'free' })),
+  { id: 'gemini-2.5-flash-image', name: 'Gemini 2.5 Flash Image', provider: 'google-direct', tier: 'starter' },
+  { id: 'gemini-3.1-flash-image', name: 'Gemini 3.1 Flash Image', provider: 'google-direct', tier: 'starter' },
+  { id: 'gemini-3-pro-image', name: 'Gemini 3 Pro Image', provider: 'google-direct', tier: 'pro' },
+  { id: 'gemini-3.1-flash-image-preview', name: 'Gemini 3.1 Flash Image Preview', provider: 'google-direct', tier: 'starter' },
+  { id: 'gemini-3-pro-image-preview', name: 'Gemini 3 Pro Image Preview', provider: 'google-direct', tier: 'pro' },
+  { id: 'imagen-4-fast', name: 'Imagen 4 Fast', provider: 'gemini-imagen', tier: 'starter' },
+  { id: 'imagen-4', name: 'Imagen 4', provider: 'gemini-imagen', tier: 'pro' },
+  { id: 'imagen-4-ultra', name: 'Imagen 4 Ultra', provider: 'gemini-imagen', tier: 'pro' },
+  { id: 'openai-gpt-image-2', name: 'GPT Image 2', provider: 'openai', tier: 'pro' },
+  { id: 'dall-e-3', name: 'DALL-E 3', provider: 'openai', tier: 'pro' },
+  { id: 'imagegpt-free', name: 'ImageGPT Free', provider: 'imagegpt', tier: 'free' },
+  { id: 'stability-core', name: 'Stable Image Core', provider: 'stability', tier: 'starter' },
+  { id: 'stability-ultra', name: 'Stable Image Ultra', provider: 'stability', tier: 'pro' }
+];
+
+function imageProviderConfigured(provider) {
+  if (provider === 'cloudflare') return Boolean(CLOUDFLARE_ACCOUNT_ID && CLOUDFLARE_API_TOKEN);
+  if (provider === 'together') return Boolean(TOGETHER_KEYS.length);
+  if (provider === 'modal') return Boolean(MODAL_IMAGE_ENDPOINT);
+  if (provider === 'evolink') return Boolean(EVOLINK_KEYS.length);
+  if (provider === 'runware') return Boolean(RUNWARE_KEYS.length);
+  if (provider === 'aimlapi') return Boolean(AIMLAPI_KEY);
+  if (provider === 'pollinations') return Boolean(POLLINATIONS_API_KEYS.length || POLLINATIONS_API_KEY);
+  if (provider === 'google-direct' || provider === 'gemini-imagen') return Boolean(GOOGLE_API_KEY || GEMINI_KEYS.length);
+  if (provider === 'openai') return Boolean(OPENAI_IMAGE_KEYS.length);
+  if (provider === 'imagegpt') return Boolean(IMAGEGPT_API_KEY);
+  if (provider === 'stability') return Boolean(STABILITY_KEYS.length);
+  return false;
+}
+
+function publicImageCatalog() {
+  const verifiedKeys = new Set(VERIFIED_PUBLIC_IMAGE_MODELS.map(item => `${item.id}::${item.provider}`));
+  const seen = new Set();
+  return PUBLIC_IMAGE_MODEL_DEFINITIONS
+    .filter(item => imageProviderConfigured(item.provider))
+    .filter(item => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    })
+    .map(item => {
+      const verified = verifiedKeys.has(`${item.id}::${item.provider}`);
+      return {
+        ...item,
+        verified,
+        availability: verified ? 'verified' : 'configured-unverified'
+      };
+    })
+    .sort((a, b) => Number(b.verified) - Number(a.verified) || a.provider.localeCompare(b.provider) || a.name.localeCompare(b.name));
+}
 const PROVIDER_CATALOG_RUNTIME = new Map();
 
 function providerAuthRejected(provider) {
@@ -5013,10 +5080,12 @@ app.get('/api/provider-status', (req, res) => {
 });
 
 app.get('/api/image-models', (req, res) => {
+  const models = publicImageCatalog();
   res.json({
-    source: 'verified-production',
-    count: VERIFIED_PUBLIC_IMAGE_MODELS.length,
-    models: VERIFIED_PUBLIC_IMAGE_MODELS
+    source: 'configured-provider-catalog',
+    count: models.length,
+    verifiedCount: models.filter(item => item.verified).length,
+    models
   });
 });
 
@@ -6733,19 +6802,46 @@ function healthFilteredCatalog(models) {
   scheduleModelHealthRun(models);
   const healthy = getHealthyCatalogIds();
   const discoveredByKey = new Map(models.map(item => [`${item.id}::${item.provider}`, item]));
-  const verifiedModels = VERIFIED_PUBLIC_CHAT_MODELS.map(item => ({
-    ...item,
-    ...(discoveredByKey.get(`${item.id}::${item.provider}`) || {})
-  }));
+  const publicModels = [];
+  const included = new Set();
+
+  for (const item of VERIFIED_PUBLIC_CHAT_MODELS) {
+    const key = `${item.id}::${item.provider}`;
+    publicModels.push({
+      ...item,
+      ...(discoveredByKey.get(key) || {}),
+      verified: true,
+      availability: 'verified'
+    });
+    included.add(key);
+  }
+
+  for (const item of models) {
+    const key = `${item.id}::${item.provider}`;
+    if (included.has(key)) continue;
+    const runtime = PROVIDER_CATALOG_RUNTIME.get(String(item.provider || '').toLowerCase());
+    const healthVerified = Boolean(healthy?.has(key));
+    publicModels.push({
+      ...item,
+      verified: healthVerified,
+      availability: runtime?.authRejected
+        ? 'provider-auth-error'
+        : (healthVerified ? 'verified' : 'catalog-discovered')
+    });
+    included.add(key);
+  }
+
+  const verifiedCount = publicModels.filter(item => item.verified).length;
   return {
-    source: 'verified-production',
-    count: verifiedModels.length,
+    source: 'configured-provider-catalog',
+    count: publicModels.length,
     discoveredCount: models.length,
-    models: verifiedModels,
-    healthFiltered: true,
-    availableIds: verifiedModels.map(model => model.id),
+    models: publicModels,
+    healthFiltered: false,
+    verifiedCount,
+    availableIds: publicModels.map(model => model.id),
     healthRunActive: Boolean(modelHealthRun),
-    verifiedAvailableCount: healthy ? healthy.size : null
+    verifiedAvailableCount: verifiedCount
   };
 }
 
@@ -7592,15 +7688,17 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
   }
   }
 
-  // The public web app uses a strict, verified-only execution path. It never
+  // The public web app uses a strict provider/model execution path. It never
   // silently swaps the selected provider/model and never fabricates a local
   // answer when the upstream is unavailable.
   if (req.originalUrl.startsWith('/api/chat')) {
-    const verified = VERIFIED_PUBLIC_CHAT_MODEL_MAP.get(`${requestedModel}::${requestedProvider}`);
-    if (!verified) {
+    const requestedCatalogKey = `${requestedModel}::${requestedProvider}`;
+    const selectedCatalogModel = VERIFIED_PUBLIC_CHAT_MODEL_MAP.get(requestedCatalogKey)
+      || modelCatalogCache.models.find(item => `${item.id}::${item.provider}` === requestedCatalogKey);
+    if (!selectedCatalogModel) {
       return res.status(503).json({
         error: { message: 'Seçilen model şu anda doğrulanmış canlı model listesinde değil.' },
-        code: 'model_not_verified'
+        code: 'model_not_in_provider_catalog'
       });
     }
     if (messageHasInlineImage(messages)) {
@@ -7609,7 +7707,7 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
         code: 'verified_model_no_vision'
       });
     }
-    const strictProvider = verified.provider;
+    const strictProvider = selectedCatalogModel.provider;
     const strictConfig = PROVIDERS[strictProvider];
     if (!strictConfig?.key || !strictConfig?.base) {
       return res.status(503).json({
@@ -7626,7 +7724,7 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
           Accept: 'application/json'
         },
         body: JSON.stringify({
-          model: verified.id,
+          model: selectedCatalogModel.id,
           messages,
           max_tokens: Math.max(16, Math.min(Number(max_tokens || 1200), 4000)),
           stream: false
@@ -7640,19 +7738,19 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
         return res.status(upstream.status === 429 ? 429 : 502).json({
           error: { message: `Seçilen model şu anda yanıt veremedi: ${String(reason).slice(0, 220)}` },
           code: 'selected_model_failed',
-          model: verified.id,
+          model: selectedCatalogModel.id,
           provider: strictProvider
         });
       }
       payload.choices[0].message.content = cleanServerAssistantReply(content);
-      payload.model = payload.model || verified.id;
+      payload.model = payload.model || selectedCatalogModel.id;
       payload.provider = strictProvider;
       return res.json(payload);
     } catch (error) {
       return res.status(502).json({
         error: { message: `Seçilen modele ulaşılamadı: ${error.message}` },
         code: 'selected_model_unreachable',
-        model: verified.id,
+        model: selectedCatalogModel.id,
         provider: strictProvider
       });
     }

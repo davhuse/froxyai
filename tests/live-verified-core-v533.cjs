@@ -30,22 +30,32 @@ const post = (url, body, timeout) => request(url, {
   const checks = [];
   const catalog = await request(`${backend}/api/model-catalog`);
   const chatModels = catalog.data?.models || [];
+  const verifiedChatModels = chatModels.filter(item => item.verified === true);
   checks.push({
     name: 'backend-chat-catalog',
-    ok: catalog.ok && catalog.data?.healthFiltered === true && chatModels.length === 8,
+    ok: catalog.ok
+      && catalog.data?.source === 'configured-provider-catalog'
+      && chatModels.length >= 1000
+      && verifiedChatModels.length >= 8,
     status: catalog.status,
     count: chatModels.length,
-    ids: chatModels.map(item => `${item.provider}:${item.id}`)
+    verifiedCount: verifiedChatModels.length,
+    sampleIds: chatModels.slice(0, 20).map(item => `${item.provider}:${item.id}`)
   });
 
   const imageCatalog = await request(`${backend}/api/image-models`);
   const imageModels = imageCatalog.data?.models || [];
+  const verifiedImageModels = imageModels.filter(item => item.verified === true);
   checks.push({
     name: 'backend-image-catalog',
-    ok: imageCatalog.ok && imageModels.length === 3,
+    ok: imageCatalog.ok
+      && imageCatalog.data?.source === 'configured-provider-catalog'
+      && imageModels.length >= 30
+      && verifiedImageModels.length >= 3,
     status: imageCatalog.status,
     count: imageModels.length,
-    ids: imageModels.map(item => `${item.provider}:${item.id}`)
+    verifiedCount: verifiedImageModels.length,
+    sampleIds: imageModels.slice(0, 20).map(item => `${item.provider}:${item.id}`)
   });
 
   const betaVideo = await post(`${backend}/api/video`, { model: 'wavespeed-wan', prompt: 'blue circle' });
@@ -56,7 +66,7 @@ const post = (url, body, timeout) => request(url, {
     code: betaVideo.data?.code || ''
   });
 
-  for (const item of chatModels) {
+  for (const item of verifiedChatModels) {
     const result = await post(`${backend}/api/chat`, {
       model: item.id,
       provider: item.provider,
@@ -76,7 +86,7 @@ const post = (url, body, timeout) => request(url, {
   }
 
   if (!skipImageGeneration) {
-    for (const item of imageModels) {
+    for (const item of verifiedImageModels) {
       const result = await post(`${backend}/api/image`, {
         model: item.id,
         prompt: 'A single blue circle centered on a clean white background.',
@@ -110,14 +120,14 @@ const post = (url, body, timeout) => request(url, {
   const frontendCatalog = await request(`${frontend}/api/froxy/model-catalog`);
   checks.push({
     name: 'frontend-bff-chat-catalog',
-    ok: frontendCatalog.ok && frontendCatalog.data?.models?.length === 8,
+    ok: frontendCatalog.ok && frontendCatalog.data?.models?.length >= 1000,
     status: frontendCatalog.status,
     count: frontendCatalog.data?.models?.length || 0
   });
   const frontendImages = await request(`${frontend}/api/froxy/image-models`);
   checks.push({
     name: 'frontend-bff-image-catalog',
-    ok: frontendImages.ok && frontendImages.data?.models?.length === 3,
+    ok: frontendImages.ok && frontendImages.data?.models?.length >= 30,
     status: frontendImages.status,
     count: frontendImages.data?.models?.length || 0
   });
