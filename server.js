@@ -4814,6 +4814,23 @@ const PROVIDERS = {
   jan_local: { key: fromEnv('JAN_API_KEY', 'none'), base: localBaseUrl('JAN_API_URL', 'http://127.0.0.1:1337/v1') },
   local_openai: { key: fromEnv('LOCAL_OPENAI_API_KEY', 'none'), base: localBaseUrl('LOCAL_OPENAI_BASE_URL', 'http://127.0.0.1:1337/v1') },
 };
+
+// Public launch catalogue: every entry below passed a real upstream request.
+// The picker must never advertise the much larger discovery catalogue as if
+// every discovered model were usable.
+const VERIFIED_PUBLIC_CHAT_MODELS = [
+  { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant', tier: 'free', provider: 'groq', cat: 'llama', remote: true },
+  { id: 'openrouter/free', name: 'OpenRouter Free Auto', tier: 'free', provider: 'openrouter', cat: 'qualityfree', remote: true },
+  { id: 'meta/llama-3.1-8b-instruct', name: 'Llama 3.1 8B (NVIDIA)', tier: 'free', provider: 'nvidia', cat: 'llama', remote: true }
+];
+const VERIFIED_PUBLIC_CHAT_MODEL_MAP = new Map(
+  VERIFIED_PUBLIC_CHAT_MODELS.map(item => [`${item.id}::${item.provider}`, item])
+);
+const VERIFIED_PUBLIC_IMAGE_MODELS = [
+  { id: 'cf-sdxl-lightning', name: 'Cloudflare SDXL Lightning', provider: 'cloudflare', tier: 'free' },
+  { id: 'together-flux-schnell', name: 'FLUX.1 Schnell', provider: 'together', tier: 'starter' },
+  { id: 'modal-sdxl', name: 'Modal GPU SDXL', provider: 'modal', tier: 'starter' }
+];
 const PROVIDER_CATALOG_RUNTIME = new Map();
 
 function providerAuthRejected(provider) {
@@ -4987,6 +5004,14 @@ app.get('/api/provider-status', (req, res) => {
       configured: Boolean(VIDU_API_KEY),
       base: 'https://api.vidu.com'
     }
+  });
+});
+
+app.get('/api/image-models', (req, res) => {
+  res.json({
+    source: 'verified-production',
+    count: VERIFIED_PUBLIC_IMAGE_MODELS.length,
+    models: VERIFIED_PUBLIC_IMAGE_MODELS
   });
 });
 
@@ -6702,15 +6727,18 @@ function getHealthyCatalogIds() {
 function healthFilteredCatalog(models) {
   scheduleModelHealthRun(models);
   const healthy = getHealthyCatalogIds();
+  const discoveredByKey = new Map(models.map(item => [`${item.id}::${item.provider}`, item]));
+  const verifiedModels = VERIFIED_PUBLIC_CHAT_MODELS.map(item => ({
+    ...item,
+    ...(discoveredByKey.get(`${item.id}::${item.provider}`) || {})
+  }));
   return {
-    // A provider's temporary quota or maintenance response must not erase its
-    // catalog entry. Keep the full picker catalog; health results remain a
-    // separate operational signal for diagnostics and later retry decisions.
-    source: 'multi-provider',
-    count: models.length,
-    models,
-    healthFiltered: false,
-    availableIds: models.map(model => model.id),
+    source: 'verified-production',
+    count: verifiedModels.length,
+    discoveredCount: models.length,
+    models: verifiedModels,
+    healthFiltered: true,
+    availableIds: verifiedModels.map(model => model.id),
     healthRunActive: Boolean(modelHealthRun),
     verifiedAvailableCount: healthy ? healthy.size : null
   };
@@ -7557,6 +7585,72 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
   } catch(e) {
     return res.status(500).json({ error: { message: 'Veritabani hatasi (Kredi)' } });
   }
+  }
+
+  // The public web app uses a strict, verified-only execution path. It never
+  // silently swaps the selected provider/model and never fabricates a local
+  // answer when the upstream is unavailable.
+  if (req.originalUrl.startsWith('/api/chat')) {
+    const verified = VERIFIED_PUBLIC_CHAT_MODEL_MAP.get(`${requestedModel}::${requestedProvider}`);
+    if (!verified) {
+      return res.status(503).json({
+        error: { message: 'Seçilen model şu anda doğrulanmış canlı model listesinde değil.' },
+        code: 'model_not_verified'
+      });
+    }
+    if (messageHasInlineImage(messages)) {
+      return res.status(400).json({
+        error: { message: 'Doğrulanmış sohbet modelleri henüz görsel okuma desteği sunmuyor.' },
+        code: 'verified_model_no_vision'
+      });
+    }
+    const strictProvider = verified.provider;
+    const strictConfig = PROVIDERS[strictProvider];
+    if (!strictConfig?.key || !strictConfig?.base) {
+      return res.status(503).json({
+        error: { message: `${strictProvider} sağlayıcısı şu anda kullanılamıyor.` },
+        code: 'selected_provider_unavailable'
+      });
+    }
+    try {
+      const upstream = await fetch(`${String(strictConfig.base).replace(/\/+$/, '')}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${strictConfig.key}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          model: verified.id,
+          messages,
+          max_tokens: Math.max(16, Math.min(Number(max_tokens || 1200), 4000)),
+          stream: false
+        }),
+        signal: AbortSignal.timeout(45000)
+      });
+      const payload = await upstream.json().catch(() => ({}));
+      const content = payload?.choices?.[0]?.message?.content;
+      if (!upstream.ok || typeof content !== 'string' || !content.trim()) {
+        const reason = payload?.error?.message || payload?.message || `HTTP ${upstream.status}`;
+        return res.status(upstream.status === 429 ? 429 : 502).json({
+          error: { message: `Seçilen model şu anda yanıt veremedi: ${String(reason).slice(0, 220)}` },
+          code: 'selected_model_failed',
+          model: verified.id,
+          provider: strictProvider
+        });
+      }
+      payload.choices[0].message.content = cleanServerAssistantReply(content);
+      payload.model = payload.model || verified.id;
+      payload.provider = strictProvider;
+      return res.json(payload);
+    } catch (error) {
+      return res.status(502).json({
+        error: { message: `Seçilen modele ulaşılamadı: ${error.message}` },
+        code: 'selected_model_unreachable',
+        model: verified.id,
+        provider: strictProvider
+      });
+    }
   }
 
   if (provider === 'google-direct' || provider === 'google_direct') {
@@ -9604,6 +9698,13 @@ app.get('/api/img-proxy', async (req, res) => {
 app.post('/api/video', chatLimiter, async (req, res) => {
   const { prompt, model } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Prompt gerekli' });
+  if (String(fromEnv('VIDEO_GENERATION_ENABLED', '0')).toLowerCase() !== '1') {
+    return res.status(503).json({
+      error: 'Video üretimi Beta aşamasında. Doğrulanmış bir video sağlayıcısı hazır olduğunda açılacak.',
+      code: 'video_beta_unavailable',
+      beta: true
+    });
+  }
   const adultBlockReason = detectAdultSafetyBlock(prompt);
   if (adultBlockReason) {
     return res.status(400).json({ error: adultBlockReason, code: 'adult_safety_block' });
