@@ -4820,7 +4820,6 @@ const PROVIDERS = {
 // every discovered model were usable.
 const VERIFIED_PUBLIC_CHAT_MODELS = [
   { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant', tier: 'free', provider: 'groq', cat: 'llama', remote: true },
-  { id: 'openrouter/free', name: 'OpenRouter Free Auto', tier: 'free', provider: 'openrouter', cat: 'qualityfree', remote: true },
   { id: 'meta/llama-3.1-8b-instruct', name: 'Llama 3.1 8B (NVIDIA)', tier: 'free', provider: 'nvidia', cat: 'llama', remote: true }
 ];
 const VERIFIED_PUBLIC_CHAT_MODEL_MAP = new Map(
