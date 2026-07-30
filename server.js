@@ -5551,7 +5551,12 @@ app.get('/api/provider-status', (req, res) => {
 
 app.get('/api/image-models', (req, res) => {
   const verifiedOnly = String(req.query.verified || '') === '1';
-  const models = publicImageCatalog().filter(item => !verifiedOnly || item.verified);
+  const models = publicImageCatalog()
+    .filter(item => !verifiedOnly || item.verified)
+    .map(item => ({
+      ...item,
+      credit_cost: getModelCreditCost(item.id, item.provider)
+    }));
   res.json({
     source: 'configured-provider-catalog',
     count: models.length,
@@ -7281,6 +7286,7 @@ function healthFilteredCatalog(models) {
     publicModels.push({
       ...item,
       ...(discoveredByKey.get(key) || {}),
+      credit_cost: getModelCreditCost(item.id, item.provider),
       verified: true,
       availability: 'verified'
     });
@@ -7294,6 +7300,7 @@ function healthFilteredCatalog(models) {
     const healthVerified = Boolean(healthy?.has(key));
     publicModels.push({
       ...item,
+      credit_cost: getModelCreditCost(item.id, item.provider),
       verified: healthVerified,
       availability: runtime?.authRejected
         ? 'provider-auth-error'
