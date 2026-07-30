@@ -5335,7 +5335,7 @@ function detectAdultSafetyBlock(text) {
 function containsAdultSexualContent(text) {
   const value = String(text || '').toLowerCase();
   if (!value.trim()) return false;
-  return /\b(nsfw|porn|porno|pornografik|erotik|erotic|explicit sex|sexual roleplay|nude|nudity|çıplak|ciplak|seks|sex scene|yetişkin içerik|yetiskin icerik|afterdark|uncensored)\b/i.test(value);
+  return /\b(nsfw|xxx|porn(?:o|ographic|ografik)?|erotik|erotic|explicit(?:ly)? sexual|sexual content|sexual roleplay|adult content|hardcore|nude|nudity|çıplak|ciplak|seks|sex scene|yetişkin içerik|yetiskin icerik|afterdark|uncensored)\b/i.test(value);
 }
 
 function userAdultModeEnabled(userId) {
