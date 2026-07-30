@@ -63,11 +63,15 @@ async function main() {
 
   result = await call('me', adminToken);
   assert(result.status === 200 && Boolean(result.body.user.is_admin), 'exclusive admin was not granted');
+  assert(result.body.user.unlimited_credits === true, 'exclusive admin does not have unlimited credits');
+  assert(!result.body.token, '/me leaked a session token');
 
   result = await call('admin/stats', tokenA);
   assert(result.status === 403, 'normal user reached admin API');
   result = await call('admin/stats', adminToken);
   assert(result.status === 200, 'exclusive admin could not reach admin API');
+  result = await call('admin/activity-overview', adminToken);
+  assert(result.status === 200 && Array.isArray(result.body.recent), 'activity overview failed');
 
   result = await call('preferences', tokenA, {
     method: 'PUT',
@@ -172,7 +176,10 @@ async function main() {
     tests: [
       'me',
       'exclusive-admin',
+      'unlimited-admin-credit',
+      'me-token-secrecy',
       'admin-denial',
+      'admin-activity-overview',
       'preferences-isolation',
       'documents-isolation',
       'chats-isolation',

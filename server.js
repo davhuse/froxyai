@@ -647,6 +647,19 @@ db.exec(`
     user_agent TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+  CREATE TABLE IF NOT EXISTS product_activity_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    guest_id TEXT,
+    kind TEXT NOT NULL,
+    model TEXT,
+    provider TEXT,
+    path TEXT,
+    status_code INTEGER,
+    success INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
   CREATE TABLE IF NOT EXISTS marketing_campaigns (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     admin_user_id INTEGER,
@@ -678,6 +691,8 @@ try { db.exec('ALTER TABLE users ADD COLUMN blocked_at DATETIME'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN block_until DATETIME'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN block_reason TEXT'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN last_login DATETIME'); } catch(e) {}
+try { db.exec('ALTER TABLE users ADD COLUMN last_active_at DATETIME'); } catch(e) {}
+try { db.exec('ALTER TABLE users ADD COLUMN unlimited_credits INTEGER DEFAULT 0'); } catch(e) {}
 try { db.exec('ALTER TABLE users ADD COLUMN total_requests INTEGER DEFAULT 0'); } catch(e) {}
 try { db.exec("ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'free'"); } catch(e) {}
 // v142: Daily limits & anti-abuse
@@ -694,6 +709,9 @@ try { db.exec('ALTER TABLE registration_otps ADD COLUMN turnstile_verified INTEG
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_created ON funnel_events(created_at)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_event ON funnel_events(event)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_funnel_events_session ON funnel_events(session_id)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_product_activity_created ON product_activity_events(created_at DESC)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_product_activity_user ON product_activity_events(user_id, created_at DESC)'); } catch(e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_product_activity_guest ON product_activity_events(guest_id, created_at DESC)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_security_audit_created ON security_audit(created_at)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_consent_records_email ON consent_records(email)'); } catch(e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_credit_usage_created ON credit_usage(created_at)'); } catch(e) {}
@@ -863,8 +881,9 @@ function resetDailyIfNeeded(userId) {
 
 function checkDailyLimit(userId, type) {
   resetDailyIfNeeded(userId);
-  const user = db.prepare('SELECT plan, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(userId);
+  const user = db.prepare('SELECT plan, daily_chat_count, daily_image_count, unlimited_credits FROM users WHERE id = ?').get(userId);
   if (!user) return { allowed: false, reason: 'Kullanıcı bulunamadı' };
+  if (user.unlimited_credits) return { allowed: true, unlimited: true };
   const limits = getDailyLimits(user.plan || 'free');
   if (type === 'chat' && user.daily_chat_count >= limits.chat) {
     return { allowed: false, reason: 'Gunluk mesaj limitinize ulastiniz (' + limits.chat + '/' + limits.chat + '). Paketinizi yukseltebilirsiniz.' };
@@ -933,7 +952,7 @@ function isForceAdminIdentity(email, username) {
 function syncForceAdminEmail(email) {
   if (!isForceAdminEmail(email)) return false;
   const clean = String(email).trim().toLowerCase();
-  const r = db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise' WHERE lower(email) = ?").run(clean);
+  const r = db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise', unlimited_credits = 1 WHERE lower(email) = ?").run(clean);
   if (r.changes) console.log(`[ADMIN] OK Force admin yetkisi verildi: ${email}`);
   return !!r.changes;
 }
@@ -953,15 +972,15 @@ function getForceAdminCandidateForIdentity(identity) {
 
 function syncForceAdminUserId(userId) {
   if (!userId) return null;
-  const row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(userId);
+  const row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, unlimited_credits FROM users WHERE id = ?').get(userId);
   if (!row) return null;
-  if (isForceAdminIdentity(row.email, row.username) && !row.is_admin) {
-    db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise' WHERE id = ?").run(userId);
-    return db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(userId);
+  if (isForceAdminIdentity(row.email, row.username) && (!row.is_admin || !row.unlimited_credits)) {
+    db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise', unlimited_credits = 1 WHERE id = ?").run(userId);
+    return db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, unlimited_credits FROM users WHERE id = ?').get(userId);
   }
   if (isForceAdminIdentity(row.email, row.username) && row.plan !== 'enterprise') {
-    db.prepare("UPDATE users SET plan = 'enterprise' WHERE id = ?").run(userId);
-    return db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(userId);
+    db.prepare("UPDATE users SET plan = 'enterprise', unlimited_credits = 1 WHERE id = ?").run(userId);
+    return db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, unlimited_credits FROM users WHERE id = ?').get(userId);
   }
   return row;
 }
@@ -972,17 +991,17 @@ function syncForceAdminDecoded(decoded) {
   const email = String(decoded.email || '').trim().toLowerCase();
   const username = String(decoded.username || '').trim().toLowerCase();
   let row = id ? syncForceAdminUserId(id) : null;
-  if (row && (isForceAdminEmail(email) || isForceAdminEmail(username)) && (!row.is_admin || row.plan !== 'enterprise')) {
-    db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise' WHERE id = ?").run(row.id);
-    row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(row.id);
+  if (row && (isForceAdminEmail(email) || isForceAdminEmail(username)) && (!row.is_admin || row.plan !== 'enterprise' || !row.unlimited_credits)) {
+    db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise', unlimited_credits = 1 WHERE id = ?").run(row.id);
+    row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, unlimited_credits FROM users WHERE id = ?').get(row.id);
   }
   if (!row && email) {
     if (isForceAdminIdentity(email, username)) syncForceAdminEmail(email || username);
-    row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE lower(email) = ?').get(email);
+    row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, unlimited_credits FROM users WHERE lower(email) = ?').get(email);
   }
-  if (row && isForceAdminIdentity(row.email, row.username) && (!row.is_admin || row.plan !== 'enterprise')) {
-    db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise' WHERE id = ?").run(row.id);
-    row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests FROM users WHERE id = ?').get(row.id);
+  if (row && isForceAdminIdentity(row.email, row.username) && (!row.is_admin || row.plan !== 'enterprise' || !row.unlimited_credits)) {
+    db.prepare("UPDATE users SET is_admin = 1, plan = 'enterprise', unlimited_credits = 1 WHERE id = ?").run(row.id);
+    row = db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, unlimited_credits FROM users WHERE id = ?').get(row.id);
   }
   return row;
 }
@@ -990,7 +1009,7 @@ function syncForceAdminDecoded(decoded) {
 try {
   if (EXCLUSIVE_ADMIN_EMAIL) {
     const revoked = db.prepare(
-      'UPDATE users SET is_admin = 0 WHERE is_admin = 1 AND lower(email) <> ?'
+      'UPDATE users SET is_admin = 0, unlimited_credits = 0 WHERE lower(email) <> ? AND (is_admin = 1 OR unlimited_credits = 1)'
     ).run(EXCLUSIVE_ADMIN_EMAIL);
     if (revoked.changes) {
       console.log(`[ADMIN] ${revoked.changes} eski admin yetkisi kaldirildi.`);
@@ -1012,6 +1031,7 @@ function publicUserRow(row) {
     username: row.username,
     email: row.email,
     credits: row.credits,
+    unlimited_credits: Boolean(row.unlimited_credits || isForceAdminIdentity(row.email, row.username)),
     plan: row.plan || 'free',
     is_admin: row.is_admin || 0,
     total_requests: row.total_requests || 0
@@ -1170,6 +1190,7 @@ const authMiddleware = (req, res, next) => {
         plan: synced.plan || user.plan,
         is_admin: synced.is_admin ? 1 : 0
       } : user;
+      try { db.prepare('UPDATE users SET last_active_at = CURRENT_TIMESTAMP WHERE id = ?').run(req.user.id); } catch(e) {}
       next();
     });
   } else {
@@ -1190,6 +1211,7 @@ const optionalAuthMiddleware = (req, res, next) => {
         plan: synced.plan || user.plan,
         is_admin: synced.is_admin ? 1 : 0
       } : user;
+      try { db.prepare('UPDATE users SET last_active_at = CURRENT_TIMESTAMP WHERE id = ?').run(req.user.id); } catch(e) {}
     }
     next();
   });
@@ -1731,6 +1753,44 @@ function loginPayloadForUser(userRow) {
   const token = jwt.sign({ id: safeUser.id, username: safeUser.username, email: safeUser.email, plan }, ACTIVE_JWT_SECRET, { expiresIn: '30d' });
   return { token, user: safeUser };
 }
+
+function safeGuestActivityId(req) {
+  const value = String(req.headers['x-froxy-guest-id'] || '').trim();
+  return /^[a-zA-Z0-9_-]{20,80}$/.test(value) ? value : '';
+}
+
+// Record only operational metadata. Prompts and message contents are
+// deliberately excluded from admin analytics.
+app.use((req, res, next) => {
+  const tracked = new Map([
+    ['/api/chat', 'chat'],
+    ['/api/chat-safe', 'chat'],
+    ['/api/image', 'image'],
+    ['/api/image/edit', 'image']
+  ]);
+  const kind = tracked.get(req.path);
+  if (!kind || req.method !== 'POST') return next();
+  const startedAt = Date.now();
+  res.once('finish', () => {
+    try {
+      const userId = req.user?.id ? Number(req.user.id) : null;
+      const guestId = userId ? null : safeGuestActivityId(req);
+      const model = safeField(req.body?.model || req.body?.requestedModel, 180);
+      const provider = safeField(req.body?.provider || req.body?.requestedProvider, 100);
+      db.prepare(`INSERT INTO product_activity_events
+        (user_id, guest_id, kind, model, provider, path, status_code, success)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(userId, guestId || null, kind, model, provider, req.path, res.statusCode, res.statusCode >= 200 && res.statusCode < 400 ? 1 : 0);
+      if (userId) {
+        db.prepare('UPDATE users SET last_active_at = CURRENT_TIMESTAMP WHERE id = ?').run(userId);
+      }
+      if (Date.now() - startedAt > 120000) console.warn('[ACTIVITY] Slow request recorded:', req.path);
+    } catch(e) {
+      console.warn('[ACTIVITY]', e.message);
+    }
+  });
+  next();
+});
 
 function setUserSessionCookie(res, token) {
   if (!token) return;
@@ -2433,9 +2493,83 @@ app.get('/api/admin/users', adminMiddleware, (req, res) => {
     else if(filter === 'active') { where += ' AND is_blocked = 0'; }
     const total = db.prepare(`SELECT COUNT(*) as c FROM users WHERE ${where}`).get(...params).c;
     params.push(parseInt(limit), offset);
-    const users = db.prepare(`SELECT id, username, email, credits, plan, is_admin, is_blocked, blocked_at, block_until, block_reason, created_at, last_login, total_requests FROM users WHERE ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...params);
+    const users = db.prepare(`
+      SELECT u.id, u.username, u.email, u.credits, u.plan, u.is_admin, u.is_blocked,
+             u.unlimited_credits, u.blocked_at, u.block_until, u.block_reason,
+             u.created_at, u.last_login, u.last_active_at, u.total_requests,
+             COUNT(pae.id) AS model_uses,
+             MAX(pae.created_at) AS last_model_use
+      FROM users u
+      LEFT JOIN product_activity_events pae ON pae.user_id = u.id
+      WHERE ${where.replace(/\b(username|email|is_blocked|is_admin)\b/g, 'u.$1')}
+      GROUP BY u.id
+      ORDER BY COALESCE(u.last_active_at, u.last_login, u.created_at) DESC
+      LIMIT ? OFFSET ?
+    `).all(...params);
     res.json({ users, total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) });
   } catch(e) { res.status(500).json({error: e.message}); }
+});
+
+// Operational activity feed for registered and anonymous users. No prompt or
+// message content is returned.
+app.get('/api/admin/activity-overview', adminMiddleware, (req, res) => {
+  try {
+    const days = Math.min(90, Math.max(1, parseInt(req.query.days || '7', 10) || 7));
+    const kind = ['chat', 'image'].includes(String(req.query.kind || '')) ? String(req.query.kind) : '';
+    const since = `-${days} day`;
+    const kindWhere = kind ? 'AND pae.kind = ?' : '';
+    const baseParams = kind ? [since, kind] : [since];
+    const metrics = db.prepare(`
+      SELECT
+        COUNT(*) AS total_events,
+        SUM(CASE WHEN pae.success = 1 THEN 1 ELSE 0 END) AS successful_events,
+        COUNT(DISTINCT pae.user_id) AS registered_active,
+        COUNT(DISTINCT CASE WHEN pae.user_id IS NULL THEN pae.guest_id END) AS guest_active
+      FROM product_activity_events pae
+      WHERE pae.created_at >= datetime('now', ?) ${kindWhere}
+    `).get(...baseParams);
+    const topModels = db.prepare(`
+      SELECT pae.kind, COALESCE(NULLIF(pae.model, ''), 'belirtilmedi') AS model,
+             COALESCE(NULLIF(pae.provider, ''), 'otomatik') AS provider,
+             COUNT(*) AS uses,
+             SUM(CASE WHEN pae.success = 1 THEN 1 ELSE 0 END) AS successes
+      FROM product_activity_events pae
+      WHERE pae.created_at >= datetime('now', ?) ${kindWhere}
+      GROUP BY pae.kind, model, provider
+      ORDER BY uses DESC
+      LIMIT 20
+    `).all(...baseParams);
+    const recent = db.prepare(`
+      SELECT pae.id, pae.kind, pae.model, pae.provider, pae.status_code, pae.success, pae.created_at,
+             pae.guest_id, u.id AS user_id, u.username, u.email, u.plan
+      FROM product_activity_events pae
+      LEFT JOIN users u ON u.id = pae.user_id
+      WHERE pae.created_at >= datetime('now', ?) ${kindWhere}
+      ORDER BY pae.created_at DESC
+      LIMIT 150
+    `).all(...baseParams).map(row => ({
+      ...row,
+      guest_id: row.user_id ? null : (row.guest_id ? `misafir-${String(row.guest_id).slice(-6)}` : 'misafir')
+    }));
+    const guests = db.prepare(`
+      SELECT guest_id, MIN(created_at) AS first_seen, MAX(created_at) AS last_seen,
+             COUNT(*) AS model_uses,
+             SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) AS successes,
+             GROUP_CONCAT(DISTINCT kind) AS kinds
+      FROM product_activity_events
+      WHERE user_id IS NULL AND guest_id IS NOT NULL AND guest_id != ''
+        AND created_at >= datetime('now', ?)
+      GROUP BY guest_id
+      ORDER BY last_seen DESC
+      LIMIT 80
+    `).all(since).map(row => ({
+      ...row,
+      guest_id: `misafir-${String(row.guest_id).slice(-6)}`
+    }));
+    res.json({ days, kind: kind || 'all', metrics, topModels, recent, guests });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // PUT /api/admin/users/:id/credits
@@ -2969,12 +3103,10 @@ app.delete('/api/chats/:id', authMiddleware, (req, res) => {
 app.get('/api/me', authMiddleware, (req, res) => {
   try {
     resetDailyIfNeeded(req.user.id);
-    const user = syncForceAdminUserId(req.user.id) || db.prepare('SELECT id, username, email, credits, plan, is_admin, total_requests, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(req.user.id);
+    const user = syncForceAdminUserId(req.user.id) || db.prepare('SELECT id, username, email, credits, plan, is_admin, unlimited_credits, total_requests, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(req.user.id);
     if(!user) return res.status(404).json({error: 'Kullanıcı bulunamadı'});
     const limits = getDailyLimits(user.plan || 'free');
-    // Rehydrate the browser-side token from an already verified HttpOnly
-    // cookie session. Several existing UI flows still gate on authToken.
-    res.json({ user, limits, token: requestUserToken(req) });
+    res.json({ user: publicUserRow(user), limits });
   } catch(e) {
     res.status(500).json({error: e.message});
   }
@@ -7810,8 +7942,8 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
     }
     
     const creditCost = getModelCreditCost(model, provider);
-    const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
-    if (!user || user.credits < creditCost) {
+    const user = db.prepare('SELECT credits, unlimited_credits FROM users WHERE id = ?').get(req.user.id);
+    if (!user || (!user.unlimited_credits && user.credits < creditCost)) {
       return res.status(402).json({ error: { message: 'Krediniz yetersiz. Gereken: ' + creditCost + ' kredi.' } });
     }
   } catch(e) {
@@ -10532,7 +10664,11 @@ app.post('/api/deduct-credit', authMiddleware, (req, res) => {
     return res.status(429).json({ error: dailyCheck.reason });
   }
   
-  const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
+  const user = db.prepare('SELECT credits, unlimited_credits FROM users WHERE id = ?').get(req.user.id);
+  if (user?.unlimited_credits) {
+    logCreditUsage({ userId: req.user.id, kind: 'chat', model: billModel, provider: billProvider, actualModel: model, cost: 0, remaining: user.credits, status: 'unlimited' });
+    return res.json({ cost: 0, remaining: user.credits, free: true, unlimited: true, model: billModel, provider: billProvider, actualModel: model });
+  }
   if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
   if (user.credits < cost) return res.status(402).json({ error: 'Yetersiz kredi', required: cost, remaining: user.credits });
   
@@ -10578,7 +10714,11 @@ app.post('/api/deduct-image-credit', authMiddleware, (req, res) => {
     cost = MODEL_CREDIT_COST.image_mid; // 25 kredi
   }
   
-  const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
+  const user = db.prepare('SELECT credits, unlimited_credits FROM users WHERE id = ?').get(req.user.id);
+  if (user?.unlimited_credits) {
+    logCreditUsage({ userId: req.user.id, kind: 'image', model: billModel, provider: billProvider, actualModel: model, cost: 0, remaining: user.credits, status: 'unlimited' });
+    return res.json({ cost: 0, remaining: user.credits, free: true, unlimited: true, model: billModel, provider: billProvider, actualModel: model });
+  }
   if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
   if (user.credits < cost) return res.status(402).json({ error: 'Yetersiz kredi', required: cost, remaining: user.credits });
   
