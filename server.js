@@ -5127,7 +5127,6 @@ const VERIFIED_PUBLIC_CHAT_MODEL_MAP = new Map(
 );
 const VERIFIED_PUBLIC_IMAGE_MODELS = [
   { id: 'cf-sdxl-lightning', name: 'Cloudflare SDXL Lightning', provider: 'cloudflare', tier: 'free' },
-  { id: 'cf-dreamshaper-lcm', name: 'Cloudflare DreamShaper 8 LCM', provider: 'cloudflare', tier: 'free' },
   { id: 'cf-flux-klein', name: 'Cloudflare Flux 2 Klein', provider: 'cloudflare', tier: 'free' },
   { id: 'cf-sdxl', name: 'Cloudflare SDXL', provider: 'cloudflare', tier: 'free' },
   { id: 'together-flux-schnell', name: 'FLUX.1 Schnell', provider: 'together', tier: 'starter' },
