@@ -7281,6 +7281,23 @@ function getHealthyCatalogIds() {
   return new Set(db.prepare("SELECT model_id || '::' || provider AS key FROM model_health WHERE status = 'ok' AND tested_at >= datetime('now', '-24 hours')").all().map(row => row.key));
 }
 
+async function verifiedChatFallbackPayload(messages, maxTokens, requestedModel, requestedProvider, reason) {
+  try {
+    const payload = await groqFallbackChat(messages, maxTokens, 'llama-3.1-8b-instant');
+    return {
+      ...payload,
+      model: 'llama-3.1-8b-instant',
+      provider: 'groq',
+      fallback: 'groq/llama-3.1-8b-instant',
+      fallbackFrom: `${requestedProvider || 'unknown'}/${requestedModel || 'unknown'}`,
+      fallbackReason: String(reason || 'selected_model_failed').slice(0, 180)
+    };
+  } catch (fallbackError) {
+    console.warn('[CHAT FALLBACK] Verified fallback failed:', fallbackError.message);
+    return null;
+  }
+}
+
 function healthFilteredCatalog(models) {
   scheduleModelHealthRun(models);
   const healthy = getHealthyCatalogIds();
@@ -8248,6 +8265,8 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
     const selectedCatalogModel = VERIFIED_PUBLIC_CHAT_MODEL_MAP.get(requestedCatalogKey)
       || modelCatalogCache.models.find(item => `${item.id}::${item.provider}` === requestedCatalogKey);
     if (!selectedCatalogModel) {
+      const fallback = await verifiedChatFallbackPayload(messages, max_tokens, requestedModel, requestedProvider, 'model_not_in_provider_catalog');
+      if (fallback) return res.json(fallback);
       return res.status(503).json({
         error: { message: 'Seçilen model şu anda doğrulanmış canlı model listesinde değil.' },
         code: 'model_not_in_provider_catalog'
@@ -8262,6 +8281,8 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
     const strictProvider = selectedCatalogModel.provider;
     const strictConfig = PROVIDERS[strictProvider];
     if (!strictConfig?.key || !strictConfig?.base) {
+      const fallback = await verifiedChatFallbackPayload(messages, max_tokens, requestedModel, requestedProvider, 'selected_provider_unavailable');
+      if (fallback) return res.json(fallback);
       return res.status(503).json({
         error: { message: `${strictProvider} sağlayıcısı şu anda kullanılamıyor.` },
         code: 'selected_provider_unavailable'
@@ -8290,6 +8311,8 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
       const content = payload?.choices?.[0]?.message?.content;
       if (!upstream.ok || typeof content !== 'string' || !content.trim()) {
         const reason = payload?.error?.message || payload?.message || `HTTP ${upstream.status}`;
+        const fallback = await verifiedChatFallbackPayload(messages, max_tokens, requestedModel, requestedProvider, reason);
+        if (fallback) return res.json(fallback);
         return res.status(upstream.status === 429 ? 429 : 502).json({
           error: { message: `Seçilen model şu anda yanıt veremedi: ${String(reason).slice(0, 220)}` },
           code: 'selected_model_failed',
@@ -8302,6 +8325,8 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
       payload.provider = strictProvider;
       return res.json(payload);
     } catch (error) {
+      const fallback = await verifiedChatFallbackPayload(messages, max_tokens, requestedModel, requestedProvider, error.message);
+      if (fallback) return res.json(fallback);
       return res.status(502).json({
         error: { message: `Seçilen modele ulaşılamadı: ${error.message}` },
         code: 'selected_model_unreachable',
