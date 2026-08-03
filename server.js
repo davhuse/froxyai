@@ -5127,8 +5127,15 @@ const VERIFIED_PUBLIC_CHAT_MODEL_MAP = new Map(
 );
 const VERIFIED_PUBLIC_IMAGE_MODELS = [
   { id: 'cf-sdxl-lightning', name: 'Cloudflare SDXL Lightning', provider: 'cloudflare', tier: 'free' },
+  { id: 'cf-dreamshaper-lcm', name: 'Cloudflare DreamShaper 8 LCM', provider: 'cloudflare', tier: 'free' },
+  { id: 'cf-flux-klein', name: 'Cloudflare Flux 2 Klein', provider: 'cloudflare', tier: 'free' },
+  { id: 'cf-sdxl', name: 'Cloudflare SDXL', provider: 'cloudflare', tier: 'free' },
   { id: 'together-flux-schnell', name: 'FLUX.1 Schnell', provider: 'together', tier: 'starter' },
-  { id: 'modal-sdxl', name: 'Modal GPU SDXL', provider: 'modal', tier: 'starter' }
+  { id: 'modal-sdxl', name: 'Modal GPU SDXL', provider: 'modal', tier: 'starter' },
+  { id: 'modal-local-sd', name: 'Modal Local SD', provider: 'modal', tier: 'starter' },
+  { id: 'modal-cloud-gpu', name: 'Modal Cloud GPU', provider: 'modal', tier: 'starter' },
+  { id: 'modal-dreamshaper', name: 'Modal DreamShaper', provider: 'modal', tier: 'starter' },
+  { id: 'modal-realisticvision', name: 'Modal Realistic Vision', provider: 'modal', tier: 'starter' }
 ];
 const PUBLIC_IMAGE_MODEL_DEFINITIONS = [
   ...Object.entries(CLOUDFLARE_IMAGE_MODELS).map(([id, config]) => ({ id, name: config.name || id, provider: 'cloudflare', tier: 'free' })),
