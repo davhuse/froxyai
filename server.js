@@ -7282,6 +7282,36 @@ function getHealthyCatalogIds() {
 }
 
 async function verifiedChatFallbackPayload(messages, maxTokens, requestedModel, requestedProvider, reason) {
+  // Prefer the verified OpenRouter model already used by the public catalog.
+  // This keeps fallback available even when the optional Groq key is absent.
+  const verifiedFallbackModel = 'google/gemma-4-26b-a4b-it:free';
+  const openRouterKey = PROVIDERS.openrouter?.key || getOpenRouterKey();
+  if (openRouterKey) {
+    try {
+      const upstream = await fetch(`${String(PROVIDERS.openrouter.base).replace(/\/+$/, '')}/chat/completions`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${openRouterKey}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ model: verifiedFallbackModel, messages, max_tokens: Math.max(16, Math.min(Number(maxTokens || 1200), 4000)), stream: false }),
+        signal: AbortSignal.timeout(30000)
+      });
+      const payload = await upstream.json().catch(() => ({}));
+      const content = payload?.choices?.[0]?.message?.content;
+      if (upstream.ok && typeof content === 'string' && content.trim()) {
+        payload.choices[0].message.content = cleanServerAssistantReply(content);
+        return {
+          ...payload,
+          model: verifiedFallbackModel,
+          provider: 'openrouter',
+          fallback: `openrouter/${verifiedFallbackModel}`,
+          fallbackFrom: `${requestedProvider || 'unknown'}/${requestedModel || 'unknown'}`,
+          fallbackReason: String(reason || 'selected_model_failed').slice(0, 180)
+        };
+      }
+      console.warn('[CHAT FALLBACK] Verified OpenRouter model failed:', payload?.error?.message || `HTTP ${upstream.status}`);
+    } catch (fallbackError) {
+      console.warn('[CHAT FALLBACK] Verified OpenRouter request failed:', fallbackError.message);
+    }
+  }
   try {
     const payload = await groqFallbackChat(messages, maxTokens, 'llama-3.1-8b-instant');
     return {
