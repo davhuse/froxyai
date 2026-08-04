@@ -888,7 +888,7 @@ async function verifyTurnstile(req, token, action) {
 }
 
 function getShopierPlan(plan) {
-  return SHOPIER_PACKAGE_CATALOG[String(plan || '').trim()] || SHOPIER_PACKAGE_CATALOG.starter;
+  return SHOPIER_PACKAGE_CATALOG[String(plan || '').trim().toLowerCase()] || null;
 }
 
 function parseShopierPlanFromOrder(orderId) {
@@ -1345,6 +1345,74 @@ function logCreditUsage({ userId, kind, model, provider, actualModel, cost, rema
   } catch(e) {}
 }
 
+// Chat usage must be settled by the server, after a real model response has
+// been produced.  Keeping this here prevents a browser client from skipping a
+// second "deduct" request and using paid models without consuming credit.
+function settleSuccessfulChatUsage({ userId, requestedModel, requestedProvider, actualModel, actualProvider }) {
+  const id = Number(userId);
+  if (!Number.isInteger(id) || id <= 0) return { ok: true, skipped: true };
+
+  const billModel = String(requestedModel || actualModel || '');
+  const billProvider = String(requestedProvider || actualProvider || '');
+  const cost = Math.max(0, Number(getModelCreditCost(billModel, billProvider)) || 0);
+
+  const settle = db.transaction(() => {
+    resetDailyIfNeeded(id);
+    const user = db.prepare('SELECT id, plan, credits, unlimited_credits, daily_chat_count FROM users WHERE id = ?').get(id);
+    if (!user) return { ok: false, status: 404, code: 'user_not_found', error: 'Kullanici bulunamadi.' };
+
+    if (user.unlimited_credits) {
+      logCreditUsage({
+        userId: id,
+        kind: 'chat',
+        model: billModel,
+        provider: billProvider,
+        actualModel: actualModel || billModel,
+        cost: 0,
+        remaining: user.credits,
+        status: 'unlimited'
+      });
+      return { ok: true, cost: 0, remaining: user.credits, unlimited: true };
+    }
+
+    const limits = getDailyLimits(user.plan || 'free');
+    if (Number(user.daily_chat_count || 0) >= limits.chat) {
+      return {
+        ok: false,
+        status: 429,
+        code: 'daily_limit_reached',
+        error: `Gunluk mesaj limitinize ulastiniz (${limits.chat}/${limits.chat}). Paketinizi yukseltebilirsiniz.`
+      };
+    }
+    if (Number(user.credits || 0) < cost) {
+      return { ok: false, status: 402, code: 'insufficient_credits', error: `Krediniz yetersiz. Gereken: ${cost} kredi.` };
+    }
+
+    const updated = db.prepare(`
+      UPDATE users
+      SET credits = credits - ?, daily_chat_count = daily_chat_count + 1
+      WHERE id = ? AND credits >= ? AND daily_chat_count < ?
+    `).run(cost, id, cost, limits.chat);
+    if (updated.changes !== 1) {
+      return { ok: false, status: 409, code: 'usage_settlement_conflict', error: 'Kredi veya gunluk limit degisti. Lutfen tekrar deneyin.' };
+    }
+
+    const current = db.prepare('SELECT credits FROM users WHERE id = ?').get(id);
+    logCreditUsage({
+      userId: id,
+      kind: 'chat',
+      model: billModel,
+      provider: billProvider,
+      actualModel: actualModel || billModel,
+      cost,
+      remaining: current?.credits
+    });
+    return { ok: true, cost, remaining: current?.credits ?? null, unlimited: false };
+  });
+
+  return settle();
+}
+
 function shopierString(value) {
   return String(value == null ? '' : value).trim();
 }
@@ -1603,7 +1671,7 @@ function normalizeDodoWebhook(event) {
   const paymentId = data.payment_id || data.paymentId || data.id || event?.id;
   const checkoutSessionId = data.checkout_session_id || data.checkoutSessionId || data.session_id || metadata.checkout_session_id;
   const orderId = metadata.order_id || data.order_id || data.orderId || paymentId;
-  const plan = metadata.plan || data.plan || parseShopierPlanFromOrder(orderId);
+  const plan = String(metadata.plan || data.plan || parseShopierPlanFromOrder(orderId) || '').trim().toLowerCase();
   const userId = Number(metadata.user_id || data.user_id || data.customer?.metadata?.user_id || 0) || null;
   const email = data.customer?.email || data.customer_email || data.email || metadata.email || '';
   const status = String(data.status || data.payment_status || event?.type || '').toLowerCase();
@@ -2524,6 +2592,7 @@ app.get('/api/admin/users', adminMiddleware, (req, res) => {
       SELECT u.id, u.username, u.email, u.credits, u.plan, u.is_admin, u.is_blocked,
              u.unlimited_credits, u.blocked_at, u.block_until, u.block_reason,
              u.created_at, u.last_login, u.last_active_at, u.total_requests,
+             u.daily_chat_count, u.daily_image_count, u.daily_reset_date,
              COUNT(pae.id) AS model_uses,
              MAX(pae.created_at) AS last_model_use
       FROM users u
@@ -2532,7 +2601,12 @@ app.get('/api/admin/users', adminMiddleware, (req, res) => {
       GROUP BY u.id
       ORDER BY COALESCE(u.last_active_at, u.last_login, u.created_at) DESC
       LIMIT ? OFFSET ?
-    `).all(...params);
+    `).all(...params).map((user) => ({
+      ...user,
+      daily_limits: user.unlimited_credits
+        ? { chat: null, image: null }
+        : getDailyLimits(user.plan || 'free')
+    }));
     res.json({ users, total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) });
   } catch(e) { res.status(500).json({error: e.message}); }
 });
@@ -2613,18 +2687,32 @@ app.put('/api/admin/users/:id/credits', adminMiddleware, (req, res) => {
 
 // PUT /api/admin/users/:id/plan
 app.put('/api/admin/users/:id/plan', adminMiddleware, (req, res) => {
-  const allowedPlans = ['free','starter','popular','pro','creator','developer','power','agency_start','business','enterprise'];
-  const { plan, credits } = req.body;
+  const allowedPlans = ['free', ...Object.keys(SHOPIER_PACKAGE_CATALOG)];
+  const { plan, credits, apply_package: applyPackage = false } = req.body;
   if(!allowedPlans.includes(plan)) return res.status(400).json({error: 'Ge\u00e7erli paket se\u00e7in'});
+  if (applyPackage && typeof credits === 'number') {
+    return res.status(400).json({ error: 'Paket kredisi ve ozel kredi degeri ayni anda uygulanamaz.' });
+  }
+  if (applyPackage && !SHOPIER_PACKAGE_CATALOG[plan]) {
+    return res.status(400).json({ error: 'Ucretsiz paket icin kredi paketi uygulanamaz.' });
+  }
   try {
-    if(typeof credits === 'number') {
+    const target = db.prepare('SELECT id, username, email, credits, plan, unlimited_credits FROM users WHERE id = ?').get(req.params.id);
+    if (!target) return res.status(404).json({ error: 'Kullanici bulunamadi' });
+
+    let creditsAdded = 0;
+    if (applyPackage) {
+      creditsAdded = Number(SHOPIER_PACKAGE_CATALOG[plan].credits || 0);
+      db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(plan, creditsAdded, req.params.id);
+    } else if(typeof credits === 'number') {
       db.prepare('UPDATE users SET plan = ?, credits = MAX(0, ?) WHERE id = ?').run(plan, credits, req.params.id);
     } else {
       db.prepare('UPDATE users SET plan = ? WHERE id = ?').run(plan, req.params.id);
     }
-    const u = db.prepare('SELECT id, username, email, credits, plan FROM users WHERE id = ?').get(req.params.id);
-    logActivity(req.user.id, 'plan_change', `User ${req.params.id}: ${plan}`);
-    res.json({ success: true, user: u });
+    const u = db.prepare('SELECT id, username, email, credits, plan, unlimited_credits, daily_chat_count, daily_image_count FROM users WHERE id = ?').get(req.params.id);
+    const limits = u?.unlimited_credits ? { chat: null, image: null } : getDailyLimits(u?.plan || 'free');
+    logActivity(req.user.id, 'plan_change', `User ${req.params.id}: ${plan}${creditsAdded ? `, +${creditsAdded} kredi` : ''}`);
+    res.json({ success: true, user: u, credits_added: creditsAdded, daily_limits: limits });
   } catch(e) { res.status(500).json({error: e.message}); }
 });
 
@@ -2764,7 +2852,7 @@ app.post('/api/admin/shopier-register-webhook', adminMiddleware, async (req, res
 
 // POST /api/shopier/start
 app.post('/api/shopier/start', authMiddleware, (req, res) => {
-  const plan = String(req.body.plan || 'starter').trim();
+  const plan = String(req.body.plan || 'starter').trim().toLowerCase();
   const pack = SHOPIER_PACKAGE_CATALOG[plan];
   if (!pack) return res.status(400).json({ error: 'Geçerli paket seçin.' });
   const fallbackUrl = SHOPIER_STATIC_URLS[plan] || 'https://www.shopier.com/froxyai';
@@ -2829,7 +2917,7 @@ app.post('/api/shopier/start', authMiddleware, (req, res) => {
 });
 
 app.post('/api/dodo/start', authMiddleware, async (req, res) => {
-  const plan = String(req.body.plan || 'starter').trim();
+  const plan = String(req.body.plan || 'starter').trim().toLowerCase();
   const pack = SHOPIER_PACKAGE_CATALOG[plan];
   if (!pack) return res.status(400).json({ error: 'Gecerli paket secin.' });
   const checkoutConsentAccepted = req.body.checkoutConsentAccepted === true || req.body.checkoutConsentAccepted === 'true' || req.body.checkoutConsentAccepted === 1;
@@ -2948,8 +3036,9 @@ app.get('/api/admin/membership-codes', adminMiddleware, (req, res) => {
 
 // POST /api/admin/membership-codes
 app.post('/api/admin/membership-codes', adminMiddleware, (req, res) => {
-  const allowedPlans = ['free','starter','popular','pro','creator','developer','power','agency_start','business','enterprise'];
+  const allowedPlans = ['free', ...Object.keys(SHOPIER_PACKAGE_CATALOG)];
   let { code, plan = 'starter', credits = 0, max_uses = 1, expires_days = 30 } = req.body;
+  plan = String(plan || '').trim().toLowerCase();
   if(!allowedPlans.includes(plan)) return res.status(400).json({error: 'Ge\u00e7erli bir paket se\u00e7in.'});
   credits = Math.max(0, parseInt(credits || 0, 10));
   max_uses = Math.max(1, parseInt(max_uses || 1, 10));
@@ -2985,13 +3074,17 @@ app.post('/api/redeem-code', authMiddleware, (req, res) => {
       if(!c) return { status: 404, error: 'Kod bulunamad\u0131 veya pasif durumda.' };
       if(c.expires_at && new Date(c.expires_at).getTime() < Date.now()) return { status: 400, error: 'Kodun s\u00fcresi dolmu\u015f.' };
       if(Number(c.used_count || 0) >= Number(c.max_uses || 1)) return { status: 400, error: 'Kod kullan\u0131m limiti dolmu\u015f.' };
-      db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(c.plan, Math.max(0, Number(c.credits || 0)), userId);
+      const plan = String(c.plan || '').trim().toLowerCase();
+      if (!['free', ...Object.keys(SHOPIER_PACKAGE_CATALOG)].includes(plan)) {
+        return { status: 400, error: 'Bu kod eski veya gecersiz bir paket tanimina bagli. Lutfen destek ile iletisime gecin.' };
+      }
+      db.prepare('UPDATE users SET plan = ?, credits = credits + ? WHERE id = ?').run(plan, Math.max(0, Number(c.credits || 0)), userId);
       db.prepare('UPDATE membership_codes SET used_count = used_count + 1 WHERE id = ?').run(c.id);
       db.prepare('INSERT INTO membership_code_redemptions (code_id, code, user_id, plan, credits) VALUES (?, ?, ?, ?, ?)')
-        .run(c.id, c.code, userId, c.plan, Math.max(0, Number(c.credits || 0)));
-      logActivity(userId, 'redeem_membership_code', `${c.code}: ${c.plan}, +${c.credits || 0} kredi`);
+        .run(c.id, c.code, userId, plan, Math.max(0, Number(c.credits || 0)));
+      logActivity(userId, 'redeem_membership_code', `${c.code}: ${plan}, +${c.credits || 0} kredi`);
       const user = db.prepare('SELECT id, username, email, credits, plan, is_admin FROM users WHERE id = ?').get(userId);
-      return { success: true, user, code: c.code, plan: c.plan, credits_added: Number(c.credits || 0) };
+      return { success: true, user, code: c.code, plan, credits_added: Number(c.credits || 0) };
     });
     const result = redeem(req.user.id, code);
     if(!result.success) return res.status(result.status || 400).json({ error: result.error || 'Kod uygulanamad\u0131.' });
@@ -8143,6 +8236,40 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
 
   const originalJson = res.json.bind(res);
   res.json = (payload) => {
+    // A successful model response is the source of truth for billing.  This
+    // runs outside the presentation cleanup below so a database failure can
+    // never be swallowed and turn a paid response into an unpaid one.
+    if (payload && typeof payload === 'object' && !payload.error && req.user?.id) {
+      let settlement;
+      try {
+        settlement = settleSuccessfulChatUsage({
+          userId: req.user.id,
+          requestedModel,
+          requestedProvider,
+          actualModel: payload.model || model,
+          actualProvider: payload.provider || provider
+        });
+      } catch (error) {
+        console.error('[CHAT BILLING] Settlement failed:', error.message);
+        res.status(500);
+        return originalJson({
+          error: { message: 'Sohbet kullanimi kaydedilemedi. Lutfen tekrar deneyin.' },
+          code: 'usage_settlement_failed'
+        });
+      }
+      if (!settlement.ok) {
+        res.status(settlement.status || 500);
+        return originalJson({
+          error: { message: settlement.error },
+          code: settlement.code
+        });
+      }
+      payload.froxy_usage = {
+        cost: settlement.cost,
+        remaining: settlement.remaining,
+        unlimited: settlement.unlimited === true
+      };
+    }
     try {
       if (payload && typeof payload === 'object' && !payload.error) {
         if (webSearch) {
@@ -11075,33 +11202,17 @@ function modelPlanRequirementLabel(model, provider) {
   return ['Ücretsiz', 'Başlangıç / Popüler', 'Pro', 'Geliştirici / İşletme'][modelPlanLevel(model, provider)] || 'Geliştirici / İşletme';
 }
 
-// Credit deduction endpoint (called by frontend after successful chat)
+// Legacy compatibility endpoint. Chat charges are settled by /api/chat after a
+// real model response, so an old browser cannot charge a customer twice.
 app.post('/api/deduct-credit', authMiddleware, (req, res) => {
-  const { model, provider, requestedModel, requestedProvider } = req.body;
-  const billModel = requestedModel || model;
-  const billProvider = requestedProvider || provider;
-  const cost = getModelCreditCost(billModel, billProvider);
-  
-  if (cost === 0) return res.json({ cost: 0, remaining: null, free: true });
-
-  const dailyCheck = checkDailyLimit(req.user.id, 'chat');
-  if (!dailyCheck.allowed) {
-    return res.status(429).json({ error: dailyCheck.reason });
-  }
-  
   const user = db.prepare('SELECT credits, unlimited_credits FROM users WHERE id = ?').get(req.user.id);
-  if (user?.unlimited_credits) {
-    logCreditUsage({ userId: req.user.id, kind: 'chat', model: billModel, provider: billProvider, actualModel: model, cost: 0, remaining: user.credits, status: 'unlimited' });
-    return res.json({ cost: 0, remaining: user.credits, free: true, unlimited: true, model: billModel, provider: billProvider, actualModel: model });
-  }
-  if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
-  if (user.credits < cost) return res.status(402).json({ error: 'Yetersiz kredi', required: cost, remaining: user.credits });
-  
-  db.prepare('UPDATE users SET credits = credits - ? WHERE id = ?').run(cost, req.user.id);
-  incrementDaily(req.user.id, 'chat');
-  const updated = db.prepare('SELECT credits FROM users WHERE id = ?').get(req.user.id);
-  logCreditUsage({ userId: req.user.id, kind: 'chat', model: billModel, provider: billProvider, actualModel: model, cost, remaining: updated.credits });
-  res.json({ cost, remaining: updated.credits, free: false, model: billModel, provider: billProvider, actualModel: model });
+  if (!user) return res.status(404).json({ error: 'Kullanici bulunamadi' });
+  return res.json({
+    handled_by_server: true,
+    cost: 0,
+    remaining: Number(user.credits || 0),
+    unlimited: Boolean(user.unlimited_credits)
+  });
 });
 
 // Image generation credit deduction
