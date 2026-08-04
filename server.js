@@ -509,6 +509,29 @@ db.exec(`
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
   );
+  CREATE TABLE IF NOT EXISTS support_tickets (
+    id TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    subject TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'Genel',
+    priority TEXT NOT NULL DEFAULT 'normal',
+    status TEXT NOT NULL DEFAULT 'open',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
+  CREATE TABLE IF NOT EXISTS support_ticket_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticket_id TEXT NOT NULL,
+    user_id INTEGER,
+    author_type TEXT NOT NULL DEFAULT 'user',
+    body TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(ticket_id) REFERENCES support_tickets(id),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_support_tickets_user ON support_tickets(user_id, updated_at);
+  CREATE INDEX IF NOT EXISTS idx_support_ticket_messages_ticket ON support_ticket_messages(ticket_id, created_at);
   CREATE TABLE IF NOT EXISTS activity_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
@@ -3155,6 +3178,58 @@ app.delete('/api/documents/:id', authMiddleware, (req, res) => {
   } catch(e) {
     res.status(500).json({error: e.message});
   }
+});
+
+// Kullanıcı destek talepleri: demo/mock kayıt yok; tüm kayıtlar oturum sahibine aittir.
+app.get('/api/support/tickets', authMiddleware, (req, res) => {
+  const tickets = db.prepare(`
+    SELECT id, subject, category, priority, status, created_at, updated_at
+    FROM support_tickets
+    WHERE user_id = ?
+    ORDER BY updated_at DESC
+    LIMIT 100
+  `).all(req.user.id);
+  const messageStmt = db.prepare(`
+    SELECT id, author_type, body, created_at
+    FROM support_ticket_messages
+    WHERE ticket_id = ?
+    ORDER BY created_at ASC, id ASC
+  `);
+  return res.json({
+    tickets: tickets.map((ticket) => ({ ...ticket, messages: messageStmt.all(ticket.id) })),
+  });
+});
+
+app.post('/api/support/tickets', authMiddleware, (req, res) => {
+  const subject = String(req.body?.subject || '').trim().slice(0, 120);
+  const body = String(req.body?.body || '').trim().slice(0, 8000);
+  const category = String(req.body?.category || 'Genel').trim().slice(0, 40) || 'Genel';
+  const priority = ['low', 'normal', 'high'].includes(String(req.body?.priority)) ? String(req.body.priority) : 'normal';
+  if (subject.length < 3 || body.length < 5) return res.status(400).json({ error: 'Başlık ve açıklama zorunludur.' });
+  const id = `FRX-${crypto.randomBytes(5).toString('hex').toUpperCase()}`;
+  db.transaction(() => {
+    db.prepare('INSERT INTO support_tickets (id, user_id, subject, category, priority) VALUES (?, ?, ?, ?, ?)')
+      .run(id, req.user.id, subject, category, priority);
+    db.prepare('INSERT INTO support_ticket_messages (ticket_id, user_id, author_type, body) VALUES (?, ?, ?, ?)')
+      .run(id, req.user.id, 'user', body);
+    try { db.prepare('INSERT INTO activity_logs (user_id, action, detail) VALUES (?, ?, ?)').run(req.user.id, 'support_ticket_created', id); } catch (e) {}
+  })();
+  const ticket = db.prepare('SELECT id, subject, category, priority, status, created_at, updated_at FROM support_tickets WHERE id = ?').get(id);
+  return res.status(201).json({ ticket: { ...ticket, messages: [{ author_type: 'user', body }] } });
+});
+
+app.post('/api/support/tickets/:id/messages', authMiddleware, (req, res) => {
+  const id = String(req.params.id || '').trim();
+  const body = String(req.body?.body || '').trim().slice(0, 8000);
+  if (body.length < 1) return res.status(400).json({ error: 'Mesaj boş olamaz.' });
+  const ticket = db.prepare('SELECT id FROM support_tickets WHERE id = ? AND user_id = ?').get(id, req.user.id);
+  if (!ticket) return res.status(404).json({ error: 'Destek talebi bulunamadı.' });
+  db.transaction(() => {
+    db.prepare('INSERT INTO support_ticket_messages (ticket_id, user_id, author_type, body) VALUES (?, ?, ?, ?)')
+      .run(id, req.user.id, 'user', body);
+    db.prepare("UPDATE support_tickets SET status = 'open', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(id);
+  })();
+  return res.status(201).json({ success: true });
 });
 
 app.post('/api/rag', authMiddleware, (req, res) => {
