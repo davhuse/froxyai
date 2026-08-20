@@ -794,7 +794,7 @@ function getChatFallbackChain(model){
   const def=ALL_MODELS.find(m=>m.id===model);
   if(def?.provider==='groq'){
     add('openai/gpt-oss-20b');
-    add('llama-3.1-8b-instant');
+    add('qwen/qwen3-32b');
   }
   if(def?.provider==='openrouter'){
     add('openai/gpt-oss-20b:free');
@@ -802,9 +802,9 @@ function getChatFallbackChain(model){
   }
   if(['gemini-direct','google-direct','gemini','openai','claude','cerebras','sambanova','huggingface'].includes(def?.provider)){
     add('openai/gpt-oss-20b');
-    add('llama-3.1-8b-instant');
+    add('qwen/qwen3-32b');
   }
-  add('llama-3.1-8b-instant');
+  add('openai/gpt-oss-20b');
   return chain;
 }
 function chatProviderOverride(provider){
@@ -885,9 +885,9 @@ async function callChatApiWithFallback(initialModel,messages,maxTokens=900){
       if(/tekrar gönder|tekrar dene|tekrar deneyelim|Ana model|ana model|Yedek hat|güvenli mod/i.test(String(safeContent))){
         throw new Error('Güvenli chat hattı gerçek cevap üretemedi.');
       }
-      safeData.__model='llama-3.1-8b-instant';
+      safeData.__model='openai/gpt-oss-20b';
       safeData.__fallback=true;
-      if(typeof logFallbackEvent==='function')logFallbackEvent(initialModel,'llama-3.1-8b-instant','success','Güvenli chat hattı cevap verdi');
+      if(typeof logFallbackEvent==='function')logFallbackEvent(initialModel,'openai/gpt-oss-20b','success','Güvenli chat hattı cevap verdi');
       return safeData;
     }
   }catch(safeErr){
@@ -1736,13 +1736,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== CONFIG =====
 // Guvenlik: Admin bilgileri frontend'te tutulmaz, backend uzerinden kontrol edilir
 const ALL_MODELS = [
-  {id:'llama-3.3-70b-versatile',name:'Llama 3.3 70B',tier:'free',provider:'groq',cat:'qualityfree'},
   {id:'meta-llama/llama-4-scout-17b-16e-instruct',name:'Llama 4 Scout 17B',tier:'free',provider:'groq',cat:'llama'},
   {id:'meta-llama/llama-4-maverick-17b-128e-instruct',name:'Llama 4 Maverick',tier:'free',provider:'groq',cat:'llama'},
   {id:'openai/gpt-oss-120b',name:'GPT-OSS 120B (Groq)',tier:'free',provider:'groq',cat:'qualityfree'},
   {id:'openai/gpt-oss-20b',name:'GPT-OSS 20B (Groq)',tier:'free',provider:'groq',cat:'qualityfree'},
   {id:'qwen/qwen3-32b',name:'Qwen3 32B (Groq)',tier:'free',provider:'groq',cat:'qwen'},
-  {id:'llama-3.1-8b-instant',name:'Llama 3.1 8B Ultra',tier:'free',provider:'groq',cat:'qualityfree'},
   {id:'qwen/qwq-32b',name:'QwQ 32B (Reasoning)',tier:'free',provider:'groq',cat:'qwen'},
   {id:'mistral-saba-24b',name:'Mistral Saba 24B',tier:'free',provider:'groq',cat:'mistral'},
   {id:'deepseek-r1-distill-llama-70b',name:'DeepSeek R1 Distill 70B',tier:'free',provider:'groq',cat:'qualityfree'},
@@ -7536,9 +7534,9 @@ async function compareModels(){
   const compareMsg={role:'assistant',content:'__TYPING__',compare:true,comparisons:[]};
   c.messages.push(compareMsg);
   saveChats();renderMsgs({stickToBottom:true});
-  const selected=document.getElementById('model-sel')?.value||'llama-3.1-8b-instant';
+  const selected=document.getElementById('model-sel')?.value||'openai/gpt-oss-20b';
   const smart=typeof recommendSmartModel==='function'?recommendSmartModel(prompt):null;
-  const candidates=[selected,smart,'llama-3.1-8b-instant','openai/gpt-oss-20b','gemini-flash-latest','openai/gpt-oss-120b']
+  const candidates=[selected,smart,'openai/gpt-oss-20b','qwen/qwen3-32b','gemini-flash-latest','openai/gpt-oss-120b']
     .filter((id,i,a)=>id&&a.indexOf(id)===i)
     .filter(id=>ALL_MODELS.some(m=>m.id===id)||id===selected)
     .slice(0,4);

@@ -5281,7 +5281,7 @@ const PROVIDERS = {
 // The picker must never advertise the much larger discovery catalogue as if
 // every discovered model were usable.
 const VERIFIED_PUBLIC_CHAT_MODELS = [
-  { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant', tier: 'free', provider: 'groq', cat: 'llama', remote: true },
+  { id: 'openai/gpt-oss-20b', name: 'GPT-OSS 20B', tier: 'free', provider: 'groq', cat: 'general', remote: true },
   { id: 'meta/llama-3.1-8b-instruct', name: 'Llama 3.1 8B (NVIDIA)', tier: 'free', provider: 'nvidia', cat: 'llama', remote: true },
   { id: 'poolside/laguna-s-2.1:free', name: 'Laguna S 2.1', tier: 'free', provider: 'openrouter', cat: 'coding', remote: true },
   { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', name: 'Nemotron 3 Ultra', tier: 'free', provider: 'openrouter', cat: 'reasoning', remote: true },
@@ -5428,7 +5428,7 @@ function chooseChatFallbackProvider() {
 function applyChatFallbackProvider(providerName) {
   const fallbackProvider = providerName || chooseChatFallbackProvider();
   let fallbackModel = 'pollinations-openai';
-  if (fallbackProvider === 'groq') fallbackModel = 'llama-3.1-8b-instant';
+  if (fallbackProvider === 'groq') fallbackModel = 'openai/gpt-oss-20b';
   else if (fallbackProvider === 'openrouter') fallbackModel = 'meta-llama/llama-3.1-8b-instruct:free';
   else if (fallbackProvider === 'openai') fallbackModel = 'gpt-4o-mini';
   else if (fallbackProvider === 'aimlapi') fallbackModel = 'gpt-4o-mini';
@@ -5438,6 +5438,16 @@ function applyChatFallbackProvider(providerName) {
     key: PROVIDERS[fallbackProvider]?.key || '',
     model: fallbackModel
   };
+}
+
+const GROQ_FAST_MODEL = 'openai/gpt-oss-20b';
+const GROQ_LARGE_MODEL = 'openai/gpt-oss-120b';
+
+function normalizeGroqModel(model) {
+  const value = String(model || '').trim();
+  if (!value || value === 'llama-3.1-8b-instant') return GROQ_FAST_MODEL;
+  if (value === 'llama-3.3-70b-versatile') return GROQ_LARGE_MODEL;
+  return value;
 }
 
 async function pingOpenAICompatibleBase(baseUrl) {
@@ -7213,8 +7223,9 @@ function parseStreamContent(raw) {
   return { content: cleanServerAssistantReply(content), usage };
 }
 
-async function groqFallbackChat(messages, maxTokens, fallbackModel = 'llama-3.1-8b-instant') {
+async function groqFallbackChat(messages, maxTokens, fallbackModel = GROQ_FAST_MODEL) {
   if (!GROQ_KEY) throw new Error('Groq API key tanımlı değil');
+  fallbackModel = normalizeGroqModel(fallbackModel);
   const fbPayload = JSON.stringify({ model: fallbackModel, messages, max_tokens: maxTokens || 2000, stream: false });
   const requestGroqFallback = (activeKey) => new Promise((resolve, reject) => {
     const fbOpts = {
@@ -7267,13 +7278,13 @@ async function groqFallbackChat(messages, maxTokens, fallbackModel = 'llama-3.1-
     fbJson.choices[0].message.content = cleanServerAssistantReply(fbJson.choices[0].message.content);
     return { ...fbJson, fallback: 'groq/' + fallbackModel };
   }
-  if (fbJson.error && fallbackModel !== 'llama-3.1-8b-instant') {
+  if (fbJson.error && fallbackModel !== GROQ_FAST_MODEL) {
     // Groq key havuzu varsa kısıtlı/limitli keyden diğerine geç.
     if (isProviderKeyFailure(fbResult.status, fbResult.data)) {
       GROQ_KEY = rotateGroqKey();
       PROVIDERS.groq.key = GROQ_KEY;
     }
-    return groqFallbackChat(messages, maxTokens, 'llama-3.1-8b-instant');
+    return groqFallbackChat(messages, maxTokens, GROQ_FAST_MODEL);
   }
   throw new Error(fbJson.error?.message || 'Groq fallback boş yanıt döndürdü');
 }
@@ -8751,6 +8762,7 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
     'mistral-saba-24b': 'llama-3.1-8b-instant',
     'mixtral-8x7b-32768': 'openai/gpt-oss-20b'
   };
+  if (provider === 'groq') model = normalizeGroqModel(model);
   const supportsVision = providerModelSupportsVision(provider, model);
   if (!supportsVision || provider === 'pollinations') {
     messages = messages.map(m => {
@@ -8883,7 +8895,7 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
     // === POLLINATIONS 502/429 EARLY FALLBACK ===
     if (isPollinations && (result.status === 429 || result.status === 502 || result.status === 404)) {
       console.log(`[FALLBACK] Pollinations ${result.status} -> Groq GPT-OSS 20B`);
-      const groqPayload = JSON.stringify({ model: 'llama-3.1-8b-instant', messages, max_tokens: max_tokens || 2000, stream: false });
+      const groqPayload = JSON.stringify({ model: GROQ_FAST_MODEL, messages, max_tokens: max_tokens || 2000, stream: false });
       const groqResult = await new Promise((resolve, reject) => {
         const groqOpts = {
           hostname: 'api.groq.com', port: 443,
@@ -8958,7 +8970,7 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
       // === POLLINATIONS FALLBACK: If rate limited, use Groq ===
       if (isPollinations && (result.status === 429 || result.status === 404 || !json.choices)) {
         console.log(`[FALLBACK] Pollinations rate limited -> Groq Llama 3.1 8B`);
-        const groqPayload = JSON.stringify({ model: 'llama-3.1-8b-instant', messages, max_tokens: max_tokens || 2000, stream: false });
+        const groqPayload = JSON.stringify({ model: GROQ_FAST_MODEL, messages, max_tokens: max_tokens || 2000, stream: false });
         const groqResult = await new Promise((resolve, reject) => {
           const groqOpts = {
             hostname: 'api.groq.com', port: 443,
@@ -9012,7 +9024,7 @@ app.post(['/api/chat', '/v1/chat/completions', '/v1/responses'], chatLimiter, op
           }
         }
 
-        const fallbackModel = FALLBACK_MAP[model] || 'openai/gpt-oss-20b';
+        const fallbackModel = normalizeGroqModel(FALLBACK_MAP[model] || GROQ_FAST_MODEL);
         console.log(`[FALLBACK] OpenRouter ${model} -> Groq ${fallbackModel}`);
         
         const fbPayload = JSON.stringify({ model: fallbackModel, messages, max_tokens: max_tokens || 2000, stream: false });
@@ -11500,7 +11512,7 @@ app.post('/api/support-bot', chatLimiter, optionalAuthMiddleware, async (req, re
           'X-Internal-Support-Bot': '1'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
+          model: GROQ_FAST_MODEL,
           max_tokens: 420,
           messages: [
             {

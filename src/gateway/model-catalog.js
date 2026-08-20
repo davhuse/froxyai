@@ -47,8 +47,8 @@ const DEFAULT_MODELS = [
     data_regions: ['US', 'EU']
   },
   {
-    id: 'groq/llama-3.1-8b-instant',
-    name: 'Llama 3.1 8B Instant',
+    id: 'groq/openai/gpt-oss-20b',
+    name: 'GPT-OSS 20B',
     context_length: 131072,
     provider: 'groq',
     pricing: { prompt: '0.00000005', completion: '0.00000008', request: '0', image: '0', web_search: '0', internal_reasoning: '0', input_cache_read: '0', input_cache_write: '0' },
